@@ -61,12 +61,9 @@ public class DrawCanvas extends JComponent implements Observer {
 
 
 	private void drawCoastlines(Graphics2D g) {
-		int i = 1;
 		for(Shape s: model.getCoastlines()) {
-			System.out.println(i);
-			i++;
 			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
-			g.setColor(WayType.NATURAL_COASTLINE.getDrawColor());
+			g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
 			g.fill(s);
 		}
 	}
@@ -119,7 +116,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	@Override
 	protected void paintComponent(Graphics _g) {
         Graphics2D g = (Graphics2D) _g;
-		drawCoastlines(g);
 
 
 		if (nightmode) {
@@ -134,11 +130,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		for(Shape s: model.get(WayType.NATURAL_COASTLINE)) {
-			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
-			g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
-			g.fill(s);
-		}
+		drawCoastlines(g);
 
 		double rectSize = 100d / transform.getScaleX();
 		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);

@@ -56,6 +56,7 @@ public class Model extends Observable implements Serializable {
 
 	public Model() {
 		load(this.getClass().getResource("/bornholm.osm").getPath());
+		loadAllCoastlines();
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -91,7 +92,6 @@ public class Model extends Observable implements Serializable {
 			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 			coastlines = (ArrayList<Shape>) in.readObject();
 			System.out.println(coastlines.size());
-			dirty();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -102,6 +102,8 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public void load(String filename) {
+		coastlines = new ArrayList<>();
+		loadAllCoastlines();
 		if (filename.endsWith(".osm")) {
 			loadOSM(new InputSource(filename));
 		} else if (filename.endsWith(".zip")) {
@@ -140,8 +142,6 @@ public class Model extends Observable implements Serializable {
 
 	private void loadOSM(InputSource source) {
 		try {
-			coastlines = new ArrayList<>();
-			loadAllCoastlines();
 			XMLReader reader = XMLReaderFactory.createXMLReader();
 			reader.setContentHandler(new OSMHandler());
 			reader.parse(source);
@@ -340,8 +340,8 @@ public class Model extends Observable implements Serializable {
                 case "osm":
 					tmpcoastlines.forEach((key, way) -> {
 						if (key == way.getFromNode()) {
-							coastlines.add(way.toPath2D());
-							add(WayType.NATURAL_COASTLINE, way.toPath2D());
+							//coastlines.add(way.toPath2D());
+							//add(WayType.NATURAL_COASTLINE, way.toPath2D());
 						}
 					});
                     break;
