@@ -26,6 +26,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
+		load(this.getClass().getResource("/map (3).osm").toString());
 	}
 
 	public void add(WayType type, Shape shape) {
