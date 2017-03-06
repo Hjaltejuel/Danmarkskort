@@ -26,6 +26,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
+		load(this.getClass().getResource("/map (3).osm").toString());
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -110,6 +111,7 @@ public class Model extends Observable implements Serializable {
 	private class OSMHandler implements ContentHandler {
 		Map<Long,OSMNode> idToNode = new HashMap<>();
 		Map<Long,OSMWay> idToWay = new HashMap<>();
+		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
 		OSMWay way;
 		OSMRelation relation;
 		WayType type;
@@ -268,27 +270,32 @@ public class Model extends Observable implements Serializable {
 		public void endElement(String uri, String localName, String qName) throws SAXException {
 			switch (qName) {
 				case "way":
-					Path2D path = new Path2D.Float();
-					OSMNode node = way.get(0);
-					path.moveTo(node.getLon(), node.getLat());
-					for (int i = 1 ; i < way.size() ; i++) {
-						node = way.get(i);
-						path.lineTo(node.getLon(), node.getLat());
+					if (type == WayType.COASTLINE) {
+						OSMWay before = coastlines.remove(way.getFromNode());
+						OSMWay after = coastlines.remove(way.getToNode());
+						OSMWay merged = new OSMWay();
+						if (before != null) {
+							merged.addAll(before.subList(0, before.size()-1));
+						}
+						merged.addAll(way);
+						if (after != null) {
+							merged.addAll(after.subList(1, after.size()));
+						}
+						coastlines.put(merged.getFromNode(), merged);
+						coastlines.put(merged.getToNode(), merged);
+					} else {
+						add(type, way.toPath2D());
 					}
-					add(type, path);
 					break;
 				case "relation":
-					path = new Path2D.Float();
-					path.setWindingRule(Path2D.WIND_EVEN_ODD);
-					for (OSMWay way : relation) if (way != null) {
-						node = way.get(0);
-						path.moveTo(node.getLon(), node.getLat());
-						for (int i = 1 ; i < way.size() ; i++) {
-							node = way.get(i);
-							path.lineTo(node.getLon(), node.getLat());
+					add(type, relation.toPath2D());
+					break;
+				case "osm":
+					coastlines.forEach((key, way) -> {
+						if (key == way.getFromNode()) {
+							add(WayType.COASTLINE, way.toPath2D());
 						}
-					}
-					add(type, path);
+					});
 					break;
 			}
 		}

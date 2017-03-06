@@ -12,6 +12,8 @@ public class CanvasMouseController extends MouseAdapter {
 	Model model;
 	DrawCanvas canvas;
 	Point2D lastMousePosition;
+	private static boolean draggingLine;
+
 
 	public CanvasMouseController(DrawCanvas canvas, Model model) {
 		this.model = model;
@@ -73,5 +75,12 @@ public class CanvasMouseController extends MouseAdapter {
 		canvas.pan(-dx, -dy);
 		canvas.zoom(factor);
 		canvas.pan(dx, dy);
+	}
+	public static  void isDrawing(){
+		draggingLine = true;
+	}
+
+	public static void isPanning() {
+		draggingLine = false;
 	}
 }
