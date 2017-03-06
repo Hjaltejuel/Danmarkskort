@@ -2,9 +2,6 @@ package bfst17;
 
 import javax.swing.*;
 
-/**
- * Created by trold on 2/1/17.
- */
 public class Main {
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
