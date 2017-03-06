@@ -2,9 +2,13 @@ package bfst17;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -95,7 +99,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
-		repaint();
 	}
 
 	public void zoom(double factor) {

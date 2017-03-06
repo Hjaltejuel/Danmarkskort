@@ -15,7 +15,7 @@ public class Main {
 				model = new Model(args[0]);
 			}
 
-			DrawWindow drawWindow = new DrawWindow(model);
+			DrawWindow drawWindow = new DrawWindow(model, new AddressModel());
 
 		});
 	}
