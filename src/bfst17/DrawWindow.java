@@ -63,9 +63,9 @@ public class DrawWindow implements Observer {
 		JMenuBar menu = new JMenuBar();
 		JMenu file = new JMenu("File");
 		JMenuItem save = new JMenuItem("Save", KeyEvent.VK_S);
-		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0));
+		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
 		JMenuItem load = new JMenuItem("Load", KeyEvent.VK_L);
-		load.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, 0));
+		load.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
 		JMenuItem exit = new JMenuItem( "Exit", KeyEvent.VK_Q);
 
 
@@ -75,10 +75,13 @@ public class DrawWindow implements Observer {
 		menu.add(file);
 
 		JMenu tools = new JMenu("Tools");
-		JMenuItem pan = new JMenuItem("Pan", KeyEvent.VK_P);
-		pan.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0));
+        JMenuItem zoomIn = new JMenuItem("Zoom In", KeyEvent.VK_PLUS);
+        zoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Event.CTRL_MASK));
+        JMenuItem zoomOut = new JMenuItem("Zoom Out", KeyEvent.VK_MINUS);
+        zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK));
 
-		tools.add(pan);
+        tools.add(zoomIn);
+        tools.add(zoomOut);
 		menu.add(tools);
 
 		window.setJMenuBar(menu);
@@ -112,13 +115,24 @@ public class DrawWindow implements Observer {
 		});
 
 
-
-		pan.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				CanvasMouseController.isPanning();
-			}
-		});
+        zoomIn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int dy = window.getContentPane().getWidth();
+                int dx = window.getContentPane().getHeight();
+                canvas.pan(-window.getContentPane().getWidth()/2, -window.getContentPane().getHeight()/2);
+                canvas.zoom(1.25);
+                canvas.pan(window.getContentPane().getWidth()/2, window.getContentPane().getHeight()/2);
+            }
+        });
+        zoomOut.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                canvas.pan(-window.getContentPane().getWidth()/2, -window.getContentPane().getHeight()/2);
+                canvas.zoom(0.75);
+                canvas.pan(window.getContentPane().getWidth()/2, window.getContentPane().getHeight()/2);
+            }
+        });
 
 
 	}
