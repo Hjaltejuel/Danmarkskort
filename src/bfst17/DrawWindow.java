@@ -52,4 +52,10 @@ public class DrawWindow implements Observer {
 	public void toggleAA() {
 		canvas.toggleAA();
 	}
+
+
+
+	public void setUpMenu(){
+
+	}
 }
