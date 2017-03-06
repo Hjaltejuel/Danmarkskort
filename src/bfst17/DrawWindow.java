@@ -42,7 +42,7 @@ public class DrawWindow implements Observer {
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
-
+//hej
 	}
 
 	public void addKeyListener(KeyListener keyListener) {
