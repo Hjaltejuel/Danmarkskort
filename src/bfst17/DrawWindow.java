@@ -13,6 +13,7 @@ public class DrawWindow implements Observer {
 	Model model;
 	JFrame window;
 	DrawCanvas canvas;
+	//e
 
 	public DrawWindow(Model model) {
 		this.model = model;
