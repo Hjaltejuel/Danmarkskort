@@ -10,15 +10,12 @@ import java.util.Observable;
  */
 public class AddressModel extends Observable{
     private ArrayList<Address> addresses = new ArrayList<Address>();
-    private List<Address> addressesUdskrift;
 
     public AddressModel() {
         this.addresses = new ArrayList();
-        this.addressesUdskrift = new ArrayList();
     }
 
     public void add(Address address) {
-        this.addressesUdskrift.add(address);
         this.addresses.add(address);
         this.setChanged();
         this.notifyObservers();
@@ -28,11 +25,4 @@ public class AddressModel extends Observable{
         return this.addresses.iterator();
     }
 
-    public List<Address> getAddresses() {
-        return this.addresses;
-    }
-
-    public List<Address> getAddressesUdskrift() {
-        return this.addressesUdskrift;
-    }
 }

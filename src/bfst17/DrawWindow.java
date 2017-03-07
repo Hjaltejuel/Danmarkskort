@@ -35,7 +35,7 @@ public class DrawWindow implements Observer {
 		canvas.setPreferredSize(new Dimension(500, 500));
 		new CanvasMouseController(canvas, model);
 		window.add(canvas, BorderLayout.CENTER);
-		//paintAutocomplete();
+		paintAutocomplete();
 		window.pack();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
@@ -44,6 +44,9 @@ public class DrawWindow implements Observer {
 		new WindowKeyController(this, model);
 	}
 
+	/**
+	 * Makes the autocomplete button with all the addresses
+	 */
 	public void paintAutocomplete()
 	{
 		this.listItems = new ArrayList();
@@ -51,11 +54,12 @@ public class DrawWindow implements Observer {
 
 		while(var2.hasNext()) {
 			Address address = (Address)var2.next();
-			this.listItems.add(address.toString());
+			this.listItems.add(address.toString().toLowerCase());
 		}
 
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
+		this.combo.putClientProperty("JComboBox.isTableCellEditor",Boolean.TRUE);
 		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
@@ -70,7 +74,7 @@ public class DrawWindow implements Observer {
 		this.userOutput = new JTextArea();
 		this.userOutput.setEditable(false);
 		this.userOutput.setBackground(Color.LIGHT_GRAY);
-		this.update((Observable)null, (Object)null);
+		//this.update((Observable)null, (Object)null);
 	}
 	/**
 	 * This method is called whenever the observed object is changed. An
@@ -83,19 +87,6 @@ public class DrawWindow implements Observer {
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
-		if(o instanceof AddressModel) {
-			StringBuilder sb = new StringBuilder();
-			Iterator var4 = this.addressModel.getAddressesUdskrift().iterator();
-
-			while (var4.hasNext()) {
-				Address address = (Address) var4.next();
-				sb.append(address).append("\n\n");
-			}
-
-			this.userOutput.setText(sb.toString());
-			this.window.repaint();
-
-		}
 	}
 
 	public void addKeyListener(KeyListener keyListener) {
