@@ -67,7 +67,6 @@ public class DrawWindow implements Observer {
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if(event.getKeyChar() == 10) {
-					addressModel.add(Address.parse(combo.getSelectedItem().toString()));
 					combo.setSelectedItem((Object)null);
 				}
 
