@@ -76,11 +76,4 @@ public class CanvasMouseController extends MouseAdapter {
 		canvas.zoom(factor);
 		canvas.pan(dx, dy);
 	}
-	public static  void isDrawing(){
-		draggingLine = true;
-	}
-
-	public static void isPanning() {
-		draggingLine = false;
-	}
 }
