@@ -1,21 +1,39 @@
 package bfst17;
 
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import javax.swing.JComboBox;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.text.JTextComponent;
 
 public class AutocompleteJComboBox extends JComboBox {
     private final StringSearchable searcher;
 
     public AutocompleteJComboBox(StringSearchable s) {
+
+        //Makes the arrow invisible and set it so it does nothing
+        setUI(new BasicComboBoxUI() {
+            protected JButton createArrowButton() {
+                return new JButton() {
+                    public int getWidth() {
+                        return 0;
+                    }
+                    @Override
+                    public synchronized void addMouseListener(MouseListener l) {
+                    }
+                };
+            }
+        });
+        this.setBorder(BorderFactory.createLineBorder(Color.black));
+
         this.searcher = s;
         this.setEditable(true);
         Component c = this.getEditor().getEditorComponent();
@@ -36,10 +54,9 @@ public class AutocompleteJComboBox extends JComboBox {
                 public void update() {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
-                            ArrayList founds = new ArrayList(AutocompleteJComboBox.this.searcher.search(userInput.getText()));
+                            ArrayList founds = new ArrayList(AutocompleteJComboBox.this.searcher.search(userInput.getText().toLowerCase()));
                             HashSet foundSet = new HashSet();
                             Iterator var3 = founds.iterator();
-
                             String s;
                             while(var3.hasNext()) {
                                 s = (String)var3.next();
@@ -51,6 +68,7 @@ public class AutocompleteJComboBox extends JComboBox {
                             if(!foundSet.contains(userInput.getText().toLowerCase())) {
                                 AutocompleteJComboBox.this.addItem(userInput.getText());
                             }
+
 
                             var3 = founds.iterator();
 
@@ -73,7 +91,6 @@ public class AutocompleteJComboBox extends JComboBox {
                     }
 
                 }
-
                 public void focusLost(FocusEvent arg0) {
                 }
             });
