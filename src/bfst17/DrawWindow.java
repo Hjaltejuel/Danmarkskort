@@ -2,11 +2,7 @@ package bfst17;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Observable;
@@ -26,9 +22,20 @@ public class DrawWindow implements Observer {
 	private JTextArea userOutput;
 	//e
 
-	public DrawWindow(Model model, AddressModel addressModel) {
+	public DrawWindow(Model model) {
+		try {
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
 		this.model = model;
-		this.addressModel = addressModel;
+		this.addressModel = model.getAddressModel();
 		model.addObserver(this);
 		addressModel.addObserver(this);
 		window = new JFrame("Awesome OSM Visualizer Thingy!!!! 2.0");

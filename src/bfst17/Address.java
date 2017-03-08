@@ -1,14 +1,9 @@
 package bfst17;
 
-import javafx.geometry.Side;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.*;
-import java.util.regex.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Address {
     private final String street, house, floor, side, postcode, city;
@@ -20,14 +15,11 @@ public class Address {
         floor = _floor;
         side = _side;
         postcode = _postcode;
-        if (_city == null && _postcode != null) {
-            city = getCityFromPostCode(_postcode);
-        } else {
-            city = _city;
-        }
-
-
+        city = _city;
     }
+
+
+
 
     public String toString() {
         String floorSideString = "";
@@ -96,39 +88,6 @@ public class Address {
         }
     }
 
-    private final static String postNumreRegex = "(?<postnr>[0-9]{4}) (?<city>.*)";
-    private final static Pattern postNumrePattern = Pattern.compile(postNumreRegex);
-
-    private String getCityFromPostCode(String postCode) {
-        //Init postcode HashMap
-        if (postCodeHashMap == null) {
-            postCodeHashMap = new HashMap<>();
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/postnumre.txt"), "UTF-8"));
-                String lineRead = reader.readLine();
-                Matcher match;
-                while (lineRead != null) {
-                    match = postNumrePattern.matcher(lineRead);
-                    if (match.matches()) {
-                        postCodeHashMap.put(Integer.parseInt(match.group("postnr")), match.group("city"));
-                    }
-                    lineRead = reader.readLine();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            int _postCode = Integer.parseInt(postCode);
-            return postCodeHashMap.get(_postCode);
-        } catch (Exception e) {
-            return null;
-        }
-
-
-    }
-
     public String street() {
         return street;
     }
@@ -152,8 +111,7 @@ public class Address {
     public String city() {
         return city;
     }
-    //regList.clear();
-    //regList.add(;
+
 
     private static ArrayList<Pattern> patterns = new ArrayList();
     private static Pattern[] regList = new Pattern[]{
@@ -167,6 +125,7 @@ public class Address {
             Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?) *, +(?<city>[\\p{L} ]+)"),
             Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?)"),
             Pattern.compile("(?<city>[\\p{L} ]+)"),
+            Pattern.compile("(?<postcode>[0-9]{4}) +(?<city>[\\p{L} ]+)")
 
     };
 

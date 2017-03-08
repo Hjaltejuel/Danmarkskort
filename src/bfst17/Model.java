@@ -4,7 +4,6 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.awt.*;
-import java.awt.geom.Path2D;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -20,6 +19,16 @@ public class Model extends Observable implements Serializable {
 		}
 	}
 	private float minlat, minlon, maxlat, maxlon;
+
+	private String[] addressBuilder = new String[4];
+
+	private boolean isAddressNode = false;
+
+	private AddressModel addressModel = new AddressModel();
+
+	private HashMap<String,String> cityMap = new HashMap<String,String>();
+
+	public AddressModel getAddressModel() {return addressModel;}
 
 	public Model(String filename) {
 		load(filename);
@@ -130,6 +139,10 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
+			for(String s: cityMap.keySet()){
+				addressModel.add(Address.parse(cityMap.get(s)));
+				addressModel.add(Address.parse(s + " " + cityMap.get(s)));
+			}
 		}
 
 		@Override
@@ -182,6 +195,24 @@ public class Model extends Observable implements Serializable {
 					String k = atts.getValue("k");
 					String v = atts.getValue("v");
 					switch (k) {
+
+
+						case "addr:street":
+							addressBuilder[0] = v;
+							isAddressNode = true;
+							break;
+						case "addr:housenumber":
+							addressBuilder[1] = v;
+							isAddressNode = true;
+							break;
+						case "addr:postcode":
+							addressBuilder[2] = v;
+							isAddressNode = true;
+							break;
+						case "addr:city":
+							addressBuilder[3] = v;
+							isAddressNode = true;
+							break;
 						case "highway":
 							type = WayType.ROAD;
 							switch(v) {
@@ -269,6 +300,14 @@ public class Model extends Observable implements Serializable {
 		@Override
 		public void endElement(String uri, String localName, String qName) throws SAXException {
 			switch (qName) {
+				case "node":
+					if(isAddressNode == true) {
+						String address = addressBuilder[0] + " " +  addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
+						cityMap.put(addressBuilder[2],addressBuilder[3]);
+						addressModel.add(Address.parse(address));
+						isAddressNode = false;
+					}
+				break;
 				case "way":
 					if (type == WayType.COASTLINE) {
 						OSMWay before = coastlines.remove(way.getFromNode());

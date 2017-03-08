@@ -1,5 +1,10 @@
 package bfst17;
 
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -7,12 +12,6 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.plaf.basic.BasicComboBoxUI;
-import javax.swing.text.JTextComponent;
 
 public class AutocompleteJComboBox extends JComboBox {
     private final StringSearchable searcher;
@@ -68,6 +67,7 @@ public class AutocompleteJComboBox extends JComboBox {
                             if(!foundSet.contains(userInput.getText().toLowerCase())) {
                                 AutocompleteJComboBox.this.addItem(userInput.getText());
                             }
+
 
 
                             var3 = founds.iterator();
