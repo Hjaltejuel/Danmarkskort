@@ -132,6 +132,7 @@ public class Address {
     public static Address parse(String s) {
         Builder b = new Builder();
         Matcher matcher;
+
         for (Pattern pattern : regList) {
             matcher = pattern.matcher(s);
             if(matcher.matches()) {

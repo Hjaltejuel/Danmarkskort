@@ -35,7 +35,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
-		load(this.getClass().getResource("/map (3).osm").toString());
+		load(this.getClass().getResource("/denmark-latest-free.zip").toString());
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -302,6 +302,9 @@ public class Model extends Observable implements Serializable {
 			switch (qName) {
 				case "node":
 					if(isAddressNode == true) {
+                        for(int i = 0; i < addressBuilder.length; i++){
+                            if(addressBuilder[i] == null){addressBuilder[i] = "";}
+                        }
 						String address = addressBuilder[0] + " " +  addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
 						cityMap.put(addressBuilder[2],addressBuilder[3]);
 						addressModel.add(Address.parse(address));
