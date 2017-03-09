@@ -31,7 +31,7 @@ public class AutocompleteJComboBox extends JComboBox {
                 };
             }
         });
-        this.setBorder(BorderFactory.createLineBorder(Color.black));
+        this.setBorder(BorderFactory.createLineBorder(Color.lightGray));
 
         this.searcher = s;
         this.setEditable(true);
@@ -74,11 +74,19 @@ public class AutocompleteJComboBox extends JComboBox {
 
                             while(var3.hasNext()) {
                                 s = (String)var3.next();
-                                AutocompleteJComboBox.this.addItem(s);
-                            }
+                                StringBuffer res = new StringBuffer();
 
-                            AutocompleteJComboBox.this.setEditable(true);
-                            AutocompleteJComboBox.this.setPopupVisible(true);
+                                String[] strArray = s.split(" ");
+                                for (String str : strArray) {
+                                    char[] stringArray = str.trim().toCharArray();
+                                    stringArray[0] = Character.toUpperCase(stringArray[0]);
+                                    str = new String(stringArray);
+
+                                    res.append(str).append(" ");
+                                }
+                                AutocompleteJComboBox.this.addItem(res.toString());
+                            }
+                            setEditable(true);
                             userInput.requestFocus();
                         }
                     });
@@ -87,8 +95,9 @@ public class AutocompleteJComboBox extends JComboBox {
             userInput.addFocusListener(new FocusListener() {
                 public void focusGained(FocusEvent arg0) {
                     if(userInput.getText().length() > 0) {
-                        AutocompleteJComboBox.this.setPopupVisible(true);
+                        setPopupVisible(true);
                     }
+
 
                 }
                 public void focusLost(FocusEvent arg0) {

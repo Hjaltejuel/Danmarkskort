@@ -35,7 +35,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
-		load(this.getClass().getResource("/denmark-latest-free.zip").toString());
+		load(this.getClass().getResource("/map (4).osm").toString());
 	}
 
 	public void add(WayType type, Shape shape) {
