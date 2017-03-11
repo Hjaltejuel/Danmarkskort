@@ -18,7 +18,7 @@ public class StringSearchable {
         while(var3.hasNext()) {
             String s = (String)var3.next();
 
-            if(s.indexOf(userInput) == 0 && s.contains(userInput)) {
+            if(s.indexOf(userInput) == 0) {
                 double n = ((double) userInput.length()/(double) s.length());
                 if(!duplicateChecker.contains(s)){
                     priority.add(new PriorityStrings(n,s));

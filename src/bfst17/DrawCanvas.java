@@ -2,15 +2,13 @@ package bfst17;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
+import java.awt.GraphicsEnvironment;
+
 
 /**
  * Created by trold on 2/8/17.
@@ -61,6 +59,7 @@ public class DrawCanvas extends JComponent implements Observer {
 		g.setTransform(transform);
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
+
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		//Draw all shapes
@@ -88,6 +87,10 @@ public class DrawCanvas extends JComponent implements Observer {
 		repaint();
 	}
 
+
+	public double getXZoomFactor(){return transform.getScaleX();}
+	public double getYZoomFactor(){return transform.getScaleY();}
+
 	/**
 	 * This method is called whenever the observed object is changed. An
 	 * application calls an <tt>Observable</tt> object's
@@ -102,7 +105,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
 	public void zoom(double factor) {
-		transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
+			transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
 		repaint();
 	}
 

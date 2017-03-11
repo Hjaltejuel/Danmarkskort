@@ -38,7 +38,7 @@ public class Address {
             streetString = street;
         }
         if(house != null) {
-            houseString = house;
+            houseString = house + ",";
         }
         if(postcode != null) {
             postcodeString = postcode;

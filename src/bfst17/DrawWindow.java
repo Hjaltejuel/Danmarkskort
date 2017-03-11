@@ -3,6 +3,8 @@ package bfst17;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Observable;
@@ -20,6 +22,7 @@ public class DrawWindow implements Observer {
 	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
 	private JTextArea userOutput;
+
 	//e
 
 	public DrawWindow(Model model) {
@@ -50,8 +53,12 @@ public class DrawWindow implements Observer {
 		window.pack();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
-		canvas.pan(-model.getMinLon(), -model.getMaxLat());
-		canvas.zoom(window.getWidth() / (model.getMaxLon() - model.getMinLon()));
+
+		canvas.pan(-model.getMinLon(),-model.getMaxLat());
+		canvas.zoom(canvas.getWidth()/(model.getMaxLon()- model.getMinLon()));
+
+
+
 		new WindowKeyController(this, model);
 	}
 
@@ -75,7 +82,28 @@ public class DrawWindow implements Observer {
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if(event.getKeyChar() == 10) {
-					combo.setSelectedItem((Object)null);
+					String s = (String) combo.getSelectedItem();
+
+					float lat = -model.getOSMNodeToAddress(s.trim()).getLat();
+					float lon = -model.getOSMNodeToAddress(s.trim()).getLon();
+
+					float yCenter = ((-model.getMaxLat())+(-model.getMinLat()))/2;
+					float xCenter = ((-model.getMaxLon())+(-model.getMinLon()))/2;
+
+					float xAxisLenght = model.getMaxLon() - model.getMinLon();
+					float yAxisLenght = model.getMaxLat()- model.getMinLat();
+
+					float distanceToCenterY = lat-yCenter;
+					float distanceToCenterX = lon-xCenter;
+
+					double scalingFactorX = canvas.getXZoomFactor();
+					double screenHeight = scalingFactorX*(-model.getMaxLat()+model.getMinLat());
+					double scalingFactorY = -(screenHeight/canvas.getHeight());
+
+					double dx = distanceToCenterX*scalingFactorX;
+					double dy = distanceToCenterY*scalingFactorY;
+					canvas.pan(dx,dy);
+					combo.setSelectedItem((null));
 				}
 
 			}

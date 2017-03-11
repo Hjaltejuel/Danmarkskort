@@ -1,5 +1,6 @@
 package bfst17;
 
+import org.w3c.dom.Node;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -13,12 +14,16 @@ import java.util.zip.ZipInputStream;
  * Created by trold on 2/1/17.
  */
 public class Model extends Observable implements Serializable {
+	private HashMap<String,OSMNode> addressToCordinate = new HashMap<>();
+
 	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
 			shapes.put(type, new ArrayList<>());
 		}
 	}
 	private float minlat, minlon, maxlat, maxlon;
+
+	private long nodeID;
 
 	private String[] addressBuilder = new String[4];
 
@@ -27,6 +32,8 @@ public class Model extends Observable implements Serializable {
 	private AddressModel addressModel = new AddressModel();
 
 	private HashMap<String,String> cityMap = new HashMap<String,String>();
+
+	public OSMNode getOSMNodeToAddress(String address){return addressToCordinate.get(address);}
 
 	public AddressModel getAddressModel() {return addressModel;}
 
@@ -117,6 +124,16 @@ public class Model extends Observable implements Serializable {
 		return maxlon;
 	}
 
+	public float getMinLat() {return minlat;}
+
+	public void addToBounds(float newMaxLat,float newMinLat,float newMaxLon,float newMinLon)
+	{
+		maxlat += newMaxLat;
+		minlat += newMinLat;
+		maxlon += newMaxLon;
+		minlon += newMinLon;
+	}
+
 	private class OSMHandler implements ContentHandler {
 		Map<Long,OSMNode> idToNode = new HashMap<>();
 		Map<Long,OSMWay> idToWay = new HashMap<>();
@@ -172,14 +189,14 @@ public class Model extends Observable implements Serializable {
 					maxlat = -maxlat;
 					break;
 				case "node":
-					long id = Long.parseLong(atts.getValue("id"));
+					nodeID = Long.parseLong(atts.getValue("id"));
 					float lat = Float.parseFloat(atts.getValue("lat"));
 					float lon = Float.parseFloat(atts.getValue("lon"));
-					idToNode.put(id, new OSMNode(lonfactor * lon, -lat));
+					idToNode.put(nodeID, new OSMNode(lonfactor * lon, -lat));
 					break;
 				case "way":
 					way = new OSMWay();
-					id = Long.parseLong(atts.getValue("id"));
+					Long id = Long.parseLong(atts.getValue("id"));
 					type = WayType.UNKNOWN;
 					idToWay.put(id, way);
 					break;
@@ -308,6 +325,7 @@ public class Model extends Observable implements Serializable {
 						String address = addressBuilder[0] + " " +  addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
 						cityMap.put(addressBuilder[2],addressBuilder[3]);
 						addressModel.add(Address.parse(address));
+						addressToCordinate.put(address.trim(), idToNode.get(nodeID));
 						isAddressNode = false;
 					}
 				break;
