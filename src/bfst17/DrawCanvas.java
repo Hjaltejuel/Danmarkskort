@@ -2,27 +2,63 @@ package bfst17;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.util.Observable;
 import java.util.Observer;
-import java.awt.GraphicsEnvironment;
+
 
 
 /**
  * Created by trold on 2/8/17.
  */
-public class DrawCanvas extends JComponent implements Observer {
+public class DrawCanvas extends JComponent implements Observer,ComponentListener {
 	Model model;
 	AffineTransform transform = new AffineTransform();
+	float centerCordinateX;
+	float centerCordinateY;
+	double scalingFactorX;
+	double modelHeight;
+	double scalingFactorY;
 	boolean antiAlias;
+	int oldHeight;
+	int oldWidth;
+	boolean firstTime = true;
 
 	public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
+		centerCordinateY = 0;
+		centerCordinateX = ((-model.getMaxLon())+(-model.getMinLon()))/2;
+		this.addComponentListener(this);
+
 	}
 
+	public void initialise()
+	{
+		//sets the scalling factor
+		scalingFactorX = getXZoomFactor();
+
+		//sets the screenHeight
+		modelHeight = scalingFactorX*(-model.getMaxLat()+model.getMinLat());
+
+		//calculates the real center y, based on the diff between model height and screen height
+		centerCordinateY += -model.getMaxLat() -(getHeight()/modelHeight*((-model.getMaxLat()-(-model.getMinLat()))/2));
+		scalingFactorY = getYZoomFactor();
+		oldHeight = getHeight();
+		oldWidth = getWidth();
+	}
+
+	public void setCenter(double dx, double dy)
+	{
+		centerCordinateX += dx;
+		centerCordinateY += dy;
+	}
+	public float getCenterCordinateX(){return centerCordinateX;}
+	public float getCenterCordinateY(){return centerCordinateY;}
 	/**
 	 * Calls the UI delegate's paint method, if the UI delegate
 	 * is non-<code>null</code>.  We pass the delegate a copy of the
@@ -90,7 +126,6 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	public double getXZoomFactor(){return transform.getScaleX();}
 	public double getYZoomFactor(){return transform.getScaleY();}
-
 	/**
 	 * This method is called whenever the observed object is changed. An
 	 * application calls an <tt>Observable</tt> object's
@@ -120,5 +155,35 @@ public class DrawCanvas extends JComponent implements Observer {
 	public void toggleAA() {
 		antiAlias = !antiAlias;
 		repaint();
+	}
+	//finds the number of pixel moved and updates the scalingfactors
+	@Override
+	public void componentResized(ComponentEvent e) {
+		if(!firstTime) {
+			scalingFactorY = transform.getScaleX();
+			modelHeight = scalingFactorX*(-model.getMaxLat()+model.getMinLat());
+			scalingFactorY = transform.getScaleY();
+			double centerMovedX = -((getWidth() - oldWidth) / 2) /transform.getScaleX();
+			double centerMovedY = -((getHeight() - oldHeight) / 2) / scalingFactorY;
+			oldHeight = getHeight();
+			oldWidth = getWidth();
+			setCenter(centerMovedX, centerMovedY);
+		}
+		firstTime = false;
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+
 	}
 }

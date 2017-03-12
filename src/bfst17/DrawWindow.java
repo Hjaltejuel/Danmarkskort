@@ -23,8 +23,6 @@ public class DrawWindow implements Observer {
 	private AutocompleteJComboBox combo;
 	private JTextArea userOutput;
 
-	//e
-
 	public DrawWindow(Model model) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
@@ -54,9 +52,9 @@ public class DrawWindow implements Observer {
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
 
-		canvas.pan(-model.getMinLon(),-model.getMaxLat());
-		canvas.zoom(canvas.getWidth()/(model.getMaxLon()- model.getMinLon()));
-
+		canvas.pan(-model.getMinLon(), -model.getMaxLat());
+		canvas.zoom(canvas.getWidth() / (model.getMaxLon() - model.getMinLon()));
+		canvas.initialise();
 
 
 		new WindowKeyController(this, model);
@@ -65,44 +63,40 @@ public class DrawWindow implements Observer {
 	/**
 	 * Makes the autocomplete button with all the addresses
 	 */
-	public void paintAutocomplete()
-	{
+	public void paintAutocomplete() {
 		this.listItems = new ArrayList();
 		Iterator var2 = addressModel.iterator();
 
-		while(var2.hasNext()) {
-			Address address = (Address)var2.next();
+		while (var2.hasNext()) {
+			Address address = (Address) var2.next();
 			this.listItems.add(address.toString().toLowerCase());
 		}
 
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
-		this.combo.putClientProperty("JComboBox.isTableCellEditor",Boolean.TRUE);
+		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
-				if(event.getKeyChar() == 10) {
+				if (event.getKeyChar() == 10) {
 					String s = (String) combo.getSelectedItem();
 
+					//points lat, lon
 					float lat = -model.getOSMNodeToAddress(s.trim()).getLat();
 					float lon = -model.getOSMNodeToAddress(s.trim()).getLon();
 
-					float yCenter = ((-model.getMaxLat())+(-model.getMinLat()))/2;
-					float xCenter = ((-model.getMaxLon())+(-model.getMinLon()))/2;
+					//distance from center of screen in lat lon
+					float distanceToCenterY = lat - canvas.getCenterCordinateY();
+					float distanceToCenterX = lon - canvas.getCenterCordinateX();
 
-					float xAxisLenght = model.getMaxLon() - model.getMinLon();
-					float yAxisLenght = model.getMaxLat()- model.getMinLat();
-
-					float distanceToCenterY = lat-yCenter;
-					float distanceToCenterX = lon-xCenter;
-
-					double scalingFactorX = canvas.getXZoomFactor();
-					double screenHeight = scalingFactorX*(-model.getMaxLat()+model.getMinLat());
-					double scalingFactorY = -(screenHeight/canvas.getHeight());
-
-					double dx = distanceToCenterX*scalingFactorX;
-					double dy = distanceToCenterY*scalingFactorY;
-					canvas.pan(dx,dy);
+					//distance to center in pixel
+					double dx = distanceToCenterX * canvas.getXZoomFactor();
+					double dy = distanceToCenterY * canvas.getYZoomFactor();
+					canvas.setCenter(distanceToCenterX, distanceToCenterY);
+					canvas.pan(dx, dy);
+					canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
+					canvas.zoom(150000/canvas.getXZoomFactor());
+					canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
 					combo.setSelectedItem((null));
 				}
 
@@ -114,6 +108,7 @@ public class DrawWindow implements Observer {
 		this.userOutput.setBackground(Color.LIGHT_GRAY);
 		//this.update((Observable)null, (Object)null);
 	}
+
 	/**
 	 * This method is called whenever the observed object is changed. An
 	 * application calls an <tt>Observable</tt> object's
@@ -136,14 +131,14 @@ public class DrawWindow implements Observer {
 	}
 
 
-	public void setUpMenu(){
+	public void setUpMenu() {
 		JMenuBar menu = new JMenuBar();
 		JMenu file = new JMenu("File");
 		JMenuItem save = new JMenuItem("Save", KeyEvent.VK_S);
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
 		JMenuItem load = new JMenuItem("Load", KeyEvent.VK_L);
 		load.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
-		JMenuItem exit = new JMenuItem( "Exit", KeyEvent.VK_Q);
+		JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_Q);
 
 
 		file.add(save);
@@ -152,13 +147,13 @@ public class DrawWindow implements Observer {
 		menu.add(file);
 
 		JMenu tools = new JMenu("Tools");
-        JMenuItem zoomIn = new JMenuItem("Zoom In", KeyEvent.VK_PLUS);
-        zoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Event.CTRL_MASK));
-        JMenuItem zoomOut = new JMenuItem("Zoom Out", KeyEvent.VK_MINUS);
-        zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK));
+		JMenuItem zoomIn = new JMenuItem("Zoom In", KeyEvent.VK_PLUS);
+		zoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Event.CTRL_MASK));
+		JMenuItem zoomOut = new JMenuItem("Zoom Out", KeyEvent.VK_MINUS);
+		zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK));
 
-        tools.add(zoomIn);
-        tools.add(zoomOut);
+		tools.add(zoomIn);
+		tools.add(zoomOut);
 		menu.add(tools);
 
 		window.setJMenuBar(menu);
@@ -192,26 +187,26 @@ public class DrawWindow implements Observer {
 		});
 
 
-        zoomIn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int dy = window.getContentPane().getWidth();
-                int dx = window.getContentPane().getHeight();
-                canvas.pan(-window.getContentPane().getWidth()/2, -window.getContentPane().getHeight()/2);
-                canvas.zoom(1.25);
-                canvas.pan(window.getContentPane().getWidth()/2, window.getContentPane().getHeight()/2);
-            }
-        });
-        zoomOut.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                canvas.pan(-window.getContentPane().getWidth()/2, -window.getContentPane().getHeight()/2);
-                canvas.zoom(0.75);
-                canvas.pan(window.getContentPane().getWidth()/2, window.getContentPane().getHeight()/2);
-            }
-        });
+		zoomIn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int dy = window.getContentPane().getWidth();
+				int dx = window.getContentPane().getHeight();
+				canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
+				canvas.zoom(1.25);
+				canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
+			}
+		});
+		zoomOut.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
+				canvas.zoom(0.75);
+				canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
+			}
+		});
 
 
 	}
-}
 
+}

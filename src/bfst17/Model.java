@@ -42,7 +42,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
-		load(this.getClass().getResource("/map.osm").toString());
+		load(this.getClass().getResource("/map (4).osm").toString());
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -142,7 +142,6 @@ public class Model extends Observable implements Serializable {
 		OSMRelation relation;
 		WayType type;
 		private float lonfactor;
-		private int minLon;
 
 		@Override
 		public void setDocumentLocator(Locator locator) {
