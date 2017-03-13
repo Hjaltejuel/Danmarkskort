@@ -210,9 +210,15 @@ public class Model extends Observable implements Serializable {
 				case "tag":
 					String k = atts.getValue("k");
 					String v = atts.getValue("v");
+
+					// Løber waytypes igennem for at se om den matcher med attributes
+					for (WayType _type : WayType.values()) {
+						if (_type.name().equals(k.toUpperCase() + "_" + v.toUpperCase())) {
+							type = _type;
+							break;
+						}
+					}
 					switch (k) {
-
-
 						case "addr:street":
 							addressBuilder[0] = v;
 							isAddressNode = true;
@@ -229,80 +235,8 @@ public class Model extends Observable implements Serializable {
 							addressBuilder[3] = v;
 							isAddressNode = true;
 							break;
-						case "highway":
-							type = WayType.ROAD;
-							switch(v) {
-								case "primary":
-									type=WayType.HIGHWAY;
-									break;
-								case "secondary":
-									type=WayType.HIGHWAY;
-									break;
-								case "footway":
-									type=WayType.FOOTWAY;
-									break;
-								case "cycleway":
-									type=WayType.FOOTWAY;
-									break;
-								case "service":
-									type=WayType.SERVICE;
-									break;
-							}
-							break;
 						case "building":
 							type = WayType.BUILDING;
-							break;
-						case "amenity":
-							switch (v){
-								case "parking":
-									type = WayType.PARKING;
-									break;
-								case "university":
-									type = WayType.UNIVERSITY;
-									break;
-							}
-
-							break;
-						case "natural":
-							switch (v){
-								case "water":
-									type = WayType.WATER;
-									break;
-								case "coastline":
-									type = WayType.COASTLINE;
-									break;
-							}
-							break;
-						case "landuse":
-							type = WayType.LANDUSE;
-							switch (v) {
-								case "grass":
-									type = WayType.GRASS;
-								break;
-								case "forest":
-									type = WayType.GRASS;
-								break;
-								case "industrial":
-									type = WayType.INDUSTRIAL;
-								break;
-								case "construction":
-									type = WayType.CONSTRUCTION;
-								break;
-								case "brownfield":
-									type = WayType.CONSTRUCTION;
-								break;
-							}
-							break;
-						case "route":
-							type = WayType.ROUTE;
-							if (v.equals("ferry")) {
-								type = WayType.FERRYROUTE;
-							}
-							break;
-						case "leisure":
-							if (v.equals("park")) {
-								type = WayType.PARK;
-							}
 							break;
 					}
 					break;
@@ -329,7 +263,7 @@ public class Model extends Observable implements Serializable {
 					}
 				break;
 				case "way":
-					if (type == WayType.COASTLINE) {
+					if (type == WayType.NATURAL_COASTLINE) {
 						OSMWay before = coastlines.remove(way.getFromNode());
 						OSMWay after = coastlines.remove(way.getToNode());
 						OSMWay merged = new OSMWay();
@@ -352,7 +286,7 @@ public class Model extends Observable implements Serializable {
 				case "osm":
 					coastlines.forEach((key, way) -> {
 						if (key == way.getFromNode()) {
-							add(WayType.COASTLINE, way.toPath2D());
+							add(WayType.NATURAL_COASTLINE, way.toPath2D());
 						}
 					});
 					break;
