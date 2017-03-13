@@ -5,10 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 /**
  * Created by trold on 2/1/17.
@@ -151,7 +148,10 @@ public class DrawWindow implements Observer {
 		zoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Event.CTRL_MASK));
 		JMenuItem zoomOut = new JMenuItem("Zoom Out", KeyEvent.VK_MINUS);
 		zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK));
+		JMenuItem greyScale = new JMenuItem("GreyScale",KeyEvent.VK_G);
+		greyScale.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
 
+		tools.add(greyScale);
 		tools.add(zoomIn);
 		tools.add(zoomOut);
 		menu.add(tools);
@@ -159,6 +159,17 @@ public class DrawWindow implements Observer {
 		window.setJMenuBar(menu);
 
 
+		greyScale.addActionListener(e->{
+			if(greyScale.getText().equals("GreyScale")) {
+				canvas.setGreyScale();
+		canvas.repaint();
+		greyScale.setText("Color");} else
+			{
+					canvas.setGreyScaleFalse();
+				canvas.repaint();
+				greyScale.setText("GreyScale");
+			}
+		});
 		//metode til at save
 		save.addActionListener(new ActionListener() {
 			@Override
@@ -190,8 +201,6 @@ public class DrawWindow implements Observer {
 		zoomIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int dy = window.getContentPane().getWidth();
-				int dx = window.getContentPane().getHeight();
 				canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
 				canvas.zoom(1.25);
 				canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);

@@ -27,6 +27,7 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 	int oldHeight;
 	int oldWidth;
 	boolean firstTime = true;
+	boolean greyScale = false;
 
 	public DrawCanvas(Model model) {
 		this.model = model;
@@ -54,11 +55,23 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 
 	public void setCenter(double dx, double dy)
 	{
+
 		centerCordinateX += dx;
+
 		centerCordinateY += dy;
+
 	}
 	public float getCenterCordinateX(){return centerCordinateX;}
 	public float getCenterCordinateY(){return centerCordinateY;}
+
+	public void setGreyScale()
+	{
+		greyScale = true;
+	}
+	public void setGreyScaleFalse()
+	{
+		greyScale = false;
+	}
 	/**
 	 * Calls the UI delegate's paint method, if the UI delegate
 	 * is non-<code>null</code>.  We pass the delegate a copy of the
@@ -99,11 +112,24 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		//Draw all shapes
+
 		for(WayType type: WayType.values())
 		{
-			g.setColor(type.getDrawColor());
-			g.setStroke(type.getDrawStroke());
+			if(!greyScale) {
+				g.setColor(type.getDrawColor());
+			} else
+				{
+					Color c = type.getDrawColor();
+					int red = (int)(c.getRed() * 0.299);
+					int green = (int)(c.getGreen() * 0.587);
+					int blue = (int)(c.getBlue() *0.114);
+					Color newColor = new Color(red+green+blue,
 
+							red+green+blue,red+green+blue);
+					g.setColor(newColor);
+				}
+			g.setStroke(type.getDrawStroke());
+            if(type.getZoomFactor() < getXZoomFactor() ){
 			//How should the data be drawn?
 			if(type.getFillType()==FillType.LINE) {
 				for (Shape shape : model.get(type)) {
@@ -115,6 +141,7 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 					g.fill(shape);
 				}
 			}
+            }
 		}
 	}
 

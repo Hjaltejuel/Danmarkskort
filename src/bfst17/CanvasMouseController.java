@@ -74,8 +74,15 @@ public class CanvasMouseController extends MouseAdapter {
 		Point2D currentMousePosition = e.getPoint();
 		double dx = currentMousePosition.getX();
 		double dy = currentMousePosition.getY();
-		canvas.pan(-dx, -dy);
+		canvas.setCenter(-dx/canvas.getXZoomFactor(),-dy/canvas.getYZoomFactor());
+		canvas.pan(-dx,-dy);
 		canvas.zoom(factor);
-		canvas.pan(dx, dy);
+		canvas.setCenter(dx/canvas.getXZoomFactor(),dy/canvas.getYZoomFactor());
+		canvas.pan(dx,dy);
+
+
+
+
+
 	}
 }
