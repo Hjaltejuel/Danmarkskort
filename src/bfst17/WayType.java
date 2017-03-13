@@ -274,51 +274,51 @@ public enum WayType {
 	NATURAL_WATER
 			(new Color(181,208,208),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	LEISURE_SWIMMING_POOL
 			(new Color(181,208,208),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	NATURAL_WOOD
 			(new Color(157,202,138),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	NATURAL_GRASSLAND
 			(new Color(198,228,180),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	NATURAL_SCRUB
 			(new Color(181,227,181),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	NATURAL_HEATH
 			(new Color(214,217,159),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	NATURAL_SAND
 			(new Color(241,229,184),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	NATURAL_BEACH
 			(new Color(255,240,169),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	NATURAL_BARE_ROCK
 			(new Color(233,225,217),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	NATURAL_SCREE
 			(new Color(237,228,220),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	NATURAL_SHINGLE
 			(new Color(237,228,220),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	NATURAL_WETLAND
 			(new Color(0,0,0),
 					null,
-					FillType.LINE),
+					FillType.SOLID),
 	WETLAND_WET_MEADOW
 			(new Color(229,229,229),
 					null,
