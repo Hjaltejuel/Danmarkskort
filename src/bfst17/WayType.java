@@ -151,6 +151,10 @@ public enum WayType {
 			(new Color(204,152,255),
 					null,
 					FillType.SOLID),
+	LEISURE_PITCH
+			(new Color(138,211,175),
+					null,
+					FillType.SOLID),
 	AMENITY_PARKING
 			(new Color(246,238,182),
 					null,
@@ -235,10 +239,6 @@ public enum WayType {
 			(new Color(38,198,134),
 					null,
 					FillType.SOLID),
-	LEISURE_PITCH
-			(new Color(138,211,175),
-					null,
-					FillType.SOLID),
 	LEISURE_TRACK
 			(new Color(189,227,203),
 					null,
@@ -317,7 +317,7 @@ public enum WayType {
 					FillType.LINE),
 	HIGHWAY_RESIDENTIAL
 			(new Color(246, 239, 239),
-					new BasicStroke(0.00004f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					new BasicStroke(0.00004f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
 					FillType.LINE),
 	HIGHWAY_SERVICE
 			(new Color(246, 239, 239),
@@ -337,7 +337,7 @@ public enum WayType {
 					FillType.LINE),
 	HIGHWAY_CYCLEWAY
 			(new Color(172,171,245),
-					null,
+					new BasicStroke(0.000008f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10f, new float[]{0.00003f}, 0),
 					FillType.LINE),
 	HIGHWAY_FOOTWAY
 			(new Color(246,222,216),
@@ -566,7 +566,7 @@ public enum WayType {
 	WayType(Color drawColor, Stroke drawStroke, FillType fillType)
 	{
 		if(drawStroke==null){
-			drawStroke=new BasicStroke(0.00002f);
+			drawStroke=new BasicStroke(0.00002f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
 		}
 		this.fillType=fillType;
 		this.drawColor = drawColor;
