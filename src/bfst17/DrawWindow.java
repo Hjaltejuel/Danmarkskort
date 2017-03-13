@@ -150,7 +150,10 @@ public class DrawWindow implements Observer {
 		zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK));
 		JMenuItem greyScale = new JMenuItem("GreyScale",KeyEvent.VK_G);
 		greyScale.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
+		JMenuItem nightMode = new JMenuItem("NightMode",KeyEvent.VK_N);
+		nightMode.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK));
 
+		tools.add(nightMode);
 		tools.add(greyScale);
 		tools.add(zoomIn);
 		tools.add(zoomOut);
@@ -158,10 +161,25 @@ public class DrawWindow implements Observer {
 
 		window.setJMenuBar(menu);
 
+		nightMode.addActionListener(e->{
+			if(nightMode.getText().equals("NightMode")){
+				canvas.setNightMode();
+				canvas.setGreyScaleFalse();
+				greyScale.setText("GreyScale");
+				canvas.repaint();
+				nightMode.setText("Color");
+			} else {
+				canvas.setNightModeFalse();
+				canvas.repaint();
+				nightMode.setText("NightMode");
+			}
+		});
 
 		greyScale.addActionListener(e->{
 			if(greyScale.getText().equals("GreyScale")) {
 				canvas.setGreyScale();
+				canvas.setNightModeFalse();
+				nightMode.setText("NightMode");
 		canvas.repaint();
 		greyScale.setText("Color");} else
 			{

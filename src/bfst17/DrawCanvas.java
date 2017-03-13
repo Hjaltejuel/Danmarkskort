@@ -28,6 +28,7 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 	int oldWidth;
 	boolean firstTime = true;
 	boolean greyScale = false;
+	boolean nightmode = false;
 
 	public DrawCanvas(Model model) {
 		this.model = model;
@@ -72,6 +73,12 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 	{
 		greyScale = false;
 	}
+	public void setNightMode(){
+		nightmode = true;
+	}
+	public void setNightModeFalse(){
+		nightmode = false;
+	}
 	/**
 	 * Calls the UI delegate's paint method, if the UI delegate
 	 * is non-<code>null</code>.  We pass the delegate a copy of the
@@ -115,9 +122,9 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 
 		for(WayType type: WayType.values())
 		{
-			if(!greyScale) {
+			if(!greyScale && !nightmode) {
 				g.setColor(type.getDrawColor());
-			} else
+			} else if(greyScale)
 				{
 					Color c = type.getDrawColor();
 					int red = (int)(c.getRed() * 0.299);
@@ -127,7 +134,10 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 
 							red+green+blue,red+green+blue);
 					g.setColor(newColor);
-				}
+				} else
+			{
+				g.setColor(type.getNightMode());
+			}
 			g.setStroke(type.getDrawStroke());
             if(type.getZoomFactor() < getXZoomFactor() ){
 			//How should the data be drawn?
