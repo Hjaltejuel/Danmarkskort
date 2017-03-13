@@ -190,8 +190,6 @@ public class DrawWindow implements Observer {
 		zoomIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int dy = window.getContentPane().getWidth();
-				int dx = window.getContentPane().getHeight();
 				canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
 				canvas.zoom(1.25);
 				canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);

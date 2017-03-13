@@ -54,8 +54,12 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 
 	public void setCenter(double dx, double dy)
 	{
+		System.out.println(centerCordinateX);
 		centerCordinateX += dx;
+		System.out.println(centerCordinateX);
+		System.out.println(centerCordinateY);
 		centerCordinateY += dy;
+		System.out.println(centerCordinateY);
 	}
 	public float getCenterCordinateX(){return centerCordinateX;}
 	public float getCenterCordinateY(){return centerCordinateY;}
