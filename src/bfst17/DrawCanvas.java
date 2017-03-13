@@ -90,7 +90,7 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 	@Override
 	protected void paintComponent(Graphics _g) {
 		Graphics2D g = (Graphics2D) _g;
-		g.setColor(WayType.COASTLINE.getDrawColor());
+		g.setColor(WayType.NATURAL_COASTLINE.getDrawColor());
 		g.fillRect(0,0, getWidth(),getHeight());
 		g.setTransform(transform);
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));

@@ -7,10 +7,6 @@ import java.awt.*;
  */
 
 public enum WayType {
-	COASTLINE
-			(new Color(234, 234, 234, 0), //Fuck it!
-					null,
-					FillType.SOLID),
 	GRASS
 			(new Color(205, 235, 176),
 					null,
@@ -335,6 +331,10 @@ public enum WayType {
 			(new Color(230,233,222),
 					null,
 					FillType.LINE),
+	NATURAL_COASTLINE
+			(new Color(234, 234, 234, 0), //Fuck it!
+					null,
+					FillType.SOLID),
 	NATURAL_WATER
 			(new Color(181,208,208),
 					null,
