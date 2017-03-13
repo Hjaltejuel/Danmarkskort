@@ -7,12 +7,288 @@ import java.awt.*;
  */
 
 public enum WayType {
+	NATURAL_COASTLINE
+			(new Color(234, 234, 234), //Fuck it!
+					null,
+					FillType.SOLID),
+	NATURAL_GRASSLAND
+			(new Color(198,228,180),
+					null,
+					FillType.SOLID),
+	LANDUSE_GRASS
+			(new Color(197,236,148),
+					null,
+					FillType.SOLID),
+	LANDUSE_RESIDENTIAL
+			(new Color(218,218,218),
+					null,
+					FillType.SOLID),
+	LANDUSE_COMMERCIAL
+			(new Color(238,207,207),
+					null,
+					FillType.SOLID),
+	LANDUSE_RETAIL
+			(new Color(254,202,197),
+					null,
+					FillType.SOLID),
+	LANDUSE_INDUSTRIAL
+			(new Color(230,209,227),
+					null,
+					FillType.SOLID),
+	LANDUSE_RAILWAY
+			(new Color(230,209,227),
+					null,
+					FillType.SOLID),
+	LANDUSE_CEMETERY
+			(new Color(170,202,174),
+					null,
+					FillType.SOLID),
+	LEISURE_GOLF_COURSE
+			(new Color(181,226,181),
+					null,
+					FillType.SOLID),
+	NATURAL_WATER
+			(new Color(181,208,208),
+					null,
+					FillType.SOLID),
+	LEISURE_SWIMMING_POOL
+			(new Color(181,208,208),
+					null,
+					FillType.SOLID),
+	NATURAL_WOOD
+			(new Color(157,202,138),
+					null,
+					FillType.SOLID),
+	NATURAL_SCRUB
+			(new Color(181,227,181),
+					null,
+					FillType.SOLID),
+	NATURAL_HEATH
+			(new Color(214,217,159),
+					null,
+					FillType.SOLID),
+	NATURAL_SAND
+			(new Color(241,229,184),
+					null,
+					FillType.SOLID),
+	NATURAL_BEACH
+			(new Color(255,240,169),
+					null,
+					FillType.SOLID),
+	NATURAL_BARE_ROCK
+			(new Color(233,225,217),
+					null,
+					FillType.SOLID),
+	NATURAL_SCREE
+			(new Color(237,228,220),
+					null,
+					FillType.SOLID),
+	NATURAL_SHINGLE
+			(new Color(237,228,220),
+					null,
+					FillType.SOLID),
+	NATURAL_WETLAND
+			(new Color(255, 255, 255),
+					null,
+					FillType.SOLID),
+	WETLAND_WET_MEADOW
+			(new Color(229,229,229),
+					null,
+					FillType.SOLID),
+	WETLAND_FEN
+			(new Color(229,229,229),
+					null,
+					FillType.SOLID),
+	WETLAND_SALTMARSH
+			(new Color(229,229,229),
+					null,
+					FillType.SOLID),
+	WETLAND_REEDBED
+			(new Color(108,180,247),
+					null,
+					FillType.SOLID),
+	WETLAND_SWAMP
+			(new Color(174,209,160),
+					null,
+					FillType.SOLID),
+	WETLAND_MARSH
+			(new Color(108,180,247),
+					null,
+					FillType.SOLID),
+	WETLAND_BOG
+			(new Color(213,216,159),
+					null,
+					FillType.SOLID),
+	WETLAND_STRING_BOG
+			(new Color(213,216,159),
+					null,
+					FillType.SOLID),
+	NATURAL_GLACIER
+			(new Color(221,236,236),
+					null,
+					FillType.SOLID),
+	AMENITY_GRAVE_YARD
+			(new Color(170,202,174),
+					null,
+					FillType.SOLID),
+	RELIGION_CHRISTIAN
+			(new Color(170,202,174),
+					null,
+					FillType.SOLID),
+	LANDUSE_BROWNFIELD
+			(new Color(167,168,126),
+					null,
+					FillType.SOLID),
+	LANDUSE_CONSTRUCTION
+			(new Color(167,168,126),
+					null,
+					FillType.SOLID),
+	LANDUSE_LANDFILL
+			(new Color(167,168,126),
+					null,
+					FillType.SOLID),
+	AEROWAY_TERMINAL
+			(new Color(204,152,255),
+					null,
+					FillType.SOLID),
+	AMENITY_PARKING
+			(new Color(246,238,182),
+					null,
+					FillType.SOLID),
+	AEROWAY_APRON
+			(new Color(233,209,255),
+					null,
+					FillType.SOLID),
+	LANDUSE_FARM
+			(new Color(224,208,180),
+					null,
+					FillType.SOLID),
+	LANDUSE_FARMYARD
+			(new Color(218,187,143),
+					null,
+					FillType.SOLID),
+	LANDUSE_ALLOTMENTS
+			(new Color(238,207,179),
+					null,
+					FillType.SOLID),
+	LANDUSE_ORCHARD
+			(new Color(158,220,144),
+					null,
+					FillType.SOLID),
+	LANDUSE_FOREST
+			(new Color(157,202,138),
+					null,
+					FillType.SOLID),
+	LANDUSE_VINEYARD
+			(new Color(158,220,144),
+					null,
+					FillType.SOLID),
+	LANDUSE_QUARRY
+			(new Color(183,181,181),
+					null,
+					FillType.SOLID),
+	POWER_SUBSTATION
+			(new Color(186,186,186),
+					null,
+					FillType.SOLID),
+	POWER_PLANT
+			(new Color(186,186,186),
+					null,
+					FillType.SOLID),
+	POWER_GENERATOR
+			(new Color(186,186,186),
+					null,
+					FillType.SOLID),
+	LEISURE_PARK
+			(new Color(205,247,201),
+					null,
+					FillType.SOLID),
+	NATURAL_MEADOW
+			(new Color(197,236,148),
+					null,
+					FillType.SOLID),
+	LANDUSE_RECREATION_GROUND
+			(new Color(197,236,148),
+					null,
+					FillType.SOLID),
+	LANDUSE_VILLAGE_GREEN
+			(new Color(197,236,148),
+					null,
+					FillType.SOLID),
+	LEISURE_GARDEN
+			(new Color(197,236,148),
+					null,
+					FillType.SOLID),
+	LEISURE_PLAYGROUND
+			(new Color(204,255,241),
+					null,
+					FillType.SOLID),
+	LEISURE_DOG_PARK
+			(new Color(223,252,226),
+					null,
+					FillType.SOLID),
+	LEISURE_SPORTS_CENTRE
+			(new Color(38,198,134),
+					null,
+					FillType.SOLID),
+	LEISURE_STADIUM
+			(new Color(38,198,134),
+					null,
+					FillType.SOLID),
+	LEISURE_PITCH
+			(new Color(138,211,175),
+					null,
+					FillType.SOLID),
+	LEISURE_TRACK
+			(new Color(189,227,203),
+					null,
+					FillType.SOLID),
+	LEISURE_MINIATURE_GOLF
+			(new Color(181,226,181),
+					null,
+					FillType.SOLID),
+	AMENITY_SCHOOL
+			(new Color(240,241,215),
+					null,
+					FillType.SOLID),
+	AMENITY_KINDERGARTEN
+			(new Color(240,241,215),
+					null,
+					FillType.SOLID),
+	AMENITY_COLLEGE
+			(new Color(240,241,215),
+					null,
+					FillType.SOLID),
+	AMENITY_UNIVERSITY
+			(new Color(240,241,215),
+					null,
+					FillType.SOLID),
+	AMENITY_HOSPITAL
+			(new Color(240,241,215),
+					null,
+					FillType.SOLID),
+	AMENITY_PRISON
+			(new Color(228,226,221),
+					null,
+					FillType.SOLID),
+	AMENITY_PLACE_OF_WORSHIP
+			(new Color(174,156,140),
+					null,
+					FillType.SOLID),
+	LANDUSE_MILITARY
+			(new Color(240,209,203),
+					null,
+					FillType.SOLID),
+	MILITARY_DANGER_AREA
+			(new Color(252,198,201),
+					null,
+					FillType.SOLID),
 	BUILDING
 			(new Color(217, 208, 201),
 					null,
 					FillType.SOLID),
-	UNKNOWN
-			(new Color(250, 255, 0),
+	WATERWAY_DRAIN
+			(new Color(181, 208, 208),
 					null,
 					FillType.LINE),
 	HIGHWAY_MOTORWAY
@@ -36,19 +312,19 @@ public enum WayType {
 					null,
 					FillType.LINE),
 	HIGHWAY_UNCLASSIFIED
-			(new Color(189,184,184),
+			(new Color(246, 239, 239),
 					null,
 					FillType.LINE),
 	HIGHWAY_RESIDENTIAL
-			(new Color(189,184,184),
+			(new Color(246, 239, 239),
 					null,
 					FillType.LINE),
 	HIGHWAY_SERVICE
-			(new Color(189,184,184),
+			(new Color(246, 239, 239),
 					null,
 					FillType.LINE),
 	HIGHWAY_LIVING_STREET
-			(new Color(184,184,184),
+			(new Color(237, 237, 237),
 					null,
 					FillType.LINE),
 	HIGHWAY_PEDESTRIAN
@@ -267,287 +543,14 @@ public enum WayType {
 			(new Color(230,233,222),
 					null,
 					FillType.LINE),
-	NATURAL_COASTLINE
-			(new Color(234, 234, 234), //Fuck it!
-					null,
-					FillType.SOLID),
-	NATURAL_WATER
-			(new Color(181,208,208),
-					null,
-					FillType.SOLID),
-	LEISURE_SWIMMING_POOL
-			(new Color(181,208,208),
-					null,
-					FillType.SOLID),
-	NATURAL_WOOD
-			(new Color(157,202,138),
-					null,
-					FillType.SOLID),
-	NATURAL_GRASSLAND
-			(new Color(198,228,180),
-					null,
-					FillType.SOLID),
-	NATURAL_SCRUB
-			(new Color(181,227,181),
-					null,
-					FillType.SOLID),
-	NATURAL_HEATH
-			(new Color(214,217,159),
-					null,
-					FillType.SOLID),
-	NATURAL_SAND
-			(new Color(241,229,184),
-					null,
-					FillType.SOLID),
-	NATURAL_BEACH
-			(new Color(255,240,169),
-					null,
-					FillType.SOLID),
-	NATURAL_BARE_ROCK
-			(new Color(233,225,217),
-					null,
-					FillType.SOLID),
-	NATURAL_SCREE
-			(new Color(237,228,220),
-					null,
-					FillType.SOLID),
-	NATURAL_SHINGLE
-			(new Color(237,228,220),
-					null,
-					FillType.SOLID),
-	NATURAL_WETLAND
-			(new Color(0,0,0),
-					null,
-					FillType.SOLID),
-	WETLAND_WET_MEADOW
-			(new Color(229,229,229),
+	MAN_MADE_PIER
+			(new Color(250, 157, 154),
 					null,
 					FillType.LINE),
-	WETLAND_FEN
-			(new Color(229,229,229),
+	UNKNOWN
+			(new Color(250, 255, 0,0),
 					null,
-					FillType.LINE),
-	WETLAND_SALTMARSH
-			(new Color(229,229,229),
-					null,
-					FillType.LINE),
-	WETLAND_REEDBED
-			(new Color(108,180,247),
-					null,
-					FillType.LINE),
-	WETLAND_SWAMP
-			(new Color(174,209,160),
-					null,
-					FillType.LINE),
-	WETLAND_MARSH
-			(new Color(108,180,247),
-					null,
-					FillType.LINE),
-	WETLAND_BOG
-			(new Color(213,216,159),
-					null,
-					FillType.LINE),
-	WETLAND_STRING_BOG
-			(new Color(213,216,159),
-					null,
-					FillType.LINE),
-	NATURAL_GLACIER
-			(new Color(221,236,236),
-					null,
-					FillType.LINE),
-	LANDUSE_RESIDENTIAL
-			(new Color(218,218,218),
-					null,
-					FillType.LINE),
-	LANDUSE_COMMERCIAL
-			(new Color(238,207,207),
-					null,
-					FillType.LINE),
-	LANDUSE_RETAIL
-			(new Color(254,202,197),
-					null,
-					FillType.LINE),
-	LANDUSE_INDUSTRIAL
-			(new Color(230,209,227),
-					null,
-					FillType.LINE),
-	LANDUSE_RAILWAY
-			(new Color(230,209,227),
-					null,
-					FillType.LINE),
-	LANDUSE_CEMETERY
-			(new Color(170,202,174),
-					null,
-					FillType.LINE),
-	AMENITY_GRAVE_YARD
-			(new Color(170,202,174),
-					null,
-					FillType.LINE),
-	RELIGION_CHRISTIAN
-			(new Color(170,202,174),
-					null,
-					FillType.LINE),
-	RELIGION_JEWISH
-			(new Color(170,202,174),
-					null,
-					FillType.LINE),
-	LANDUSE_BROWNFIELD
-			(new Color(167,168,126),
-					null,
-					FillType.LINE),
-	LANDUSE_CONSTRUCTION
-			(new Color(167,168,126),
-					null,
-					FillType.LINE),
-	LANDUSE_LANDFILL
-			(new Color(167,168,126),
-					null,
-					FillType.LINE),
-	AEROWAY_TERMINAL
-			(new Color(204,152,255),
-					null,
-					FillType.LINE),
-	AMENITY_PARKING
-			(new Color(246,238,182),
-					null,
-					FillType.LINE),
-	AEROWAY_APRON
-			(new Color(233,209,255),
-					null,
-					FillType.LINE),
-	LANDUSE_FARM
-			(new Color(224,208,180),
-					null,
-					FillType.LINE),
-	LANDUSE_FARMYARD
-			(new Color(218,187,143),
-					null,
-					FillType.LINE),
-	LANDUSE_ALLOTMENTS
-			(new Color(238,207,179),
-					null,
-					FillType.LINE),
-	LANDUSE_ORCHARD
-			(new Color(158,220,144),
-					null,
-					FillType.LINE),
-	LANDUSE_FOREST
-			(new Color(157,202,138),
-					null,
-					FillType.LINE),
-	LANDUSE_VINEYARD
-			(new Color(158,220,144),
-					null,
-					FillType.LINE),
-	LANDUSE_QUARRY
-			(new Color(183,181,181),
-					null,
-					FillType.LINE),
-	POWER_SUBSTATION
-			(new Color(186,186,186),
-					null,
-					FillType.LINE),
-	POWER_PLANT
-			(new Color(186,186,186),
-					null,
-					FillType.LINE),
-	POWER_GENERATOR
-			(new Color(186,186,186),
-					null,
-					FillType.LINE),
-	LEISURE_PARK
-			(new Color(205,247,201),
-					null,
-					FillType.LINE),
-	LANDUSE_GRASS
-			(new Color(197,236,148),
-					null,
-					FillType.LINE),
-	NATURAL_MEADOW
-			(new Color(197,236,148),
-					null,
-					FillType.LINE),
-	LANDUSE_RECREATION_GROUND
-			(new Color(197,236,148),
-					null,
-					FillType.LINE),
-	LANDUSE_VILLAGE_GREEN
-			(new Color(197,236,148),
-					null,
-					FillType.LINE),
-	LEISURE_GARDEN
-			(new Color(197,236,148),
-					null,
-					FillType.LINE),
-	LEISURE_PLAYGROUND
-			(new Color(204,255,241),
-					null,
-					FillType.LINE),
-	LEISURE_DOG_PARK
-			(new Color(223,252,226),
-					null,
-					FillType.LINE),
-	LEISURE_SPORTS_CENTRE
-			(new Color(38,198,134),
-					null,
-					FillType.LINE),
-	LEISURE_STADIUM
-			(new Color(38,198,134),
-					null,
-					FillType.LINE),
-	LEISURE_PITCH
-			(new Color(138,211,175),
-					null,
-					FillType.LINE),
-	LEISURE_TRACK
-			(new Color(189,227,203),
-					null,
-					FillType.LINE),
-	LEISURE_GOLF_COURSE
-			(new Color(181,226,181),
-					null,
-					FillType.LINE),
-	LEISURE_MINIATURE_GOLF
-			(new Color(181,226,181),
-					null,
-					FillType.LINE),
-	AMENITY_SCHOOL
-			(new Color(240,241,215),
-					null,
-					FillType.LINE),
-	AMENITY_KINDERGARTEN
-			(new Color(240,241,215),
-					null,
-					FillType.LINE),
-	AMENITY_COLLEGE
-			(new Color(240,241,215),
-					null,
-					FillType.LINE),
-	AMENITY_UNIVERSITY
-			(new Color(240,241,215),
-					null,
-					FillType.LINE),
-	AMENITY_HOSPITAL
-			(new Color(240,241,215),
-					null,
-					FillType.LINE),
-	AMENITY_PRISON
-			(new Color(228,226,221),
-					null,
-					FillType.LINE),
-	AMENITY_PLACE_OF_WORSHIP
-			(new Color(174,156,140),
-					null,
-					FillType.LINE),
-	LANDUSE_MILITARY
-			(new Color(240,209,203),
-					null,
-					FillType.LINE),
-	MILITARY_DANGER_AREA
-			(new Color(252,198,201),
-					null,
-					FillType.LINE),
-
+					FillType.LINE)
 	;
 
 
