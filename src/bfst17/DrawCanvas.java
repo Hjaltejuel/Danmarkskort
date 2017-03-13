@@ -103,7 +103,7 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 		{
 			g.setColor(type.getDrawColor());
 			g.setStroke(type.getDrawStroke());
-
+            if(type.getZoomFactor() < getXZoomFactor() ){
 			//How should the data be drawn?
 			if(type.getFillType()==FillType.LINE) {
 				for (Shape shape : model.get(type)) {
@@ -115,6 +115,7 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 					g.fill(shape);
 				}
 			}
+            }
 		}
 	}
 
