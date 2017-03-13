@@ -317,7 +317,7 @@ public enum WayType {
 					FillType.LINE),
 	HIGHWAY_RESIDENTIAL
 			(new Color(246, 239, 239),
-					null,
+					new BasicStroke(0.00004f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
 					FillType.LINE),
 	HIGHWAY_SERVICE
 			(new Color(246, 239, 239),
@@ -341,7 +341,7 @@ public enum WayType {
 					FillType.LINE),
 	HIGHWAY_FOOTWAY
 			(new Color(246,222,216),
-					null,
+					new BasicStroke(0.000008f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10f, new float[]{0.00003f}, 0),
 					FillType.LINE),
 	HIGHWAY_PATH
 			(new Color(246,222,216),

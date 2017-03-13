@@ -211,6 +211,7 @@ public class Model extends Observable implements Serializable {
 					String k = atts.getValue("k");
 					String v = atts.getValue("v");
 
+					// Løber waytypes igennem for at se om den matcher med attributes
 					for (WayType _type : WayType.values()) {
 						if (_type.name().equals(k.toUpperCase() + "_" + v.toUpperCase())) {
 							type = _type;
@@ -236,12 +237,7 @@ public class Model extends Observable implements Serializable {
 							break;
 						case "building":
 							type = WayType.BUILDING;
-							//System.out.println("A");
-							//System.out.println(k + " " + v);
 							break;
-					}
-					if(type==WayType.UNKNOWN) {
-						System.out.println(k + " " + v);
 					}
 					break;
 				case "member":
