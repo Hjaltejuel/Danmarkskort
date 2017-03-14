@@ -106,4 +106,5 @@ public class AutocompleteJComboBox extends JComboBox {
         }
 
     }
+
 }
