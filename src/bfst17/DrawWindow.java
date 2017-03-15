@@ -1,6 +1,9 @@
 package bfst17;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
@@ -127,6 +130,34 @@ public class DrawWindow implements Observer {
 		canvas.toggleAA();
 	}
 
+	public void setUpNightMode(JComboBox combo, JMenuBar menu, JMenuItem tools, JMenuItem file){
+		menu.setBackground(new Color(36,47,62));
+		combo.getEditor().getEditorComponent().setBackground(new Color(36,47,62));
+		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
+		component.setForeground(Color.WHITE);
+		component.setCaretColor(Color.WHITE);
+		BasicComboPopup popup = (BasicComboPopup)combo.getAccessibleContext().getAccessibleChild(0);
+		JList list = popup.getList();
+		list.setBackground(new Color(36,47,62));
+		list.setForeground(Color.WHITE);
+		tools.setForeground(Color.WHITE);
+		file.setForeground(Color.WHITE);
+
+	}
+	public void tearDownNightMode(JComboBox combo, JMenuBar menu, JMenuItem tools, JMenuItem file){
+		menu.setBackground(null);
+		combo.getEditor().getEditorComponent().setBackground(Color.WHITE);
+		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
+		component.setForeground(Color.BLACK);
+		component.setCaretColor(Color.BLACK);
+		BasicComboPopup popup = (BasicComboPopup)combo.getAccessibleContext().getAccessibleChild(0);
+		JList list = popup.getList();
+		list.setBackground(null);
+		list.setForeground(null);
+		tools.setForeground(Color.BLACK);
+		file.setForeground(Color.BLACK);
+
+	}
 
 	public void setUpMenu() {
 		JMenuBar menu = new JMenuBar();
@@ -150,7 +181,10 @@ public class DrawWindow implements Observer {
 		zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK));
 		JMenuItem greyScale = new JMenuItem("GreyScale",KeyEvent.VK_G);
 		greyScale.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
+		JMenuItem nightMode = new JMenuItem("NightMode",KeyEvent.VK_N);
+		nightMode.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK));
 
+		tools.add(nightMode);
 		tools.add(greyScale);
 		tools.add(zoomIn);
 		tools.add(zoomOut);
@@ -158,10 +192,32 @@ public class DrawWindow implements Observer {
 
 		window.setJMenuBar(menu);
 
+		nightMode.addActionListener(e->{
+			if(nightMode.getText().equals("NightMode")){
+				canvas.setNightMode();
+				canvas.setGreyScaleFalse();
+				greyScale.setText("GreyScale");
+				canvas.repaint();
+				nightMode.setText("Color");
+				setUpNightMode(combo,menu,tools,file);
+
+
+			} else {
+				canvas.setNightModeFalse();
+				tearDownNightMode(combo,menu,tools,file);
+				canvas.repaint();
+				nightMode.setText("NightMode");
+			}
+		});
 
 		greyScale.addActionListener(e->{
 			if(greyScale.getText().equals("GreyScale")) {
 				canvas.setGreyScale();
+				canvas.setNightModeFalse();
+				if(nightMode.getText().equals("Color")) {
+					nightMode.setText("NightMode");
+					tearDownNightMode(combo,menu,tools,file);
+				}
 		canvas.repaint();
 		greyScale.setText("Color");} else
 			{
