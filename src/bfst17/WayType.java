@@ -434,7 +434,7 @@ public enum WayType {
 					FillType.LINE),
 	HIGHWAY_STEPS
 			(new Color(249,104,92),
-					null, 
+                    new BasicStroke(0.000008f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10f, new float[]{0.00003f}, 0),
  	 	 	 	 	 1,
 					FillType.LINE),
 	HIGHWAY_TRACK
