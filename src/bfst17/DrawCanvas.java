@@ -34,7 +34,6 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 		centerCordinateY = 0;
 		centerCordinateX = ((-model.getMaxLon())+(-model.getMinLon()))/2;
 		this.addComponentListener(this);
-
 	}
 
 	public void initialise()
@@ -57,7 +56,9 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 		centerCordinateX += dx;
 		centerCordinateY += dy;
 	}
-	public float getCenterCordinateX(){return centerCordinateX;}
+	public float getCenterCordinateX() {
+		return centerCordinateX;
+	}
 	public float getCenterCordinateY(){return centerCordinateY;}
 
 	public void setGreyScale()
@@ -105,12 +106,12 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 	@Override
 	protected void paintComponent(Graphics _g) {
 		Graphics2D g = (Graphics2D) _g;
-		if(nightmode){
-			g.setColor(new Color(36,47,62));
+		if (nightmode) {
+			g.setColor(new Color(36, 47, 62));
 		} else {
 			g.setColor(WayType.NATURAL_WATER.getDrawColor());
 		}
-		g.fillRect(0,0, getWidth(),getHeight());
+		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setTransform(transform);
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
@@ -118,39 +119,55 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 
 		//Draw all shapes
 
-		for(WayType type: WayType.values())
-		{
-			if(!greyScale && !nightmode) {
+		for (WayType type : WayType.values()) {
+			if (!greyScale && !nightmode) {
 				g.setColor(type.getDrawColor());
-			} else if(greyScale)
-				{
-					Color c = type.getDrawColor();
-					int red = (int)(c.getRed() * 0.299);
-					int green = (int)(c.getGreen() * 0.587);
-					int blue = (int)(c.getBlue() *0.114);
-					Color newColor = new Color(red+green+blue,
-
-							red+green+blue,red+green+blue);
-					g.setColor(newColor);
-				} else
-			{
+			} else if (greyScale) {
+				Color c = type.getDrawColor();
+				int red = (int) (c.getRed() * 0.299);
+				int green = (int) (c.getGreen() * 0.587);
+				int blue = (int) (c.getBlue() * 0.114);
+				int sum = red + green + blue;
+				Color newColor = new Color(sum, sum, sum);
+				g.setColor(newColor);
+			} else {
 				g.setColor(type.getNightMode());
 			}
 			g.setStroke(type.getDrawStroke());
-            if(type.getZoomFactor() < getXZoomFactor() ){
-			//How should the data be drawn?
-			if(type.getFillType()==FillType.LINE) {
-				for (Shape shape : model.get(type)) {
-					g.draw(shape);
+			if (type.getZoomFactor() < getXZoomFactor()) {
+				//How should the data be drawn?
+				if (type.getFillType() == FillType.LINE) {
+					for (Shape shape : model.get(type)) {
+						g.draw(shape);
+					}
+				} else if (type.getFillType() == FillType.SOLID) {
+					for (Shape shape : model.get(type)) {
+						g.fill(shape);
+					}
 				}
 			}
-			else if(type.getFillType()==FillType.SOLID) {
-				for (Shape shape : model.get(type)) {
-					g.fill(shape);
-				}
-			}
-            }
 		}
+
+		g.setColor(Color.black);
+		g.fillRect((int) transform.getTranslateX(), (int) transform.getTranslateY(), 1000, 1000);
+	}
+
+	double latToPixels(double lat)
+	{
+		return (lat+model.getMaxLat());
+	}
+	double lonToPixels(double lon)
+	{
+		return (lon+model.getMinLon());
+	}
+	public void panToNode(OSMNode node)
+	{
+		double lon = lonToPixels(-node.getLon());
+		double lat = latToPixels(-node.getLat());
+
+		double panX = (lon)*transform.getScaleX();
+		double panY = -(lat)*transform.getScaleY();
+		pan(panX, panY);
 	}
 
 	public void pan(double dx, double dy) {
@@ -176,6 +193,7 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 
 	public void zoom(double factor) {
 		transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
+		//System.out.println((transform.getTranslateX()/transform.getScaleX()+model.getMinLon())*transform.getScaleX());
 		repaint();
 	}
 

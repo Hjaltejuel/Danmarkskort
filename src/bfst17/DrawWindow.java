@@ -82,26 +82,7 @@ public class DrawWindow implements Observer {
 				if (event.getKeyChar() == 10) {
 					String s = (String) combo.getSelectedItem();
 
-					canvas.zoom(150000/canvas.getXZoomFactor());
-
-					/*
-					//points lat, lon
-					float lat = -model.getOSMNodeToAddress(s.trim()).getLat();
-					float lon = -model.getOSMNodeToAddress(s.trim()).getLon();
-
-					//distance from center of screen in lat lon
-					float distanceToCenterY = lat - canvas.getCenterCordinateY();
-					float distanceToCenterX = lon - canvas.getCenterCordinateX();
-
-					//distance to center in pixel
-					double dx = distanceToCenterX * canvas.getXZoomFactor();
-					double dy = distanceToCenterY * canvas.getYZoomFactor();
-					canvas.setCenter(distanceToCenterX, distanceToCenterY);
-					canvas.pan(dx, dy);
-					canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
-					canvas.zoom(150000/canvas.getXZoomFactor());
-					canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
-					*/
+					canvas.panToNode(model.getOSMNodeToAddress(s.trim()));
 					combo.setSelectedItem((null));
 				}
 
