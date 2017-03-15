@@ -4,9 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
+import java.awt.geom.*;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -56,11 +54,8 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 
 	public void setCenter(double dx, double dy)
 	{
-
 		centerCordinateX += dx;
-
 		centerCordinateY += dy;
-
 	}
 	public float getCenterCordinateX(){return centerCordinateX;}
 	public float getCenterCordinateY(){return centerCordinateY;}
@@ -113,12 +108,11 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 		if(nightmode){
 			g.setColor(new Color(36,47,62));
 		} else {
-			g.setColor(WayType.NATURAL_COASTLINE.getDrawColor());
+			g.setColor(WayType.NATURAL_WATER.getDrawColor());
 		}
 		g.fillRect(0,0, getWidth(),getHeight());
 		g.setTransform(transform);
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));
-
 
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -201,7 +195,7 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 	@Override
 	public void componentResized(ComponentEvent e) {
 		if(!firstTime) {
-			scalingFactorY = transform.getScaleX();
+			scalingFactorX = transform.getScaleX();
 			modelHeight = scalingFactorX*(-model.getMaxLat()+model.getMinLat());
 			scalingFactorY = transform.getScaleY();
 			double centerMovedX = -((getWidth() - oldWidth) / 2) /transform.getScaleX();

@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.text.JTextComponent;
+import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
@@ -81,6 +82,9 @@ public class DrawWindow implements Observer {
 				if (event.getKeyChar() == 10) {
 					String s = (String) combo.getSelectedItem();
 
+					canvas.zoom(150000/canvas.getXZoomFactor());
+
+					/*
 					//points lat, lon
 					float lat = -model.getOSMNodeToAddress(s.trim()).getLat();
 					float lon = -model.getOSMNodeToAddress(s.trim()).getLon();
@@ -97,6 +101,7 @@ public class DrawWindow implements Observer {
 					canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
 					canvas.zoom(150000/canvas.getXZoomFactor());
 					canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
+					*/
 					combo.setSelectedItem((null));
 				}
 
