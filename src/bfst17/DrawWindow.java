@@ -41,19 +41,25 @@ public class DrawWindow implements Observer {
 		model.addObserver(this);
 		addressModel.addObserver(this);
 		window = new JFrame("Awesome OSM Visualizer Thingy!!!! 2.0");
-		window.setLayout(new BorderLayout());
+		//window.setLayout(new JLayeredPane());
+		JLayeredPane combopane = new JLayeredPane();
+		combopane.setPreferredSize(new Dimension(750, 750));
 		canvas = new DrawCanvas(model);
-		canvas.setPreferredSize(new Dimension(500, 500));
+		canvas.setBounds(0,0,750,750);
 		new CanvasMouseController(canvas, model);
-		window.add(canvas, BorderLayout.CENTER);
+		combopane.add(canvas,100);
 		setUpMenu();
 		paintAutocomplete();
+		combopane.add(combo, 50);
+		combo.setBounds(10,10,250,40);
+		window.add(combopane, BorderLayout.CENTER);
 		window.pack();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
 		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
 		new WindowKeyController(this, model);
+
 	}
 
 	/**
@@ -71,7 +77,7 @@ public class DrawWindow implements Observer {
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-		this.combo.setPreferredSize(new Dimension(500, 30));
+		this.combo.setPreferredSize(new Dimension(250, 40));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if (event.getKeyChar() == 10) {
@@ -97,7 +103,7 @@ public class DrawWindow implements Observer {
 
 			}
 		});
-		this.window.add(this.combo, "North");
+		//this.window.add(this.combo, "North");
 		this.userOutput = new JTextArea();
 		this.userOutput.setEditable(false);
 		this.userOutput.setBackground(Color.LIGHT_GRAY);
