@@ -158,6 +158,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	public void pan(double dx, double dy) {
 		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
 		repaint();
+        revalidate();
 	}
 
 
@@ -180,6 +181,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	public void zoom(double factor) {
 		transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
 		repaint();
+        revalidate();
 	}
 
 	public Point2D toModelCoords(Point2D lastMousePosition) {
@@ -193,6 +195,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	public void toggleAA() {
 		antiAlias = !antiAlias;
 		repaint();
+        revalidate();
 	}
 }
 
