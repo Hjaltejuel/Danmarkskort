@@ -1,70 +1,49 @@
 package bfst17;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.renderable.RenderableImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
+import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 
 
 /**
  * Created by trold on 2/8/17.
  */
-public class DrawCanvas extends JComponent implements Observer,ComponentListener {
+public class DrawCanvas extends JComponent implements Observer {
 	Model model;
 	AffineTransform transform = new AffineTransform();
-	float centerCordinateX;
-	float centerCordinateY;
-	double scalingFactorX;
-	double modelHeight;
-	double scalingFactorY;
 	boolean antiAlias;
-	int oldHeight;
-	int oldWidth;
 	boolean firstTime = true;
 	boolean greyScale = false;
 	boolean nightmode = false;
-
+	Point2D pin;
 	public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
-		centerCordinateY = 0;
-		centerCordinateX = ((-model.getMaxLon())+(-model.getMinLon()))/2;
-		this.addComponentListener(this);
 
 	}
-
-	public void initialise()
-	{
-		//sets the scalling factor
-		scalingFactorX = getXZoomFactor();
-
-		//sets the screenHeight
-		modelHeight = scalingFactorX*(-model.getMaxLat()+model.getMinLat());
-
-		//calculates the real center y, based on the diff between model height and screen height
-		centerCordinateY += -model.getMaxLat() -(getHeight()/modelHeight*((-model.getMaxLat()-(-model.getMinLat()))/2));
-		scalingFactorY = getYZoomFactor();
-		oldHeight = getHeight();
-		oldWidth = getWidth();
+	public double getCenterCordinateX(){
+        return (transform.getTranslateX()/transform.getScaleX())-((getWidth()/transform.getScaleX())/2);
 	}
-
-	public void setCenter(double dx, double dy)
-	{
-
-		centerCordinateX += dx;
-
-		centerCordinateY += dy;
-
+	public double getCenterCordinateY() {
+		return (transform.getTranslateY() / transform.getScaleY()) -((getHeight() / transform.getScaleY())/2);
+    }
+    public void setPin(float x, float y){
+		pin = new Point2D.Float(x,y);
 	}
-	public float getCenterCordinateX(){return centerCordinateX;}
-	public float getCenterCordinateY(){return centerCordinateY;}
-
 	public void setGreyScale()
 	{
 		greyScale = true;
@@ -154,15 +133,33 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 				for (Shape shape : model.get(type)) {
 					g.fill(shape);
 				}
-			}
-            }
+				}
+				}
 		}
-	}
+		if(pin!= null){
+			BufferedImage image = null;
+			try {
+				image = ImageIO.read(getClass().getClassLoader().getResource("google-maps-marker-for-residencelamontagne-hi.png"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			AffineTransformOp tx = new AffineTransformOp(transform,AffineTransformOp.TYPE_BILINEAR);
+			
+			BufferedImage after = new BufferedImage(image.getWidth(),image.getHeight(),TYPE_INT_RGB);
+			after =tx.filter(image,after);
+			g.drawImage(after,(int)getCenterCordinateX(),(int)getCenterCordinateY(),null);
+			}
+
+
+		}
+
+
 
 	public void pan(double dx, double dy) {
 		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
 		repaint();
 	}
+
 
 
 	public double getXZoomFactor(){return transform.getScaleX();}
@@ -197,34 +194,5 @@ public class DrawCanvas extends JComponent implements Observer,ComponentListener
 		antiAlias = !antiAlias;
 		repaint();
 	}
-	//finds the number of pixel moved and updates the scalingfactors
-	@Override
-	public void componentResized(ComponentEvent e) {
-		if(!firstTime) {
-			scalingFactorY = transform.getScaleX();
-			modelHeight = scalingFactorX*(-model.getMaxLat()+model.getMinLat());
-			scalingFactorY = transform.getScaleY();
-			double centerMovedX = -((getWidth() - oldWidth) / 2) /transform.getScaleX();
-			double centerMovedY = -((getHeight() - oldHeight) / 2) / scalingFactorY;
-			oldHeight = getHeight();
-			oldWidth = getWidth();
-			setCenter(centerMovedX, centerMovedY);
-		}
-		firstTime = false;
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) {
-
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
-
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent e) {
-
-	}
 }
+

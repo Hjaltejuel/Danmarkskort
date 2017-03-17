@@ -51,12 +51,8 @@ public class DrawWindow implements Observer {
 		window.pack();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
-
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
-		canvas.zoom(canvas.getWidth() / (model.getMaxLon() - model.getMinLon()));
-		canvas.initialise();
-
-
+		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
 		new WindowKeyController(this, model);
 	}
 
@@ -80,23 +76,22 @@ public class DrawWindow implements Observer {
 			public void keyReleased(KeyEvent event) {
 				if (event.getKeyChar() == 10) {
 					String s = (String) combo.getSelectedItem();
-
 					//points lat, lon
-					float lat = -model.getOSMNodeToAddress(s.trim()).getLat();
-					float lon = -model.getOSMNodeToAddress(s.trim()).getLon();
+					double lat = -model.getOSMNodeToAddress(s.trim()).getLat();
+					double lon = -model.getOSMNodeToAddress(s.trim()).getLon();
 
 					//distance from center of screen in lat lon
-					float distanceToCenterY = lat - canvas.getCenterCordinateY();
-					float distanceToCenterX = lon - canvas.getCenterCordinateX();
+					double distanceToCenterY = lat - canvas.getCenterCordinateY();
+					double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
 					//distance to center in pixel
 					double dx = distanceToCenterX * canvas.getXZoomFactor();
 					double dy = distanceToCenterY * canvas.getYZoomFactor();
-					canvas.setCenter(distanceToCenterX, distanceToCenterY);
 					canvas.pan(dx, dy);
-					canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
+					canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
 					canvas.zoom(150000/canvas.getXZoomFactor());
-					canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
+					canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+					canvas.setPin((float)lat,(float)lon);
 					combo.setSelectedItem((null));
 				}
 
@@ -257,17 +252,17 @@ public class DrawWindow implements Observer {
 		zoomIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
+				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
 				canvas.zoom(1.25);
-				canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
+				canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
 			}
 		});
 		zoomOut.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
+                canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
 				canvas.zoom(0.75);
-				canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
+				canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 			}
 		});
 
