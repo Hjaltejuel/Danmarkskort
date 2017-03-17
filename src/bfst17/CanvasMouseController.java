@@ -77,10 +77,5 @@ public class CanvasMouseController extends MouseAdapter {
 		canvas.pan(-dx,-dy);
 		canvas.zoom(factor);
 		canvas.pan(dx,dy);
-
-
-
-
-
 	}
 }
