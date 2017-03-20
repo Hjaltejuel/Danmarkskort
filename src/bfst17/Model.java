@@ -14,15 +14,11 @@ import java.util.zip.ZipInputStream;
  * Created by trold on 2/1/17.
  */
 public class Model extends Observable implements Serializable {
-	private HashMap<String, Point2D> addressToCordinate = new HashMap<>();
-
 	private String[] addressBuilder = new String[4];
 
 	private boolean isAddressNode = false;
 
 	private AddressModel addressModel = new AddressModel();
-
-	public Point2D getPoint2DToAddress(String address){ return addressToCordinate.get(address); }
 
 	public AddressModel getAddressModel() { return addressModel; }
 
@@ -31,11 +27,12 @@ public class Model extends Observable implements Serializable {
 			shapes.put(type, new ArrayList<>());
 		}
 	}
+
 	private float minlat, minlon, maxlat, maxlon;
 
 	private long nodeID;
 
-	private HashMap<String,String> cityMap = new HashMap<>();
+	private HashMap<String,String> postCodeToCity = new HashMap<>();
 
 	public Model(String filename) {
 		load(filename);
@@ -67,7 +64,7 @@ public class Model extends Observable implements Serializable {
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
 			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 			out.writeObject(shapes);
-			out.writeObject(addressToCordinate);
+			out.writeObject(addressModel);
 			out.writeFloat(minlon);
 			out.writeFloat(minlat);
 			out.writeFloat(maxlon);
@@ -96,8 +93,8 @@ public class Model extends Observable implements Serializable {
 		} else {
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
 				//Ryk rundt på dem her og få med Jens' knytnæve at bestille
-				shapes = (EnumMap<WayType,List<Shape>>) in.readObject();
-				addressToCordinate = (HashMap<String, Point2D>) in.readObject();
+				shapes = (EnumMap<WayType, List<Shape>>) in.readObject();
+				addressModel = (AddressModel) in.readObject();
 				minlon = in.readFloat();
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
@@ -109,7 +106,7 @@ public class Model extends Observable implements Serializable {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
-			} catch(ClassCastException e) {
+			} catch (ClassCastException e) {
 				e.printStackTrace();
 			}
 		}
@@ -170,10 +167,6 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
-			for(String s: cityMap.keySet()) {
-				addressModel.add(Address.parse(cityMap.get(s)));
-				addressModel.add(Address.parse(s + " " + cityMap.get(s)));
-			}
 		}
 
 		@Override
@@ -277,9 +270,9 @@ public class Model extends Observable implements Serializable {
                             if(addressBuilder[i] == null){addressBuilder[i] = "";}
                         }
 						String address = addressBuilder[0] + " " +  addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
-						cityMap.put(addressBuilder[2],addressBuilder[3]);
+						postCodeToCity.put(addressBuilder[2], addressBuilder[3]);
 						addressModel.add(Address.parse(address));
-						addressToCordinate.put(address.trim(), idToNode.get(nodeID));
+						addressModel.put(address.trim(), idToNode.get(nodeID));
 						isAddressNode = false;
 					}
 				break;
