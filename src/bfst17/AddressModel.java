@@ -8,7 +8,7 @@ import java.util.Observable;
  * Created by Michelle on 3/6/2017.
  */
 public class AddressModel extends Observable{
-    private ArrayList<Address> addresses = new ArrayList<Address>();
+    private ArrayList<Address> addresses = new ArrayList<>();
 
     public AddressModel() {
         this.addresses = new ArrayList();

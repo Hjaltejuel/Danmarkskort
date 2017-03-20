@@ -16,6 +16,16 @@ import java.util.zip.ZipInputStream;
 public class Model extends Observable implements Serializable {
 	private HashMap<String, Point2D> addressToCordinate = new HashMap<>();
 
+	private String[] addressBuilder = new String[4];
+
+	private boolean isAddressNode = false;
+
+	private AddressModel addressModel = new AddressModel();
+
+	public Point2D getPoint2DToAddress(String address){ return addressToCordinate.get(address); }
+
+	public AddressModel getAddressModel() { return addressModel; }
+
 	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
 			shapes.put(type, new ArrayList<>());
@@ -25,26 +35,18 @@ public class Model extends Observable implements Serializable {
 
 	private long nodeID;
 
-	private String[] addressBuilder = new String[4];
-
-	private boolean isAddressNode = false;
-
-	private AddressModel addressModel = new AddressModel();
-
-	private HashMap<String,String> cityMap = new HashMap<String,String>();
-
-	public Point2D getPoint2DToAddress(String address){return addressToCordinate.get(address);}
-
-	public AddressModel getAddressModel() {return addressModel;}
+	private HashMap<String,String> cityMap = new HashMap<>();
 
 	public Model(String filename) {
 		load(filename);
 	}
 
 	public Model() {
-		//load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\resources\\map.osm");//this.getClass().getResource("/map.bin").toString());
+		long time = System.nanoTime();
+		load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\resources\\map.osm");//this.getClass().getResource("/map.bin").toString());
+		System.out.println((System.nanoTime()-time) / 1000000000);
 		//load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\map.bin");//this.getClass().getResource("/map.bin").toString());
-		load("C:\\Users\\Jens\\Downloads\\denmark-latest-free.shp.zip");
+		//load("C:\\Users\\Jens\\Downloads\\denmark-latest-free.shp.zip");
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -63,7 +65,9 @@ public class Model extends Observable implements Serializable {
 
 	public void save(String filename) {
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 			out.writeObject(shapes);
+			out.writeObject(addressToCordinate);
 			out.writeFloat(minlon);
 			out.writeFloat(minlat);
 			out.writeFloat(maxlon);
@@ -93,6 +97,7 @@ public class Model extends Observable implements Serializable {
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
 				//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 				shapes = (EnumMap<WayType,List<Shape>>) in.readObject();
+				addressToCordinate = (HashMap<String, Point2D>) in.readObject();
 				minlon = in.readFloat();
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
@@ -120,7 +125,6 @@ public class Model extends Observable implements Serializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public float getMinLon() {
@@ -147,7 +151,7 @@ public class Model extends Observable implements Serializable {
 
 	private class OSMHandler implements ContentHandler {
 		LongToPointMap idToNode = new LongToPointMap(18000000);
-		Map<Long,OSMWay> idToWay = new HashMap<>();
+		Map<Long, OSMWay> idToWay = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
 		OSMWay way;
 		OSMRelation relation;
@@ -186,7 +190,7 @@ public class Model extends Observable implements Serializable {
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
 			count++;
-			if(count%100000==0){
+			if(count%100000==0) {
 				System.out.println(count);
 			}
 			switch(qName) {
@@ -221,7 +225,7 @@ public class Model extends Observable implements Serializable {
 				case "nd":
 					long ref = Long.parseLong(atts.getValue("ref"));
 					Point2D point2D = idToNode.get(ref);
-					way.add(new OSMNode((float) point2D.getX(),(float)point2D.getY()));
+					way.add(new OSMNode((float) point2D.getX(), (float)point2D.getY()));
 					break;
 				case "tag":
 					String k = atts.getValue("k");
@@ -234,6 +238,7 @@ public class Model extends Observable implements Serializable {
 							break;
 						}
 					}
+
 					switch (k) {
 						case "addr:street":
 							addressBuilder[0] = v;
@@ -268,7 +273,7 @@ public class Model extends Observable implements Serializable {
 			switch (qName) {
 				case "node":
 					if(isAddressNode == true) {
-                        for(int i = 0; i < addressBuilder.length; i++){
+                        for(int i = 0; i < addressBuilder.length; i++) {
                             if(addressBuilder[i] == null){addressBuilder[i] = "";}
                         }
 						String address = addressBuilder[0] + " " +  addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
