@@ -4,6 +4,7 @@ import javafx.application.Platform;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicComboPopup;
@@ -83,6 +84,7 @@ public class DrawWindow implements Observer {
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
+
 			public void keyReleased(KeyEvent event) {
 				Timer timer = new Timer();
 
@@ -103,66 +105,93 @@ public class DrawWindow implements Observer {
 					double partDX = dx/100;
 					double partDY = dy/100;
 
-					//canvas.pan(partDX, partDY);
 
 
-
+					if(150000 / canvas.getXZoomFactor() >= 0.8) {
 						timer.scheduleAtFixedRate(new TimerTask() {
 							int panCounter = 1;
 							int zoomInCounter = 1;
-							int zoomOutCounter = 1;
-							boolean zoomOutDone = true;
-							boolean zoomingIn = false;
+
 							@Override
 							public void run() {
+								if (panCounter > 100) {
 
-								if (150000 / canvas.getXZoomFactor() < 8 && !zoomingIn) {
-									zoomOutDone = false;
 
-									if (zoomOutCounter < 99) {
-										System.out.println(zoomOutCounter);
-										canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-										canvas.zoom(0.005+(zoomOutCounter * 0.005));
-										canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+									canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+									canvas.zoom(150000 / canvas.getXZoomFactor() * zoomInCounter * 3 / 100);
+									canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+									zoomInCounter++;
 
-										zoomOutCounter++;
-										if (zoomOutCounter > 99) {
-											zoomOutDone = true;
-										}
+									if (zoomInCounter > 100) {
+
+										cancel();
 									}
-
-
-
+								} else {
+									canvas.pan(partDX, partDY);
+									panCounter++;
 								}
 
-								if (zoomOutDone) {
-									zoomingIn = true;
+							}
 
-									if (panCounter > 100) {
+						}, 0, 10);
+					}
 
+					if(150000 / canvas.getXZoomFactor() < 0.8){
+						timer.scheduleAtFixedRate(new TimerTask() {
+							int zoomOutCounter = 99;
+							int panCounter = 1;
+							int zoomInCounter = 1;
+							@Override
+							public void run() {
+								if (zoomOutCounter > 1) {
+									canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+									canvas.zoom(150000 / canvas.getXZoomFactor() * zoomOutCounter * 0.05);
+									canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 
+									zoomOutCounter--;
+									}
+								else if(zoomOutCounter == 1){
+									//HMMM
+									double lat = -model.getOSMNodeToAddress(s.trim()).getLat();
+									double lon = -model.getOSMNodeToAddress(s.trim()).getLon();
+
+									//distance from center of screen in lat lon
+									double distanceToCenterY = lat - canvas.getCenterCordinateY();
+									double distanceToCenterX = lon - canvas.getCenterCordinateX();
+
+									//distance to center in pixel
+									double dx = distanceToCenterX * canvas.getXZoomFactor();
+									double dy = distanceToCenterY * canvas.getYZoomFactor();
+
+									double partDX = dx/100;
+									double partDY = dy/100;
+
+									//HMM
+
+									if (panCounter > 99) {
 										canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-										canvas.zoom(150000 / canvas.getXZoomFactor() * zoomInCounter*1.50 / 100);
+										canvas.zoom(150000 / canvas.getXZoomFactor() * zoomInCounter * 3 / 100);
 										canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 										zoomInCounter++;
 
 										if (zoomInCounter > 100) {
-											zoomingIn = false;
+
 											cancel();
 										}
 									} else {
 										canvas.pan(partDX, partDY);
+										System.out.println(panCounter);
 										panCounter++;
 									}
 
 								}
 							}
 
-						},0, 10);
+
+						}, 0 , 10);
 
 
-
-
+					}
 
 					canvas.setPin((float)lat,(float)lon);
 					combo.setSelectedItem((null));
