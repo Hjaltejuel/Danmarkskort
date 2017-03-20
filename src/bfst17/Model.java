@@ -5,6 +5,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.awt.*;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
@@ -16,6 +17,7 @@ import java.util.zip.ZipInputStream;
  */
 public class Model extends Observable implements Serializable {
 	private HashMap<String,Point2D> addressToCordinate = new HashMap<>();
+	private KDTree tree = new KDTree();
 
 	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
@@ -142,7 +144,7 @@ public class Model extends Observable implements Serializable {
 		OSMWay way;
 		OSMRelation relation;
 		WayType type;
-		private float lonfactor;
+		float lonfactor;
 
 		@Override
 		public void setDocumentLocator(Locator locator) {
@@ -174,7 +176,6 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-
 			switch(qName) {
 				case "bounds":
 					minlat = Float.parseFloat(atts.getValue("minlat"));
@@ -192,6 +193,7 @@ public class Model extends Observable implements Serializable {
 					nodeID = Long.parseLong(atts.getValue("id"));
 					float lat = Float.parseFloat(atts.getValue("lat"));
 					float lon = Float.parseFloat(atts.getValue("lon"));
+					tree.insert(new Point2D.Float(lon*lonfactor,lat));
 					idToNode.put(nodeID, lonfactor * lon, -lat);
 					break;
 				case "way":
