@@ -17,6 +17,10 @@ public class AddressModel extends Observable implements Serializable {
         this.addresses = new ArrayList();
     }
 
+    public ArrayList<Address> getAddresses() {
+        return addresses;
+    }
+
     public void add(Address address) {
         this.addresses.add(address);
         this.setChanged();
@@ -24,14 +28,10 @@ public class AddressModel extends Observable implements Serializable {
     }
 
     public void put(String address, Point2D point){
-        addressToCordinate.put(address,point);
+        addressToCordinate.put(address, point);
     }
 
     private static HashMap<String, Point2D> addressToCordinate = new HashMap<>();
     public static Point2D getPoint2DToAddress(String address){ return addressToCordinate.get(address); }
-
-    public Iterator<Address> iterator() {
-        return this.addresses.iterator();
-    }
 
 }

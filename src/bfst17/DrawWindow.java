@@ -59,11 +59,10 @@ public class DrawWindow implements Observer {
 	 */
 	public void paintAutocomplete() {
 		this.listItems = new ArrayList();
-		Iterator var2 = addressModel.iterator();
 
-		while (var2.hasNext()) {
-			Address address = (Address) var2.next();
-			this.listItems.add(address.toString().toLowerCase());
+
+		for (Address a: addressModel.getAddresses()) {
+			this.listItems.add(a.toString().toLowerCase());
 		}
 
 		this.searchable = new StringSearchable(this.listItems);

@@ -40,10 +40,11 @@ public class Model extends Observable implements Serializable {
 
 	public Model() {
 		long time = System.nanoTime();
-		load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\resources\\map.osm");//this.getClass().getResource("/map.bin").toString());
-		System.out.println((System.nanoTime()-time) / 1000000000);
+		load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\resources\\map (4).osm");//this.getClass().getResource("/map.bin").toString());
+
 		//load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\map.bin");//this.getClass().getResource("/map.bin").toString());
 		//load("C:\\Users\\Jens\\Downloads\\denmark-latest-free.shp.zip");
+		System.out.println((System.nanoTime()-time) / 1000000000);
 	}
 
 	public void add(WayType type, Shape shape) {
