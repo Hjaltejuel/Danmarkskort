@@ -74,8 +74,8 @@ public class DrawWindow implements Observer {
 				if (event.getKeyChar() == 10) {
 					String s = (String) combo.getSelectedItem();
 					//points lat, lon
-					double lat = -AddressModel.getPoint2DToAddress(s.trim()).getY();
-					double lon = -AddressModel.getPoint2DToAddress(s.trim()).getX();
+					double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
+					double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
 
 					//distance from center of screen in lat lon
 					double distanceToCenterY = lat - canvas.getCenterCordinateY();
