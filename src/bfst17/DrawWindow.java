@@ -25,7 +25,6 @@ public class DrawWindow implements Observer {
 	public DrawWindow(Model model) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
@@ -83,22 +82,20 @@ public class DrawWindow implements Observer {
 					double distanceToCenterY = lat - canvas.getCenterCordinateY();
 					double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
-					System.out.println(canvas.getCenterCordinateY()+ " " + canvas.getCenterCordinateX());
+					System.out.println(canvas.getCenterCordinateY() + " " + canvas.getCenterCordinateX());
 					//distance to center in pixel
 					double dx = distanceToCenterX * canvas.getXZoomFactor();
 					double dy = distanceToCenterY * canvas.getYZoomFactor();
 					canvas.pan(dx, dy);
 					canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-					canvas.zoom(150000/canvas.getXZoomFactor());
+					canvas.zoom(150000 / canvas.getXZoomFactor());
 					canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
-					canvas.setPin((float)lat,(float)lon);
+					canvas.setPin((float) lat, (float) lon);
 					combo.setSelectedItem((null));
 				}
-
 			}
 		});
 		this.window.add(this.combo, "North");
-
 	}
 
 	/**

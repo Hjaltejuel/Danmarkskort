@@ -102,8 +102,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		//Draw all shapes
 
-		for(WayType type: WayType.values())
-		{
+		for(WayType type: WayType.values()) {
 			if(!greyScale && !nightmode) {
 				g.setColor(type.getDrawColor());
 			} else if(greyScale)
@@ -149,7 +148,6 @@ public class DrawCanvas extends JComponent implements Observer {
 			g.drawImage(after,(int)getCenterCordinateX(),(int)getCenterCordinateY(),null);
 			}
 */
-
 		}
 
 

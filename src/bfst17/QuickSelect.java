@@ -4,9 +4,10 @@ package bfst17;
  * Created by Michelle on 3/17/2017.
  */
 public class QuickSelect {
+    /*
     public static Comparable
-    select(Comparable[] a, int k)
-    {
+     select(Comparable[] a, int k) {
+    }
         StdRandom.shuffle(a);
         int lo = 0, hi = a.length - 1;
         while (hi > lo)
@@ -18,3 +19,5 @@ public class QuickSelect {
         }
         return a[k];
     }
+        */
+}

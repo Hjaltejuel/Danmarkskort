@@ -1,6 +1,5 @@
 package bfst17;
 
-import org.w3c.dom.Node;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -15,7 +14,7 @@ import java.util.zip.ZipInputStream;
  * Created by trold on 2/1/17.
  */
 public class Model extends Observable implements Serializable {
-	private HashMap<String,Point2D> addressToCordinate = new HashMap<>();
+	private HashMap<String, Point2D> addressToCordinate = new HashMap<>();
 
 	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
@@ -43,7 +42,9 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
-		load(this.getClass().getResource("/map (4).osm").toString());
+		//load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\resources\\map.osm");//this.getClass().getResource("/map.bin").toString());
+		//load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\map.bin");//this.getClass().getResource("/map.bin").toString());
+		load("C:\\Users\\Jens\\Downloads\\denmark-latest-free.shp.zip");
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -63,6 +64,11 @@ public class Model extends Observable implements Serializable {
 	public void save(String filename) {
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
 			out.writeObject(shapes);
+			out.writeFloat(minlon);
+			out.writeFloat(minlat);
+			out.writeFloat(maxlon);
+			out.writeFloat(maxlat);
+			out.flush();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -85,7 +91,12 @@ public class Model extends Observable implements Serializable {
 			}
 		} else {
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+				//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 				shapes = (EnumMap<WayType,List<Shape>>) in.readObject();
+				minlon = in.readFloat();
+				minlat = in.readFloat();
+				maxlon = in.readFloat();
+				maxlat = in.readFloat();
 				dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -96,7 +107,6 @@ public class Model extends Observable implements Serializable {
 			} catch(ClassCastException e) {
 				e.printStackTrace();
 			}
-			
 		}
 	}
 
@@ -156,7 +166,7 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
-			for(String s: cityMap.keySet()){
+			for(String s: cityMap.keySet()) {
 				addressModel.add(Address.parse(cityMap.get(s)));
 				addressModel.add(Address.parse(s + " " + cityMap.get(s)));
 			}
@@ -172,9 +182,13 @@ public class Model extends Observable implements Serializable {
 
 		}
 
+		Integer count=0;
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-
+			count++;
+			if(count%100000==0){
+				System.out.println(count);
+			}
 			switch(qName) {
 				case "bounds":
 					minlat = Float.parseFloat(atts.getValue("minlat"));
