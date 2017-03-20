@@ -5,6 +5,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.zip.ZipInputStream;
  * Created by trold on 2/1/17.
  */
 public class Model extends Observable implements Serializable {
-	private HashMap<String,OSMNode> addressToCordinate = new HashMap<>();
+	private HashMap<String,Point2D> addressToCordinate = new HashMap<>();
 
 	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
@@ -33,7 +34,7 @@ public class Model extends Observable implements Serializable {
 
 	private HashMap<String,String> cityMap = new HashMap<String,String>();
 
-	public OSMNode getOSMNodeToAddress(String address){return addressToCordinate.get(address);}
+	public Point2D getPoint2DToAddress(String address){return addressToCordinate.get(address);}
 
 	public AddressModel getAddressModel() {return addressModel;}
 
@@ -135,7 +136,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	private class OSMHandler implements ContentHandler {
-		Map<Long,OSMNode> idToNode = new HashMap<>();
+		LongToPointMap idToNode = new LongToPointMap(18000000);
 		Map<Long,OSMWay> idToWay = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
 		OSMWay way;
@@ -191,7 +192,7 @@ public class Model extends Observable implements Serializable {
 					nodeID = Long.parseLong(atts.getValue("id"));
 					float lat = Float.parseFloat(atts.getValue("lat"));
 					float lon = Float.parseFloat(atts.getValue("lon"));
-					idToNode.put(nodeID, new OSMNode(lonfactor * lon, -lat));
+					idToNode.put(nodeID, lonfactor * lon, -lat);
 					break;
 				case "way":
 					way = new OSMWay();
@@ -205,7 +206,8 @@ public class Model extends Observable implements Serializable {
 					break;
 				case "nd":
 					long ref = Long.parseLong(atts.getValue("ref"));
-					way.add(idToNode.get(ref));
+					Point2D point2D = idToNode.get(ref);
+					way.add(new OSMNode((float) point2D.getX(),(float)point2D.getY()));
 					break;
 				case "tag":
 					String k = atts.getValue("k");

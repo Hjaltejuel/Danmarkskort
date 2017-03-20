@@ -21,7 +21,6 @@ public class DrawWindow implements Observer {
 	private ArrayList listItems;
 	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
-	private JTextArea userOutput;
 
 	public DrawWindow(Model model) {
 		try {
@@ -77,13 +76,14 @@ public class DrawWindow implements Observer {
 				if (event.getKeyChar() == 10) {
 					String s = (String) combo.getSelectedItem();
 					//points lat, lon
-					double lat = -model.getOSMNodeToAddress(s.trim()).getLat();
-					double lon = -model.getOSMNodeToAddress(s.trim()).getLon();
+					double lat = -model.getPoint2DToAddress(s.trim()).getY();
+					double lon = -model.getPoint2DToAddress(s.trim()).getX();
 
 					//distance from center of screen in lat lon
 					double distanceToCenterY = lat - canvas.getCenterCordinateY();
 					double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
+					System.out.println(canvas.getCenterCordinateY()+ " " + canvas.getCenterCordinateX());
 					//distance to center in pixel
 					double dx = distanceToCenterX * canvas.getXZoomFactor();
 					double dy = distanceToCenterY * canvas.getYZoomFactor();
@@ -98,10 +98,7 @@ public class DrawWindow implements Observer {
 			}
 		});
 		this.window.add(this.combo, "North");
-		this.userOutput = new JTextArea();
-		this.userOutput.setEditable(false);
-		this.userOutput.setBackground(Color.LIGHT_GRAY);
-		//this.update((Observable)null, (Object)null);
+
 	}
 
 	/**
@@ -193,6 +190,7 @@ public class DrawWindow implements Observer {
 				canvas.setGreyScaleFalse();
 				greyScale.setText("GreyScale");
 				canvas.repaint();
+				canvas.revalidate();
 				nightMode.setText("Color");
 				setUpNightMode(combo,menu,tools,file);
 
@@ -201,6 +199,7 @@ public class DrawWindow implements Observer {
 				canvas.setNightModeFalse();
 				tearDownNightMode(combo,menu,tools,file);
 				canvas.repaint();
+				canvas.revalidate();
 				nightMode.setText("NightMode");
 			}
 		});
@@ -214,10 +213,12 @@ public class DrawWindow implements Observer {
 					tearDownNightMode(combo,menu,tools,file);
 				}
 		canvas.repaint();
+				canvas.revalidate();
 		greyScale.setText("Color");} else
 			{
 					canvas.setGreyScaleFalse();
 				canvas.repaint();
+				canvas.revalidate();
 				greyScale.setText("GreyScale");
 			}
 		});

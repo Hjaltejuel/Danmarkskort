@@ -15,6 +15,8 @@ import java.util.Iterator;
 
 public class AutocompleteJComboBox extends JComboBox {
     private final StringSearchable searcher;
+    private boolean firstTime = true;
+    private JTextComponent userInput;
 
     public AutocompleteJComboBox(StringSearchable s) {
 
@@ -37,7 +39,7 @@ public class AutocompleteJComboBox extends JComboBox {
         this.setEditable(true);
         Component c = this.getEditor().getEditorComponent();
         if(c instanceof JTextComponent) {
-            final JTextComponent userInput = (JTextComponent)c;
+            userInput = (JTextComponent)c;
             userInput.getDocument().addDocumentListener(new DocumentListener() {
                 public void changedUpdate(DocumentEvent arg0) {
                 }
@@ -88,6 +90,8 @@ public class AutocompleteJComboBox extends JComboBox {
                             }
                             setEditable(true);
                             userInput.requestFocus();
+
+
                         }
                     });
                 }
@@ -99,11 +103,13 @@ public class AutocompleteJComboBox extends JComboBox {
                     }
 
 
+
                 }
                 public void focusLost(FocusEvent arg0) {
                 }
             });
         }
+
 
     }
 
