@@ -155,6 +155,10 @@ public class DrawCanvas extends JComponent implements Observer {
 		}
 
 
+	public void smoothPan(double dx, double dy){
+
+	}
+
 
 	public void pan(double dx, double dy) {
 		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));

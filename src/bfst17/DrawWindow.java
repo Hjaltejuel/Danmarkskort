@@ -1,5 +1,7 @@
 package bfst17;
 
+import javafx.application.Platform;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
@@ -15,6 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by trold on 2/1/17.
@@ -80,6 +84,8 @@ public class DrawWindow implements Observer {
 		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
+				Timer timer = new Timer();
+
 				if (event.getKeyChar() == 10) {
 					String s = (String) combo.getSelectedItem();
 					//points lat, lon
@@ -93,10 +99,71 @@ public class DrawWindow implements Observer {
 					//distance to center in pixel
 					double dx = distanceToCenterX * canvas.getXZoomFactor();
 					double dy = distanceToCenterY * canvas.getYZoomFactor();
-					canvas.pan(dx, dy);
-					canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-					canvas.zoom(150000/canvas.getXZoomFactor());
-					canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+
+					double partDX = dx/100;
+					double partDY = dy/100;
+
+					//canvas.pan(partDX, partDY);
+
+
+
+						timer.scheduleAtFixedRate(new TimerTask() {
+							int panCounter = 1;
+							int zoomInCounter = 1;
+							int zoomOutCounter = 1;
+							boolean zoomOutDone = true;
+							boolean zoomingIn = false;
+							@Override
+							public void run() {
+
+								if (150000 / canvas.getXZoomFactor() < 8 && !zoomingIn) {
+									zoomOutDone = false;
+
+									if (zoomOutCounter < 99) {
+										System.out.println(zoomOutCounter);
+										canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+										canvas.zoom(0.005+(zoomOutCounter * 0.005));
+										canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+
+										zoomOutCounter++;
+										if (zoomOutCounter > 99) {
+											zoomOutDone = true;
+										}
+									}
+
+
+
+								}
+
+								if (zoomOutDone) {
+									zoomingIn = true;
+
+									if (panCounter > 100) {
+
+
+										canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+										canvas.zoom(150000 / canvas.getXZoomFactor() * zoomInCounter*1.50 / 100);
+										canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+										zoomInCounter++;
+
+										if (zoomInCounter > 100) {
+											zoomingIn = false;
+											cancel();
+										}
+									} else {
+										canvas.pan(partDX, partDY);
+										panCounter++;
+									}
+
+								}
+							}
+
+						},0, 10);
+
+
+
+
+
 					canvas.setPin((float)lat,(float)lon);
 					combo.setSelectedItem((null));
 				}
