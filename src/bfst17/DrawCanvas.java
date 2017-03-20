@@ -136,6 +136,7 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 				}
 		}
+		/*
 		if(pin!= null){
 			BufferedImage image = null;
 			try {
@@ -150,7 +151,7 @@ public class DrawCanvas extends JComponent implements Observer {
 			g.drawImage(after,(int)getCenterCordinateX(),(int)getCenterCordinateY(),null);
 			}
 
-
+*/
 		}
 
 

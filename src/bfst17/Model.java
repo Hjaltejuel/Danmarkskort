@@ -95,7 +95,6 @@ public class Model extends Observable implements Serializable {
 			} catch(ClassCastException e) {
 				e.printStackTrace();
 			}
-			
 		}
 	}
 
@@ -109,7 +108,6 @@ public class Model extends Observable implements Serializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public float getMinLon() {
