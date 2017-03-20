@@ -32,7 +32,6 @@ public class AutocompleteJComboBox extends JComboBox {
             }
         });
         this.setBorder(BorderFactory.createLineBorder(Color.lightGray));
-
         this.searcher = s;
         this.setEditable(true);
         Component c = this.getEditor().getEditorComponent();
