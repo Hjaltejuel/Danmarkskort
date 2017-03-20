@@ -22,6 +22,7 @@ public class DrawWindow implements Observer {
 	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
 	private JTextArea userOutput;
+	private JLayeredPane WindowPane;
 
 	public DrawWindow(Model model) {
 		try {
@@ -40,22 +41,28 @@ public class DrawWindow implements Observer {
 		this.addressModel = model.getAddressModel();
 		model.addObserver(this);
 		addressModel.addObserver(this);
-		window = new JFrame("Awesome OSM Visualizer Thingy!!!! 2.0");
-		//window.setLayout(new JLayeredPane());
-		JLayeredPane combopane = new JLayeredPane();
-		combopane.setPreferredSize(new Dimension(750, 750));
+		window = new JFrame("Danmarkskort gruppe A");
+		JLayeredPane WindowPane = new JLayeredPane();
+		window.setPreferredSize(new Dimension(750, 750));
 		canvas = new DrawCanvas(model);
-		canvas.setBounds(0,0,750,750);
 		new CanvasMouseController(canvas, model);
-		combopane.add(canvas,100);
+		WindowPane.add(canvas,100);
 		setUpMenu();
+
 		paintAutocomplete();
-		combopane.add(combo, 50);
-		combo.setBounds(10,10,250,40);
-		window.add(combopane, BorderLayout.CENTER);
+
+		WindowPane.add(combo, 50);
+		combo.setBounds(10,10,300,40);
+		WindowPane.setComponentZOrder(combo,0);
+		WindowPane.setComponentZOrder(canvas,1);
+		window.add(WindowPane, BorderLayout.CENTER);
+
 		window.pack();
+		canvas.setBounds(0,0,window.getWidth(),window.getHeight());
+
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
+
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
 		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
 		new WindowKeyController(this, model);
@@ -106,7 +113,7 @@ public class DrawWindow implements Observer {
 		//this.window.add(this.combo, "North");
 		this.userOutput = new JTextArea();
 		this.userOutput.setEditable(false);
-		this.userOutput.setBackground(Color.LIGHT_GRAY);
+		this.userOutput.setBackground(Color.DARK_GRAY);
 		//this.update((Observable)null, (Object)null);
 	}
 
@@ -271,7 +278,27 @@ public class DrawWindow implements Observer {
 				canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 			}
 		});
+		window.addComponentListener(new ComponentListener() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				canvas.setBounds(0,0,window.getWidth(),window.getHeight());
+			}
 
+			@Override
+			public void componentMoved(ComponentEvent e) {
+
+			}
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e) {
+
+			}
+		});
 
 	}
 
