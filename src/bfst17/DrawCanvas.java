@@ -154,7 +154,6 @@ public class DrawCanvas extends JComponent implements Observer {
 */
 		}
 
-
 	public void smoothPan(double dx, double dy){
 
 	}

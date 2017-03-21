@@ -98,14 +98,13 @@ public class DrawWindow implements Observer {
 					double distanceToCenterY = lat - canvas.getCenterCordinateY();
 					double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
+
 					//distance to center in pixel
 					double dx = distanceToCenterX * canvas.getXZoomFactor();
 					double dy = distanceToCenterY * canvas.getYZoomFactor();
 
 					double partDX = dx/100;
 					double partDY = dy/100;
-
-
 
 					if(150000 / canvas.getXZoomFactor() >= 0.8) {
 						timer.scheduleAtFixedRate(new TimerTask() {
@@ -115,7 +114,6 @@ public class DrawWindow implements Observer {
 							@Override
 							public void run() {
 								if (panCounter > 100) {
-
 
 									canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
 									canvas.zoom(150000 / canvas.getXZoomFactor() * zoomInCounter * 3 / 100);
@@ -130,7 +128,6 @@ public class DrawWindow implements Observer {
 									canvas.pan(partDX, partDY);
 									panCounter++;
 								}
-
 							}
 
 						}, 0, 10);
@@ -150,7 +147,8 @@ public class DrawWindow implements Observer {
 
 									zoomOutCounter--;
 									}
-								else if(zoomOutCounter == 1){
+
+								else if(zoomOutCounter <= 1){
 									//HMMM
 									double lat = -model.getOSMNodeToAddress(s.trim()).getLat();
 									double lon = -model.getOSMNodeToAddress(s.trim()).getLon();
@@ -163,32 +161,33 @@ public class DrawWindow implements Observer {
 									double dx = distanceToCenterX * canvas.getXZoomFactor();
 									double dy = distanceToCenterY * canvas.getYZoomFactor();
 
-									double partDX = dx/100;
-									double partDY = dy/100;
+									double partDX = dx/50;
+									double partDY = dy/50;
 
 									//HMM
 
-									if (panCounter > 99) {
+									if (panCounter > 300) {
 										canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
 										canvas.zoom(150000 / canvas.getXZoomFactor() * zoomInCounter * 3 / 100);
 										canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 										zoomInCounter++;
 
 										if (zoomInCounter > 100) {
-
 											cancel();
 										}
+
 									} else {
 										canvas.pan(partDX, partDY);
 										System.out.println(panCounter);
 										panCounter++;
+
 									}
 
 								}
 							}
 
 
-						}, 0 , 10);
+						}, 0 , 17);
 
 
 					}
