@@ -8,30 +8,23 @@ import java.util.*;
  * Created by Michelle on 3/6/2017.
  */
 public class AddressModel extends Observable implements Serializable {
-    private ArrayList<Address> addresses = new ArrayList<>();
-    private ArrayList<Point2D> points = new ArrayList<>();
 
     public AddressModel() {
-        this.addresses = new ArrayList();
+        this.addressToCordinate = new HashMap<>();
     }
 
-    public ArrayList<Address> getAddresses() {
-        return addresses;
-    }
+    public HashMap<String,Point2D> getAddressToCordinate(){return addressToCordinate;}
 
-    public void add(Address address) {
-        this.addresses.add(address);
-        this.setChanged();
-        this.notifyObservers();
-    }
 
     public void put(String address, Point2D point) {
         addressToCordinate.put(address, point);
+        setChanged();
+        notifyObservers();
     }
 
-    public HashMap<String, Point2D> addressToCordinate = new HashMap<>();
+    public HashMap<String, Point2D> addressToCordinate;
 
     public Point2D getPoint2DToAddress(String address) {
-        return addressToCordinate.get(address);
+        return addressToCordinate.get(Address.parse(address).toString());
     }
 }

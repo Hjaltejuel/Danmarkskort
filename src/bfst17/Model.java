@@ -20,6 +20,7 @@ public class Model extends Observable implements Serializable {
 
 	private AddressModel addressModel = new AddressModel();
 
+
 	public AddressModel getAddressModel() { return addressModel; }
 
 	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
@@ -40,11 +41,10 @@ public class Model extends Observable implements Serializable {
 
 	public Model() {
 		long time = System.nanoTime();
-		load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\resources\\map (4).osm");//this.getClass().getResource("/map.bin").toString());
+		load("C:\\Users\\Michelle\\IdeaProjects\\Danmarkskortet\\resources\\map (4).osm");//this.getClass().getResource("/map.bin").toString());
 
 		//load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\map.bin");//this.getClass().getResource("/map.bin").toString());
 		//load("C:\\Users\\Jens\\Downloads\\denmark-latest-free.shp.zip");
-		System.out.println((System.nanoTime()-time) / 1000000000);
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -65,7 +65,7 @@ public class Model extends Observable implements Serializable {
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
 			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 			out.writeObject(shapes);
-			//out.writeObject(addressModel.addressToCordinate);
+			out.writeObject(addressModel);
 			out.writeFloat(minlon);
 			out.writeFloat(minlat);
 			out.writeFloat(maxlon);
@@ -95,7 +95,7 @@ public class Model extends Observable implements Serializable {
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
 				//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 				shapes = (EnumMap<WayType, List<Shape>>) in.readObject();
-				//addressModel.addressToCordinate = (HashMap<String, Point2D>) in.readObject();
+				addressModel = (AddressModel) in.readObject();
 				minlon = in.readFloat();
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
@@ -272,8 +272,7 @@ public class Model extends Observable implements Serializable {
                         }
 						String address = addressBuilder[0] + " " +  addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
 						postCodeToCity.put(addressBuilder[2], addressBuilder[3]);
-						addressModel.add(Address.parse(address));
-						addressModel.put(address.trim(), idToNode.get(nodeID));
+						addressModel.put(Address.parse(address).toString(), idToNode.get(nodeID));
 						isAddressNode = false;
 					}
 				break;

@@ -9,6 +9,7 @@ import java.awt.event.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by trold on 2/1/17.
@@ -61,10 +62,7 @@ public class DrawWindow implements Observer {
 		this.listItems = new ArrayList();
 
 
-		for (Address a: addressModel.getAddresses()) {
-			this.listItems.add(a.toString().toLowerCase());
-		}
-
+		this.listItems.addAll(addressModel.getAddressToCordinate().keySet().stream().map(a -> a.toString().toLowerCase()).collect(Collectors.toList()));
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
