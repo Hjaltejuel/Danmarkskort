@@ -40,9 +40,9 @@ public class Model extends Observable implements Serializable {
 
 	public Model() {
 		long time = System.nanoTime();
-		//load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\resources\\map (4).osm");//this.getClass().getResource("/map.bin").toString());
+		load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\resources\\map (4).osm");//this.getClass().getResource("/map.bin").toString());
 
-		load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\map.bin");//this.getClass().getResource("/map.bin").toString());
+		//load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\map.bin");//this.getClass().getResource("/map.bin").toString());
 		//load("C:\\Users\\Jens\\Downloads\\denmark-latest-free.shp.zip");
 		System.out.println((System.nanoTime()-time) / 1000000000);
 	}
@@ -65,7 +65,7 @@ public class Model extends Observable implements Serializable {
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
 			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 			out.writeObject(shapes);
-			out.writeObject(addressModel.addressToCordinate);
+			//out.writeObject(addressModel.addressToCordinate);
 			out.writeFloat(minlon);
 			out.writeFloat(minlat);
 			out.writeFloat(maxlon);
@@ -95,7 +95,7 @@ public class Model extends Observable implements Serializable {
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
 				//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 				shapes = (EnumMap<WayType, List<Shape>>) in.readObject();
-				addressModel.addressToCordinate = (HashMap<String, Point2D>) in.readObject();
+				//addressModel.addressToCordinate = (HashMap<String, Point2D>) in.readObject();
 				minlon = in.readFloat();
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
