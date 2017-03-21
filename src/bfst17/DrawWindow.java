@@ -1,10 +1,19 @@
 package bfst17;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 /**
@@ -48,12 +57,8 @@ public class DrawWindow implements Observer {
 		window.pack();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
-
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
-		canvas.zoom(canvas.getWidth() / (model.getMaxLon() - model.getMinLon()));
-		canvas.initialise();
-
-
+		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
 		new WindowKeyController(this, model);
 	}
 
@@ -77,23 +82,22 @@ public class DrawWindow implements Observer {
 			public void keyReleased(KeyEvent event) {
 				if (event.getKeyChar() == 10) {
 					String s = (String) combo.getSelectedItem();
-
 					//points lat, lon
-					float lat = -model.getOSMNodeToAddress(s.trim()).getLat();
-					float lon = -model.getOSMNodeToAddress(s.trim()).getLon();
+					double lat = -model.getOSMNodeToAddress(s.trim()).getLat();
+					double lon = -model.getOSMNodeToAddress(s.trim()).getLon();
 
 					//distance from center of screen in lat lon
-					float distanceToCenterY = lat - canvas.getCenterCordinateY();
-					float distanceToCenterX = lon - canvas.getCenterCordinateX();
+					double distanceToCenterY = lat - canvas.getCenterCordinateY();
+					double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
 					//distance to center in pixel
 					double dx = distanceToCenterX * canvas.getXZoomFactor();
 					double dy = distanceToCenterY * canvas.getYZoomFactor();
-					canvas.setCenter(distanceToCenterX, distanceToCenterY);
 					canvas.pan(dx, dy);
-					canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
+					canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
 					canvas.zoom(150000/canvas.getXZoomFactor());
-					canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
+					canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+					canvas.setPin((float)lat,(float)lon);
 					combo.setSelectedItem((null));
 				}
 
@@ -127,6 +131,34 @@ public class DrawWindow implements Observer {
 		canvas.toggleAA();
 	}
 
+	public void setUpNightMode(JComboBox combo, JMenuBar menu, JMenuItem tools, JMenuItem file){
+		menu.setBackground(new Color(36,47,62));
+		combo.getEditor().getEditorComponent().setBackground(new Color(36,47,62));
+		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
+		component.setForeground(Color.WHITE);
+		component.setCaretColor(Color.WHITE);
+		BasicComboPopup popup = (BasicComboPopup)combo.getAccessibleContext().getAccessibleChild(0);
+		JList list = popup.getList();
+		list.setBackground(new Color(36,47,62));
+		list.setForeground(Color.WHITE);
+		tools.setForeground(Color.WHITE);
+		file.setForeground(Color.WHITE);
+
+	}
+	public void tearDownNightMode(JComboBox combo, JMenuBar menu, JMenuItem tools, JMenuItem file){
+		menu.setBackground(null);
+		combo.getEditor().getEditorComponent().setBackground(Color.WHITE);
+		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
+		component.setForeground(Color.BLACK);
+		component.setCaretColor(Color.BLACK);
+		BasicComboPopup popup = (BasicComboPopup)combo.getAccessibleContext().getAccessibleChild(0);
+		JList list = popup.getList();
+		list.setBackground(null);
+		list.setForeground(null);
+		tools.setForeground(Color.BLACK);
+		file.setForeground(Color.BLACK);
+
+	}
 
 	public void setUpMenu() {
 		JMenuBar menu = new JMenuBar();
@@ -150,7 +182,10 @@ public class DrawWindow implements Observer {
 		zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK));
 		JMenuItem greyScale = new JMenuItem("GreyScale",KeyEvent.VK_G);
 		greyScale.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
+		JMenuItem nightMode = new JMenuItem("NightMode",KeyEvent.VK_N);
+		nightMode.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK));
 
+		tools.add(nightMode);
 		tools.add(greyScale);
 		tools.add(zoomIn);
 		tools.add(zoomOut);
@@ -158,10 +193,32 @@ public class DrawWindow implements Observer {
 
 		window.setJMenuBar(menu);
 
+		nightMode.addActionListener(e->{
+			if(nightMode.getText().equals("NightMode")){
+				canvas.setNightMode();
+				canvas.setGreyScaleFalse();
+				greyScale.setText("GreyScale");
+				canvas.repaint();
+				nightMode.setText("Color");
+				setUpNightMode(combo,menu,tools,file);
+
+
+			} else {
+				canvas.setNightModeFalse();
+				tearDownNightMode(combo,menu,tools,file);
+				canvas.repaint();
+				nightMode.setText("NightMode");
+			}
+		});
 
 		greyScale.addActionListener(e->{
 			if(greyScale.getText().equals("GreyScale")) {
 				canvas.setGreyScale();
+				canvas.setNightModeFalse();
+				if(nightMode.getText().equals("Color")) {
+					nightMode.setText("NightMode");
+					tearDownNightMode(combo,menu,tools,file);
+				}
 		canvas.repaint();
 		greyScale.setText("Color");} else
 			{
@@ -174,19 +231,77 @@ public class DrawWindow implements Observer {
 		save.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String savename = JOptionPane.showInputDialog("Enter a filename to save!");
-				savename += ".bin";
-				model.save(savename);
+				JFileChooser fileChooser = new JFileChooser();
+
+				fileChooser.setDialogTitle("Choose save location");
+
+				int userSelection = fileChooser.showSaveDialog(window);
+
+				if (userSelection == JFileChooser.APPROVE_OPTION) {
+					File fileToSave = fileChooser.getSelectedFile();
+
+					model.save(fileToSave.getAbsolutePath() + ".bin");
+				}
 			}
 		});
 
 		//metode til at loade
 		load.addActionListener(new ActionListener() {
+			boolean first = true;
+			File currentPath;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String loadname = JOptionPane.showInputDialog("Enter the name of the file you want to load.");
-				loadname += ".bin";
-				model.load(loadname);
+				if(first) {
+					currentPath = null;
+				}
+
+				JFileChooser fileChooser = new JFileChooser();
+				if(currentPath != null) {
+					fileChooser.setCurrentDirectory(currentPath);
+				}
+
+				fileChooser.setAcceptAllFileFilterUsed(false);
+				fileChooser.setFileFilter(new FileFilter() {
+					@Override
+					public boolean accept(File file) {
+						return file.getName().endsWith(".osm") || file.getName().endsWith(".bin") || file.getName().endsWith(".zip") || (file.isDirectory() && !file.getName().endsWith(".app"));
+					}
+
+					@Override
+					public String getDescription() {
+						return ".osm files, .bin files or .zip files";
+					}
+				});
+				fileChooser.setDialogTitle("Choose file to load");
+
+				int userSelection = fileChooser.showOpenDialog(window);
+				if (userSelection == JFileChooser.APPROVE_OPTION) {
+
+					File fileToLoad = fileChooser.getSelectedFile();
+					if(fileChooser.accept(fileToLoad) && fileToLoad.exists()){
+						model.load("file:" + fileToLoad.getAbsolutePath());
+						window.dispose();
+						DrawWindow a = new DrawWindow(model);
+						first = true;
+					}
+					else if(!fileChooser.accept(fileToLoad)){
+						JOptionPane.showMessageDialog(window, "You must choose a correct filetype to load");
+						currentPath = fileChooser.getCurrentDirectory();
+						first = false;
+						load.doClick();
+
+					}
+					else if(!fileToLoad.exists()){
+						JOptionPane.showMessageDialog(window, "File does not exist");
+						currentPath = fileChooser.getCurrentDirectory();
+						first = false;
+						load.doClick();
+					}
+
+				}
+
+
 			}
 		});
 
@@ -201,17 +316,17 @@ public class DrawWindow implements Observer {
 		zoomIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
+				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
 				canvas.zoom(1.25);
-				canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
+				canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
 			}
 		});
 		zoomOut.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				canvas.pan(-window.getContentPane().getWidth() / 2, -window.getContentPane().getHeight() / 2);
+                canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
 				canvas.zoom(0.75);
-				canvas.pan(window.getContentPane().getWidth() / 2, window.getContentPane().getHeight() / 2);
+				canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 			}
 		});
 

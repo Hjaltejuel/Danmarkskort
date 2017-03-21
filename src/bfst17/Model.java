@@ -14,16 +14,13 @@ import java.util.zip.ZipInputStream;
  * Created by trold on 2/1/17.
  */
 public class Model extends Observable implements Serializable {
-	private HashMap<String, OSMNode> addressToCordinate = new HashMap<>();
+	private HashMap<String,OSMNode> addressToCordinate = new HashMap<>();
 
-	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class);
-
-	{
+	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
 			shapes.put(type, new ArrayList<>());
 		}
 	}
-
 	private float minlat, minlon, maxlat, maxlon;
 
 	private long nodeID;
@@ -34,23 +31,17 @@ public class Model extends Observable implements Serializable {
 
 	private AddressModel addressModel = new AddressModel();
 
-	private HashMap<String, String> cityMap = new HashMap<String, String>();
+	private HashMap<String,String> cityMap = new HashMap<String,String>();
 
-	public OSMNode getOSMNodeToAddress(String address) {
-		return addressToCordinate.get(address);
-	}
+	public OSMNode getOSMNodeToAddress(String address){return addressToCordinate.get(address);}
 
-	public AddressModel getAddressModel() {
-		return addressModel;
-	}
+	public AddressModel getAddressModel() {return addressModel;}
 
 	public Model(String filename) {
 		load(filename);
 	}
 
-	long time;
 	public Model() {
-
 		load(this.getClass().getResource("/map (4).osm").toString());
 	}
 
@@ -93,7 +84,7 @@ public class Model extends Observable implements Serializable {
 			}
 		} else {
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
-				shapes = (EnumMap<WayType, List<Shape>>) in.readObject();
+				shapes = (EnumMap<WayType,List<Shape>>) in.readObject();
 				dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -101,10 +92,9 @@ public class Model extends Observable implements Serializable {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
-			} catch (ClassCastException e) {
+			} catch(ClassCastException e) {
 				e.printStackTrace();
 			}
-
 		}
 	}
 
@@ -118,7 +108,6 @@ public class Model extends Observable implements Serializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public float getMinLon() {
@@ -133,11 +122,10 @@ public class Model extends Observable implements Serializable {
 		return maxlon;
 	}
 
-	public float getMinLat() {
-		return minlat;
-	}
+	public float getMinLat() {return minlat;}
 
-	public void addToBounds(float newMaxLat, float newMinLat, float newMaxLon, float newMinLon) {
+	public void addToBounds(float newMaxLat,float newMinLat,float newMaxLon,float newMinLon)
+	{
 		maxlat += newMaxLat;
 		minlat += newMinLat;
 		maxlon += newMaxLon;
@@ -145,9 +133,9 @@ public class Model extends Observable implements Serializable {
 	}
 
 	private class OSMHandler implements ContentHandler {
-		Map<Long, OSMNode> idToNode = new HashMap<>();
-		Map<Long, OSMWay> idToWay = new HashMap<>();
-		Map<OSMNode, OSMWay> coastlines = new HashMap<>();
+		Map<Long,OSMNode> idToNode = new HashMap<>();
+		Map<Long,OSMWay> idToWay = new HashMap<>();
+		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
 		OSMWay way;
 		OSMRelation relation;
 		WayType type;
@@ -165,7 +153,7 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
-			for (String s : cityMap.keySet()) {
+			for(String s: cityMap.keySet()){
 				addressModel.add(Address.parse(cityMap.get(s)));
 				addressModel.add(Address.parse(s + " " + cityMap.get(s)));
 			}
@@ -183,7 +171,8 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-			switch (qName) {
+
+			switch(qName) {
 				case "bounds":
 					minlat = Float.parseFloat(atts.getValue("minlat"));
 					minlon = Float.parseFloat(atts.getValue("minlon"));
@@ -260,26 +249,24 @@ public class Model extends Observable implements Serializable {
 		public void endElement(String uri, String localName, String qName) throws SAXException {
 			switch (qName) {
 				case "node":
-					if (isAddressNode == true) {
-						for (int i = 0; i < addressBuilder.length; i++) {
-							if (addressBuilder[i] == null) {
-								addressBuilder[i] = "";
-							}
-						}
-						String address = addressBuilder[0] + " " + addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
-						cityMap.put(addressBuilder[2], addressBuilder[3]);
+					if(isAddressNode == true) {
+                        for(int i = 0; i < addressBuilder.length; i++){
+                            if(addressBuilder[i] == null){addressBuilder[i] = "";}
+                        }
+						String address = addressBuilder[0] + " " +  addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
+						cityMap.put(addressBuilder[2],addressBuilder[3]);
 						addressModel.add(Address.parse(address));
 						addressToCordinate.put(address.trim(), idToNode.get(nodeID));
 						isAddressNode = false;
 					}
-					break;
+				break;
 				case "way":
 					if (type == WayType.NATURAL_COASTLINE) {
 						OSMWay before = coastlines.remove(way.getFromNode());
 						OSMWay after = coastlines.remove(way.getToNode());
 						OSMWay merged = new OSMWay();
 						if (before != null) {
-							merged.addAll(before.subList(0, before.size() - 1));
+							merged.addAll(before.subList(0, before.size()-1));
 						}
 						merged.addAll(way);
 						if (after != null) {

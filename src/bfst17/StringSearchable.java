@@ -28,7 +28,7 @@ public class StringSearchable {
 
             }
             int i = 0;
-            while(i <10 && !priority.isEmpty()){
+            while(i <5 && !priority.isEmpty()){
                 founds.add(priority.poll().getAddress());
                 i++;
             }
