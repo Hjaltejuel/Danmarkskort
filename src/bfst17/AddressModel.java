@@ -13,6 +13,7 @@ public class AddressModel extends Observable implements Serializable {
         this.addressToCordinate = new HashMap<>();
     }
 
+
     public HashMap<String,Point2D> getAddressToCordinate(){return addressToCordinate;}
 
 

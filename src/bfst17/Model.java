@@ -15,6 +15,7 @@ import java.util.zip.ZipInputStream;
  */
 public class Model extends Observable implements Serializable {
 	private String[] addressBuilder = new String[4];
+	OSMHandler OSMH;
 
 	private boolean isAddressNode = false;
 
@@ -41,10 +42,10 @@ public class Model extends Observable implements Serializable {
 
 	public Model() {
 		long time = System.nanoTime();
-		load("C:\\Users\\Michelle\\IdeaProjects\\Danmarkskortet\\resources\\map (4).osm");//this.getClass().getResource("/map.bin").toString());
+		//load("C:\\Users\\Jakob Roos\\workspace\\Danmarkskortet\\resources\\map (4).osm");//this.getClass().getResource("/map.bin").toString());
 
-		//load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\map.bin");//this.getClass().getResource("/map.bin").toString());
-		//load("C:\\Users\\Jens\\Downloads\\denmark-latest-free.shp.zip");
+		load("C:\\Users\\Jakob Roos\\workspace\\Danmarkskortet\\resources\\map.bin");//this.getClass().getResource("/map.bin").toString());
+		//load("C:\\Users\\Jakob Roos\\Downloads\\denmark-latest-free.shp.zip");
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -64,7 +65,17 @@ public class Model extends Observable implements Serializable {
 	public void save(String filename) {
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
 			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
+
 			out.writeObject(shapes);
+
+			Iterator it = addressModel.addressToCordinate.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry pair = (Map.Entry)it.next();
+				LongToPointMap.Node N = (LongToPointMap.Node)addressModel.addressToCordinate.get(pair.getKey());
+				N.setNextNodeToNull();
+				addressModel.addressToCordinate.replace((String)pair.getKey(),(Point2D)pair.getValue(), N);
+				it.remove(); // avoids a ConcurrentModificationException
+			 }
 			out.writeObject(addressModel);
 			out.writeFloat(minlon);
 			out.writeFloat(minlat);
@@ -118,6 +129,7 @@ public class Model extends Observable implements Serializable {
 			XMLReader reader = XMLReaderFactory.createXMLReader();
 			reader.setContentHandler(new OSMHandler());
 			reader.parse(source);
+			OSMH = (OSMHandler)reader.getContentHandler();
 		} catch (SAXException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -159,6 +171,10 @@ public class Model extends Observable implements Serializable {
 		@Override
 		public void setDocumentLocator(Locator locator) {
 
+		}
+		 public LongToPointMap getIdToNode()
+		{
+			return idToNode;
 		}
 
 		@Override
