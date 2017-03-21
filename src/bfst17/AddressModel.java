@@ -9,13 +9,14 @@ import java.util.*;
  */
 public class AddressModel extends Observable implements Serializable {
     private ArrayList<Address> addresses = new ArrayList<>();
+    private ArrayList<Point2D> points = new ArrayList<>();
 
     public AddressModel() {
         this.addresses = new ArrayList();
     }
 
-    public Set<Address> getAddresses() {
-        return addressToCordinate.keySet();
+    public ArrayList<Address> getAddresses() {
+        return addresses;
     }
 
     public void add(Address address) {
@@ -24,11 +25,13 @@ public class AddressModel extends Observable implements Serializable {
         this.notifyObservers();
     }
 
-    public void put(String address, Point2D point){
+    public void put(String address, Point2D point) {
         addressToCordinate.put(address, point);
     }
 
-    private HashMap<String, Point2D> addressToCordinate = new HashMap<>();
-    public Point2D getPoint2DToAddress(String address){ return addressToCordinate.get(address); }
+    public HashMap<String, Point2D> addressToCordinate = new HashMap<>();
 
+    public Point2D getPoint2DToAddress(String address) {
+        return addressToCordinate.get(address);
+    }
 }
