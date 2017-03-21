@@ -19,6 +19,7 @@ public class KDTree{
 
         public Node(Point2D point,Node left,Node right, boolean isVertical) {
             this.point = point;
+
             this.left = left;
             this.right = right;
             this.isVertical = isVertical;

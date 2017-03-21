@@ -17,8 +17,6 @@ import java.util.zip.ZipInputStream;
  */
 public class Model extends Observable implements Serializable {
 	private HashMap<String,Point2D> addressToCordinate = new HashMap<>();
-	private KDTree tree = new KDTree();
-
 	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
 			shapes.put(type, new ArrayList<>());
@@ -141,6 +139,7 @@ public class Model extends Observable implements Serializable {
 		LongToPointMap idToNode = new LongToPointMap(18000000);
 		Map<Long,OSMWay> idToWay = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
+		private KDTree tree = new KDTree();
 		OSMWay way;
 		OSMRelation relation;
 		WayType type;
