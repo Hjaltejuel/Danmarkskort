@@ -1,27 +1,31 @@
 package bfst17;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Observable;
+import java.awt.geom.Point2D;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Created by Michelle on 3/6/2017.
  */
-public class AddressModel extends Observable{
-    private ArrayList<Address> addresses = new ArrayList<Address>();
+public class AddressModel extends Observable implements Serializable {
 
     public AddressModel() {
-        this.addresses = new ArrayList();
+        this.addressToCordinate = new HashMap<>();
     }
 
-    public void add(Address address) {
-        this.addresses.add(address);
-        this.setChanged();
-        this.notifyObservers();
+
+    public HashMap<String,Point2D> getAddressToCordinate(){return addressToCordinate;}
+
+
+    public void put(String address, Point2D point) {
+        addressToCordinate.put(address, point);
+        setChanged();
+        notifyObservers();
     }
 
-    public Iterator<Address> iterator() {
-        return this.addresses.iterator();
-    }
+    public HashMap<String, Point2D> addressToCordinate;
 
+    public Point2D getPoint2DToAddress(String address) {
+        return addressToCordinate.get(Address.parse(address).toString());
+    }
 }
