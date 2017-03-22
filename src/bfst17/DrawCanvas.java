@@ -26,6 +26,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	Model model;
 	AffineTransform transform = new AffineTransform();
 	boolean antiAlias;
+	boolean firstTime = true;
 	boolean greyScale = false;
 	boolean nightmode = false;
 	Point2D pin;
@@ -102,7 +103,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		//Draw all shapes
 
-		for(WayType type: WayType.values()) {
+		for(WayType type: WayType.values())
+		{
 			if(!greyScale && !nightmode) {
 				g.setColor(type.getDrawColor());
 			} else if(greyScale)
@@ -134,7 +136,8 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 				}
 		}
-		/*if(pin!= null){
+		/*
+		if(pin!= null){
 			BufferedImage image = null;
 			try {
 				image = ImageIO.read(getClass().getClassLoader().getResource("google-maps-marker-for-residencelamontagne-hi.png"));
@@ -147,6 +150,7 @@ public class DrawCanvas extends JComponent implements Observer {
 			after =tx.filter(image,after);
 			g.drawImage(after,(int)getCenterCordinateX(),(int)getCenterCordinateY(),null);
 			}
+
 */
 		}
 
@@ -154,7 +158,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	public void pan(double dx, double dy) {
 		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
-        repaint();
+		repaint();
+        revalidate();
 	}
 
 
@@ -176,7 +181,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	public void zoom(double factor) {
 		transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
-        repaint();
+		repaint();
+        revalidate();
 	}
 
 	public Point2D toModelCoords(Point2D lastMousePosition) {
@@ -188,8 +194,9 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
 	public void toggleAA() {
-        antiAlias = !antiAlias;
-        repaint();
+		antiAlias = !antiAlias;
+		repaint();
+        revalidate();
 	}
 }
 

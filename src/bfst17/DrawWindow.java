@@ -2,12 +2,18 @@ package bfst17;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -220,19 +226,77 @@ public class DrawWindow implements Observer {
 		save.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String savename = JOptionPane.showInputDialog("Enter a filename to save!");
-				savename += ".bin";
-				model.save(savename);
+				JFileChooser fileChooser = new JFileChooser();
+
+				fileChooser.setDialogTitle("Choose save location");
+
+				int userSelection = fileChooser.showSaveDialog(window);
+
+				if (userSelection == JFileChooser.APPROVE_OPTION) {
+					File fileToSave = fileChooser.getSelectedFile();
+
+					model.save(fileToSave.getAbsolutePath() + ".bin");
+				}
 			}
 		});
 
 		//metode til at loade
 		load.addActionListener(new ActionListener() {
+			boolean first = true;
+			File currentPath;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String loadname = JOptionPane.showInputDialog("Enter the name of the file you want to load.");
-				loadname += ".bin";
-				model.load(loadname);
+				if(first) {
+					currentPath = null;
+				}
+
+				JFileChooser fileChooser = new JFileChooser();
+				if(currentPath != null) {
+					fileChooser.setCurrentDirectory(currentPath);
+				}
+
+				fileChooser.setAcceptAllFileFilterUsed(false);
+				fileChooser.setFileFilter(new FileFilter() {
+					@Override
+					public boolean accept(File file) {
+						return file.getName().endsWith(".osm") || file.getName().endsWith(".bin") || file.getName().endsWith(".zip") || (file.isDirectory() && !file.getName().endsWith(".app"));
+					}
+
+					@Override
+					public String getDescription() {
+						return ".osm files, .bin files or .zip files";
+					}
+				});
+				fileChooser.setDialogTitle("Choose file to load");
+
+				int userSelection = fileChooser.showOpenDialog(window);
+				if (userSelection == JFileChooser.APPROVE_OPTION) {
+
+					File fileToLoad = fileChooser.getSelectedFile();
+					if(fileChooser.accept(fileToLoad) && fileToLoad.exists()){
+						model.load("file:" + fileToLoad.getAbsolutePath());
+						window.dispose();
+						DrawWindow a = new DrawWindow(model);
+						first = true;
+					}
+					else if(!fileChooser.accept(fileToLoad)){
+						JOptionPane.showMessageDialog(window, "You must choose a correct filetype to load");
+						currentPath = fileChooser.getCurrentDirectory();
+						first = false;
+						load.doClick();
+
+					}
+					else if(!fileToLoad.exists()){
+						JOptionPane.showMessageDialog(window, "File does not exist");
+						currentPath = fileChooser.getCurrentDirectory();
+						first = false;
+						load.doClick();
+					}
+
+				}
+
+
 			}
 		});
 
