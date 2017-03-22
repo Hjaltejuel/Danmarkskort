@@ -15,7 +15,7 @@ import java.util.zip.ZipInputStream;
  */
 public class Model extends Observable implements Serializable {
 	private String[] addressBuilder = new String[4];
-	OSMHandler OSMH;
+
 
 	private boolean isAddressNode = false;
 
@@ -74,7 +74,6 @@ public class Model extends Observable implements Serializable {
 				LongToPointMap.Node N = (LongToPointMap.Node)addressModel.addressToCordinate.get(pair.getKey());
 				N.setNextNodeToNull();
 				addressModel.addressToCordinate.replace((String)pair.getKey(),(Point2D)pair.getValue(), N);
-				it.remove(); // avoids a ConcurrentModificationException
 			 }
 			out.writeObject(addressModel);
 			out.writeFloat(minlon);
@@ -129,7 +128,6 @@ public class Model extends Observable implements Serializable {
 			XMLReader reader = XMLReaderFactory.createXMLReader();
 			reader.setContentHandler(new OSMHandler());
 			reader.parse(source);
-			OSMH = (OSMHandler)reader.getContentHandler();
 		} catch (SAXException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
