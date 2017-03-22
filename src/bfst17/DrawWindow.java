@@ -88,6 +88,7 @@ public class DrawWindow implements Observer {
 
 
 		this.listItems.addAll(addressModel.getAddressToCordinate().keySet().stream().map(a -> a.toString().toLowerCase()).collect(Collectors.toList()));
+
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);

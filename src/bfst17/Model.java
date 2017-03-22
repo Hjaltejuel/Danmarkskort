@@ -16,6 +16,7 @@ import java.util.zip.ZipInputStream;
 public class Model extends Observable implements Serializable {
 	private String[] addressBuilder = new String[4];
 
+	private HashSet<String> PostCode = new HashSet<>();
 
 	private boolean isAddressNode = false;
 
@@ -33,8 +34,6 @@ public class Model extends Observable implements Serializable {
 	private float minlat, minlon, maxlat, maxlon;
 
 	private long nodeID;
-
-	private HashMap<String,String> postCodeToCity = new HashMap<>();
 
 	public Model(String filename) {
 		load(filename);
@@ -172,6 +171,9 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
+			for(String s: PostCode){
+				addressModel.put(s,null);
+			}
 		}
 
 		@Override
@@ -275,7 +277,8 @@ public class Model extends Observable implements Serializable {
                             if(addressBuilder[i] == null){addressBuilder[i] = "";}
                         }
 						String address = addressBuilder[0] + " " +  addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
-						postCodeToCity.put(addressBuilder[2], addressBuilder[3]);
+						PostCode.add(addressBuilder[2] + " " + addressBuilder[3]);
+						PostCode.add(addressBuilder[3]);
 						LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
 						LongToPointMap.Node k = new LongToPointMap.Node(m.key,(float)m.getX(),(float)m.getY(),null);
 						addressModel.put(Address.parse(address).toString(), k);
