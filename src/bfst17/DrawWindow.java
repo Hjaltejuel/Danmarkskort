@@ -395,7 +395,7 @@ public class DrawWindow implements Observer {
 
 					File fileToLoad = fileChooser.getSelectedFile();
 					if(fileChooser.accept(fileToLoad) && fileToLoad.exists()){
-						model.load("file:" + fileToLoad.getAbsolutePath());
+						model.load(fileToLoad.getAbsolutePath());
 						window.dispose();
 						DrawWindow a = new DrawWindow(model);
 						first = true;
