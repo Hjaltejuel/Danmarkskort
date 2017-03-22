@@ -136,19 +136,7 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 				}
 		}
-		if(pin!= null){
-			BufferedImage image = null;
-			try {
-				image = ImageIO.read(getClass().getClassLoader().getResource("google-maps-marker-for-residencelamontagne-hi.png"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			AffineTransformOp tx = new AffineTransformOp(transform,AffineTransformOp.TYPE_BILINEAR);
-			
-			BufferedImage after = new BufferedImage(image.getWidth(),image.getHeight(),TYPE_INT_RGB);
-			after =tx.filter(image,after);
-			g.drawImage(after,(int)getCenterCordinateX(),(int)getCenterCordinateY(),null);
-			}
+
 
 
 		}
