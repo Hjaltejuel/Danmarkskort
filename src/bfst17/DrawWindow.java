@@ -25,7 +25,7 @@ public class DrawWindow implements Observer {
 	private JLayeredPane WindowPane;
 	private JPopupMenu popUpMenu;
     boolean isClicked =false;
-
+        //få filer ind
 
     public DrawWindow(Model model) {
 		try {
