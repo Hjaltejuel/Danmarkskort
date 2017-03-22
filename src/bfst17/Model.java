@@ -43,8 +43,7 @@ public class Model extends Observable implements Serializable {
 	public Model() {
 		long time = System.nanoTime();
 		//load("C:\\Users\\Jakob Roos\\workspace\\Danmarkskortet\\resources\\map (4).osm");//this.getClass().getResource("/map.bin").toString());
-
-		load("C:\\Users\\Jakob Roos\\workspace\\Danmarkskortet\\resources\\map.bin");//this.getClass().getResource("/map.bin").toString());
+         load("C:\\Users\\Michelle\\IdeaProjects\\Danmarkskortet\\resources\\map.bin");//this.getClass().getResource("/map.bin").toString());
 		//load("C:\\Users\\Jakob Roos\\Downloads\\denmark-latest-free.shp.zip");
 	}
 
