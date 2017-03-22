@@ -1,5 +1,6 @@
 package bfst17;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
@@ -103,8 +104,8 @@ public class DrawWindow implements Observer {
 	public void search(){
         String s = (String) combo.getSelectedItem();
         //points lat, lon
-        double lat = -model.getOSMNodeToAddress(s.trim()).getLat();
-        double lon = -model.getOSMNodeToAddress(s.trim()).getLon();
+        double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
+        double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
 
         //distance from center of screen in lat lon
         double distanceToCenterY = lat - canvas.getCenterCordinateY();
