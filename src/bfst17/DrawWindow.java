@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by trold on 2/1/17.
@@ -27,13 +28,10 @@ public class DrawWindow implements Observer {
 	private ArrayList listItems;
 	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
-	private JTextArea userOutput;
-	private JLayeredPane WindowPane;
 
 	public DrawWindow(Model model) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
@@ -47,32 +45,20 @@ public class DrawWindow implements Observer {
 		this.addressModel = model.getAddressModel();
 		model.addObserver(this);
 		addressModel.addObserver(this);
-		window = new JFrame("Danmarkskort gruppe A");
-		JLayeredPane WindowPane = new JLayeredPane();
-		window.setPreferredSize(new Dimension(750, 750));
+		window = new JFrame("Awesome OSM Visualizer Thingy!!!! 2.0");
+		window.setLayout(new BorderLayout());
 		canvas = new DrawCanvas(model);
+		canvas.setPreferredSize(new Dimension(500, 500));
 		new CanvasMouseController(canvas, model);
-		WindowPane.add(canvas,100);
+		window.add(canvas, BorderLayout.CENTER);
 		setUpMenu();
-
 		paintAutocomplete();
-
-		WindowPane.add(combo, 50);
-		combo.setBounds(10,10,300,40);
-		WindowPane.setComponentZOrder(combo,0);
-		WindowPane.setComponentZOrder(canvas,1);
-		window.add(WindowPane, BorderLayout.CENTER);
-
 		window.pack();
-		canvas.setBounds(0,0,window.getWidth(),window.getHeight());
-
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
-
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
 		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
 		new WindowKeyController(this, model);
-
 	}
 
 	/**
@@ -80,47 +66,39 @@ public class DrawWindow implements Observer {
 	 */
 	public void paintAutocomplete() {
 		this.listItems = new ArrayList();
-		Iterator var2 = addressModel.iterator();
 
-		while (var2.hasNext()) {
-			Address address = (Address) var2.next();
-			this.listItems.add(address.toString().toLowerCase());
-		}
 
+		this.listItems.addAll(addressModel.getAddressToCordinate().keySet().stream().map(a -> a.toString().toLowerCase()).collect(Collectors.toList()));
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-		this.combo.setPreferredSize(new Dimension(250, 40));
+		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if (event.getKeyChar() == 10) {
 					String s = (String) combo.getSelectedItem();
 					//points lat, lon
-					double lat = -model.getOSMNodeToAddress(s.trim()).getLat();
-					double lon = -model.getOSMNodeToAddress(s.trim()).getLon();
+					double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
+					double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
 
 					//distance from center of screen in lat lon
 					double distanceToCenterY = lat - canvas.getCenterCordinateY();
 					double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
+					System.out.println(canvas.getCenterCordinateY() + " " + canvas.getCenterCordinateX());
 					//distance to center in pixel
 					double dx = distanceToCenterX * canvas.getXZoomFactor();
 					double dy = distanceToCenterY * canvas.getYZoomFactor();
 					canvas.pan(dx, dy);
 					canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-					canvas.zoom(150000/canvas.getXZoomFactor());
+					canvas.zoom(150000 / canvas.getXZoomFactor());
 					canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
-					canvas.setPin((float)lat,(float)lon);
+					canvas.setPin((float) lat, (float) lon);
 					combo.setSelectedItem((null));
 				}
-
 			}
 		});
-		//this.window.add(this.combo, "North");
-		this.userOutput = new JTextArea();
-		this.userOutput.setEditable(false);
-		this.userOutput.setBackground(Color.DARK_GRAY);
-		//this.update((Observable)null, (Object)null);
+		this.window.add(this.combo, "North");
 	}
 
 	/**
@@ -212,6 +190,7 @@ public class DrawWindow implements Observer {
 				canvas.setGreyScaleFalse();
 				greyScale.setText("GreyScale");
 				canvas.repaint();
+				canvas.revalidate();
 				nightMode.setText("Color");
 				setUpNightMode(combo,menu,tools,file);
 
@@ -220,6 +199,7 @@ public class DrawWindow implements Observer {
 				canvas.setNightModeFalse();
 				tearDownNightMode(combo,menu,tools,file);
 				canvas.repaint();
+				canvas.revalidate();
 				nightMode.setText("NightMode");
 			}
 		});
@@ -233,10 +213,12 @@ public class DrawWindow implements Observer {
 					tearDownNightMode(combo,menu,tools,file);
 				}
 		canvas.repaint();
+				canvas.revalidate();
 		greyScale.setText("Color");} else
 			{
 					canvas.setGreyScaleFalse();
 				canvas.repaint();
+				canvas.revalidate();
 				greyScale.setText("GreyScale");
 			}
 		});
@@ -342,27 +324,7 @@ public class DrawWindow implements Observer {
 				canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 			}
 		});
-		window.addComponentListener(new ComponentListener() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				canvas.setBounds(0,0,window.getWidth(),window.getHeight());
-			}
 
-			@Override
-			public void componentMoved(ComponentEvent e) {
-
-			}
-
-			@Override
-			public void componentShown(ComponentEvent e) {
-
-			}
-
-			@Override
-			public void componentHidden(ComponentEvent e) {
-
-			}
-		});
 
 	}
 

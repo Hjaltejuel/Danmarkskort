@@ -1,11 +1,12 @@
 package bfst17;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Address {
+public class Address implements Serializable {
     private final String street, house, floor, side, postcode, city;
     private static HashMap<Integer, String> postCodeHashMap;
 
@@ -17,9 +18,6 @@ public class Address {
         postcode = _postcode;
         city = _city;
     }
-
-
-
 
     public String toString() {
         String floorSideString = "";
