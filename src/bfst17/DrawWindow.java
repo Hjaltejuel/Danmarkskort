@@ -112,7 +112,6 @@ public class DrawWindow implements Observer {
         if(150000 / canvas.getXZoomFactor() >= 0.8) {
             canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
         }
-
         //er zoomet langt ind og afstanden er lang
         else{
             canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
@@ -276,7 +275,7 @@ public class DrawWindow implements Observer {
 		popUpMenu.add(load);
 		popUpMenu.addSeparator();
 
-		tools = new JMenu("Tools");
+		JMenu tools = new JMenu("Tools");
 		JMenuItem zoomIn = new JMenuItem("Zoom In", KeyEvent.VK_PLUS);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS,Event.CTRL_MASK),"action1",zoomIn);
 
