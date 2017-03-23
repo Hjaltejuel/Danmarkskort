@@ -2,8 +2,8 @@ package bfst17;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
-
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -13,8 +13,7 @@ import java.awt.image.ImageObserver;
 import java.awt.image.renderable.RenderableImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 
@@ -154,16 +153,78 @@ public class DrawCanvas extends JComponent implements Observer {
 */
 		}
 
-	public void smoothPan(double dx, double dy){
-
-	}
-
-
 	public void pan(double dx, double dy) {
 		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
 		repaint();
         revalidate();
 	}
+
+	public void panSlow(double partDX, double partDY) {
+		java.util.Timer timer = new java.util.Timer();
+
+			timer.scheduleAtFixedRate(new TimerTask() {
+				int panCounter = 1;
+
+				@Override
+				public void run() {
+					if (panCounter > 100) {
+                        zoomInSlow();
+						cancel();
+					}
+					else {
+						pan(partDX, partDY);
+						panCounter++;
+					}
+				}
+
+			}, 0, 10);
+	}
+
+	public void zoomInSlow(){
+		java.util.Timer timer = new java.util.Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            int zoomInCounter = 1;
+
+            @Override
+            public void run() {
+                if (zoomInCounter > 100) {
+                    cancel();
+                }
+                else{
+                    pan(-getWidth() / 2, -getHeight() / 2);
+                    zoom(150000 / getXZoomFactor() * zoomInCounter * 3 / 100);
+                    pan(getWidth() / 2, getHeight() / 2);
+                    zoomInCounter++;
+                }
+
+            }
+        }, 0 , 20);
+
+	}
+
+    public void zoomOutSlow(double partDX, double partDY) {
+        java.util.Timer timer = new java.util.Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            int zoomOutCounter = 1;
+
+            @Override
+            public void run() {
+                if(zoomOutCounter >= 100) {
+                    panSlow(partDX, partDY);
+                    cancel();
+                }
+                else if (zoomOutCounter < 100){
+                    pan(-getWidth() / 2, -getHeight() / 2);
+                    zoom(150000 / getXZoomFactor() * 10 / zoomOutCounter);
+                    pan(getWidth() / 2, getHeight() / 2);
+
+                    zoomOutCounter++;
+                }
+            }
+        }, 0 , 20);
+    }
+
+
 
 
 

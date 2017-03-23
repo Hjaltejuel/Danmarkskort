@@ -85,10 +85,12 @@ public class DrawWindow implements Observer {
 		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 
+			boolean needToZoomOut = false;
+
 			public void keyReleased(KeyEvent event) {
-				Timer timer = new Timer();
 
 				if (event.getKeyChar() == 10) {
+
 					String s = (String) combo.getSelectedItem();
 					//points lat, lon
 					double lat = -model.getOSMNodeToAddress(s.trim()).getLat();
@@ -107,89 +109,10 @@ public class DrawWindow implements Observer {
 					double partDY = dy/100;
 
 					if(150000 / canvas.getXZoomFactor() >= 0.8) {
-						timer.scheduleAtFixedRate(new TimerTask() {
-							int panCounter = 1;
-							int zoomInCounter = 1;
-
-							@Override
-							public void run() {
-								if (panCounter > 100) {
-
-									canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-									canvas.zoom(150000 / canvas.getXZoomFactor() * zoomInCounter * 3 / 100);
-									canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
-									zoomInCounter++;
-
-									if (zoomInCounter > 100) {
-
-										cancel();
-									}
-								} else {
-									canvas.pan(partDX, partDY);
-									panCounter++;
-								}
-							}
-
-						}, 0, 10);
+						canvas.panSlow(partDX, partDY);
 					}
-
-					if(150000 / canvas.getXZoomFactor() < 0.8){
-						timer.scheduleAtFixedRate(new TimerTask() {
-							int zoomOutCounter = 99;
-							int panCounter = 1;
-							int zoomInCounter = 1;
-							@Override
-							public void run() {
-								if (zoomOutCounter > 1) {
-									canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-									canvas.zoom(150000 / canvas.getXZoomFactor() * zoomOutCounter * 0.05);
-									canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
-
-									zoomOutCounter--;
-									}
-
-								else if(zoomOutCounter <= 1){
-									//HMMM
-									double lat = -model.getOSMNodeToAddress(s.trim()).getLat();
-									double lon = -model.getOSMNodeToAddress(s.trim()).getLon();
-
-									//distance from center of screen in lat lon
-									double distanceToCenterY = lat - canvas.getCenterCordinateY();
-									double distanceToCenterX = lon - canvas.getCenterCordinateX();
-
-									//distance to center in pixel
-									double dx = distanceToCenterX * canvas.getXZoomFactor();
-									double dy = distanceToCenterY * canvas.getYZoomFactor();
-
-									double partDX = dx/50;
-									double partDY = dy/50;
-
-									//HMM
-
-									if (panCounter > 300) {
-										canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-										canvas.zoom(150000 / canvas.getXZoomFactor() * zoomInCounter * 3 / 100);
-										canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
-										zoomInCounter++;
-
-										if (zoomInCounter > 100) {
-											cancel();
-										}
-
-									} else {
-										canvas.pan(partDX, partDY);
-										System.out.println(panCounter);
-										panCounter++;
-
-									}
-
-								}
-							}
-
-
-						}, 0 , 17);
-
-
+					else{
+						canvas.zoomOutSlow(partDX, partDY);
 					}
 
 					canvas.setPin((float)lat,(float)lon);
