@@ -7,9 +7,14 @@ public class Node extends Point2D.Float implements Comparable<Node> {
     Node next;
     long key;
 
-    public Node(long _key, float x, float y) {
+    public Node(long _key, float x, float y, Node _next) {
         super(x, y);
         key = _key;
+        next = _next;
+    }
+    public void setNextNodeToNull()
+    {
+        this.next = null;
     }
 
     public int compareTo(Node n){
