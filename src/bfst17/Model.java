@@ -1,10 +1,10 @@
 package bfst17;
 
-import org.w3c.dom.Node;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -14,35 +14,33 @@ import java.util.zip.ZipInputStream;
  * Created by trold on 2/1/17.
  */
 public class Model extends Observable implements Serializable {
-	private HashMap<String,OSMNode> addressToCordinate = new HashMap<>();
+	private String[] addressBuilder = new String[4];
+
+	private HashSet<String> PostCode = new HashSet<>();
+
+	private boolean isAddressNode = false;
+
+	private AddressModel addressModel = new AddressModel();
+
+
+	public AddressModel getAddressModel() { return addressModel; }
 
 	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
 			shapes.put(type, new ArrayList<>());
 		}
 	}
+
 	private float minlat, minlon, maxlat, maxlon;
 
 	private long nodeID;
-
-	private String[] addressBuilder = new String[4];
-
-	private boolean isAddressNode = false;
-
-	private AddressModel addressModel = new AddressModel();
-
-	private HashMap<String,String> cityMap = new HashMap<String,String>();
-
-	public OSMNode getOSMNodeToAddress(String address){return addressToCordinate.get(address);}
-
-	public AddressModel getAddressModel() {return addressModel;}
 
 	public Model(String filename) {
 		load(filename);
 	}
 
 	public Model() {
-		load(this.getClass().getResource("/map (4).osm").toString());
+		long time = System.nanoTime();
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -61,7 +59,14 @@ public class Model extends Observable implements Serializable {
 
 	public void save(String filename) {
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 			out.writeObject(shapes);
+			out.writeObject(addressModel);
+			out.writeFloat(minlon);
+			out.writeFloat(minlat);
+			out.writeFloat(maxlon);
+			out.writeFloat(maxlat);
+			out.flush();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -84,15 +89,24 @@ public class Model extends Observable implements Serializable {
 			}
 		} else {
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
-				shapes = (EnumMap<WayType,List<Shape>>) in.readObject();
+				//Ryk rundt på dem her og få med Jens' knytnæve at bestille
+				double one = System.nanoTime();
+				shapes = (EnumMap<WayType, List<Shape>>) in.readObject();
+				addressModel = (AddressModel) in.readObject();
+				minlon = in.readFloat();
+				minlat = in.readFloat();
+				maxlon = in.readFloat();
+				maxlat = in.readFloat();
 				dirty();
+				double two = System.nanoTime();
+				System.out.println(two-one/(100000000));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
-			} catch(ClassCastException e) {
+			} catch (ClassCastException e) {
 				e.printStackTrace();
 			}
 		}
@@ -133,8 +147,8 @@ public class Model extends Observable implements Serializable {
 	}
 
 	private class OSMHandler implements ContentHandler {
-		Map<Long,OSMNode> idToNode = new HashMap<>();
-		Map<Long,OSMWay> idToWay = new HashMap<>();
+		LongToPointMap idToNode = new LongToPointMap(18000000);
+		Map<Long, OSMWay> idToWay = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
 		OSMWay way;
 		OSMRelation relation;
@@ -145,6 +159,10 @@ public class Model extends Observable implements Serializable {
 		public void setDocumentLocator(Locator locator) {
 
 		}
+		 public LongToPointMap getIdToNode()
+		{
+			return idToNode;
+		}
 
 		@Override
 		public void startDocument() throws SAXException {
@@ -153,9 +171,8 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
-			for(String s: cityMap.keySet()){
-				addressModel.add(Address.parse(cityMap.get(s)));
-				addressModel.add(Address.parse(s + " " + cityMap.get(s)));
+			for(String s: PostCode){
+				addressModel.put(s,null);
 			}
 		}
 
@@ -169,9 +186,13 @@ public class Model extends Observable implements Serializable {
 
 		}
 
+		Integer count=0;
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-
+			count++;
+			if(count%100000==0) {
+				System.out.println(count);
+			}
 			switch(qName) {
 				case "bounds":
 					minlat = Float.parseFloat(atts.getValue("minlat"));
@@ -189,7 +210,7 @@ public class Model extends Observable implements Serializable {
 					nodeID = Long.parseLong(atts.getValue("id"));
 					float lat = Float.parseFloat(atts.getValue("lat"));
 					float lon = Float.parseFloat(atts.getValue("lon"));
-					idToNode.put(nodeID, new OSMNode(lonfactor * lon, -lat));
+					idToNode.put(nodeID, lonfactor * lon, -lat);
 					break;
 				case "way":
 					way = new OSMWay();
@@ -203,7 +224,8 @@ public class Model extends Observable implements Serializable {
 					break;
 				case "nd":
 					long ref = Long.parseLong(atts.getValue("ref"));
-					way.add(idToNode.get(ref));
+					Point2D point2D = idToNode.get(ref);
+					way.add(new OSMNode((float) point2D.getX(), (float)point2D.getY()));
 					break;
 				case "tag":
 					String k = atts.getValue("k");
@@ -216,6 +238,7 @@ public class Model extends Observable implements Serializable {
 							break;
 						}
 					}
+
 					switch (k) {
 						case "addr:street":
 							addressBuilder[0] = v;
@@ -250,13 +273,15 @@ public class Model extends Observable implements Serializable {
 			switch (qName) {
 				case "node":
 					if(isAddressNode == true) {
-                        for(int i = 0; i < addressBuilder.length; i++){
+                        for(int i = 0; i < addressBuilder.length; i++) {
                             if(addressBuilder[i] == null){addressBuilder[i] = "";}
                         }
 						String address = addressBuilder[0] + " " +  addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
-						cityMap.put(addressBuilder[2],addressBuilder[3]);
-						addressModel.add(Address.parse(address));
-						addressToCordinate.put(address.trim(), idToNode.get(nodeID));
+						PostCode.add(addressBuilder[2] + " " + addressBuilder[3]);
+						PostCode.add(addressBuilder[3]);
+						LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
+						LongToPointMap.Node k = new LongToPointMap.Node(m.key,(float)m.getX(),(float)m.getY(),null);
+						addressModel.put(Address.parse(address).toString(), k);
 						isAddressNode = false;
 					}
 				break;
