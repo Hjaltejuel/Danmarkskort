@@ -18,6 +18,7 @@ public class OSMWay extends ArrayList<OSMNode> {
         return path;
     }
 
+
     public OSMNode getFromNode() {
         return get(0);
     }

@@ -1,7 +1,6 @@
 package bfst17;
 
-import javafx.application.Platform;
-
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
@@ -18,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +33,10 @@ public class DrawWindow implements Observer {
 	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
 	private JTextArea userOutput;
+	private JLayeredPane WindowPane;
+	private JPopupMenu popUpMenu;
+    boolean isClicked =false;
+        //få filer ind
 
 	public DrawWindow(Model model) {
 		try {
@@ -51,20 +55,32 @@ public class DrawWindow implements Observer {
 		this.addressModel = model.getAddressModel();
 		model.addObserver(this);
 		addressModel.addObserver(this);
-		window = new JFrame("Awesome OSM Visualizer Thingy!!!! 2.0");
-		window.setLayout(new BorderLayout());
+		window = new JFrame("Danmarkskort gruppe A");
+     	WindowPane = new JLayeredPane();
+		window.setPreferredSize(new Dimension(750, 750));
 		canvas = new DrawCanvas(model);
-		canvas.setPreferredSize(new Dimension(500, 500));
 		new CanvasMouseController(canvas, model);
-		window.add(canvas, BorderLayout.CENTER);
-		setUpMenu();
+		WindowPane.add(canvas,100);
+
 		paintAutocomplete();
+
+		WindowPane.add(combo, 50);
+		combo.setBounds(10,10,300,40);
+		WindowPane.setComponentZOrder(combo,0);
+		WindowPane.setComponentZOrder(canvas,1);
+		window.add(WindowPane, BorderLayout.CENTER);
+
 		window.pack();
+		setUpButtons();
+		canvas.setBounds(0,0,window.getWidth(),window.getHeight());
+
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
+
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
 		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
 		new WindowKeyController(this, model);
+
 	}
 
 	/**
@@ -72,60 +88,147 @@ public class DrawWindow implements Observer {
 	 */
 	public void paintAutocomplete() {
 		this.listItems = new ArrayList();
-		Iterator var2 = addressModel.iterator();
 
-		while (var2.hasNext()) {
-			Address address = (Address) var2.next();
-			this.listItems.add(address.toString().toLowerCase());
-		}
+
+		this.listItems.addAll(addressModel.getAddressToCordinate().keySet().stream().map(a -> a.toString().toLowerCase()).collect(Collectors.toList()));
 
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
-
-			boolean needToZoomOut = false;
-
 			public void keyReleased(KeyEvent event) {
 
 				if (event.getKeyChar() == 10) {
-
-					String s = (String) combo.getSelectedItem();
-					//points lat, lon
-					double lat = -model.getOSMNodeToAddress(s.trim()).getLat();
-					double lon = -model.getOSMNodeToAddress(s.trim()).getLon();
-
-					//distance from center of screen in lat lon
-					double distanceToCenterY = lat - canvas.getCenterCordinateY();
-					double distanceToCenterX = lon - canvas.getCenterCordinateX();
-
-
-					//distance to center in pixel
-					double dx = distanceToCenterX * canvas.getXZoomFactor();
-					double dy = distanceToCenterY * canvas.getYZoomFactor();
-
-					double partDX = dx/100;
-					double partDY = dy/100;
-
-					if(150000 / canvas.getXZoomFactor() >= 0.8) {
-						canvas.panSlow(partDX, partDY);
-					}
-					else{
-						canvas.zoomOutSlow(partDX, partDY);
-					}
-
-					canvas.setPin((float)lat,(float)lon);
-					combo.setSelectedItem((null));
+				    search();
 				}
 
 			}
 		});
-		this.window.add(this.combo, "North");
-		this.userOutput = new JTextArea();
-		this.userOutput.setEditable(false);
-		this.userOutput.setBackground(Color.LIGHT_GRAY);
-		//this.update((Observable)null, (Object)null);
+	}
+	public void search(){
+        String s = (String) combo.getSelectedItem();
+        //points lat, lon
+        double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
+        double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
+
+        //distance from center of screen in lat lon
+        double distanceToCenterY = lat - canvas.getCenterCordinateY();
+        double distanceToCenterX = lon - canvas.getCenterCordinateX();
+
+        //distance to center in pixel
+        double dx = distanceToCenterX * canvas.getXZoomFactor();
+        double dy = distanceToCenterY * canvas.getYZoomFactor();
+        canvas.pan(dx, dy);
+        canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+        canvas.zoom(150000/canvas.getXZoomFactor());
+        canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+        canvas.setPin((float)lat,(float)lon);
+        combo.setSelectedItem((null));
+
+        if(150000 / canvas.getXZoomFactor() >= 0.8) {
+            canvas.panSlow(partDX, partDY);
+        }
+        else{
+            canvas.zoomOutSlow(partDX, partDY);
+        }
+    }
+	public void setUpButtons(){
+
+		JButton search = new JButton();
+		try {
+			Image img = ImageIO.read(getClass().getResource("/search.png"));
+			search.setIcon(new ImageIcon(img.getScaledInstance(40,40, Image.SCALE_SMOOTH)));
+
+		} catch (Exception ex) {
+			System.out.println(ex);
+		}
+		search.setBorderPainted(false);
+		search.setFocusPainted(false);
+		search.setContentAreaFilled(false);
+		search.setBorder(BorderFactory.createEmptyBorder());
+
+		search.setPreferredSize(new Dimension(30,30));
+		search.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                search();
+            }
+            @Override
+            public void mousePressed(MouseEvent e) {}
+            @Override
+            public void mouseReleased(MouseEvent e) {}
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseExited(MouseEvent e) {}
+        });
+
+
+		WindowPane.add(search);
+		WindowPane.setComponentZOrder(search,0);
+		search.setBounds(313,10,40,40);
+
+		JButton menu = new JButton();
+		menu.setBounds(357,10,40,40);
+
+		try {
+			Image img2 = ImageIO.read(getClass().getResource("/Untitled.png"));
+			menu.setIcon(new ImageIcon(img2.getScaledInstance(40,40, Image.SCALE_SMOOTH)));
+
+		} catch (Exception ex) {
+			System.out.println(ex);
+		}
+		menu.setBorderPainted(false);
+		menu.setFocusPainted(false);
+        menu.setContentAreaFilled(false);
+
+        menu.setPreferredSize(new Dimension(30,30));
+		setUpMenu();
+
+        menu.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+
+                if(!isClicked){
+					popUpMenu.show(e.getComponent(),0,40);
+					isClicked=true;
+				}else if(isClicked){
+					popUpMenu.setVisible(false);
+						isClicked=false;
+				}
+				canvas.repaint();
+
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				canvas.repaint();
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				canvas.repaint();
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				canvas.repaint();
+
+			}
+		});
+		menu.setComponentPopupMenu(popUpMenu);
+
+		WindowPane.add(menu);
+		WindowPane.setComponentZOrder(menu,0);
+
 	}
 
 	/**
@@ -149,7 +252,7 @@ public class DrawWindow implements Observer {
 		canvas.toggleAA();
 	}
 
-	public void setUpNightMode(JComboBox combo, JMenuBar menu, JMenuItem tools, JMenuItem file){
+	public void setUpNightMode(JComboBox combo, JPopupMenu menu, JMenuItem tools,  JPopupMenu popUpMenu){
 		menu.setBackground(new Color(36,47,62));
 		combo.getEditor().getEditorComponent().setBackground(new Color(36,47,62));
 		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
@@ -160,10 +263,10 @@ public class DrawWindow implements Observer {
 		list.setBackground(new Color(36,47,62));
 		list.setForeground(Color.WHITE);
 		tools.setForeground(Color.WHITE);
-		file.setForeground(Color.WHITE);
+		popUpMenu.setForeground(Color.WHITE);
 
 	}
-	public void tearDownNightMode(JComboBox combo, JMenuBar menu, JMenuItem tools, JMenuItem file){
+	public void tearDownNightMode(JComboBox combo, JPopupMenu menu, JMenuItem tools, JPopupMenu popUpMenu){
 		menu.setBackground(null);
 		combo.getEditor().getEditorComponent().setBackground(Color.WHITE);
 		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
@@ -174,12 +277,12 @@ public class DrawWindow implements Observer {
 		list.setBackground(null);
 		list.setForeground(null);
 		tools.setForeground(Color.BLACK);
-		file.setForeground(Color.BLACK);
+		popUpMenu.setForeground(Color.BLACK);
 
 	}
 
 	public void setUpMenu() {
-		JMenuBar menu = new JMenuBar();
+		popUpMenu = new JPopupMenu("Options");
 		JMenu file = new JMenu("File");
 		JMenuItem save = new JMenuItem("Save", KeyEvent.VK_S);
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
@@ -188,10 +291,10 @@ public class DrawWindow implements Observer {
 		JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_Q);
 
 
-		file.add(save);
-		file.add(load);
-		file.add(exit);
-		menu.add(file);
+		popUpMenu.add(save);
+		popUpMenu.add(load);
+
+		popUpMenu.addSeparator();
 
 		JMenu tools = new JMenu("Tools");
 		JMenuItem zoomIn = new JMenuItem("Zoom In", KeyEvent.VK_PLUS);
@@ -207,9 +310,15 @@ public class DrawWindow implements Observer {
 		tools.add(greyScale);
 		tools.add(zoomIn);
 		tools.add(zoomOut);
-		menu.add(tools);
 
-		window.setJMenuBar(menu);
+		popUpMenu.add(tools);
+		tools.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println(tools.getComponentCount());
+			}
+		});
+
 
 		nightMode.addActionListener(e->{
 			if(nightMode.getText().equals("NightMode")){
@@ -218,12 +327,12 @@ public class DrawWindow implements Observer {
 				greyScale.setText("GreyScale");
 				canvas.repaint();
 				nightMode.setText("Color");
-				setUpNightMode(combo,menu,tools,file);
+				setUpNightMode(combo,popUpMenu,tools,popUpMenu);
 
 
 			} else {
 				canvas.setNightModeFalse();
-				tearDownNightMode(combo,menu,tools,file);
+				tearDownNightMode(combo,popUpMenu,tools,popUpMenu);
 				canvas.repaint();
 				nightMode.setText("NightMode");
 			}
@@ -235,7 +344,7 @@ public class DrawWindow implements Observer {
 				canvas.setNightModeFalse();
 				if(nightMode.getText().equals("Color")) {
 					nightMode.setText("NightMode");
-					tearDownNightMode(combo,menu,tools,file);
+					tearDownNightMode(combo,popUpMenu,tools,popUpMenu);
 				}
 		canvas.repaint();
 		greyScale.setText("Color");} else
@@ -298,7 +407,7 @@ public class DrawWindow implements Observer {
 
 					File fileToLoad = fileChooser.getSelectedFile();
 					if(fileChooser.accept(fileToLoad) && fileToLoad.exists()){
-						model.load("file:" + fileToLoad.getAbsolutePath());
+						model.load(fileToLoad.getAbsolutePath());
 						window.dispose();
 						DrawWindow a = new DrawWindow(model);
 						first = true;
@@ -347,8 +456,30 @@ public class DrawWindow implements Observer {
 				canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 			}
 		});
+		window.addComponentListener(new ComponentListener() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				canvas.setBounds(0,0,window.getWidth(),window.getHeight());
+			}
 
+			@Override
+			public void componentMoved(ComponentEvent e) {
+
+			}
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e) {
+
+			}
+		});
 
 	}
+
+
 
 }
