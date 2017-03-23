@@ -1,6 +1,5 @@
 package bfst17;
 
-import org.w3c.dom.Node;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -198,7 +197,9 @@ public class Model extends Observable implements Serializable {
 					nodeID = Long.parseLong(atts.getValue("id"));
 					float lat = Float.parseFloat(atts.getValue("lat"));
 					float lon = Float.parseFloat(atts.getValue("lon"));
-					tree.insert(new Point2D.Float(lon*lonfactor,lat));
+					//tree.insert(new Point2D.Float(lon*lonfactor,lat));
+					Node n = new Node(nodeID, lonfactor * lon, -lat);
+					tree.insert(n);
 					idToNode.put(nodeID, lonfactor * lon, -lat);
 					break;
 				case "way":

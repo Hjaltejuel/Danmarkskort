@@ -40,10 +40,15 @@ public class KDTree{
         //root = insert(root, p, true);
     }
 
-    public Node insert(Node node, boolean isVertical){
+    public Node insert(Node node){
+        if(root==null){
+            root=node;
+            return node;
+        }
         Node comparisonNode = root;
         Integer depth = 0;
         while(true) { //Snyder lidt her :P
+            boolean isVertical = depth%2==0; //Skifter ved hver depth
             double compare = isVertical ? node.getX() - comparisonNode.getX() : node.getY() - comparisonNode.getY();
             depth++;
             if (compare < 0) { //Ryk til venstre hvis comparisonNode er mindre end
@@ -52,7 +57,7 @@ public class KDTree{
                     continue;
                 }
                 comparisonNode.left=node;
-                System.out.println("Indsat ("+node.getX()+","+node.getY()+") til venstre");
+                //System.out.println("Indsat ("+node.getX()+","+node.getY()+") til venstre "+depth);
                 break;
             } else { //Ellers til højre
                 if (comparisonNode.right != null) {
@@ -60,7 +65,7 @@ public class KDTree{
                     continue;
                 }
                 comparisonNode.right=node;
-                System.out.println("Indsat ("+node.getX()+","+node.getY()+") til højre");
+                //System.out.println("Indsat ("+node.getX()+","+node.getY()+") til højre "+depth);
                 break;
             }
         }

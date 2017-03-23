@@ -2,13 +2,12 @@ package bfst17;
 
 import java.awt.geom.Point2D;
 
-class Node extends Point2D.Float implements Comparable<Node> {
+public class Node extends Point2D.Float implements Comparable<Node> {
     public static final long serialVersionUID = 20160216;
-    Node left;
-    Node right;
+    Node next;
     long key;
 
-    public Node(long _key, float x, float y ) {
+    public Node(long _key, float x, float y) {
         super(x, y);
         key = _key;
     }
