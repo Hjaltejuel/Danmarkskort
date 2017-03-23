@@ -18,9 +18,6 @@ public class Address {
         city = _city;
     }
 
-
-
-
     public String toString() {
         String floorSideString = "";
         String streetString = "";

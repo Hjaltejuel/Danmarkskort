@@ -88,20 +88,25 @@ public class DrawCanvas extends JComponent implements Observer {
 	@Override
 	protected void paintComponent(Graphics _g) {
 		Graphics2D g = (Graphics2D) _g;
-		if(nightmode){
-			g.setColor(new Color(36,47,62));
+		if (nightmode) {
+			g.setColor(new Color(36, 47, 62));
 		} else {
 			g.setColor(WayType.NATURAL_COASTLINE.getDrawColor());
 		}
-		g.fillRect(0,0, getWidth(),getHeight());
+		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setTransform(transform);
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
 
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+		g.setColor(Color.black);
+		for (Node n : model.getMap().tab) {
+			System.out.println(n.getX());
+			g.drawRect((int) n.getX(), (int) n.getX(), 100, 100);
+		}
 		//Draw all shapes
-
+		/*
 		for(WayType type: WayType.values())
 		{
 			if(!greyScale && !nightmode) {
@@ -135,6 +140,7 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 				}
 		}
+		*/
 		/*if(pin!= null){
 			BufferedImage image = null;
 			try {
@@ -143,14 +149,14 @@ public class DrawCanvas extends JComponent implements Observer {
 				e.printStackTrace();
 			}
 			AffineTransformOp tx = new AffineTransformOp(transform,AffineTransformOp.TYPE_BILINEAR);
-			
+
 			BufferedImage after = new BufferedImage(image.getWidth(),image.getHeight(),TYPE_INT_RGB);
 			after =tx.filter(image,after);
 			g.drawImage(after,(int)getCenterCordinateX(),(int)getCenterCordinateY(),null);
 			}
 */
 
-		}
+	}
 
 
 

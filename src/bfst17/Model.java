@@ -134,9 +134,14 @@ public class Model extends Observable implements Serializable {
 		maxlon += newMaxLon;
 		minlon += newMinLon;
 	}
+	private LongToPointMap idToNode = idToNode = new LongToPointMap(18000000);
+
+	public LongToPointMap getMap(){
+		return idToNode;
+	}
 
 	private class OSMHandler implements ContentHandler {
-		LongToPointMap idToNode = new LongToPointMap(18000000);
+
 		Map<Long,OSMWay> idToWay = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
 		private KDTree tree = new KDTree();
@@ -161,6 +166,7 @@ public class Model extends Observable implements Serializable {
 				addressModel.add(Address.parse(cityMap.get(s)));
 				addressModel.add(Address.parse(s + " " + cityMap.get(s)));
 			}
+			System.out.println(idToNode.size());
 		}
 
 		@Override
@@ -213,7 +219,6 @@ public class Model extends Observable implements Serializable {
 				case "tag":
 					String k = atts.getValue("k");
 					String v = atts.getValue("v");
-
 					// Løber waytypes igennem for at se om den matcher med attributes
 					for (WayType _type : WayType.values()) {
 						if (_type.name().equals(k.toUpperCase() + "_" + v.toUpperCase())) {
