@@ -116,22 +116,19 @@ public class DrawWindow implements Observer {
         double distanceToCenterY = lat - canvas.getCenterCordinateY();
         double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
-        //distance to center in pixel
-        double dx = distanceToCenterX * canvas.getXZoomFactor();
-        double dy = distanceToCenterY * canvas.getYZoomFactor();
-        canvas.pan(dx, dy);
-        canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-        canvas.zoom(150000/canvas.getXZoomFactor());
-        canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+        if(150000 / canvas.getXZoomFactor() >= 0.8) {
+            canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
+        }
+
+        //er zoomet langt ind og afstanden er lang
+        else{
+            canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+        }
+
         canvas.setPin((float)lat,(float)lon);
         combo.setSelectedItem((null));
 
-        if(150000 / canvas.getXZoomFactor() >= 0.8) {
-            canvas.panSlow(partDX, partDY);
-        }
-        else{
-            canvas.zoomOutSlow(partDX, partDY);
-        }
+
     }
 	public void setUpButtons(){
 

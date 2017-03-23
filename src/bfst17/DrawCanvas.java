@@ -146,10 +146,18 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
 	}
 
-	public void panSlow(double partDX, double partDY) {
+
+	public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY) {
 		java.util.Timer timer = new java.util.Timer();
 
 			timer.scheduleAtFixedRate(new TimerTask() {
+
+                double dx = distanceToCenterX * getXZoomFactor();
+                double dy = distanceToCenterY * getYZoomFactor();
+
+                double partDX = dx/100;
+                double partDY = dy/100;
+
 				int panCounter = 1;
 
 				@Override
@@ -159,13 +167,14 @@ public class DrawCanvas extends JComponent implements Observer {
 						cancel();
 					}
 					else {
-						pan(partDX, partDY);
+                        pan(partDX, partDY);
 						panCounter++;
 					}
 				}
 
 			}, 0, 10);
 	}
+
 
 	public void zoomInSlow(){
 		java.util.Timer timer = new java.util.Timer();
@@ -189,15 +198,16 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	}
 
-    public void zoomOutSlow(double partDX, double partDY) {
+    public void zoomOutSlowAndThenPan(double distanceToCenterX, double distanceToCenterY) {
         java.util.Timer timer = new java.util.Timer();
+
         timer.scheduleAtFixedRate(new TimerTask() {
             int zoomOutCounter = 1;
 
             @Override
             public void run() {
                 if(zoomOutCounter >= 100) {
-                    panSlow(partDX, partDY);
+                    panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
                     cancel();
                 }
                 else if (zoomOutCounter < 100){
