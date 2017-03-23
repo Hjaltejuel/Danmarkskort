@@ -2,6 +2,8 @@ package bfst17;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.text.JTextComponent;
@@ -10,6 +12,8 @@ import java.awt.event.*;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by trold on 2/1/17.
@@ -24,7 +28,6 @@ public class DrawWindow implements Observer {
 	private AutocompleteJComboBox combo;
 	private JLayeredPane WindowPane;
 	private JPopupMenu popUpMenu;
-	private  JMenu tools;
     boolean isClicked =false;
         //få filer ind
 
@@ -88,6 +91,7 @@ public class DrawWindow implements Observer {
 		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
+
 				if (event.getKeyChar() == 10) {
 				    search();
 				}
@@ -105,15 +109,19 @@ public class DrawWindow implements Observer {
         double distanceToCenterY = lat - canvas.getCenterCordinateY();
         double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
-        //distance to center in pixel
-        double dx = distanceToCenterX * canvas.getXZoomFactor();
-        double dy = distanceToCenterY * canvas.getYZoomFactor();
-        canvas.pan(dx, dy);
-        canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-        canvas.zoom(150000/canvas.getXZoomFactor());
-        canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+        if(150000 / canvas.getXZoomFactor() >= 0.8) {
+            canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
+        }
+
+        //er zoomet langt ind og afstanden er lang
+        else{
+            canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+        }
+
         canvas.setPin((float)lat,(float)lon);
         combo.setSelectedItem((null));
+
+
     }
 	public void setUpButtons(){
 
@@ -350,7 +358,6 @@ public class DrawWindow implements Observer {
 				}
 
 				JFileChooser fileChooser = new JFileChooser();
-
 				if(currentPath != null) {
 					fileChooser.setCurrentDirectory(currentPath);
 				}
