@@ -25,10 +25,10 @@ public class DrawCanvas extends JComponent implements Observer {
 	Model model;
 	AffineTransform transform = new AffineTransform();
 	boolean antiAlias;
-	boolean firstTime = true;
 	boolean greyScale = false;
 	boolean nightmode = false;
-	Point2D pin;
+	boolean searchMode = false;
+
 	public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
@@ -40,9 +40,8 @@ public class DrawCanvas extends JComponent implements Observer {
 	public double getCenterCordinateY() {
 		return (transform.getTranslateY() / transform.getScaleY()) -((getHeight() / transform.getScaleY())/2);
     }
-    public void setPin(float x, float y){
-		pin = new Point2D.Float(x,y);
-	}
+
+    public void setSearchMode(){searchMode = true;}
 	public void setGreyScale()
 	{
 		greyScale = true;
@@ -135,15 +134,40 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 				}
 		}
-
-
-
+		if(searchMode) {
+			setPin(g);
 		}
+
+
+	}
+
+
 
 	public void pan(double dx, double dy) {
 		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
 		repaint();
         revalidate();
+	}
+
+	public void setPin(Graphics g)  {
+		BufferedImage image = null;
+		try {
+			image = ImageIO.read(getClass().getResource("/pin.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		g.drawImage(image,250,250,null);
+		System.out.println(image.getMinX()+ " " +image.getMinY());
+		int w = image.getWidth();
+		int h = image.getHeight();
+		BufferedImage after = new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
+		AffineTransform at = new AffineTransform();
+		at.scale(-transform.getScaleX(),-transform.getScaleY());
+		at.translate(transform.getTranslateX(),transform.getTranslateY());
+		AffineTransformOp s = new AffineTransformOp(transform,AffineTransformOp.TYPE_BILINEAR);
+		after = s.filter(image,after);
+		g.drawImage(after,250,250,null);
+
 	}
 
 

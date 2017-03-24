@@ -109,6 +109,8 @@ public class DrawWindow implements Observer {
         double distanceToCenterY = lat - canvas.getCenterCordinateY();
         double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
+		canvas.setSearchMode();
+
         if(150000 / canvas.getXZoomFactor() >= 0.8) {
             canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
         }
@@ -116,8 +118,6 @@ public class DrawWindow implements Observer {
         else{
             canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
         }
-
-        canvas.setPin((float)lat,(float)lon);
         combo.setSelectedItem((null));
 
 
