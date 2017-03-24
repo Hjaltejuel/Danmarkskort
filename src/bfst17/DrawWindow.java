@@ -71,8 +71,6 @@ public class DrawWindow implements Observer {
 
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
 		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
-		new WindowKeyController(this, model);
-
 	}
 
 	/**
@@ -228,10 +226,6 @@ public class DrawWindow implements Observer {
 		window.addKeyListener(keyListener);
 	}
 
-	public void toggleAA() {
-		canvas.toggleAA();
-	}
-
 	public void setUpNightMode(JComboBox combo, JPopupMenu menu, JMenuItem tools,  JPopupMenu popUpMenu){
 		menu.setBackground(new Color(36,47,62));
 		combo.getEditor().getEditorComponent().setBackground(new Color(36,47,62));
@@ -288,24 +282,29 @@ public class DrawWindow implements Observer {
 		popUpMenu.addSeparator();
 
 		JMenu tools = new JMenu("Tools");
-		JMenuItem zoomIn = new JMenuItem("Zoom In", KeyEvent.VK_PLUS);
+		JMenuItem zoomIn = new JMenuItem("Zoom In (CTRL-MINUS)", KeyEvent.VK_PLUS);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS,Event.CTRL_MASK),"action1",zoomIn);
 
-		JMenuItem zoomOut = new JMenuItem("Zoom Out", KeyEvent.VK_MINUS);
+		JMenuItem zoomOut = new JMenuItem("Zoom Out (CTRL-PLUS)", KeyEvent.VK_MINUS);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,Event.CTRL_MASK),"action2",zoomOut);
 
-		JMenuItem greyScale = new JMenuItem("GreyScale", KeyEvent.VK_G);
+		JMenuItem greyScale = new JMenuItem("GreyScale (CTRL-G)", KeyEvent.VK_G);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_G,Event.CTRL_MASK),"action3",greyScale);
 
-		JMenuItem nightMode = new JMenuItem("NightMode", KeyEvent.VK_N);
+		JMenuItem nightMode = new JMenuItem("NightMode (CTRL-N)", KeyEvent.VK_N);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_N,Event.CTRL_MASK),"action4",nightMode);
 
-		JMenuItem fancyPan = new JMenuItem("FancyPan", KeyEvent.VK_F);
+		JMenuItem fancyPan = new JMenuItem("FancyPan (CTRL-F)", KeyEvent.VK_F);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_F,Event.CTRL_MASK),"action9", fancyPan);
+
+		JMenuItem aA = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_T,Event.CTRL_MASK),"action11", aA);
 
 		tools.add(nightMode);
 		tools.add(greyScale);
 		tools.add(fancyPan);
+		tools.add(aA);
+
 		tools.add(zoomIn);
 		tools.add(zoomOut);
 		popUpMenu.add(tools);
@@ -346,6 +345,10 @@ public class DrawWindow implements Observer {
 
 		fancyPan.addActionListener(e->{
 			canvas.toggleFancyPan();
+		});
+
+		aA.addActionListener(e->{
+			canvas.toggleAA();
 		});
 
 		//metode til at save
