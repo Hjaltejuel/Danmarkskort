@@ -162,7 +162,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
 			@Override
 			public void run() {
-				if (panCounter > 100){
+
+				if (panCounter >= 100){
 					cancel();
 				}
 				pan(partDX, partDY);
@@ -188,7 +189,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 				@Override
 				public void run() {
-					if (panCounter > 100){
+					if (panCounter >= 100){
 						zoomInSlow();
 						cancel();
 					}

@@ -109,13 +109,17 @@ public class DrawWindow implements Observer {
 
 		if(canvas.fancyPan){
 			double distance = Math.sqrt(Math.abs(distanceToCenterX*canvas.getXZoomFactor()*distanceToCenterX*canvas.getXZoomFactor()+distanceToCenterY*canvas.getYZoomFactor()*distanceToCenterY*canvas.getYZoomFactor()));
-			if(150000 / canvas.getXZoomFactor() >= 0.8 && distance > 200) {
+
+			if(150000 / canvas.getXZoomFactor() >= 20){
+				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
+			}
+			else if(150000 / canvas.getXZoomFactor() >= 0.8 && distance > 200) {
 				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
        		}
 			else if(distance < 200){
 				canvas.panSlowOnly(distanceToCenterX, distanceToCenterY);
 			}
-        	//er zoomet langt ind og afstanden er lang
+
         	else{
 				canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
        		}
