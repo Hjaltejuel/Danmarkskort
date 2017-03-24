@@ -322,11 +322,12 @@ public class DrawWindow implements Observer {
 		canvas.repaint();
 		greyScale.setText("Color");} else
 			{
-					canvas.setGreyScaleFalse();
+				canvas.setGreyScaleFalse();
 				canvas.repaint();
 				greyScale.setText("GreyScale");
 			}
 		});
+
 		//metode til at save
 		save.addActionListener(new ActionListener() {
 			@Override
@@ -344,6 +345,7 @@ public class DrawWindow implements Observer {
 				}
 			}
 		});
+		System.out.println(popUpMenu.isVisible());
 
 		//metode til at loade
 		load.addActionListener(new ActionListener() {
