@@ -3,20 +3,17 @@ package bfst17;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by trold on 2/1/17.
@@ -29,7 +26,6 @@ public class DrawWindow implements Observer {
 	private ArrayList listItems;
 	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
-	private JTextArea userOutput;
 	private JLayeredPane WindowPane;
 	private JPopupMenu popUpMenu;
     boolean isClicked =false;
@@ -88,12 +84,14 @@ public class DrawWindow implements Observer {
 
 
 		this.listItems.addAll(addressModel.getAddressToCordinate().keySet().stream().map(a -> a.toString().toLowerCase()).collect(Collectors.toList()));
+
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
+
 				if (event.getKeyChar() == 10) {
 				    search();
 				}
@@ -111,15 +109,24 @@ public class DrawWindow implements Observer {
         double distanceToCenterY = lat - canvas.getCenterCordinateY();
         double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
-        //distance to center in pixel
-        double dx = distanceToCenterX * canvas.getXZoomFactor();
-        double dy = distanceToCenterY * canvas.getYZoomFactor();
-        canvas.pan(dx, dy);
-        canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-        canvas.zoom(150000/canvas.getXZoomFactor());
-        canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+		double distance = Math.sqrt(Math.abs(distanceToCenterX*canvas.getXZoomFactor()*distanceToCenterX*canvas.getXZoomFactor()+distanceToCenterY*canvas.getYZoomFactor()*distanceToCenterY*canvas.getYZoomFactor()));
+
+		System.out.println(distance);
+		if(150000 / canvas.getXZoomFactor() >= 0.8 && distance > 400) {
+			canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
+        }
+        else if(distance < 400){
+			canvas.panOnly(distanceToCenterX, distanceToCenterY);
+		}
+        //er zoomet langt ind og afstanden er lang
+        else{
+			canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+        }
+
         canvas.setPin((float)lat,(float)lon);
         combo.setSelectedItem((null));
+
+
     }
 	public void setUpButtons(){
 
@@ -135,7 +142,6 @@ public class DrawWindow implements Observer {
 		search.setFocusPainted(false);
 		search.setContentAreaFilled(false);
 		search.setBorder(BorderFactory.createEmptyBorder());
-
 		search.setPreferredSize(new Dimension(30,30));
 		search.addMouseListener(new MouseListener() {
             @Override
@@ -151,8 +157,6 @@ public class DrawWindow implements Observer {
             @Override
             public void mouseExited(MouseEvent e) {}
         });
-
-
 		WindowPane.add(search);
 		WindowPane.setComponentZOrder(search,0);
 		search.setBounds(313,10,40,40);
@@ -176,13 +180,9 @@ public class DrawWindow implements Observer {
 
         menu.addMouseListener(new MouseListener() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
-
-			}
-
+			public void mouseClicked(MouseEvent e) {}
 			@Override
 			public void mousePressed(MouseEvent e) {
-
                 if(!isClicked){
 					popUpMenu.show(e.getComponent(),0,40);
 					isClicked=true;
@@ -191,29 +191,15 @@ public class DrawWindow implements Observer {
 						isClicked=false;
 				}
 				canvas.repaint();
-
 			}
-
 			@Override
-			public void mouseReleased(MouseEvent e) {
-				canvas.repaint();
-
-			}
-
+			public void mouseReleased(MouseEvent e) {canvas.repaint();}
 			@Override
-			public void mouseEntered(MouseEvent e) {
-				canvas.repaint();
-
-			}
-
+			public void mouseEntered(MouseEvent e) {canvas.repaint();}
 			@Override
-			public void mouseExited(MouseEvent e) {
-				canvas.repaint();
-
-			}
+			public void mouseExited(MouseEvent e) {canvas.repaint();}
 		});
 		menu.setComponentPopupMenu(popUpMenu);
-
 		WindowPane.add(menu);
 		WindowPane.setComponentZOrder(menu,0);
 
@@ -268,46 +254,51 @@ public class DrawWindow implements Observer {
 		popUpMenu.setForeground(Color.BLACK);
 
 	}
+	public void addKeyListeners(KeyStroke stroke, String action, JMenuItem clicker){
+		WindowPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(stroke,action);
+		WindowPane.getActionMap().put(action, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clicker.doClick();
+			}
+		});
+	}
 
 	public void setUpMenu() {
 		popUpMenu = new JPopupMenu("Options");
-		JMenu file = new JMenu("File");
+
 		JMenuItem save = new JMenuItem("Save", KeyEvent.VK_S);
-		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_S,Event.CTRL_MASK),"action5",save);
+
 		JMenuItem load = new JMenuItem("Load", KeyEvent.VK_L);
-		load.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_L,Event.CTRL_MASK),"action6",load);
+
 		JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_Q);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_Q,Event.CTRL_MASK),"action7",exit);
 
 
 		popUpMenu.add(save);
 		popUpMenu.add(load);
-
 		popUpMenu.addSeparator();
 
 		JMenu tools = new JMenu("Tools");
 		JMenuItem zoomIn = new JMenuItem("Zoom In", KeyEvent.VK_PLUS);
-		zoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Event.CTRL_MASK));
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS,Event.CTRL_MASK),"action1",zoomIn);
+
 		JMenuItem zoomOut = new JMenuItem("Zoom Out", KeyEvent.VK_MINUS);
-		zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK));
-		JMenuItem greyScale = new JMenuItem("GreyScale",KeyEvent.VK_G);
-		greyScale.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
-		JMenuItem nightMode = new JMenuItem("NightMode",KeyEvent.VK_N);
-		nightMode.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK));
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,Event.CTRL_MASK),"action2",zoomOut);
+
+		JMenuItem greyScale = new JMenuItem("GreyScale", KeyEvent.VK_G);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_G,Event.CTRL_MASK),"action3",greyScale);
+
+		JMenuItem nightMode = new JMenuItem("NightMode", KeyEvent.VK_N);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_N,Event.CTRL_MASK),"action4",nightMode);
 
 		tools.add(nightMode);
 		tools.add(greyScale);
 		tools.add(zoomIn);
 		tools.add(zoomOut);
-
 		popUpMenu.add(tools);
-		tools.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.out.println(tools.getComponentCount());
-			}
-		});
-
-
 		nightMode.addActionListener(e->{
 			if(nightMode.getText().equals("NightMode")){
 				canvas.setNightMode();
@@ -337,11 +328,12 @@ public class DrawWindow implements Observer {
 		canvas.repaint();
 		greyScale.setText("Color");} else
 			{
-					canvas.setGreyScaleFalse();
+				canvas.setGreyScaleFalse();
 				canvas.repaint();
 				greyScale.setText("GreyScale");
 			}
 		});
+
 		//metode til at save
 		save.addActionListener(new ActionListener() {
 			@Override
@@ -395,7 +387,7 @@ public class DrawWindow implements Observer {
 
 					File fileToLoad = fileChooser.getSelectedFile();
 					if(fileChooser.accept(fileToLoad) && fileToLoad.exists()){
-						model.load("file:" + fileToLoad.getAbsolutePath());
+						model.load(fileToLoad.getAbsolutePath());
 						window.dispose();
 						DrawWindow a = new DrawWindow(model);
 						first = true;

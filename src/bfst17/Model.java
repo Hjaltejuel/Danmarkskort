@@ -16,6 +16,7 @@ import java.util.zip.ZipInputStream;
 public class Model extends Observable implements Serializable {
 	private String[] addressBuilder = new String[4];
 
+	private HashSet<String> PostCode = new HashSet<>();
 
 	private boolean isAddressNode = false;
 
@@ -34,17 +35,12 @@ public class Model extends Observable implements Serializable {
 
 	private long nodeID;
 
-	private HashMap<String,String> postCodeToCity = new HashMap<>();
-
 	public Model(String filename) {
 		load(filename);
 	}
 
 	public Model() {
 		long time = System.nanoTime();
-		//load("C:\\Users\\Jakob Roos\\workspace\\Danmarkskortet\\resources\\map (4).osm");//this.getClass().getResource("/map.bin").toString());
-         load("C:\\Users\\Michelle\\IdeaProjects\\Danmarkskortet\\resources\\map.bin");//this.getClass().getResource("/map.bin").toString());
-		//load("C:\\Users\\Jakob Roos\\Downloads\\denmark-latest-free.shp.zip");
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -64,16 +60,7 @@ public class Model extends Observable implements Serializable {
 	public void save(String filename) {
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
 			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
-
 			out.writeObject(shapes);
-
-			Iterator it = addressModel.addressToCordinate.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry pair = (Map.Entry)it.next();
-				LongToPointMap.Node N = (LongToPointMap.Node)addressModel.addressToCordinate.get(pair.getKey());
-				N.setNextNodeToNull();
-				addressModel.addressToCordinate.replace((String)pair.getKey(),(Point2D)pair.getValue(), N);
-			 }
 			out.writeObject(addressModel);
 			out.writeFloat(minlon);
 			out.writeFloat(minlat);
@@ -103,6 +90,7 @@ public class Model extends Observable implements Serializable {
 		} else {
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
 				//Ryk rundt på dem her og få med Jens' knytnæve at bestille
+				double one = System.nanoTime();
 				shapes = (EnumMap<WayType, List<Shape>>) in.readObject();
 				addressModel = (AddressModel) in.readObject();
 				minlon = in.readFloat();
@@ -110,6 +98,8 @@ public class Model extends Observable implements Serializable {
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
 				dirty();
+				double two = System.nanoTime();
+				System.out.println(two-one/(100000000));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -181,6 +171,9 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
+			for(String s: PostCode){
+				addressModel.put(s,null);
+			}
 		}
 
 		@Override
@@ -284,8 +277,11 @@ public class Model extends Observable implements Serializable {
                             if(addressBuilder[i] == null){addressBuilder[i] = "";}
                         }
 						String address = addressBuilder[0] + " " +  addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
-						postCodeToCity.put(addressBuilder[2], addressBuilder[3]);
-						addressModel.put(Address.parse(address).toString(), idToNode.get(nodeID));
+						PostCode.add(addressBuilder[2] + " " + addressBuilder[3]);
+						PostCode.add(addressBuilder[3]);
+						LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
+						LongToPointMap.Node k = new LongToPointMap.Node(m.key,(float)m.getX(),(float)m.getY(),null);
+						addressModel.put(Address.parse(address).toString(), k);
 						isAddressNode = false;
 					}
 				break;
