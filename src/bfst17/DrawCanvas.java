@@ -170,7 +170,7 @@ public class DrawCanvas extends JComponent implements Observer {
             double offsetHeight= (image.getHeight()/transform.getScaleY())/7;
             double offsetWidth = ((image.getWidth()/4)/transform.getScaleX())/7;
             imageTransform.translate(-pin.getX(),-pin.getY());
-            imageTransform.scale((1/transform.getScaleX())/7,(1/transform.getScaleY())/7);
+            imageTransform.scale(((1/transform.getScaleX())/7),((1/transform.getScaleY())/7));
             System.out.println("hello");
             ((Graphics2D) g).drawImage(image, imageTransform, null);
             searchMode = false;
