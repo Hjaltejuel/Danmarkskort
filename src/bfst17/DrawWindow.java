@@ -112,10 +112,10 @@ public class DrawWindow implements Observer {
 		double distance = Math.sqrt(Math.abs(distanceToCenterX*canvas.getXZoomFactor()*distanceToCenterX*canvas.getXZoomFactor()+distanceToCenterY*canvas.getYZoomFactor()*distanceToCenterY*canvas.getYZoomFactor()));
 
 		System.out.println(distance);
-		if(150000 / canvas.getXZoomFactor() >= 0.8 && distance > 400) {
+		if(150000 / canvas.getXZoomFactor() >= 0.8 && distance > 200) {
 			canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
         }
-        else if(distance < 400){
+        else if(distance < 200){
 			canvas.panOnly(distanceToCenterX, distanceToCenterY);
 		}
         //er zoomet langt ind og afstanden er lang
