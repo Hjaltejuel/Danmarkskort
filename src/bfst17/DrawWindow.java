@@ -28,8 +28,7 @@ public class DrawWindow implements Observer {
 	private AutocompleteJComboBox combo;
 	private JLayeredPane WindowPane;
 	private JPopupMenu popUpMenu;
-    boolean isClicked =false;
-        //få filer ind
+    boolean isClicked = false;
 
 	public DrawWindow(Model model) {
 		try {
@@ -109,15 +108,28 @@ public class DrawWindow implements Observer {
         double distanceToCenterY = lat - canvas.getCenterCordinateY();
         double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
-		canvas.setSearchMode();
 
-        if(150000 / canvas.getXZoomFactor() >= 0.8) {
-            canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
-        }
-        //er zoomet langt ind og afstanden er lang
-        else{
-            canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
-        }
+		if(canvas.fancyPan){
+			double distance = Math.sqrt(Math.abs(distanceToCenterX*canvas.getXZoomFactor()*distanceToCenterX*canvas.getXZoomFactor()+distanceToCenterY*canvas.getYZoomFactor()*distanceToCenterY*canvas.getYZoomFactor()));
+			if(150000 / canvas.getXZoomFactor() >= 0.8 && distance > 200) {
+				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
+       		}
+			else if(distance < 200){
+				canvas.panSlowOnly(distanceToCenterX, distanceToCenterY);
+			}
+        	//er zoomet langt ind og afstanden er lang
+        	else{
+				canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+       		}
+		}
+		else if(!canvas.fancyPan){
+			double dx = distanceToCenterX * canvas.getXZoomFactor();
+			double dy = distanceToCenterY * canvas.getYZoomFactor();
+			canvas.pan(dx, dy);
+			canvas.zoomAndCenter();
+		}
+
+        canvas.setPin((float)lat,(float)lon);
         combo.setSelectedItem((null));
 
 
@@ -288,8 +300,12 @@ public class DrawWindow implements Observer {
 		JMenuItem nightMode = new JMenuItem("NightMode", KeyEvent.VK_N);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_N,Event.CTRL_MASK),"action4",nightMode);
 
+		JMenuItem fancyPan = new JMenuItem("FancyPan", KeyEvent.VK_F);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_F,Event.CTRL_MASK),"action9", fancyPan);
+
 		tools.add(nightMode);
 		tools.add(greyScale);
+		tools.add(fancyPan);
 		tools.add(zoomIn);
 		tools.add(zoomOut);
 		popUpMenu.add(tools);
@@ -322,11 +338,16 @@ public class DrawWindow implements Observer {
 		canvas.repaint();
 		greyScale.setText("Color");} else
 			{
-					canvas.setGreyScaleFalse();
+				canvas.setGreyScaleFalse();
 				canvas.repaint();
 				greyScale.setText("GreyScale");
 			}
 		});
+
+		fancyPan.addActionListener(e->{
+			canvas.toggleFancyPan();
+		});
+
 		//metode til at save
 		save.addActionListener(new ActionListener() {
 			@Override
