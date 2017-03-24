@@ -109,12 +109,18 @@ public class DrawWindow implements Observer {
         double distanceToCenterY = lat - canvas.getCenterCordinateY();
         double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
-        if(150000 / canvas.getXZoomFactor() >= 0.8) {
-            canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
+		double distance = Math.sqrt(Math.abs(distanceToCenterX*canvas.getXZoomFactor()*distanceToCenterX*canvas.getXZoomFactor()+distanceToCenterY*canvas.getYZoomFactor()*distanceToCenterY*canvas.getYZoomFactor()));
+
+		System.out.println(distance);
+		if(150000 / canvas.getXZoomFactor() >= 0.8 && distance > 400) {
+			canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
         }
+        else if(distance < 400){
+			canvas.panOnly(distanceToCenterX, distanceToCenterY);
+		}
         //er zoomet langt ind og afstanden er lang
         else{
-            canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+			canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
         }
 
         canvas.setPin((float)lat,(float)lon);
@@ -345,7 +351,6 @@ public class DrawWindow implements Observer {
 				}
 			}
 		});
-		System.out.println(popUpMenu.isVisible());
 
 		//metode til at loade
 		load.addActionListener(new ActionListener() {

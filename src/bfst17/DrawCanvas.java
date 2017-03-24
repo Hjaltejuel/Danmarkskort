@@ -146,16 +146,40 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
 	}
 
+	public void panOnly(double distanceToCenterX, double distanceToCenterY){
+		java.util.Timer timer = new java.util.Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			double dx = distanceToCenterX * getXZoomFactor();
+			double dy = distanceToCenterY * getYZoomFactor();
+
+			double partDX = dx/100;
+			double partDY = dy/100;
+
+			int panCounter = 1;
+
+			@Override
+			public void run() {
+				if (panCounter > 100){
+					cancel();
+				}
+				pan(partDX, partDY);
+				panCounter++;
+
+			}
+
+		}, 0, 10);
+	}
+
 
 	public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY) {
 		java.util.Timer timer = new java.util.Timer();
+
 			timer.scheduleAtFixedRate(new TimerTask() {
                 double dx = distanceToCenterX * getXZoomFactor();
                 double dy = distanceToCenterY * getYZoomFactor();
 
                 double partDX = dx/100;
                 double partDY = dy/100;
-
 
 				int panCounter = 1;
 
@@ -165,10 +189,9 @@ public class DrawCanvas extends JComponent implements Observer {
 						zoomInSlow();
 						cancel();
 					}
-					else {
-                        pan(partDX, partDY);
-						panCounter++;
-					}
+					pan(partDX, partDY);
+					panCounter++;
+
 				}
 
 			}, 0, 10);
@@ -205,16 +228,16 @@ public class DrawCanvas extends JComponent implements Observer {
 
             @Override
             public void run() {
-                if(zoomOutCounter >= 100) {
+				if(zoomOutCounter >= 100) {
 					panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
                     cancel();
                 }
                 else if (zoomOutCounter < 100){
-					pan(-getWidth() / 2, -getHeight() / 2);
-					zoom(150000 / getXZoomFactor() * 10 / zoomOutCounter);
-					pan(getWidth() / 2, getHeight() / 2);
+						pan(-getWidth() / 2, -getHeight() / 2);
+						zoom(150000 / getXZoomFactor() * 10 / zoomOutCounter);
+						pan(getWidth() / 2, getHeight() / 2);
+						zoomOutCounter++;
 
-                    zoomOutCounter++;
                 }
             }
         }, 0 , 20);
