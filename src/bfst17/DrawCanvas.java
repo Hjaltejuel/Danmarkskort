@@ -44,7 +44,10 @@ public class DrawCanvas extends JComponent implements Observer {
 		return (transform.getTranslateY() / transform.getScaleY()) -((getHeight() / transform.getScaleY())/2);
     }
 
-    public void setSearchMode(){searchMode = true;}
+    public void setSearchMode(float lon,float lat){
+        searchMode = true;
+        pin = new Point2D.Float(lon,lat);
+    }
 	public void setGreyScale()
 	{
 		greyScale = true;
@@ -96,7 +99,7 @@ public class DrawCanvas extends JComponent implements Observer {
 			g.setColor(WayType.NATURAL_COASTLINE.getDrawColor());
 		}
 		g.fillRect(0,0, getWidth(),getHeight());
-		g.setTransform(transform);
+		g.transform(transform);
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
 
@@ -137,9 +140,9 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 				}
 		}
-		if(searchMode) {
+
 			setPin(g);
-		}
+
 
 
 	}
@@ -153,24 +156,25 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
 	public void setPin(Graphics g)  {
-		BufferedImage image = null;
-		try {
-			image = ImageIO.read(getClass().getResource("/pin.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		g.drawImage(image,250,250,null);
-		System.out.println(image.getMinX()+ " " +image.getMinY());
-		int w = image.getWidth();
-		int h = image.getHeight();
-		BufferedImage after = new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
-		AffineTransform at = new AffineTransform();
-		at.scale(-transform.getScaleX(),-transform.getScaleY());
-		at.translate(transform.getTranslateX(),transform.getTranslateY());
-		AffineTransformOp s = new AffineTransformOp(transform,AffineTransformOp.TYPE_BILINEAR);
-		after = s.filter(image,after);
-		g.drawImage(after,250,250,null);
-
+        if(pin!=null) {
+            BufferedImage image = null;
+            try {
+                image = ImageIO.read(getClass().getResource("/pin.png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            AffineTransform imageTransform = new AffineTransform();
+            ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            imageTransform.setToIdentity();
+            System.out.println(pin.getX() + " " + pin.getY());
+            double offsetHeight= (image.getHeight()/transform.getScaleY())/7;
+            double offsetWidth = ((image.getWidth()/4)/transform.getScaleX())/7;
+            imageTransform.translate(-pin.getX(),-pin.getY());
+            imageTransform.scale((1/transform.getScaleX())/7,(1/transform.getScaleY())/7);
+            System.out.println("hello");
+            ((Graphics2D) g).drawImage(image, imageTransform, null);
+            searchMode = false;
+        }
 	}
 
 
