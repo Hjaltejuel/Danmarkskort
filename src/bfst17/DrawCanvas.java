@@ -28,6 +28,8 @@ public class DrawCanvas extends JComponent implements Observer {
 	boolean firstTime = true;
 	boolean greyScale = false;
 	boolean nightmode = false;
+	boolean fancyPan = true;
+
 	Point2D pin;
 	public DrawCanvas(Model model) {
 		this.model = model;
@@ -146,7 +148,8 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
 	}
 
-	public void panOnly(double distanceToCenterX, double distanceToCenterY){
+
+	public void panSlowOnly(double distanceToCenterX, double distanceToCenterY){
 		java.util.Timer timer = new java.util.Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			double dx = distanceToCenterX * getXZoomFactor();
@@ -159,7 +162,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
 			@Override
 			public void run() {
-				if (panCounter > 100){
+
+				if (panCounter >= 100){
 					cancel();
 				}
 				pan(partDX, partDY);
@@ -185,7 +189,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 				@Override
 				public void run() {
-					if (panCounter > 100){
+					if (panCounter >= 100){
 						zoomInSlow();
 						cancel();
 					}
@@ -233,16 +237,23 @@ public class DrawCanvas extends JComponent implements Observer {
                     cancel();
                 }
                 else if (zoomOutCounter < 100){
-						pan(-getWidth() / 2, -getHeight() / 2);
-						zoom(150000 / getXZoomFactor() * 10 / zoomOutCounter);
-						pan(getWidth() / 2, getHeight() / 2);
-						zoomOutCounter++;
+
+					pan(-getWidth() / 2, -getHeight() / 2);
+					zoom(150000 / getXZoomFactor() * 10 / zoomOutCounter);
+					pan(getWidth() / 2, getHeight() / 2);
+
+					zoomOutCounter++;
 
                 }
             }
         }, 0 , 20);
     }
 
+    public void zoomAndCenter(){
+		pan(-getWidth() / 2, -getHeight() / 2);
+		zoom(150000 / getXZoomFactor());
+		pan(getWidth() / 2, getHeight() / 2);
+	}
 
 
 
@@ -280,6 +291,10 @@ public class DrawCanvas extends JComponent implements Observer {
 		antiAlias = !antiAlias;
 		repaint();
         revalidate();
+	}
+
+	public void toggleFancyPan() {
+		fancyPan = !fancyPan;
 	}
 }
 
