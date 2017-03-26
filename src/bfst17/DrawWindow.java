@@ -108,21 +108,44 @@ public class DrawWindow implements Observer {
 
 
 		if(canvas.fancyPan){
-			double distance = Math.sqrt(Math.abs(distanceToCenterX*canvas.getXZoomFactor()*distanceToCenterX*canvas.getXZoomFactor()+distanceToCenterY*canvas.getYZoomFactor()*distanceToCenterY*canvas.getYZoomFactor()));
+			double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX*canvas.getXZoomFactor(),2)+Math.pow(distanceToCenterY*canvas.getYZoomFactor(),2)));
+			double amountOfZoom = 150000 / canvas.getXZoomFactor();
 
-			if(150000 / canvas.getXZoomFactor() >= 20){
-				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
+			if(amountOfZoom >= 2){
+				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
 			}
-			else if(150000 / canvas.getXZoomFactor() >= 0.8 && distance > 200) {
-				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
-       		}
-			else if(distance < 200){
-				canvas.panSlowOnly(distanceToCenterX, distanceToCenterY);
+			else{
+				if(distance < 400){
+					canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
+				}
+				else{
+					canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+				}
 			}
 
+			//#CLEAN CODE I KNOW, skal nok fjerne det snart, skal bare lige være sikker på det andet er lækkert #MAMBA-OUT
+			/*
+			//Hvis vi er langt ude --> pan så zoom ind
+			if(amountOfZoom >= 1.5){
+				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
+				System.out.println("1");
+			}
+			//Hvis vi er et stykke ude og afstanden er mere end 200
+			else if(amountOfZoom >= 0.8 && distance > 200) {
+				canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+				System.out.println("2");
+			}
+			//Hvis vi er tæt på og afstand er lille
+			else if(amountOfZoom <= 0.8 && distance < 200){
+				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
+				System.out.println("3");
+			}
+			//Hvis vi er tæt på men afstand er stor
         	else{
 				canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
-       		}
+				System.out.println("4");
+			}
+			*/
 		}
 		else if(!canvas.fancyPan){
 			double dx = distanceToCenterX * canvas.getXZoomFactor();

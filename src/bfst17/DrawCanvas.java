@@ -13,6 +13,8 @@ import java.awt.image.ImageObserver;
 import java.awt.image.renderable.RenderableImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
@@ -148,34 +150,29 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
 	}
 
-
-	public void panSlowOnly(double distanceToCenterX, double distanceToCenterY){
+	public void zoomWithFactor(double factor){
 		java.util.Timer timer = new java.util.Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
-			double dx = distanceToCenterX * getXZoomFactor();
-			double dy = distanceToCenterY * getYZoomFactor();
-
-			double partDX = dx/100;
-			double partDY = dy/100;
-
-			int panCounter = 1;
+			int zoomInCounter = 1;
 
 			@Override
 			public void run() {
-
-				if (panCounter >= 100){
+				if (zoomInCounter > 100) {
 					cancel();
 				}
-				pan(partDX, partDY);
-				panCounter++;
+				else{
+					pan(-getWidth() / 2, -getHeight() / 2);
+					zoom(150000 / getXZoomFactor() * zoomInCounter * factor);
+					pan(getWidth() / 2, getHeight() / 2);
+					zoomInCounter++;
+				}
 
 			}
+		}, 0 , 20);
 
-		}, 0, 10);
 	}
 
-
-	public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY) {
+	public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
 		java.util.Timer timer = new java.util.Timer();
 
 			timer.scheduleAtFixedRate(new TimerTask() {
@@ -190,7 +187,9 @@ public class DrawCanvas extends JComponent implements Observer {
 				@Override
 				public void run() {
 					if (panCounter >= 100){
-						zoomInSlow();
+						if(needToZoom) {
+							zoomWithFactor(3.0 / 100.0);
+						}
 						cancel();
 					}
 					pan(partDX, partDY);
@@ -202,28 +201,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
 
-	public void zoomInSlow(){
-		java.util.Timer timer = new java.util.Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            int zoomInCounter = 1;
-
-            @Override
-            public void run() {
-                if (zoomInCounter > 100) {
-                    cancel();
-                }
-                else{
-					pan(-getWidth() / 2, -getHeight() / 2);
-                    zoom(150000 / getXZoomFactor() * zoomInCounter * 3 / 100);
-                    pan(getWidth() / 2, getHeight() / 2);
-                    zoomInCounter++;
-                }
-
-            }
-        }, 0 , 20);
-
-	}
-
     public void zoomOutSlowAndThenPan(double distanceToCenterX, double distanceToCenterY) {
         java.util.Timer timer = new java.util.Timer();
 
@@ -233,7 +210,7 @@ public class DrawCanvas extends JComponent implements Observer {
             @Override
             public void run() {
 				if(zoomOutCounter >= 100) {
-					panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
+					panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
                     cancel();
                 }
                 else if (zoomOutCounter < 100){
