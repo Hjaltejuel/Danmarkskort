@@ -108,20 +108,14 @@ public class DrawWindow implements Observer {
 
 
 		if(canvas.fancyPan){
-			double distance = Math.sqrt(Math.abs(distanceToCenterX*canvas.getXZoomFactor()*distanceToCenterX*canvas.getXZoomFactor()+distanceToCenterY*canvas.getYZoomFactor()*distanceToCenterY*canvas.getYZoomFactor()));
+			double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX*canvas.getXZoomFactor(),2)+Math.pow(distanceToCenterY*canvas.getYZoomFactor(),2)));
 			double amountOfZoom = 150000 / canvas.getXZoomFactor();
 
-			System.out.println(amountOfZoom);
-			System.out.println(distance);
-
-			if(amountOfZoom >= 4){
-				System.out.println("ude");
-				System.out.println("bare pan");
+			if(amountOfZoom >= 2){
 				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
 			}
 			else{
-				System.out.println("inde");
-				if(distance < 200){
+				if(distance < 400){
 					canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
 				}
 				else{
@@ -129,6 +123,7 @@ public class DrawWindow implements Observer {
 				}
 			}
 
+			//#CLEAN CODE I KNOW, skal nok fjerne det snart, skal bare lige være sikker på det andet er lækkert #MAMBA-OUT
 			/*
 			//Hvis vi er langt ude --> pan så zoom ind
 			if(amountOfZoom >= 1.5){
