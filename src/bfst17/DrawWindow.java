@@ -153,8 +153,7 @@ public class DrawWindow implements Observer {
 			canvas.pan(dx, dy);
 			canvas.zoomAndCenter();
 		}
-
-        canvas.setPin((float)lat,(float)lon);
+        canvas.setSearchMode((float) lon,(float) lat);
         combo.setSelectedItem((null));
 
 

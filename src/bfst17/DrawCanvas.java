@@ -27,12 +27,13 @@ public class DrawCanvas extends JComponent implements Observer {
 	Model model;
 	AffineTransform transform = new AffineTransform();
 	boolean antiAlias;
-	boolean firstTime = true;
 	boolean greyScale = false;
 	boolean nightmode = false;
 	boolean fancyPan = true;
 
 	Point2D pin;
+	boolean searchMode = false;
+
 	public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
@@ -44,9 +45,11 @@ public class DrawCanvas extends JComponent implements Observer {
 	public double getCenterCordinateY() {
 		return (transform.getTranslateY() / transform.getScaleY()) -((getHeight() / transform.getScaleY())/2);
     }
-    public void setPin(float x, float y){
-		pin = new Point2D.Float(x,y);
-	}
+
+    public void setSearchMode(float lon,float lat){
+        searchMode = true;
+        pin = new Point2D.Float(lon,lat);
+    }
 	public void setGreyScale()
 	{
 		greyScale = true;
@@ -98,7 +101,7 @@ public class DrawCanvas extends JComponent implements Observer {
 			g.setColor(WayType.NATURAL_COASTLINE.getDrawColor());
 		}
 		g.fillRect(0,0, getWidth(),getHeight());
-		g.setTransform(transform);
+		g.transform(transform);
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
 
@@ -140,9 +143,13 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 		}
 
+			setPin(g);
 
 
-		}
+
+	}
+
+
 
 	public void pan(double dx, double dy) {
 		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
@@ -150,6 +157,29 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
 	}
 
+	public void setPin(Graphics g)  {
+        if(pin!=null) {
+            BufferedImage image = null;
+            try {
+                image = ImageIO.read(getClass().getResource("/pin.png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            AffineTransform imageTransform = new AffineTransform();
+            ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            imageTransform.setToIdentity();
+            System.out.println(pin.getX() + " " + pin.getY());
+            double offsetHeight= (image.getHeight()/transform.getScaleY())/7;
+            double offsetWidth = ((image.getWidth()/4)/transform.getScaleX())/7;
+            imageTransform.translate(-pin.getX(),-pin.getY());
+            imageTransform.scale(((1/transform.getScaleX())/7),((1/transform.getScaleY())/7));
+            ((Graphics2D) g).drawImage(image, imageTransform, null);
+            searchMode = false;
+        }
+	}
+
+
+	public void panSlowOnly(double distanceToCenterX, double distanceToCenterY){
 	public void zoomWithFactor(double factor){
 		java.util.Timer timer = new java.util.Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
