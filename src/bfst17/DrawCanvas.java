@@ -179,7 +179,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
 
-	public void panSlowOnly(double distanceToCenterX, double distanceToCenterY){
 	public void zoomWithFactor(double factor){
 		java.util.Timer timer = new java.util.Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
