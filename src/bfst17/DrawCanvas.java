@@ -172,7 +172,6 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	}
 
-
 	public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
 		java.util.Timer timer = new java.util.Timer();
 

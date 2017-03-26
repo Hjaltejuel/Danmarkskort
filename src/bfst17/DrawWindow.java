@@ -113,6 +113,7 @@ public class DrawWindow implements Observer {
 
 			System.out.println(amountOfZoom);
 			System.out.println(distance);
+
 			if(amountOfZoom >= 4){
 				System.out.println("ude");
 				System.out.println("bare pan");
