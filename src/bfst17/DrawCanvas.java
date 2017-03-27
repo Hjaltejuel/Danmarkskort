@@ -161,7 +161,7 @@ public class DrawCanvas extends JComponent implements Observer {
         if(pin!=null) {
             BufferedImage image = null;
             try {
-                image = ImageIO.read(getClass().getResource("/pin.png"));
+                image = ImageIO.read(getClass().getResource("/temppin.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
