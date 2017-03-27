@@ -8,9 +8,15 @@ import java.awt.*;
 
 public enum WayType {
 	NATURAL_COASTLINE
-			(new Color(234, 234, 234), //Fuck it!
+			(new Color(234, 234, 234),
 					null, 
                     1,
+					FillType.SOLID,
+					new Color(36,47,62)),
+	NATURAL_BEACH
+			(new Color(255,240,169),
+					null,
+					1,
 					FillType.SOLID,
 					new Color(36,47,62)),
 	NATURAL_GRASSLAND
@@ -26,7 +32,7 @@ public enum WayType {
 					FillType.SOLID,
 					new Color(114, 170, 107)),
     LANDUSE_MEADOW
-            (new Color(136,236, 111),
+            (new Color(205, 235, 176),
                     null,
                     1,
                     FillType.SOLID,
@@ -105,12 +111,6 @@ public enum WayType {
 					new Color(36,47,62)),
 	NATURAL_SAND
 			(new Color(241,229,184),
-					null, 
- 	 	 	 	 	 1,
-					FillType.SOLID,
-					new Color(36,47,62)),
-	NATURAL_BEACH
-			(new Color(255,240,169),
 					null, 
  	 	 	 	 	 1,
 					FillType.SOLID,
