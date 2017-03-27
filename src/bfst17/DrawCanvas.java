@@ -94,12 +94,18 @@ public class DrawCanvas extends JComponent implements Observer {
 		} else {
 			g.setColor(WayType.NATURAL_WATER.getDrawColor());
 		}
+
 		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setTransform(transform);
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+		for(Shape s: model.get(WayType.NATURAL_COASTLINE)) {
+			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
+			g.setColor(WayType.NATURAL_COASTLINE.getDrawColor());
+			g.fill(s);
+		}
 
 		double rectSize = 100d / transform.getScaleX();
 		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);
