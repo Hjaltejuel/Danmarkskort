@@ -1,11 +1,9 @@
 package bfst17;
 
-import org.w3c.dom.Node;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.awt.*;
-import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
@@ -219,8 +217,6 @@ public class Model extends Observable implements Serializable {
 					nodeID = Long.parseLong(atts.getValue("id"));
 					float lat = Float.parseFloat(atts.getValue("lat"));
 					float lon = Float.parseFloat(atts.getValue("lon"));
-					//tree.insert(new Point2D.Float(lon*lonfactor,lat));
-					//tree.insert(n);
 					idToNode.put(nodeID, lonfactor * lon, -lat);
 					break;
 				case "way":
@@ -248,7 +244,6 @@ public class Model extends Observable implements Serializable {
 							break;
 						}
 					}
-
 					switch (k) {
 						case "addr:street":
 							addressBuilder[0] = v;

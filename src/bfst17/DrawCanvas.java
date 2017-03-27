@@ -2,28 +2,17 @@ package bfst17;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.Timer;
 import java.awt.*;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.awt.image.renderable.RenderableImage;
-import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.*;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.TimerTask;
-
-import static java.awt.image.BufferedImage.TYPE_INT_RGB;
-
 
 /**
  * Created by trold on 2/8/17.
@@ -109,15 +98,13 @@ public class DrawCanvas extends JComponent implements Observer {
 		g.setTransform(transform);
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
-
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-
 		/**/
-		double rectSize=100d/transform.getScaleX();
-		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX()-rectSize, -getCenterCordinateY()-rectSize, 2*rectSize, 2*rectSize);
+		double rectSize = 100d / transform.getScaleX();
+		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);
 
-		for(KDTree.TreeNode n: model.getTree().getInRange((Rectangle2D)rectangle)){
+		for (KDTree.TreeNode n : model.getTree().getInRange((Rectangle2D) rectangle)) {
 			WayType type = n.getType();
 			Shape shape = n.getShape();
 
@@ -129,7 +116,6 @@ public class DrawCanvas extends JComponent implements Observer {
 			} else if (type.getFillType() == FillType.SOLID) {
 				g.fill(shape);
 			}
-
 			/*
 			g.setStroke(new BasicStroke(0.000008f));
 			Shape rectangle1 = shape.getBounds2D();
@@ -141,55 +127,39 @@ public class DrawCanvas extends JComponent implements Observer {
 		g.setStroke(new BasicStroke(0.00008f));
 		g.draw(rectangle);
 
-		//LongToPointMap.Node n = model.getMap().tab[0];
-		/*KDTree tree = model.getTree();
-		KDTree.TreeNode node = tree.getRoot();
-		while(node != null){
-
-		}
+		/*
 		//Draw all shapes
-
-		for(WayType type: WayType.values())
-		{
-			if(!greyScale && !nightmode) {
+		for (WayType type : WayType.values()) {
+			if (!greyScale && !nightmode) {
 				g.setColor(type.getDrawColor());
-			} else if(greyScale)
-				{
-					Color c = type.getDrawColor();
-					int red = (int)(c.getRed() * 0.299);
-					int green = (int)(c.getGreen() * 0.587);
-					int blue = (int)(c.getBlue() *0.114);
-					Color newColor = new Color(red+green+blue,
-
-							red+green+blue,red+green+blue);
-					g.setColor(newColor);
-				} else
-			{
+			} else if (greyScale) {
+				Color c = type.getDrawColor();
+				int red = (int) (c.getRed() * 0.299);
+				int green = (int) (c.getGreen() * 0.587);
+				int blue = (int) (c.getBlue() * 0.114);
+				int sum = red + green + blue;
+				Color newColor = new Color(sum, sum, sum);
+				g.setColor(newColor);
+			} else {
 				g.setColor(type.getNightMode());
 			}
 			g.setStroke(type.getDrawStroke());
-            if(type.getZoomFactor() < getXZoomFactor() ){
-			//How should the data be drawn?
-			if(type.getFillType()==FillType.LINE) {
-				for (Shape shape : model.get(type)) {
-					g.draw(shape);
+			if (type.getZoomFactor() < getXZoomFactor()) {
+				//How should the data be drawn?
+				if (type.getFillType() == FillType.LINE) {
+					for (Shape shape : model.get(type)) {
+						g.draw(shape);
+					}
+				} else if (type.getFillType() == FillType.SOLID) {
+					for (Shape shape : model.get(type)) {
+						g.fill(shape);
+					}
 				}
 			}
-			else if(type.getFillType()==FillType.SOLID) {
-				for (Shape shape : model.get(type)) {
-					g.fill(shape);
-				}
-				}
-				}
 		}
-
-			setPin(g);
-
-*/
-
+		*/
+		setPin(g);
 	}
-
-
 
 	public void pan(double dx, double dy) {
 		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
@@ -208,9 +178,11 @@ public class DrawCanvas extends JComponent implements Observer {
             AffineTransform imageTransform = new AffineTransform();
             ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             imageTransform.setToIdentity();
+
             System.out.println(pin.getX() + " " + pin.getY());
-            double offsetHeight= (image.getHeight()/transform.getScaleY())/7;
+            double offsetHeight = (image.getHeight()/transform.getScaleY())/7;
             double offsetWidth = ((image.getWidth()/4)/transform.getScaleX())/7;
+
             imageTransform.translate(-pin.getX(),-pin.getY());
             imageTransform.scale(((1/transform.getScaleX())/7),((1/transform.getScaleY())/7));
             ((Graphics2D) g).drawImage(image, imageTransform, null);
@@ -218,8 +190,7 @@ public class DrawCanvas extends JComponent implements Observer {
         }
 	}
 
-
-	public void zoomWithFactor(double factor){
+	public void zoomWithFactor(double factor) {
 		java.util.Timer timer = new java.util.Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			int zoomInCounter = 1;
@@ -228,8 +199,7 @@ public class DrawCanvas extends JComponent implements Observer {
 			public void run() {
 				if (zoomInCounter > 100) {
 					cancel();
-				}
-				else{
+				} else {
 					pan(-getWidth() / 2, -getHeight() / 2);
 					zoom(150000 / getXZoomFactor() * zoomInCounter * factor);
 					pan(getWidth() / 2, getHeight() / 2);
@@ -237,36 +207,39 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 
 			}
-		}, 0 , 20);
+		}, 0, 20);
+	}
 
+	private Point2D lonLatToPixel(double x, double y) {
+		return new Point2D.Double(x*getXZoomFactor(),y*getYZoomFactor());
 	}
 
 	public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
 		java.util.Timer timer = new java.util.Timer();
 
-			timer.scheduleAtFixedRate(new TimerTask() {
-                double dx = distanceToCenterX * getXZoomFactor();
-                double dy = distanceToCenterY * getYZoomFactor();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			double dx = distanceToCenterX * getXZoomFactor();
+			double dy = distanceToCenterY * getYZoomFactor();
 
-                double partDX = dx/100;
-                double partDY = dy/100;
+			double partDX = dx / 100;
+			double partDY = dy / 100;
 
-				int panCounter = 1;
+			int panCounter = 1;
 
-				@Override
-				public void run() {
-					if (panCounter >= 100){
-						if(needToZoom) {
-							zoomWithFactor(3.0 / 100.0);
-						}
-						cancel();
+			@Override
+			public void run() {
+				if (panCounter >= 100) {
+					if (needToZoom) {
+						zoomWithFactor(3.0 / 100.0);
 					}
-					pan(partDX, partDY);
-					panCounter++;
-
+					cancel();
 				}
+				pan(partDX, partDY);
+				panCounter++;
 
-			}, 0, 10);
+			}
+
+		}, 0, 10);
 	}
 
 
