@@ -1,54 +1,47 @@
 package bfst17;
 
-import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
-import java.util.HashMap;
 
 public class LongToPointMap implements Serializable {
-    int MASK;
-    public Node[] tab;
-    HashMap<Long, Long> keyToWay = new HashMap<>();
+        int MASK;
+        public Node[] tab;
 
-    public LongToPointMap(int capacity) {
-        tab = new Node[1 << capacity];
-        MASK = tab.length - 1;
-    }
+        public LongToPointMap(int capacity) {
+            tab = new Node[1 << capacity];
+            MASK = tab.length - 1;
 
-    public void linkRefAndShape(long key, long wayID){
-        keyToWay.put(key, wayID);
-    }
-    public Long getShape(long key) {
-        return keyToWay.get(key);
-    }
-
-    public void put(long key, float x, float y) {
-        int h = Long.hashCode(key) & MASK;
-        tab[h] = new Node(key, x, y, tab[h]);
-    }
-
-
-    public Point2D get(long key) {
-        for (Node n = tab[Long.hashCode(key) & MASK] ; n != null ; n = n.next) {
-            if (n.key == key) return n;
         }
-        return null;
+
+        public void put(long key, float x, float y) {
+            int h = Long.hashCode(key) & MASK;
+            tab[h] = new Node(key, x, y, tab[h]);
+        }
+
+
+        public Point2D get(long key) {
+            for (Node n = tab[Long.hashCode(key) & MASK] ; n != null ; n = n.next) {
+                if (n.key == key) return n;
+            }
+            return null;
+        }
+
+        static class Node extends Point2D.Float implements Serializable {
+            public static final long serialVersionUID = 20160216;
+            Node next;
+            long key;
+
+            public Node(long _key, float x, float y, Node _next) {
+                super(x, y);
+                key = _key;
+                next = _next;
+            }
+            public void setNextNodeToNull()
+            {
+                this.next = null;
+            }
+        }
+
     }
 
-    static class Node extends Point2D.Float implements Serializable {
-        public static final long serialVersionUID = 20160216;
-        Node next, left, right;
-        long key;
 
-        public Node(long _key, float x, float y, Node _next) {
-            super(x, y);
-            key = _key;
-            next = _next;
-        }
-        public void setNextNodeToNull()
-        {
-            this.next = null;
-        }
-    }
-
-}

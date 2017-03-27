@@ -2,6 +2,22 @@ package bfst17;
 import java.util.Arrays;
 public final class QuickSelect {
 
+/**
+ * Created by Michelle on 3/17/2017.
+ */
+public class QuickSelect {
+    /*
+    public static Comparable
+     select(Comparable[] a, int k) {
+    }
+        StdRandom.shuffle(a);
+        int lo = 0, hi = a.length - 1;
+        while (hi > lo)
+        {
+            int j = partition(a, lo, hi);
+            if (j == k) return a[k];
+            else if (j > k) hi = j - 1;
+            else if (j < k) lo = j + 1;
         /**
          * In quicksort, we recursively sort both branches, leading to best-case
          * Ω(n log n) time. However, when doing selection, we already know which
@@ -71,5 +87,9 @@ public final class QuickSelect {
         private Node getMedian(Node[] arr, int lo, int hi, boolean vertical) {
                 return null;
         }
+        */
+}
+        return a[k];
+    }
         */
 }
