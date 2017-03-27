@@ -107,7 +107,7 @@ public class Model extends Observable implements Serializable {
 			} catch (ClassCastException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 	}
 
