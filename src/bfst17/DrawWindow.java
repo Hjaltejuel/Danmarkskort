@@ -78,10 +78,7 @@ public class DrawWindow implements Observer {
 	 */
 	public void paintAutocomplete() {
 		this.listItems = new ArrayList();
-
-
 		this.listItems.addAll(addressModel.getAddressToCordinate().keySet().stream().map(a -> a.toString().toLowerCase()).collect(Collectors.toList()));
-
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
@@ -94,6 +91,7 @@ public class DrawWindow implements Observer {
 			}
 		});
 	}
+
 	public void search(){
         String s = (String) combo.getSelectedItem();
         //points lat, lon
