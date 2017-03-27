@@ -104,6 +104,7 @@ public class Model extends Observable implements Serializable {
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
+                tree.fillTree(shapes);
 				dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -181,7 +182,7 @@ public class Model extends Observable implements Serializable {
 			for(String s: PostCode){
 				addressModel.put(s,null);
 			}
-			tree.fillTree(shapes);
+            tree.fillTree(shapes);
 		}
 
 		@Override

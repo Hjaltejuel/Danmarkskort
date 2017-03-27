@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -19,6 +20,7 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.TimerTask;
 
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 
@@ -42,7 +44,7 @@ public class DrawCanvas extends JComponent implements Observer {
 		model.addObserver(this);
 
 	}
-	public double getCenterCordinateX(){
+	public double getCenterCordinateX() {
         return (transform.getTranslateX()/transform.getScaleX())-((getWidth()/transform.getScaleX())/2);
 	}
 	public double getCenterCordinateY() {

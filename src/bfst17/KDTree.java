@@ -95,18 +95,6 @@ public class KDTree{
         insertArray(allShapes,0,arrLength-1,true);
         System.out.println(maxDepth);
         System.out.println(arrLength+" "+count);
-        //long time = System.nanoTime();
-        //boolean vertical = true;
-        /*
-        Collections.sort(allShapes, (o1, o2) -> {
-            double compare = vertical ? o1.getX() - o2.getX() : o1.getY() - o2.getY();
-            if (compare > 0) {
-                return 1;
-            } else if (compare < 0) {
-                return -1;
-            }
-            return 0;
-        });*/
     }
 
     public void insertArray(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
@@ -133,17 +121,6 @@ public class KDTree{
         TreeNode startNode = root;
 
         Integer depth=0;
-        /*while(true){
-            boolean vertical = depth%2==0;
-            double compare = vertical?x-startNode.getX():y-startNode.getY();
-            depth++;
-            if(compare>=0) {
-                startNode=root.right;
-            }
-            else{
-                break;
-            }
-        }*/
         addShapesBelowNode(startNode, depth, rect);//x, y);
         return nodes;
     }
@@ -186,22 +163,6 @@ public class KDTree{
         if(!isLargerThan(startNode,rect.getMaxX(),rect.getMaxY(),vertical)){
             addShapesBelowNode(startNode.right,depth+1, rect);
         }
-
-        /*
-        if(rect.contains(startNode.getX(),startNode.getY())) {
-            nodes.add(startNode);
-
-        }
-        if(startNode.left!=null) {
-            vertical=!vertical; //Switch to simulate 1 depth lower
-            double compare = vertical?x-startNode.left.getX():y-startNode.left.getY();
-            if(compare>=0){
-                addShapesBelowNode(startNode.left,depth+1, x, y);
-            }
-        }
-        if(startNode.right!=null) {
-            addShapesBelowNode(startNode.right,depth+1, x, y);
-        }*/
     }
 
     public boolean isEmpty(){
