@@ -100,7 +100,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		/**/
+
 		double rectSize = 100d / transform.getScaleX();
 		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);
 
@@ -121,8 +121,8 @@ public class DrawCanvas extends JComponent implements Observer {
 			Shape rectangle1 = shape.getBounds2D();
 			g.draw(rectangle1);
 			*/
-		}
 
+		}
 		g.setColor(Color.black);
 		g.setStroke(new BasicStroke(0.00008f));
 		g.draw(rectangle);
@@ -157,7 +157,7 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 			}
 		}
-		*/
+		/**/
 		setPin(g);
 	}
 
@@ -179,7 +179,7 @@ public class DrawCanvas extends JComponent implements Observer {
             ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             imageTransform.setToIdentity();
 
-            System.out.println(pin.getX() + " " + pin.getY());
+            //System.out.println(pin.getX() + " " + pin.getY());
             double offsetHeight = (image.getHeight()/transform.getScaleY())/7;
             double offsetWidth = ((image.getWidth()/4)/transform.getScaleX())/7;
 

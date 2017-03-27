@@ -23,6 +23,6 @@ public class OSMNode {
 	}
 
 	public Point2D getPoint2D(){
-		return new Point2D.Double(lon, -lat);
+		return new Point2D.Double(lon, lat);
 	}
 }

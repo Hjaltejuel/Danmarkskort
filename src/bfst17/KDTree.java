@@ -36,7 +36,7 @@ public class KDTree{
         public TreeNode(double x, double y, Shape s, WayType type) {
             this.x=x;
             this.y=y;
-            this.shape = s;
+            this.shape=s;
             this.type=type;
         }
 
