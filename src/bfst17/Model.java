@@ -144,7 +144,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	private class OSMHandler implements ContentHandler {
-		LongToPointMap idToNode = new LongToPointMap(18000000);
+		LongToPointMap idToNode = new LongToPointMap(36000000);
 		Map<Long, OSMWay> idToWay = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
 		OSMWay way;
