@@ -25,6 +25,12 @@ public enum WayType {
                     1,
 					FillType.SOLID,
 					new Color(114, 170, 107)),
+    LANDUSE_MEADOW
+            (new Color(136,236, 111),
+                    null,
+                    1,
+                    FillType.SOLID,
+                    new Color(114, 170, 107)),
 	LANDUSE_RESIDENTIAL
 			(new Color(218,218,218),
 					null, 
@@ -253,6 +259,12 @@ public enum WayType {
  	 	 	 	 	 1,
 					FillType.SOLID,
 					new Color(36,47,62)),
+	LANDUSE_FARMLAND
+			(new Color(251, 236, 215),
+					null,
+					1,
+					FillType.SOLID,
+					new Color(36,47,62)),
 	LANDUSE_ALLOTMENTS
 			(new Color(238,207,179),
 					null, 
@@ -331,6 +343,12 @@ public enum WayType {
  	 	 	 	 	 1,
 					FillType.SOLID,
 					new Color(36,47,62)),
+    LEISURE_RECREATION_GROUND
+            (new Color(197,236,148),
+                    null,
+                    1,
+                    FillType.SOLID,
+                    new Color(36,47,62)),
 	LEISURE_PLAYGROUND
 			(new Color(204,255,241),
 					null, 
@@ -431,6 +449,12 @@ public enum WayType {
 			(new Color(181, 208, 208),
 					null, 
  	 	 	 	 	 1,
+					FillType.LINE,
+					new Color(56,65,78)),
+	WATERWAY_STREAM
+			(new Color(133, 169, 208),
+					null,
+					1,
 					FillType.LINE,
 					new Color(56,65,78)),
 	HIGHWAY_MOTORWAY
@@ -655,10 +679,16 @@ public enum WayType {
  	 	 	 	 	 1,
 					FillType.LINE,
 					new Color(36,47,62)),
-	ROUTE_FERRY
+	ROUTE_BUS
 			(new Color(181,208,208),
 					null, 
  	 	 	 	 	 1,
+					FillType.LINE,
+					new Color(36,47,62)),
+	ROUTE_FERRY
+			(new Color(199,208, 205),
+					null,
+					1,
 					FillType.LINE,
 					new Color(36,47,62)),
 	POWER_LINE
@@ -818,7 +848,7 @@ public enum WayType {
 					FillType.LINE,
 					new Color(36,47,62)),
 	UNKNOWN
-			(new Color(250, 255, 0,0),
+			(new Color(250, 255, 0),
 					null, 
  	 	 	 	 	 1,
 					FillType.LINE,
