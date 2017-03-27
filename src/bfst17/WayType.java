@@ -458,8 +458,8 @@ public enum WayType {
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_MOTORWAY
-			(new Color(213, 18, 88),
-					null,
+			(new Color(232, 146, 162),
+					new BasicStroke(0.0004f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
 					150,
 					FillType.LINE,
 					new Color(56, 65, 78)),
@@ -470,8 +470,8 @@ public enum WayType {
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_PRIMARY
-			(new Color(154, 105, 8),
-					new BasicStroke(0.0001f),
+			(new Color(252, 214, 164),
+					new BasicStroke(0.0001f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
 					450,
 					FillType.LINE,
 					new Color(56, 65, 78)),
