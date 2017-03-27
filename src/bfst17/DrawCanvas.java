@@ -86,6 +86,23 @@ public class DrawCanvas extends JComponent implements Observer {
 	 *
 	 * @see #paint
 	 */
+
+	private Color getDrawColor(WayType type){
+		Color drawColor = type.getDrawColor();
+
+		if(nightmode) {
+			drawColor = type.getNightModeColor();
+		} else if (greyScale) {
+			int red = (int) (drawColor.getRed() * 0.299);
+			int green = (int) (drawColor.getGreen() * 0.587);
+			int blue = (int) (drawColor.getBlue() * 0.114);
+			int sum = red + green + blue;
+
+			drawColor = new Color(sum, sum, sum);
+		}
+		return drawColor;
+	}
+
 	@Override
 	protected void paintComponent(Graphics _g) {
 		Graphics2D g = (Graphics2D) _g;
@@ -103,7 +120,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		for(Shape s: model.get(WayType.NATURAL_COASTLINE)) {
 			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
-			g.setColor(WayType.NATURAL_COASTLINE.getDrawColor());
+			g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
 			g.fill(s);
 		}
 
@@ -113,21 +130,24 @@ public class DrawCanvas extends JComponent implements Observer {
 		for (KDTree.TreeNode n : model.getTree().getInRange((Rectangle2D) rectangle)) {
 			WayType type = n.getType();
 			Shape shape = n.getShape();
+			Color drawColor=getDrawColor(type);
 
-			g.setColor(type.getDrawColor());
+			g.setColor(drawColor);
 			g.setStroke(type.getDrawStroke());
 
-			if (type.getFillType() == FillType.LINE) {
-				g.draw(shape);
-			} else if (type.getFillType() == FillType.SOLID) {
-				g.fill(shape);
+			if (type.getZoomFactor() < getXZoomFactor()) {
+				//How should the shapes be drawn?
+				if (type.getFillType() == FillType.LINE) {
+					g.draw(shape);
+				} else if (type.getFillType() == FillType.SOLID) {
+					g.fill(shape);
+				}
 			}
 			/*
 			g.setStroke(new BasicStroke(0.000008f));
 			Shape rectangle1 = shape.getBounds2D();
 			g.draw(rectangle1);
 			*/
-
 		}
 		g.setColor(Color.black);
 		g.setStroke(new BasicStroke(0.00008f));
@@ -136,19 +156,8 @@ public class DrawCanvas extends JComponent implements Observer {
 		/*
 		//Draw all shapes
 		for (WayType type : WayType.values()) {
-			if (!greyScale && !nightmode) {
-				g.setColor(type.getDrawColor());
-			} else if (greyScale) {
-				Color c = type.getDrawColor();
-				int red = (int) (c.getRed() * 0.299);
-				int green = (int) (c.getGreen() * 0.587);
-				int blue = (int) (c.getBlue() * 0.114);
-				int sum = red + green + blue;
-				Color newColor = new Color(sum, sum, sum);
-				g.setColor(newColor);
-			} else {
-				g.setColor(type.getNightMode());
-			}
+			g.setColor(getDrawColor(type));
+
 			g.setStroke(type.getDrawStroke());
 			if (type.getZoomFactor() < getXZoomFactor()) {
 				//How should the data be drawn?

@@ -44,7 +44,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
-		long time = System.nanoTime();
+		load(this.getClass().getResource("/bornholm.osm").getPath());
 	}
 
 	public void add(WayType type, Shape shape) {

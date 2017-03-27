@@ -887,7 +887,7 @@ public enum WayType {
 	{
 		return drawStroke;
 	}
-	public Color getNightMode()
+	public Color getNightModeColor()
 	{
 		return nightMode;
 	}
