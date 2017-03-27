@@ -88,11 +88,9 @@ public class DrawWindow implements Observer {
 		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
-
 				if (event.getKeyChar() == 10) {
 				    search();
 				}
-
 			}
 		});
 	}
