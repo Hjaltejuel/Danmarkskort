@@ -4,15 +4,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.awt.image.renderable.RenderableImage;
-import java.io.File;
-import java.io.IOException;
+import java.awt.geom.*;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -91,7 +83,7 @@ public class DrawCanvas extends JComponent implements Observer {
 		if (nightmode) {
 			g.setColor(new Color(36, 47, 62));
 		} else {
-			g.setColor(WayType.NATURAL_COASTLINE.getDrawColor());
+			g.setColor(WayType.NATURAL_WATER.getDrawColor());
 		}
 		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setTransform(transform);
@@ -100,47 +92,73 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+
+		/**/
+		double rectSize=100d/transform.getScaleX();
+		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX()-rectSize, -getCenterCordinateY()-rectSize, 2*rectSize, 2*rectSize);
+
+		for(KDTree.TreeNode n: model.getTree().getInRange((Rectangle2D)rectangle)){
+			WayType type = n.getType();
+			Shape shape = n.getShape();
+
+			g.setColor(type.getDrawColor());
+			g.setStroke(type.getDrawStroke());
+
+			if (type.getFillType() == FillType.LINE) {
+				g.draw(shape);
+			} else if (type.getFillType() == FillType.SOLID) {
+				g.fill(shape);
+			}
+
+			/*
+			g.setStroke(new BasicStroke(0.000008f));
+			Shape rectangle1 = shape.getBounds2D();
+			g.draw(rectangle1);
+			*/
+		}
+
 		g.setColor(Color.black);
-		for (Node n : model.getMap().tab) {
-			System.out.println(n.getX());
-			g.drawRect((int) n.getX(), (int) n.getX(), 100, 100);
+		g.setStroke(new BasicStroke(0.00008f));
+		g.draw(rectangle);
+
+		//LongToPointMap.Node n = model.getMap().tab[0];
+		/*KDTree tree = model.getTree();
+		KDTree.TreeNode node = tree.getRoot();
+		while(node != null){
+
 		}
 		//Draw all shapes
 		/*
-		for(WayType type: WayType.values())
-		{
-			if(!greyScale && !nightmode) {
+		for(WayType type: WayType.values()) {
+			if (!greyScale && !nightmode) {
 				g.setColor(type.getDrawColor());
-			} else if(greyScale)
-				{
-					Color c = type.getDrawColor();
-					int red = (int)(c.getRed() * 0.299);
-					int green = (int)(c.getGreen() * 0.587);
-					int blue = (int)(c.getBlue() *0.114);
-					Color newColor = new Color(red+green+blue,
+			} else if (greyScale) {
+				Color c = type.getDrawColor();
+				int red = (int) (c.getRed() * 0.299);
+				int green = (int) (c.getGreen() * 0.587);
+				int blue = (int) (c.getBlue() * 0.114);
+				Color newColor = new Color(red + green + blue,
 
-							red+green+blue,red+green+blue);
-					g.setColor(newColor);
-				} else
-			{
+						red + green + blue, red + green + blue);
+				g.setColor(newColor);
+			} else {
 				g.setColor(type.getNightMode());
 			}
 			g.setStroke(type.getDrawStroke());
-            if(type.getZoomFactor() < getXZoomFactor() ){
-			//How should the data be drawn?
-			if(type.getFillType()==FillType.LINE) {
-				for (Shape shape : model.get(type)) {
-					g.draw(shape);
+			if (type.getZoomFactor() < getXZoomFactor()) {
+				//How should the data be drawn?
+				if (type.getFillType() == FillType.LINE) {
+					for (Shape shape : model.get(type)) {
+						g.draw(shape);
+					}
+				} else if (type.getFillType() == FillType.SOLID) {
+					for (Shape shape : model.get(type)) {
+						g.fill(shape);
+					}
 				}
 			}
-			else if(type.getFillType()==FillType.SOLID) {
-				for (Shape shape : model.get(type)) {
-					g.fill(shape);
-				}
-				}
-				}
 		}
-		*/
+		/**/
 		/*if(pin!= null){
 			BufferedImage image = null;
 			try {

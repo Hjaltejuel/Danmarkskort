@@ -42,7 +42,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
-		load(this.getClass().getResource("/map (4).osm").toString());
+		load(this.getClass().getResource("/small.osm").toString());
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -57,6 +57,11 @@ public class Model extends Observable implements Serializable {
 
 	public Iterable<Shape> get(WayType type) {
 		return shapes.get(type);
+	}
+
+	private KDTree tree = new KDTree();
+	public KDTree getTree(){
+		return tree;
 	}
 
 	public void save(String filename) {
@@ -139,11 +144,14 @@ public class Model extends Observable implements Serializable {
 		return idToNode;
 	}
 
+	/*public LongToPointMap getWayMap(){
+		return idToWay;
+	}*/
+
 	private class OSMHandler implements ContentHandler {
 
 		Map<Long,OSMWay> idToWay = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
-		private KDTree tree = new KDTree();
 		OSMWay way;
 		OSMRelation relation;
 		WayType type;
@@ -165,7 +173,7 @@ public class Model extends Observable implements Serializable {
 				addressModel.add(Address.parse(cityMap.get(s)));
 				addressModel.add(Address.parse(s + " " + cityMap.get(s)));
 			}
-			System.out.println(idToNode.size());
+			tree.fillTree(shapes);
 		}
 
 		@Override
@@ -198,13 +206,12 @@ public class Model extends Observable implements Serializable {
 					float lat = Float.parseFloat(atts.getValue("lat"));
 					float lon = Float.parseFloat(atts.getValue("lon"));
 					//tree.insert(new Point2D.Float(lon*lonfactor,lat));
-					Node n = new Node(nodeID, lonfactor * lon, -lat);
-					tree.insert(n);
+					//tree.insert(n);
 					idToNode.put(nodeID, lonfactor * lon, -lat);
 					break;
 				case "way":
-					way = new OSMWay();
 					Long id = Long.parseLong(atts.getValue("id"));
+					way = new OSMWay();
 					type = WayType.UNKNOWN;
 					idToWay.put(id, way);
 					break;
@@ -216,7 +223,8 @@ public class Model extends Observable implements Serializable {
 					long ref = Long.parseLong(atts.getValue("ref"));
 					Point2D point2D = idToNode.get(ref);
 					way.add(new OSMNode((float) point2D.getX(),(float)point2D.getY()));
-					break;
+					//idToNode.linkRefAndShape(ref, way.id);
+				break;
 				case "tag":
 					String k = atts.getValue("k");
 					String v = atts.getValue("v");
