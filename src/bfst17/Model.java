@@ -98,7 +98,6 @@ public class Model extends Observable implements Serializable {
 		} else {
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
 				//Ryk rundt på dem her og få med Jens' knytnæve at bestille
-				double one = System.nanoTime();
 				shapes = (EnumMap<WayType, List<Shape>>) in.readObject();
 				addressModel = (AddressModel) in.readObject();
 				minlon = in.readFloat();
@@ -106,8 +105,6 @@ public class Model extends Observable implements Serializable {
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
 				dirty();
-				double two = System.nanoTime();
-				System.out.println(two-one/(100000000));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

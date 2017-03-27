@@ -5,17 +5,11 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Timer;
@@ -32,11 +26,9 @@ public class DrawWindow implements Observer {
 	private ArrayList listItems;
 	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
-	private JTextArea userOutput;
 	private JLayeredPane WindowPane;
 	private JPopupMenu popUpMenu;
-    boolean isClicked =false;
-        //få filer ind
+    boolean isClicked = false;
 
 	public DrawWindow(Model model) {
 		try {
@@ -79,8 +71,6 @@ public class DrawWindow implements Observer {
 
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
 		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
-		new WindowKeyController(this, model);
-
 	}
 
 	/**
@@ -116,16 +106,54 @@ public class DrawWindow implements Observer {
         double distanceToCenterY = lat - canvas.getCenterCordinateY();
         double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
-        if(150000 / canvas.getXZoomFactor() >= 0.8) {
-            canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY);
-        }
 
-        //er zoomet langt ind og afstanden er lang
-        else{
-            canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
-        }
+		if(canvas.fancyPan){
+			double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX*canvas.getXZoomFactor(),2)+Math.pow(distanceToCenterY*canvas.getYZoomFactor(),2)));
+			double amountOfZoom = 150000 / canvas.getXZoomFactor();
 
-        canvas.setPin((float)lat,(float)lon);
+			if(amountOfZoom >= 2){
+				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
+			}
+			else{
+				if(distance < 400){
+					canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
+				}
+				else{
+					canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+				}
+			}
+
+			//#CLEAN CODE I KNOW, skal nok fjerne det snart, skal bare lige være sikker på det andet er lækkert #MAMBA-OUT
+			/*
+			//Hvis vi er langt ude --> pan så zoom ind
+			if(amountOfZoom >= 1.5){
+				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
+				System.out.println("1");
+			}
+			//Hvis vi er et stykke ude og afstanden er mere end 200
+			else if(amountOfZoom >= 0.8 && distance > 200) {
+				canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+				System.out.println("2");
+			}
+			//Hvis vi er tæt på og afstand er lille
+			else if(amountOfZoom <= 0.8 && distance < 200){
+				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
+				System.out.println("3");
+			}
+			//Hvis vi er tæt på men afstand er stor
+        	else{
+				canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+				System.out.println("4");
+			}
+			*/
+		}
+		else if(!canvas.fancyPan){
+			double dx = distanceToCenterX * canvas.getXZoomFactor();
+			double dy = distanceToCenterY * canvas.getYZoomFactor();
+			canvas.pan(dx, dy);
+			canvas.zoomAndCenter();
+		}
+        canvas.setSearchMode((float) lon,(float) lat);
         combo.setSelectedItem((null));
 
 
@@ -144,7 +172,6 @@ public class DrawWindow implements Observer {
 		search.setFocusPainted(false);
 		search.setContentAreaFilled(false);
 		search.setBorder(BorderFactory.createEmptyBorder());
-
 		search.setPreferredSize(new Dimension(30,30));
 		search.addMouseListener(new MouseListener() {
             @Override
@@ -160,8 +187,6 @@ public class DrawWindow implements Observer {
             @Override
             public void mouseExited(MouseEvent e) {}
         });
-
-
 		WindowPane.add(search);
 		WindowPane.setComponentZOrder(search,0);
 		search.setBounds(313,10,40,40);
@@ -185,13 +210,9 @@ public class DrawWindow implements Observer {
 
         menu.addMouseListener(new MouseListener() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
-
-			}
-
+			public void mouseClicked(MouseEvent e) {}
 			@Override
 			public void mousePressed(MouseEvent e) {
-
                 if(!isClicked){
 					popUpMenu.show(e.getComponent(),0,40);
 					isClicked=true;
@@ -200,29 +221,15 @@ public class DrawWindow implements Observer {
 						isClicked=false;
 				}
 				canvas.repaint();
-
 			}
-
 			@Override
-			public void mouseReleased(MouseEvent e) {
-				canvas.repaint();
-
-			}
-
+			public void mouseReleased(MouseEvent e) {canvas.repaint();}
 			@Override
-			public void mouseEntered(MouseEvent e) {
-				canvas.repaint();
-
-			}
-
+			public void mouseEntered(MouseEvent e) {canvas.repaint();}
 			@Override
-			public void mouseExited(MouseEvent e) {
-				canvas.repaint();
-
-			}
+			public void mouseExited(MouseEvent e) {canvas.repaint();}
 		});
 		menu.setComponentPopupMenu(popUpMenu);
-
 		WindowPane.add(menu);
 		WindowPane.setComponentZOrder(menu,0);
 
@@ -243,10 +250,6 @@ public class DrawWindow implements Observer {
 
 	public void addKeyListener(KeyListener keyListener) {
 		window.addKeyListener(keyListener);
-	}
-
-	public void toggleAA() {
-		canvas.toggleAA();
 	}
 
 	public void setUpNightMode(JComboBox combo, JPopupMenu menu, JMenuItem tools,  JPopupMenu popUpMenu){
@@ -277,46 +280,60 @@ public class DrawWindow implements Observer {
 		popUpMenu.setForeground(Color.BLACK);
 
 	}
+	public void addKeyListeners(KeyStroke stroke, String action, JMenuItem clicker){
+		WindowPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(stroke,action);
+		WindowPane.getActionMap().put(action, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clicker.doClick();
+			}
+		});
+	}
 
 	public void setUpMenu() {
 		popUpMenu = new JPopupMenu("Options");
-		JMenu file = new JMenu("File");
+
 		JMenuItem save = new JMenuItem("Save", KeyEvent.VK_S);
-		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_S,Event.CTRL_MASK),"action5",save);
+
 		JMenuItem load = new JMenuItem("Load", KeyEvent.VK_L);
-		load.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_L,Event.CTRL_MASK),"action6",load);
+
 		JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_Q);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_Q,Event.CTRL_MASK),"action7",exit);
 
 
 		popUpMenu.add(save);
 		popUpMenu.add(load);
-
 		popUpMenu.addSeparator();
 
 		JMenu tools = new JMenu("Tools");
-		JMenuItem zoomIn = new JMenuItem("Zoom In", KeyEvent.VK_PLUS);
-		zoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Event.CTRL_MASK));
-		JMenuItem zoomOut = new JMenuItem("Zoom Out", KeyEvent.VK_MINUS);
-		zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK));
-		JMenuItem greyScale = new JMenuItem("GreyScale",KeyEvent.VK_G);
-		greyScale.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
-		JMenuItem nightMode = new JMenuItem("NightMode",KeyEvent.VK_N);
-		nightMode.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK));
+		JMenuItem zoomIn = new JMenuItem("Zoom In (CTRL-MINUS)", KeyEvent.VK_PLUS);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS,Event.CTRL_MASK),"action1",zoomIn);
+
+		JMenuItem zoomOut = new JMenuItem("Zoom Out (CTRL-PLUS)", KeyEvent.VK_MINUS);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,Event.CTRL_MASK),"action2",zoomOut);
+
+		JMenuItem greyScale = new JMenuItem("GreyScale (CTRL-G)", KeyEvent.VK_G);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_G,Event.CTRL_MASK),"action3",greyScale);
+
+		JMenuItem nightMode = new JMenuItem("NightMode (CTRL-N)", KeyEvent.VK_N);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_N,Event.CTRL_MASK),"action4",nightMode);
+
+		JMenuItem fancyPan = new JMenuItem("FancyPan (CTRL-F)", KeyEvent.VK_F);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_F,Event.CTRL_MASK),"action9", fancyPan);
+
+		JMenuItem aA = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_T,Event.CTRL_MASK),"action11", aA);
 
 		tools.add(nightMode);
 		tools.add(greyScale);
+		tools.add(fancyPan);
+		tools.add(aA);
+
 		tools.add(zoomIn);
 		tools.add(zoomOut);
-
 		popUpMenu.add(tools);
-		tools.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.out.println(tools.getComponentCount());
-			}
-		});
-
-
 		nightMode.addActionListener(e->{
 			if(nightMode.getText().equals("NightMode")){
 				canvas.setNightMode();
@@ -346,11 +363,20 @@ public class DrawWindow implements Observer {
 		canvas.repaint();
 		greyScale.setText("Color");} else
 			{
-					canvas.setGreyScaleFalse();
+				canvas.setGreyScaleFalse();
 				canvas.repaint();
 				greyScale.setText("GreyScale");
 			}
 		});
+
+		fancyPan.addActionListener(e->{
+			canvas.toggleFancyPan();
+		});
+
+		aA.addActionListener(e->{
+			canvas.toggleAA();
+		});
+
 		//metode til at save
 		save.addActionListener(new ActionListener() {
 			@Override
