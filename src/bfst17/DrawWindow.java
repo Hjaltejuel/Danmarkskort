@@ -78,24 +78,20 @@ public class DrawWindow implements Observer {
 	 */
 	public void paintAutocomplete() {
 		this.listItems = new ArrayList();
-
-
 		this.listItems.addAll(addressModel.getAddressToCordinate().keySet().stream().map(a -> a.toString().toLowerCase()).collect(Collectors.toList()));
-
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
-
 				if (event.getKeyChar() == 10) {
 				    search();
 				}
-
 			}
 		});
 	}
+
 	public void search(){
         String s = (String) combo.getSelectedItem();
         //points lat, lon
@@ -155,11 +151,8 @@ public class DrawWindow implements Observer {
 		}
         canvas.setSearchMode((float) lon,(float) lat);
         combo.setSelectedItem((null));
-
-
     }
 	public void setUpButtons(){
-
 		JButton search = new JButton();
 		try {
 			Image img = ImageIO.read(getClass().getResource("/search.png"));
@@ -232,7 +225,6 @@ public class DrawWindow implements Observer {
 		menu.setComponentPopupMenu(popUpMenu);
 		WindowPane.add(menu);
 		WindowPane.setComponentZOrder(menu,0);
-
 	}
 
 	/**
@@ -266,6 +258,7 @@ public class DrawWindow implements Observer {
 		popUpMenu.setForeground(Color.WHITE);
 
 	}
+
 	public void tearDownNightMode(JComboBox combo, JPopupMenu menu, JMenuItem tools, JPopupMenu popUpMenu){
 		menu.setBackground(null);
 		combo.getEditor().getEditorComponent().setBackground(Color.WHITE);
