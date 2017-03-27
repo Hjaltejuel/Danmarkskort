@@ -105,7 +105,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	@Override
 	protected void paintComponent(Graphics _g) {
-		Graphics2D g = (Graphics2D) _g;
+        System.out.println(getXZoomFactor());
+        Graphics2D g = (Graphics2D) _g;
 		if (nightmode) {
 			g.setColor(WayType.NATURAL_WATER.getNightModeColor());
 		} else {
