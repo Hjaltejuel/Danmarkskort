@@ -337,10 +337,11 @@ public class Model extends Observable implements Serializable {
                     break;
                 case "osm":
 					tmpcoastlines.forEach((key, way) -> {
-                        if (key == way.getFromNode()) {
-                            add(WayType.NATURAL_COASTLINE, way.toPath2D());
-                        }
-                    });
+						if (key == way.getFromNode()) {
+							coastlines.add(way.toPath2D());
+							add(WayType.NATURAL_COASTLINE, way.toPath2D());
+						}
+					});
                     break;
             }
         }
