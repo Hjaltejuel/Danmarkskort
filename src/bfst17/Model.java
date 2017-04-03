@@ -30,7 +30,9 @@ public class Model extends Observable implements Serializable {
 
 	private ArrayList<Shape> coastlines = new ArrayList<>();
 
-
+	public ArrayList<Shape> getCoastlines(){
+		return coastlines;
+	}
 
     public Model(String filename) {
         load(filename);
@@ -65,6 +67,7 @@ public class Model extends Observable implements Serializable {
 		setChanged();
 		notifyObservers();
 	}
+
 
 	public void save(String filename) {
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
