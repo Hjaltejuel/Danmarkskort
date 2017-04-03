@@ -83,7 +83,21 @@ public class Model extends Observable implements Serializable {
 		}
 	}
 
+	public void loadAllCoastlines(){
+		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("/Users/Mads/Documents/ITU/2. Semester/1. års projekt/Danmarkskortet/resources/DKCoastlines.bin"))) {
+			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
+			coastlines = (ArrayList<Shape>) in.readObject();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void load(String filename) {
+		loadAllCoastlines();
 		if (filename.endsWith(".osm")) {
 			loadOSM(new InputSource(filename));
 		} else if (filename.endsWith(".zip")) {
