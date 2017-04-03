@@ -105,7 +105,6 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	@Override
 	protected void paintComponent(Graphics _g) {
-        System.out.println(getXZoomFactor());
         Graphics2D g = (Graphics2D) _g;
 		if (nightmode) {
 			g.setColor(WayType.NATURAL_WATER.getNightModeColor());
@@ -143,12 +142,10 @@ public class DrawCanvas extends JComponent implements Observer {
 				} else if (type.getFillType() == FillType.SOLID) {
 					g.fill(shape);
 				}
+				g.setStroke(new BasicStroke(0.000008f));
+				Shape rectangle1 = shape.getBounds2D();
+				g.draw(rectangle1);
 			}
-			/*
-			g.setStroke(new BasicStroke(0.000008f));
-			Shape rectangle1 = shape.getBounds2D();
-			g.draw(rectangle1);
-			*/
 		}
 		g.setColor(Color.black);
 		g.setStroke(new BasicStroke(0.00008f));
@@ -221,7 +218,6 @@ public class DrawCanvas extends JComponent implements Observer {
 					pan(getWidth() / 2, getHeight() / 2);
 					zoomInCounter++;
 				}
-
 			}
 		}, 0, 20);
 	}

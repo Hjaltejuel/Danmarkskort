@@ -23,6 +23,7 @@ public class Model extends Observable implements Serializable {
     private float minlat, minlon, maxlat, maxlon;
     private long nodeID;
 
+
     public Model(String filename) {
         load(filename);
     }
