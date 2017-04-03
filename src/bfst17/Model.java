@@ -19,6 +19,11 @@ public class Model extends Observable implements Serializable {
 	private HashSet<String> PostCode = new HashSet<>();
 	private boolean isAddressNode = false;
 	private AddressModel addressModel = new AddressModel();
+	private HashMap<String, WayType> namesToWayTypes = new HashMap<>(); {
+		for(WayType type : WayType.values()){
+			namesToWayTypes.put(type.name(),type);
+		}
+	}
     private KDTree tree = new KDTree();
     private float minlat, minlon, maxlat, maxlon;
     private long nodeID;
@@ -44,7 +49,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
-		load(this.getClass().getResource("/bornholm.bin").getPath());
+		load(this.getClass().getResource("/bornholm.osm").getPath());
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -234,11 +239,9 @@ public class Model extends Observable implements Serializable {
 					String k = atts.getValue("k");
 					String v = atts.getValue("v");
 					// Løber waytypes igennem for at se om den matcher med attributes
-					for (WayType _type : WayType.values()) {
-						if (_type.name().equals(k.toUpperCase() + "_" + v.toUpperCase())) {
-							type = _type;
-							break;
-						}
+					WayType typeTest = namesToWayTypes.get(k.toUpperCase() + "_" + v.toUpperCase());
+					if(typeTest!=null){
+						type = typeTest;
 					}
 					switch (k) {
 						case "addr:street":
