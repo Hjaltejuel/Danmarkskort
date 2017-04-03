@@ -1,19 +1,21 @@
 package bfst17;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.LineBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.basic.BasicComboPopup;
-import javax.swing.text.JTextComponent;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.Timer;
-import java.util.concurrent.TimeUnit;
+		import javax.imageio.ImageIO;
+		import javax.swing.*;
+		import javax.swing.border.LineBorder;
+		import javax.swing.event.DocumentEvent;
+		import javax.swing.filechooser.FileFilter;
+		import javax.swing.plaf.basic.BasicComboPopup;
+		import javax.swing.text.JTextComponent;
+		import java.awt.*;
+		import java.awt.event.*;
+		import java.awt.image.BufferedImage;
+		import java.io.File;
+		import java.io.IOException;
+		import java.util.*;
+		import java.util.stream.Collectors;
+		import java.util.Timer;
+		import java.util.concurrent.TimeUnit;
 
 /**
  * Created by trold on 2/1/17.
@@ -26,9 +28,13 @@ public class DrawWindow implements Observer {
 	private ArrayList listItems;
 	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
+	private AutocompleteJComboBox secondCombo;
 	private JLayeredPane WindowPane;
 	private JPopupMenu popUpMenu;
-    boolean isClicked = false;
+	private JLabel barImage;
+	boolean isClicked = false;
+	boolean setUpDirectionsMenu = false;
+
 
 	public DrawWindow(Model model) {
 		try {
@@ -48,7 +54,7 @@ public class DrawWindow implements Observer {
 		model.addObserver(this);
 		addressModel.addObserver(this);
 		window = new JFrame("Danmarkskort gruppe A");
-     	WindowPane = new JLayeredPane();
+		WindowPane = new JLayeredPane();
 		window.setPreferredSize(new Dimension(750, 750));
 		canvas = new DrawCanvas(model);
 		new CanvasMouseController(canvas, model);
@@ -74,7 +80,7 @@ public class DrawWindow implements Observer {
 	}
 
 	/**
-	 * Makes the autocomplete button with all the addresses
+	 * Makes the autocomplete bar with all the addresses
 	 */
 	public void paintAutocomplete() {
 		this.listItems = new ArrayList();
@@ -82,25 +88,24 @@ public class DrawWindow implements Observer {
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if (event.getKeyChar() == 10) {
-				    search();
+					search();
 				}
 			}
 		});
 	}
 
 	public void search(){
-        String s = (String) combo.getSelectedItem();
-        //points lat, lon
-        double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
-        double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
+		String s = (String) combo.getSelectedItem();
+		//points lat, lon
+		double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
+		double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
 
-        //distance from center of screen in lat lon
-        double distanceToCenterY = lat - canvas.getCenterCordinateY();
-        double distanceToCenterX = lon - canvas.getCenterCordinateX();
+		//distance from center of screen in lat lon
+		double distanceToCenterY = lat - canvas.getCenterCordinateY();
+		double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
 
 		if(canvas.fancyPan){
@@ -149,9 +154,8 @@ public class DrawWindow implements Observer {
 			canvas.pan(dx, dy);
 			canvas.zoomAndCenter();
 		}
-        canvas.setSearchMode((float) lon,(float) lat);
-        combo.setSelectedItem((null));
-    }
+		canvas.setSearchMode((float) lon,(float) lat);
+	}
 	public void setUpButtons(){
 		JButton search = new JButton();
 		try {
@@ -167,21 +171,21 @@ public class DrawWindow implements Observer {
 		search.setBorder(BorderFactory.createEmptyBorder());
 		search.setPreferredSize(new Dimension(30,30));
 		search.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                search();
-            }
-            @Override
-            public void mousePressed(MouseEvent e) {}
-            @Override
-            public void mouseReleased(MouseEvent e) {}
-            @Override
-            public void mouseEntered(MouseEvent e) {}
-            @Override
-            public void mouseExited(MouseEvent e) {}
-        });
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				search();
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+		});
 		WindowPane.add(search);
-		WindowPane.setComponentZOrder(search,0);
+		WindowPane.setComponentZOrder(search,1);
 		search.setBounds(313,10,40,40);
 
 		JButton menu = new JButton();
@@ -196,22 +200,22 @@ public class DrawWindow implements Observer {
 		}
 		menu.setBorderPainted(false);
 		menu.setFocusPainted(false);
-        menu.setContentAreaFilled(false);
+		menu.setContentAreaFilled(false);
 
-        menu.setPreferredSize(new Dimension(30,30));
+		menu.setPreferredSize(new Dimension(30,30));
 		setUpMenu();
 
-        menu.addMouseListener(new MouseListener() {
+		menu.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent e) {}
 			@Override
 			public void mousePressed(MouseEvent e) {
-                if(!isClicked){
+				if(!isClicked){
 					popUpMenu.show(e.getComponent(),0,40);
 					isClicked=true;
 				}else if(isClicked){
 					popUpMenu.setVisible(false);
-						isClicked=false;
+					isClicked=false;
 				}
 				canvas.repaint();
 			}
@@ -295,9 +299,12 @@ public class DrawWindow implements Observer {
 		JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_Q);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_Q,Event.CTRL_MASK),"action7",exit);
 
+		JCheckBoxMenuItem directions = new JCheckBoxMenuItem("Directions");
+
 
 		popUpMenu.add(save);
 		popUpMenu.add(load);
+		popUpMenu.add(directions);
 		popUpMenu.addSeparator();
 
 		JMenu tools = new JMenu("Tools");
@@ -353,8 +360,8 @@ public class DrawWindow implements Observer {
 					nightMode.setText("NightMode");
 					tearDownNightMode(combo,popUpMenu,tools,popUpMenu);
 				}
-		canvas.repaint();
-		greyScale.setText("Color");} else
+				canvas.repaint();
+				greyScale.setText("Color");} else
 			{
 				canvas.setGreyScaleFalse();
 				canvas.repaint();
@@ -447,7 +454,13 @@ public class DrawWindow implements Observer {
 
 			}
 		});
-
+		directions.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setUpDirectionsMenu = !setUpDirectionsMenu;
+				SetAndTearSecondSearch();
+			}
+		});
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -467,7 +480,7 @@ public class DrawWindow implements Observer {
 		zoomOut.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
 				canvas.zoom(0.75);
 				canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 			}
@@ -496,6 +509,62 @@ public class DrawWindow implements Observer {
 
 	}
 
+	public void SetAndTearSecondSearch(){
+		if(setUpDirectionsMenu){
+			secondCombo = new AutocompleteJComboBox(searchable);
+			WindowPane.add(secondCombo,75);
+			WindowPane.setComponentZOrder(secondCombo,2);
 
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+
+				int i = 1;
+				int yStart =10;
+				@Override
+				public void run() {
+					secondCombo.setBounds(10,yStart+=1,300,40);
+					canvas.repaint();
+
+					if(yStart==50){cancel();
+						try {
+							BufferedImage bar = ImageIO.read(getClass().getResource("/Search Bar.png"));
+							barImage = new JLabel(new ImageIcon(bar));
+							WindowPane.add(barImage,76);
+							WindowPane.setComponentZOrder(barImage,0);
+							barImage.setBounds(11,31,298,40);
+							System.out.println(barImage.getBounds());
+
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+					}
+				}
+			},0, 5);
+			secondCombo.setEditable(true);
+
+
+		}else if(!setUpDirectionsMenu){
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+				int i = 1;
+				int yStart =51;
+				@Override
+				public void run() {
+					secondCombo.setBounds(10,yStart-=1,300,40);
+					canvas.repaint();
+
+					if(yStart==10){
+						cancel();
+						WindowPane.remove(secondCombo);
+						WindowPane.remove(barImage);
+						canvas.repaint();
+					}
+				}
+			},0, 5);
+
+		}
+
+	}
 
 }
