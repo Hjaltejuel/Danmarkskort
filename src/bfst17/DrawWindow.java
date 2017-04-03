@@ -61,8 +61,8 @@ public class DrawWindow implements Observer {
         WindowPane.add(temporary,50);
 		WindowPane.add(combo, 50);
 		combo.setBounds(10,10,300,40);
-		WindowPane.setComponentZOrder(combo,0);
-		WindowPane.setComponentZOrder(canvas,1);
+		WindowPane.setComponentZOrder(combo,1);
+		WindowPane.setComponentZOrder(canvas,2);
         WindowPane.setComponentZOrder(temporary,0);
 		window.add(WindowPane, BorderLayout.CENTER);
 
@@ -72,7 +72,7 @@ public class DrawWindow implements Observer {
 
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
-        temporary.setBounds(canvas.getWidth()-10,10,50,50);
+        temporary.setBounds(window.getWidth()-50,10,50,50);
 
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
 		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
@@ -482,7 +482,7 @@ public class DrawWindow implements Observer {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				canvas.setBounds(0,0,window.getWidth(),window.getHeight());
-                temporary.setBounds(canvas.getWidth()-10,10,50,50);
+                temporary.setBounds(window.getWidth()-50,10,50,50);
 			}
 
 			@Override
