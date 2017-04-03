@@ -140,7 +140,7 @@ public class Model extends Observable implements Serializable {
 
 	public float getMinLat() {return minlat;}
 
-	public void addToBounds(float newMaxLat,float newMinLat,float newMaxLon,float newMinLon)
+	public void addToBounds(float newMaxLat, float newMinLat, float newMaxLon,float newMinLon)
 	{
 		maxlat += newMaxLat;
 		minlat += newMinLat;

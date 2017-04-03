@@ -1,5 +1,7 @@
 package bfst17;
 
+import com.sun.org.apache.bcel.internal.generic.StackConsumer;
+
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -10,7 +12,7 @@ public class KDTree {
     TreeNode root;
     int size;
     Point2D point;
-    boolean isVertical = false;
+    boolean isVertical = true;
 
     public KDTree() {
         size = 0;
@@ -28,6 +30,7 @@ public class KDTree {
         private WayType type;
         private TreeNode left;
         private TreeNode right;
+        Integer depth=0;
 
         public TreeNode(double x, double y, Shape s, WayType type) {
             this.x = x;
@@ -71,16 +74,11 @@ public class KDTree {
     public void fillTree(EnumMap<WayType, List<Shape>> shapes) {
         Integer arrLength = 0;
         for (List<Shape> list : shapes.values()) {
-            arrLength += list.size();// * 4;
+            arrLength += list.size() * 4;
         }
         TreeNode[] allShapes = new TreeNode[arrLength];
         Integer index = 0;
         for (WayType type : WayType.values()) {
-            List<Shape> list = shapes.get(type);
-            for (Shape s: list) {
-                allShapes[index++] = (new TreeNode(s.getBounds2D().getCenterX(), s.getBounds2D().getCenterX(), s, type));
-            }
-            /*
             List<Shape> list = shapes.get(type);
             for (Shape s: list) {
                 //Add en node for hvert hjørne i bounds
@@ -90,56 +88,57 @@ public class KDTree {
                 allShapes[index++] = (new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY(), s, type));
                 allShapes[index++] = (new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight(), s, type));
             }
-            */
         }
-        Arrays.sort(allShapes);
-        insertArray(allShapes, 0, arrLength - 1, true);
+        insertArray(allShapes, 0, arrLength, true);
         System.out.println("Max tree depth: " + maxDepth);
         System.out.println("Der burde være: " + arrLength + " Der er: " +  + count);
     }
 
     public void insertArray(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
-        if (hi - lo == 0) {
-            insert(allShapes[lo], root, vertical);
+        if (hi - lo <=1) {
+            stackCount=0;
+            insert(allShapes[lo], root, true);
             return;
         }
         isVertical = vertical;
         Arrays.sort(allShapes, lo, hi);
         Integer medianIndex = (lo + hi) / 2;
-        insert(allShapes[medianIndex], root, vertical);
+        stackCount=0;
+        insert(allShapes[medianIndex], root, true);
         //Indsæt medianerne fra de to subarrays (Uden at inkludere medianIndex)
         if (lo < medianIndex) {
-            insertArray(allShapes, lo, medianIndex - 1, !vertical);
+            insertArray(allShapes, lo, medianIndex, !vertical);
         }
         if (hi > medianIndex) {
             insertArray(allShapes, medianIndex + 1, hi, !vertical);
         }
     }
 
+    HashSet<TreeNode> nodes;
     public HashSet<TreeNode> getInRange(Rectangle2D rect) {
         nodes = new HashSet<>();
-        TreeNode startNode = root;
-        getShapesBelowNodeInsideBounds(startNode, true, rect);
+        getShapesBelowNodeInsideBounds(root, rect);
         return nodes;
     }
 
-    HashSet<TreeNode> nodes;
-
-    boolean isLargerThan(TreeNode node, double x, double y, boolean vertical) {
-        double compare = vertical ? x - node.getX() : y - node.getY();
-        return compare <= 0;
+    boolean isLargerThan(TreeNode node, double x, double y) {
+        //System.out.println(y+" "+node.getY());
+        //System.out.println(x+" "+node.getX());
+        boolean vertical=node.depth%2==0;
+        boolean isBigger = vertical ? node.getX() > x : node.getY() > y;
+        return isBigger;
     }
 
-    public void getShapesBelowNodeInsideBounds(TreeNode startNode, boolean vertical, Rectangle2D rect) {
+    public void getShapesBelowNodeInsideBounds(TreeNode startNode, Rectangle2D rect) {
         if (startNode == null) {
             return;
         }
         nodes.add(startNode);
-        if (isLargerThan(startNode, rect.getX(), rect.getY(), vertical)) {
-            getShapesBelowNodeInsideBounds(startNode.left, !vertical, rect);
+        if (isLargerThan(startNode, rect.getMinX(), rect.getMinY())) {
+            getShapesBelowNodeInsideBounds(startNode.left, rect);
         }
-        if (!isLargerThan(startNode, rect.getMaxX(), rect.getMaxY(), vertical)) {
-            getShapesBelowNodeInsideBounds(startNode.right, !vertical, rect);
+        if (!isLargerThan(startNode, rect.getMaxX(), rect.getMaxY())) {
+            getShapesBelowNodeInsideBounds(startNode.right, rect);
         }
     }
 
@@ -147,78 +146,39 @@ public class KDTree {
         return size == 0;
     }
 
-    public void insert(Point2D p) {
-        //root = insert(root, p, true);
-    }
-
     Integer count = 0;
     Integer maxDepth = 0;
-    Integer tmpDepth = 0;
+    Integer stackCount=0;
     public TreeNode insert(TreeNode insertNode, TreeNode compareNode, boolean vertical) {
+        if(insertNode==compareNode){
+            System.out.println("Wtf?");
+            return insertNode;
+
+        }
+        stackCount++;
+        //System.out.println(stackCount);
         if (compareNode == null) {
             root = insertNode;
             count++;
             return insertNode;
         }
-        if(compareNode==root){
-            tmpDepth=0;
-        }
-        double compare = vertical ? insertNode.getX() - compareNode.getX() : insertNode.getY() - compareNode.getY();
-        TreeNode nextNode = compare < 0 ? compareNode.left : compareNode.right;
+        insertNode.depth=compareNode.depth+1;
+        boolean isSmaller = vertical ? insertNode.getX() < compareNode.getX() : insertNode.getY() < compareNode.getY();
+        TreeNode nextNode = isSmaller ? compareNode.left : compareNode.right;
         if (nextNode != null) {
-            tmpDepth++;
-            insert(insertNode, nextNode, !vertical);
+                insert(insertNode, nextNode, !vertical);
+
         }
         else {
-            if (compare < 0) { //Ryk til venstre hvis comparisonNode er mindre end
+            if (isSmaller) { //Ryk til venstre hvis comparisonNode er mindre end
                 compareNode.left = insertNode;
-                count++;
-                maxDepth = Math.max(tmpDepth, maxDepth);
-                return insertNode;
-                //System.out.println("Indsat ("+node.getX()+","+node.getY()+") til venstre "+depth);
-            } else { //Ellers til højre
+            } else {
                 compareNode.right = insertNode;
-                count++;
-                maxDepth = Math.max(tmpDepth, maxDepth);
-                return insertNode;
-                //System.out.println("Indsat ("+node.getX()+","+node.getY()+") til højre "+depth);
             }
+            count++;
+            maxDepth = Math.max(insertNode.depth, maxDepth);
+            return insertNode;
         }
         return null;
-    }
-
-    public TreeNode insert(TreeNode node) {
-        count++;
-        if (root == null) {
-            root = node;
-            return node;
-        }
-        TreeNode comparisonNode = root;
-        Integer depth = 0;
-        while (true) { //Snyder lidt her :P
-            boolean _isVertical = depth % 2 == 0; //Skifter ved hver depth
-            double compare = _isVertical ? node.getX() - comparisonNode.getX() : node.getY() - comparisonNode.getY();
-            depth++;
-            if (compare < 0) { //Ryk til venstre hvis comparisonNode er mindre end
-                if (comparisonNode.left != null) {
-                    comparisonNode = comparisonNode.left;
-                    continue;
-                }
-                comparisonNode.left = node;
-                maxDepth = Math.max(depth, maxDepth);
-                //System.out.println("Indsat ("+node.getX()+","+node.getY()+") til venstre "+depth);
-                break;
-            } else { //Ellers til højre
-                if (comparisonNode.right != null) {
-                    comparisonNode = comparisonNode.right;
-                    continue;
-                }
-                comparisonNode.right = node;
-                maxDepth = Math.max(depth, maxDepth);
-                //System.out.println("Indsat ("+node.getX()+","+node.getY()+") til højre "+depth);
-                break;
-            }
-        }
-        return node;
     }
 }
