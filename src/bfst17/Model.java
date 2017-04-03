@@ -24,6 +24,11 @@ public class Model extends Observable implements Serializable {
 			namesToWayTypes.put(type.name(),type);
 		}
 	}
+	private HashMap<String,List<Point2D>> pointsOfInterest = new HashMap<>();{
+		for(PointsOfInterest type: PointsOfInterest.values()){
+			pointsOfInterest.put(type.name(),new ArrayList<>());
+		}
+	}
     private KDTree tree = new KDTree();
     private float minlat, minlon, maxlat, maxlon;
     private long nodeID;
@@ -41,6 +46,8 @@ public class Model extends Observable implements Serializable {
     public Iterable<Shape> get(WayType type) {
         return shapes.get(type);
     }
+
+    public List<Point2D> get(String pointOfInterest) {return pointsOfInterest.get(pointOfInterest);}
 
     private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
@@ -153,9 +160,12 @@ public class Model extends Observable implements Serializable {
 
 	private class OSMHandler implements ContentHandler {
 		//LongToPointMap idToNode = new LongToPointMap(18000000);
+		Long tid = System.nanoTime();
 		Map<Long,OSMWay> idToWay = new HashMap<>();
         HashMap<Long, OSMNode> idToNode = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
+		float lat;
+		float lon;
 		OSMWay way;
 		OSMRelation relation;
 		WayType type;
@@ -179,6 +189,7 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
+			System.out.println((System.nanoTime()-tid)/1000000);
 			for(String s: PostCode){
 				addressModel.put(s,null);
 			}
@@ -217,8 +228,8 @@ public class Model extends Observable implements Serializable {
 					break;
 				case "node":
 					nodeID = Long.parseLong(atts.getValue("id"));
-					float lat = Float.parseFloat(atts.getValue("lat"));
-					float lon = Float.parseFloat(atts.getValue("lon"));
+					lat = Float.parseFloat(atts.getValue("lat"));
+					lon = Float.parseFloat(atts.getValue("lon"));
 					idToNode.put(nodeID, new OSMNode(lonfactor * lon, -lat));
 					break;
 				case "way":
@@ -238,10 +249,15 @@ public class Model extends Observable implements Serializable {
 				case "tag":
 					String k = atts.getValue("k");
 					String v = atts.getValue("v");
-					// Løber waytypes igennem for at se om den matcher med attributes
+
 					WayType typeTest = namesToWayTypes.get(k.toUpperCase() + "_" + v.toUpperCase());
 					if(typeTest!=null){
 						type = typeTest;
+					} else {
+						List<Point2D> typePointsOfInterest = pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase());
+						if(typePointsOfInterest!= null){
+							pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase()).add(new Point2D.Double(lon*lonfactor,-lat));
+						}
 					}
 					switch (k) {
 						case "addr:street":

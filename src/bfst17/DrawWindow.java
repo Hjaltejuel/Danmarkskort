@@ -29,6 +29,7 @@ public class DrawWindow implements Observer {
 	private JLayeredPane WindowPane;
 	private JPopupMenu popUpMenu;
     boolean isClicked = false;
+    private JButton temporary;
 
 	public DrawWindow(Model model) {
 		try {
@@ -43,6 +44,7 @@ public class DrawWindow implements Observer {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
+		temporary = new JButton("CLICK ME FOR UNLIMITED LAG");
 		this.model = model;
 		this.addressModel = model.getAddressModel();
 		model.addObserver(this);
@@ -56,10 +58,12 @@ public class DrawWindow implements Observer {
 
 		paintAutocomplete();
 
+        WindowPane.add(temporary,50);
 		WindowPane.add(combo, 50);
 		combo.setBounds(10,10,300,40);
 		WindowPane.setComponentZOrder(combo,0);
 		WindowPane.setComponentZOrder(canvas,1);
+        WindowPane.setComponentZOrder(temporary,0);
 		window.add(WindowPane, BorderLayout.CENTER);
 
 		window.pack();
@@ -68,6 +72,7 @@ public class DrawWindow implements Observer {
 
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
+        temporary.setBounds(canvas.getWidth()-10,10,50,50);
 
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
 		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
@@ -153,6 +158,7 @@ public class DrawWindow implements Observer {
         combo.setSelectedItem((null));
     }
 	public void setUpButtons(){
+        temporary.addActionListener(e->{canvas.setPointsOfInterest();});
 		JButton search = new JButton();
 		try {
 			Image img = ImageIO.read(getClass().getResource("/search.png"));
@@ -476,6 +482,7 @@ public class DrawWindow implements Observer {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				canvas.setBounds(0,0,window.getWidth(),window.getHeight());
+                temporary.setBounds(canvas.getWidth()-10,10,50,50);
 			}
 
 			@Override

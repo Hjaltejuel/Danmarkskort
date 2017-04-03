@@ -24,6 +24,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	boolean greyScale = false;
 	boolean nightmode = false;
 	boolean fancyPan = true;
+	boolean pointsOfInterest = true;
 
 	Point2D pin;
 	boolean searchMode = false;
@@ -44,6 +45,14 @@ public class DrawCanvas extends JComponent implements Observer {
         searchMode = true;
         pin = new Point2D.Float(lon,lat);
     }
+    public void setPointsOfInterest(){
+		if(pointsOfInterest){
+			pointsOfInterest = false;
+			repaint();
+		} else
+			pointsOfInterest = true;
+			repaint();
+	}
 	public void setGreyScale()
 	{
 		greyScale = true;
@@ -174,12 +183,34 @@ public class DrawCanvas extends JComponent implements Observer {
 		}
 		/**/
 		setPin(g);
+		drawPointsOfInterest(g);
 	}
 
 	public void pan(double dx, double dy) {
 		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
 		repaint();
         revalidate();
+	}
+	public void drawPointsOfInterest(Graphics2D g) {
+		if (pointsOfInterest) {
+			BufferedImage image = null;
+			for (PointsOfInterest pointOfInterest : PointsOfInterest.values()) {
+				try {
+					image = ImageIO.read(getClass().getResource("/POI/" + pointOfInterest.name() + ".png"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				AffineTransform imageTransform = new AffineTransform();
+				((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+					for(Point2D points: model.get(pointOfInterest.name())) {
+						imageTransform.setToIdentity();
+						imageTransform.translate(points.getX(), points.getY());
+						System.out.println(-points.getX() + " " + points.getY());
+						imageTransform.scale(((1 / transform.getScaleX())), ((1 / transform.getScaleY())));
+						((Graphics2D) g).drawImage(image, imageTransform, null);
+					}
+			}
+		}
 	}
 
 	public void setPin(Graphics g)  {
@@ -194,12 +225,8 @@ public class DrawCanvas extends JComponent implements Observer {
             ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             imageTransform.setToIdentity();
 
-            //System.out.println(pin.getX() + " " + pin.getY());
-            double offsetHeight = (image.getHeight()/transform.getScaleY())/7;
-            double offsetWidth = ((image.getWidth()/4)/transform.getScaleX())/7;
-
             imageTransform.translate(-pin.getX(),-pin.getY());
-            imageTransform.scale(((1/transform.getScaleX())/7),((1/transform.getScaleY())/7));
+			imageTransform.scale(((1/transform.getScaleX())/7),((1/transform.getScaleY())/7));
             ((Graphics2D) g).drawImage(image, imageTransform, null);
             searchMode = false;
         }
