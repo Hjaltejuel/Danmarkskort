@@ -171,10 +171,9 @@ public class Model extends Observable implements Serializable {
 	}
 
 	private class OSMHandler implements ContentHandler {
-		//LongToPointMap idToNode = new LongToPointMap(18000000);
 		Map<Long,OSMWay> idToWay = new HashMap<>();
-        HashMap<Long, OSMNode> idToNode = new HashMap<>();
-		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
+		HashMap<Long, OSMNode> idToNode = new HashMap<>();
+		Map<OSMNode,OSMWay> tmpcoastlines = new HashMap<>();
 		OSMWay way;
 		OSMRelation relation;
 		WayType type;
@@ -314,8 +313,8 @@ public class Model extends Observable implements Serializable {
                     break;
                 case "way":
                     if (type == WayType.NATURAL_COASTLINE) {
-                        OSMWay before = coastlines.remove(way.getFromNode());
-                        OSMWay after = coastlines.remove(way.getToNode());
+                        OSMWay before = tmpcoastlines.remove(way.getFromNode());
+                        OSMWay after = tmpcoastlines.remove(way.getToNode());
                         OSMWay merged = new OSMWay();
                         if (before != null) {
                             merged.addAll(before.subList(0, before.size() - 1));
@@ -324,8 +323,8 @@ public class Model extends Observable implements Serializable {
                         if (after != null) {
                             merged.addAll(after.subList(1, after.size()));
                         }
-                        coastlines.put(merged.getFromNode(), merged);
-                        coastlines.put(merged.getToNode(), merged);
+						tmpcoastlines.put(merged.getFromNode(), merged);
+						tmpcoastlines.put(merged.getToNode(), merged);
                     } else {
                         add(type, way.toPath2D());
                     }
@@ -334,7 +333,7 @@ public class Model extends Observable implements Serializable {
                     add(type, relation.toPath2D());
                     break;
                 case "osm":
-                    coastlines.forEach((key, way) -> {
+					tmpcoastlines.forEach((key, way) -> {
                         if (key == way.getFromNode()) {
                             add(WayType.NATURAL_COASTLINE, way.toPath2D());
                         }
