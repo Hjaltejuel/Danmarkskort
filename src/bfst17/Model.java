@@ -122,6 +122,7 @@ public class Model extends Observable implements Serializable {
 
 	private void loadOSM(InputSource source) {
 		try {
+			coastlines = new ArrayList<>();
 			XMLReader reader = XMLReaderFactory.createXMLReader();
 			reader.setContentHandler(new OSMHandler());
 			reader.parse(source);
