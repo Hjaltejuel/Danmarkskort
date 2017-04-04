@@ -61,7 +61,10 @@ public class DrawCanvas extends JComponent implements Observer {
 
 
 	private void drawCoastlines(Graphics2D g) {
+		int i = 1;
 		for(Shape s: model.getCoastlines()) {
+			System.out.println(i);
+			i++;
 			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
 			g.setColor(WayType.NATURAL_COASTLINE.getDrawColor());
 			g.fill(s);
@@ -116,6 +119,9 @@ public class DrawCanvas extends JComponent implements Observer {
 	@Override
 	protected void paintComponent(Graphics _g) {
         Graphics2D g = (Graphics2D) _g;
+		drawCoastlines(g);
+
+
 		if (nightmode) {
 			g.setColor(WayType.NATURAL_WATER.getNightModeColor());
 		} else {

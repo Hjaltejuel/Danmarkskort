@@ -90,6 +90,8 @@ public class Model extends Observable implements Serializable {
 		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("/Users/Mads/Documents/ITU/2. Semester/1. års projekt/Danmarkskortet/resources/DKCoastlines.bin"))) {
 			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 			coastlines = (ArrayList<Shape>) in.readObject();
+			System.out.println(coastlines.size());
+			dirty();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -100,7 +102,6 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public void load(String filename) {
-		loadAllCoastlines();
 		if (filename.endsWith(".osm")) {
 			loadOSM(new InputSource(filename));
 		} else if (filename.endsWith(".zip")) {
@@ -140,6 +141,7 @@ public class Model extends Observable implements Serializable {
 	private void loadOSM(InputSource source) {
 		try {
 			coastlines = new ArrayList<>();
+			loadAllCoastlines();
 			XMLReader reader = XMLReaderFactory.createXMLReader();
 			reader.setContentHandler(new OSMHandler());
 			reader.parse(source);
