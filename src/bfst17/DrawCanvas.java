@@ -10,9 +10,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.TimerTask;
+import java.util.*;
+import java.util.List;
 
 /**
  * Created by trold on 2/8/17.
@@ -124,35 +123,11 @@ public class DrawCanvas extends JComponent implements Observer {
 			g.fill(s);
 		}
 
-		double rectSize = 100d / transform.getScaleX();
-		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);
+		Point2D p1 = screenCoordsToLonLat(0,0);
+		Point2D p2 = screenCoordsToLonLat(getWidth(),getHeight());
+		Shape screenRectangle = new Rectangle2D.Double(p1.getX(),p1.getY(),p2.getX()-p1.getX(),p2.getY()-p1.getY());
 
-		for (KDTree.TreeNode n : model.getTree().getInRange((Rectangle2D) rectangle)) {
-			WayType type = n.getType();
-			Shape shape = n.getShape();
-			Color drawColor=getDrawColor(type);
-
-			g.setColor(drawColor);
-			g.setStroke(type.getDrawStroke());
-
-			if (type.getZoomFactor() < getXZoomFactor()) {
-				//How should the shapes be drawn?
-				if (type.getFillType() == FillType.LINE) {
-					g.draw(shape);
-				} else if (type.getFillType() == FillType.SOLID) {
-					g.fill(shape);
-				}
-				g.setStroke(new BasicStroke(0.000008f));
-				Shape rectangle1 = shape.getBounds2D();
-				g.draw(rectangle1);
-			}
-		}
-		g.setColor(Color.black);
-		g.setStroke(new BasicStroke(0.00008f));
-		g.draw(rectangle);
-
-		/*
-		//Draw all shapes
+		EnumMap<WayType, List<Shape>> shapes = model.getTree().getInRange((Rectangle2D) screenRectangle);
 		for (WayType type : WayType.values()) {
 			g.setColor(getDrawColor(type));
 
@@ -160,17 +135,22 @@ public class DrawCanvas extends JComponent implements Observer {
 			if (type.getZoomFactor() < getXZoomFactor()) {
 				//How should the data be drawn?
 				if (type.getFillType() == FillType.LINE) {
-					for (Shape shape : model.get(type)) {
+					for (Shape shape : shapes.get(type)) {
 						g.draw(shape);
 					}
 				} else if (type.getFillType() == FillType.SOLID) {
-					for (Shape shape : model.get(type)) {
+					for (Shape shape : shapes.get(type)) {
 						g.fill(shape);
 					}
 				}
 			}
+			/*
+			g.setStroke(new BasicStroke(0.000008f));
+			Shape rectangle1 = shape.getBounds2D();
+			g.draw(rectangle1);
+			*/
+
 		}
-		/**/
 		setPin(g);
 	}
 
@@ -224,6 +204,16 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	private Point2D lonLatToPixel(double x, double y) {
 		return new Point2D.Double(x*getXZoomFactor(),y*getYZoomFactor());
+	}
+
+	private Point2D pixelToLonLat(double x, double y) {
+		return new Point2D.Double(x/getXZoomFactor(),y/getYZoomFactor());
+	}
+	private Point2D screenCoordsToLonLat(double x, double y) {
+		if(x<0||x>getWidth()||y<0||y>getHeight()){
+			System.out.println("Tror du bruger den forkerte funktion.. (screenCoordsToLonLat)");
+		}
+		return new Point2D.Double(-(transform.getTranslateX()-x)/getXZoomFactor(),-(transform.getTranslateY()-y)/getYZoomFactor());
 	}
 
 	public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
