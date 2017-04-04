@@ -83,6 +83,7 @@ public class KDTree {
                 //listOfShapes.add(new TreeNode(bounds.getX(), bounds.getY() + bounds.getHeight(), s, type));
                 //listOfShapes.add(new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY(), s, type));
                 //listOfShapes.add(new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight(), s, type));
+                //
             }
         }
         TreeNode[] allShapes = listOfShapes.toArray(new TreeNode[listOfShapes.size()]);
