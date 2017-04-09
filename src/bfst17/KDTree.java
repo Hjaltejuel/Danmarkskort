@@ -2,6 +2,7 @@ package bfst17;
 
 import sun.reflect.generics.tree.Tree;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -10,7 +11,7 @@ import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.List;
 
-public class KDTree{
+public class KDTree {
     TreeNode root;
     int size;
     Point2D point;
@@ -25,24 +26,27 @@ public class KDTree{
         return root;
     }
 
-    public class TreeNode implements Comparable<TreeNode> {
+    public class TreeNode implements Comparable<TreeNode>{
         //private Point2D point;
         private double x, y;
         private Shape shape;
+        private PointsOfInterest pointsOfInterest;
         private WayType type;
         private TreeNode left;
         private TreeNode right;
 
-        public TreeNode(double x, double y, Shape s, WayType type) {
+        public TreeNode(double x, double y, Shape s, WayType type, PointsOfInterest pointsOfInterest) {
             this.x=x;
             this.y=y;
             this.shape=s;
             this.type=type;
+            this.pointsOfInterest = pointsOfInterest;
         }
 
         public WayType getType(){
             return type;
         }
+        public PointsOfInterest getPointsOfInterest() {return pointsOfInterest;}
 
         @Override
         public String toString(){
@@ -72,10 +76,13 @@ public class KDTree{
         }
     }
 
-    public void fillTree(EnumMap<WayType, List<Shape>> shapes) {
+    public void fillTree(EnumMap<WayType,List<Shape>> shapes,HashMap<String,List<Point2D>> POI) {
         Integer arrLength = 0;
         for (List<Shape> list : shapes.values()) {
             arrLength += list.size() * 4;
+        }
+        for(List<Point2D> list: POI.values()){
+            arrLength += list.size();
         }
         TreeNode[] allShapes = new TreeNode[arrLength];
         Integer index = 0;
@@ -84,10 +91,16 @@ public class KDTree{
             for (Shape s : list) {
                 //Add en node for hvert hjørne i bounds
                 Rectangle2D bounds = s.getBounds2D();
-                allShapes[index++] = (new TreeNode(bounds.getX(), bounds.getY(), s, type));
-                allShapes[index++] = (new TreeNode(bounds.getX(), bounds.getY() + bounds.getHeight(), s, type));
-                allShapes[index++] = (new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY(), s, type));
-                allShapes[index++] = (new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight(), s, type));
+                allShapes[index++] = (new TreeNode(bounds.getX(), bounds.getY(), s, type,null));
+                allShapes[index++] = (new TreeNode(bounds.getX(), bounds.getY() + bounds.getHeight(), s, type,null));
+                allShapes[index++] = (new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY(), s, type,null));
+                allShapes[index++] = (new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight(), s, type,null));
+            }
+        }
+        for(PointsOfInterest type: PointsOfInterest.values()){
+            List<Point2D> list = POI.get(type.name());
+            for(Point2D p: list){
+                allShapes[index++] = (new TreeNode(p.getX(),p.getY(),null,null,type));
             }
         }
         long time = System.nanoTime();
@@ -95,6 +108,10 @@ public class KDTree{
         insertArray(allShapes,0,arrLength-1,true);
         System.out.println(maxDepth);
         System.out.println(arrLength+" "+count);
+    }
+
+    public void fillTreeWithPOI(){
+
     }
 
     public void insertArray(TreeNode[] allShapes, int lo, int hi, boolean vertical) {

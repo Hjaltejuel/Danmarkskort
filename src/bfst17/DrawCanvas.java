@@ -138,6 +138,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		for (KDTree.TreeNode n : model.getTree().getInRange((Rectangle2D) rectangle)) {
 			WayType type = n.getType();
+			if(type!= null){
 			Shape shape = n.getShape();
 			Color drawColor=getDrawColor(type);
 
@@ -157,6 +158,12 @@ public class DrawCanvas extends JComponent implements Observer {
 			Shape rectangle1 = shape.getBounds2D();
 			g.draw(rectangle1);
 			*/
+		} else {
+				if(pointsOfInterest) {
+					drawPointsOfInterest(g, n.getPointsOfInterest(), n.getX(), n.getY());
+				}
+			}
+
 		}
 		g.setColor(Color.black);
 		g.setStroke(new BasicStroke(0.00008f));
@@ -183,7 +190,6 @@ public class DrawCanvas extends JComponent implements Observer {
 		}
 		/**/
 		setPin(g);
-		drawPointsOfInterest(g);
 	}
 
 	public void pan(double dx, double dy) {
@@ -191,27 +197,21 @@ public class DrawCanvas extends JComponent implements Observer {
 		repaint();
         revalidate();
 	}
-	public void drawPointsOfInterest(Graphics2D g) {
-		if (pointsOfInterest) {
+	public void drawPointsOfInterest(Graphics2D g, PointsOfInterest type, double x, double y) {
 			BufferedImage image = null;
-			for (PointsOfInterest pointOfInterest : PointsOfInterest.values()) {
 				try {
-					image = ImageIO.read(getClass().getResource("/POI/" + pointOfInterest.name() + ".png"));
+					image = ImageIO.read(getClass().getResource("/POI/" + type.name() + ".png"));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				AffineTransform imageTransform = new AffineTransform();
 				((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-					for(Point2D points: model.get(pointOfInterest.name())) {
 						imageTransform.setToIdentity();
-						imageTransform.translate(points.getX(), points.getY());
-						System.out.println(-points.getX() + " " + points.getY());
+						imageTransform.translate(x, y);
 						imageTransform.scale(((1 / transform.getScaleX())), ((1 / transform.getScaleY())));
 						((Graphics2D) g).drawImage(image, imageTransform, null);
-					}
 			}
-		}
-	}
+
 
 	public void setPin(Graphics g)  {
         if(pin!=null) {
@@ -336,7 +336,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	public void zoom(double factor) {
 		transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
-		repaint();
+        System.out.println(transform.getScaleX());
+        repaint();
         revalidate();
 	}
 

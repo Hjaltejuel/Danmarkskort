@@ -47,7 +47,7 @@ public class Model extends Observable implements Serializable {
         return shapes.get(type);
     }
 
-    public List<Point2D> get(String pointOfInterest) {return pointsOfInterest.get(pointOfInterest);}
+    public List<Point2D> get(String type) {return pointsOfInterest.get(type);}
 
     private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
@@ -108,7 +108,7 @@ public class Model extends Observable implements Serializable {
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
-                tree.fillTree(shapes);
+                tree.fillTree(shapes,pointsOfInterest);
 				dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -193,7 +193,7 @@ public class Model extends Observable implements Serializable {
 			for(String s: PostCode){
 				addressModel.put(s,null);
 			}
-            tree.fillTree(shapes);
+            tree.fillTree(shapes,pointsOfInterest);
 		}
 
 		@Override
