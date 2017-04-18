@@ -342,7 +342,6 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	public void zoom(double factor) {
 		transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
-        System.out.println(transform.getScaleX());
         repaint();
         revalidate();
 	}
