@@ -16,7 +16,6 @@ import java.util.zip.ZipInputStream;
 public class Model extends Observable implements Serializable {
 	private HashMap<String,Point2D> addressToCordinate = new HashMap<>();
 	private String[] addressBuilder = new String[4];
-	private HashSet<String> PostCode = new HashSet<>();
 	private boolean isAddressNode = false;
 	private AddressModel addressModel = new AddressModel();
 	private HashMap<String, WayType> namesToWayTypes = new HashMap<>(); {
@@ -189,10 +188,6 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
-			System.out.println((System.nanoTime()-tid)/1000000);
-			for(String s: PostCode){
-				addressModel.put(s,null);
-			}
             tree.fillTree(shapes,pointsOfInterest);
 		}
 
@@ -210,7 +205,7 @@ public class Model extends Observable implements Serializable {
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
 			count++;
-			if(count%100000==0) {
+            if(count%100000==0) {
 				System.out.println(count);
 			}
 			switch(qName) {
@@ -299,8 +294,8 @@ public class Model extends Observable implements Serializable {
                             }
                         }
                         String address = addressBuilder[0] + " " + addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
-                        PostCode.add(addressBuilder[2] + " " + addressBuilder[3]);
-                        PostCode.add(addressBuilder[3]);
+                        addressModel.put(addressBuilder[2] + " " + addressBuilder[3],idToNode.get(nodeID).getPoint2D());
+                        addressModel.put(addressBuilder[3],idToNode.get(nodeID).getPoint2D());
 
 
                         //LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);

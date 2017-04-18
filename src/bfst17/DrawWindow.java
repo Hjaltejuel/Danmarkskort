@@ -70,7 +70,6 @@ public class DrawWindow implements Observer {
 		paintAutocomplete();
 		setUpSideButtons();
 
-
 		WindowPane.add(sidebarMenu,50);
 		WindowPane.add(combo, 50);
 		combo.setBounds(10,10,300,40);
@@ -108,40 +107,41 @@ public class DrawWindow implements Observer {
 		});
 	}
 
-	public void search(){
+	public void search() {
 		String s = (String) combo.getSelectedItem();
-		//points lat, lon
-		double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
-		double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
+		if (!s.equals("")) {
+			//points lat, lon
+			if(addressModel.getPoint2DToAddress(s.trim())!=null) {
+				double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
+				double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
 
-		//distance from center of screen in lat lon
-		double distanceToCenterY = lat - canvas.getCenterCordinateY();
-		double distanceToCenterX = lon - canvas.getCenterCordinateX();
+				//distance from center of screen in lat lon
+				double distanceToCenterY = lat - canvas.getCenterCordinateY();
+				double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
 
-		if(canvas.fancyPan){
-			double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX*canvas.getXZoomFactor(),2)+Math.pow(distanceToCenterY*canvas.getYZoomFactor(),2)));
-			double amountOfZoom = 150000 / canvas.getXZoomFactor();
+				if (canvas.fancyPan) {
+					double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX * canvas.getXZoomFactor(), 2) + Math.pow(distanceToCenterY * canvas.getYZoomFactor(), 2)));
+					double amountOfZoom = 150000 / canvas.getXZoomFactor();
 
-			if(amountOfZoom >= 2){
-				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
-			}
-			else{
-				if(distance < 400){
-					canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
+					if (amountOfZoom >= 2) {
+						canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
+					} else {
+						if (distance < 400) {
+							canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
+						} else {
+							canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+						}
+					}
+				} else if (!canvas.fancyPan) {
+					double dx = distanceToCenterX * canvas.getXZoomFactor();
+					double dy = distanceToCenterY * canvas.getYZoomFactor();
+					canvas.pan(dx, dy);
+					canvas.zoomAndCenter();
 				}
-				else{
-					canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
-				}
+				canvas.setSearchMode((float) lon, (float) lat);
 			}
 		}
-		else if(!canvas.fancyPan){
-			double dx = distanceToCenterX * canvas.getXZoomFactor();
-			double dy = distanceToCenterY * canvas.getYZoomFactor();
-			canvas.pan(dx, dy);
-			canvas.zoomAndCenter();
-		}
-		canvas.setSearchMode((float) lon,(float) lat);
 	}
 
 	public void addPOIActionListener(JCheckBoxMenuItem item, POIclasification s){

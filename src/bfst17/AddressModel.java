@@ -18,9 +18,9 @@ public class AddressModel extends Observable implements Serializable {
 
 
     public void put(String address, Point2D point) {
-        addressToCordinate.put(address, point);
-        setChanged();
-        notifyObservers();
+            addressToCordinate.put(address, point);
+            setChanged();
+            notifyObservers();
     }
 
     public HashMap<String, Point2D> addressToCordinate;
