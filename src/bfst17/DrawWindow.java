@@ -1,19 +1,21 @@
 package bfst17;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.LineBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.basic.BasicComboPopup;
-import javax.swing.text.JTextComponent;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.Timer;
-import java.util.concurrent.TimeUnit;
+		import javax.imageio.ImageIO;
+		import javax.swing.*;
+		import javax.swing.border.LineBorder;
+		import javax.swing.event.DocumentEvent;
+		import javax.swing.filechooser.FileFilter;
+		import javax.swing.plaf.basic.BasicComboPopup;
+		import javax.swing.text.JTextComponent;
+		import java.awt.*;
+		import java.awt.event.*;
+		import java.awt.image.BufferedImage;
+		import java.io.File;
+		import java.io.IOException;
+		import java.util.*;
+		import java.util.stream.Collectors;
+		import java.util.Timer;
+		import java.util.concurrent.TimeUnit;
 
 /**
  * Created by trold on 2/1/17.
@@ -26,10 +28,20 @@ public class DrawWindow implements Observer {
 	private ArrayList listItems;
 	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
+	private AutocompleteJComboBox secondCombo;
 	private JLayeredPane WindowPane;
 	private JPopupMenu popUpMenu;
-    boolean isClicked = false;
-    private JButton temporary;
+	private JPopupMenu poiMenu;
+	private JLabel barImage;
+	private JButton zoomIn;
+	private JButton zoomOut;
+	private JButton pointsOfInterest;
+	private JPanel sidebarMenu  = new JPanel(new GridLayout(0,1));
+	boolean isClicked1 = false;
+	boolean isClicked2 = false;
+
+	boolean setUpDirectionsMenu = false;
+
 
 	public DrawWindow(Model model) {
 		try {
@@ -44,26 +56,27 @@ public class DrawWindow implements Observer {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
-		temporary = new JButton("CLICK ME FOR UNLIMITED LAG");
 		this.model = model;
 		this.addressModel = model.getAddressModel();
 		model.addObserver(this);
 		addressModel.addObserver(this);
 		window = new JFrame("Danmarkskort gruppe A");
-     	WindowPane = new JLayeredPane();
+		WindowPane = new JLayeredPane();
 		window.setPreferredSize(new Dimension(750, 750));
 		canvas = new DrawCanvas(model);
 		new CanvasMouseController(canvas, model);
 		WindowPane.add(canvas,100);
 
 		paintAutocomplete();
+		setUpSideButtons();
 
-        WindowPane.add(temporary,50);
+
+		WindowPane.add(sidebarMenu,50);
 		WindowPane.add(combo, 50);
 		combo.setBounds(10,10,300,40);
-		WindowPane.setComponentZOrder(combo,1);
-		WindowPane.setComponentZOrder(canvas,2);
-        WindowPane.setComponentZOrder(temporary,0);
+		WindowPane.setComponentZOrder(combo,0);
+		WindowPane.setComponentZOrder(canvas,1);
+		WindowPane.setComponentZOrder(sidebarMenu,0);
 		window.add(WindowPane, BorderLayout.CENTER);
 
 		window.pack();
@@ -72,14 +85,13 @@ public class DrawWindow implements Observer {
 
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
-        temporary.setBounds(window.getWidth()-50,10,50,50);
 
 		canvas.pan(-model.getMinLon(), -model.getMaxLat());
 		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
 	}
 
 	/**
-	 * Makes the autocomplete button with all the addresses
+	 * Makes the autocomplete bar with all the addresses
 	 */
 	public void paintAutocomplete() {
 		this.listItems = new ArrayList();
@@ -87,25 +99,24 @@ public class DrawWindow implements Observer {
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-		this.combo.setPreferredSize(new Dimension(500, 30));
 		this.combo.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if (event.getKeyChar() == 10) {
-				    search();
+					search();
 				}
 			}
 		});
 	}
 
 	public void search(){
-        String s = (String) combo.getSelectedItem();
-        //points lat, lon
-        double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
-        double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
+		String s = (String) combo.getSelectedItem();
+		//points lat, lon
+		double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
+		double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
 
-        //distance from center of screen in lat lon
-        double distanceToCenterY = lat - canvas.getCenterCordinateY();
-        double distanceToCenterX = lon - canvas.getCenterCordinateX();
+		//distance from center of screen in lat lon
+		double distanceToCenterY = lat - canvas.getCenterCordinateY();
+		double distanceToCenterX = lon - canvas.getCenterCordinateX();
 
 
 		if(canvas.fancyPan){
@@ -123,30 +134,6 @@ public class DrawWindow implements Observer {
 					canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
 				}
 			}
-
-			//#CLEAN CODE I KNOW, skal nok fjerne det snart, skal bare lige være sikker på det andet er lækkert #MAMBA-OUT
-			/*
-			//Hvis vi er langt ude --> pan så zoom ind
-			if(amountOfZoom >= 1.5){
-				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
-				System.out.println("1");
-			}
-			//Hvis vi er et stykke ude og afstanden er mere end 200
-			else if(amountOfZoom >= 0.8 && distance > 200) {
-				canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
-				System.out.println("2");
-			}
-			//Hvis vi er tæt på og afstand er lille
-			else if(amountOfZoom <= 0.8 && distance < 200){
-				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
-				System.out.println("3");
-			}
-			//Hvis vi er tæt på men afstand er stor
-        	else{
-				canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
-				System.out.println("4");
-			}
-			*/
 		}
 		else if(!canvas.fancyPan){
 			double dx = distanceToCenterX * canvas.getXZoomFactor();
@@ -154,11 +141,186 @@ public class DrawWindow implements Observer {
 			canvas.pan(dx, dy);
 			canvas.zoomAndCenter();
 		}
-        canvas.setSearchMode((float) lon,(float) lat);
-        combo.setSelectedItem((null));
-    }
+		canvas.setSearchMode((float) lon,(float) lat);
+	}
+
+	public void addPOIActionListener(JCheckBoxMenuItem item, String s){
+		item.addActionListener(e-> canvas);
+	}
+	public void setUpSideButtons(){
+		sidebarMenu.setOpaque(false);
+		poiMenu = new JPopupMenu("Points of interest");
+		JCheckBoxMenuItem foodAndDrinks = new JCheckBoxMenuItem("Food and drinks");
+		foodAndDrinks.setUI(new StayOpenCheckBoxMenuItemUI());
+		JCheckBoxMenuItem attractions = new JCheckBoxMenuItem("Attractions");
+		attractions.setUI(new StayOpenCheckBoxMenuItemUI());
+		JCheckBoxMenuItem nature = new JCheckBoxMenuItem("Nature");
+		nature.setUI(new StayOpenCheckBoxMenuItemUI());
+		JCheckBoxMenuItem healthCare = new JCheckBoxMenuItem("Healthcare");
+		healthCare.setUI(new StayOpenCheckBoxMenuItemUI());
+		JCheckBoxMenuItem utilities = new JCheckBoxMenuItem("Utilities");
+		utilities.setUI(new StayOpenCheckBoxMenuItemUI());
+		JCheckBoxMenuItem emergency = new JCheckBoxMenuItem("Emergency");
+		emergency.setUI(new StayOpenCheckBoxMenuItemUI());
+		JCheckBoxMenuItem shops = new JCheckBoxMenuItem("Shops");
+		shops.setUI(new StayOpenCheckBoxMenuItemUI());
+		poiMenu.add(foodAndDrinks);
+		poiMenu.add(attractions);
+		poiMenu.add(nature);
+		poiMenu.add(healthCare);
+		poiMenu.add(utilities);
+		poiMenu.add(emergency);
+		poiMenu.add(shops);
+
+
+
+		zoomIn = new JButton();
+		zoomIn.setBounds(window.getHeight()-45,window.getWidth()-67,40,40);
+
+		try {
+			Image img3 = ImageIO.read(getClass().getResource("/zoomin.png"));
+			zoomIn.setIcon(new ImageIcon(img3.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
+
+		}catch (Exception ex){
+			System.out.println(ex);
+		}
+		zoomIn.setBorderPainted(false);
+		zoomIn.setFocusPainted(false);
+		zoomIn.setContentAreaFilled(false);
+		sidebarMenu.add(zoomIn);
+
+		zoomIn.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+				canvas.zoom(1.25);
+				canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+
+			}
+		});
+
+		zoomOut = new JButton();
+		zoomOut.setBounds(window.getHeight()-85,window.getWidth()-67,40,40);
+
+		try {
+			Image img4 = ImageIO.read(getClass().getResource("/zoomout.png"));
+			zoomOut.setIcon(new ImageIcon(img4.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
+
+		}catch (Exception ex){
+			System.out.println(ex);
+		}
+		zoomOut.setBorderPainted(false);
+		zoomOut.setFocusPainted(false);
+		zoomOut.setContentAreaFilled(false);
+		sidebarMenu.add(zoomOut);
+
+
+		zoomOut.setPreferredSize(new Dimension(30,30));
+		zoomOut.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+				canvas.zoom(0.75);
+				canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+
+			}
+
+		});
+
+		pointsOfInterest = new JButton();
+		pointsOfInterest.setBounds(window.getHeight()-85,window.getWidth()-67,40,40);
+
+		try {
+			Image img4 = ImageIO.read(getClass().getResource("/pointsOfInterest.png"));
+			pointsOfInterest.setIcon(new ImageIcon(img4.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
+
+		}catch (Exception ex){
+			System.out.println(ex);
+		}
+		pointsOfInterest.setBorderPainted(false);
+		pointsOfInterest.setFocusPainted(false);
+		pointsOfInterest.setContentAreaFilled(false);
+		sidebarMenu.add(pointsOfInterest);
+
+
+		pointsOfInterest.setPreferredSize(new Dimension(30,30));
+		pointsOfInterest.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if(!isClicked1){
+					poiMenu.show(e.getComponent(),0,40);
+					isClicked1=true;
+				}else if(isClicked1){
+					poiMenu.setVisible(false);
+					isClicked1=false;
+				}
+				canvas.repaint();
+			}
+
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+
+			}
+
+		});
+
+
+
+	}
+
 	public void setUpButtons(){
-        temporary.addActionListener(e->{canvas.setPointsOfInterest("UTILITIES");});
 		JButton search = new JButton();
 		try {
 			Image img = ImageIO.read(getClass().getResource("/search.png"));
@@ -173,21 +335,21 @@ public class DrawWindow implements Observer {
 		search.setBorder(BorderFactory.createEmptyBorder());
 		search.setPreferredSize(new Dimension(30,30));
 		search.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                search();
-            }
-            @Override
-            public void mousePressed(MouseEvent e) {}
-            @Override
-            public void mouseReleased(MouseEvent e) {}
-            @Override
-            public void mouseEntered(MouseEvent e) {}
-            @Override
-            public void mouseExited(MouseEvent e) {}
-        });
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				search();
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+		});
 		WindowPane.add(search);
-		WindowPane.setComponentZOrder(search,0);
+		WindowPane.setComponentZOrder(search,1);
 		search.setBounds(313,10,40,40);
 
 		JButton menu = new JButton();
@@ -202,22 +364,22 @@ public class DrawWindow implements Observer {
 		}
 		menu.setBorderPainted(false);
 		menu.setFocusPainted(false);
-        menu.setContentAreaFilled(false);
+		menu.setContentAreaFilled(false);
 
-        menu.setPreferredSize(new Dimension(30,30));
+		menu.setPreferredSize(new Dimension(30,30));
 		setUpMenu();
 
-        menu.addMouseListener(new MouseListener() {
+		menu.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent e) {}
 			@Override
 			public void mousePressed(MouseEvent e) {
-                if(!isClicked){
-					popUpMenu.show(e.getComponent(),0,40);
-					isClicked=true;
-				}else if(isClicked){
+				if(!isClicked2){
+					popUpMenu.show(e.getComponent(),-100,40);
+					isClicked2=true;
+				}else if(isClicked2){
 					popUpMenu.setVisible(false);
-						isClicked=false;
+					isClicked2=false;
 				}
 				canvas.repaint();
 			}
@@ -231,6 +393,8 @@ public class DrawWindow implements Observer {
 		menu.setComponentPopupMenu(popUpMenu);
 		WindowPane.add(menu);
 		WindowPane.setComponentZOrder(menu,0);
+
+
 	}
 
 	/**
@@ -301,9 +465,12 @@ public class DrawWindow implements Observer {
 		JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_Q);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_Q,Event.CTRL_MASK),"action7",exit);
 
+		JCheckBoxMenuItem directions = new JCheckBoxMenuItem("Directions");
+
 
 		popUpMenu.add(save);
 		popUpMenu.add(load);
+		popUpMenu.add(directions);
 		popUpMenu.addSeparator();
 
 		JMenu tools = new JMenu("Tools");
@@ -359,8 +526,8 @@ public class DrawWindow implements Observer {
 					nightMode.setText("NightMode");
 					tearDownNightMode(combo,popUpMenu,tools,popUpMenu);
 				}
-		canvas.repaint();
-		greyScale.setText("Color");} else
+				canvas.repaint();
+				greyScale.setText("Color");} else
 			{
 				canvas.setGreyScaleFalse();
 				canvas.repaint();
@@ -453,7 +620,13 @@ public class DrawWindow implements Observer {
 
 			}
 		});
-
+		directions.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setUpDirectionsMenu = !setUpDirectionsMenu;
+				SetAndTearSecondSearch();
+			}
+		});
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -473,7 +646,7 @@ public class DrawWindow implements Observer {
 		zoomOut.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
 				canvas.zoom(0.75);
 				canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 			}
@@ -482,7 +655,7 @@ public class DrawWindow implements Observer {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				canvas.setBounds(0,0,window.getWidth(),window.getHeight());
-                temporary.setBounds(window.getWidth()-50,10,50,50);
+				sidebarMenu.setBounds(canvas.getWidth()-60,10,40,130);
 			}
 
 			@Override
@@ -503,6 +676,61 @@ public class DrawWindow implements Observer {
 
 	}
 
+	public void SetAndTearSecondSearch(){
+		if(setUpDirectionsMenu){
+			secondCombo = new AutocompleteJComboBox(searchable);
+			WindowPane.add(secondCombo,75);
+			WindowPane.setComponentZOrder(secondCombo,2);
 
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+
+				int i = 1;
+				int yStart =10;
+				@Override
+				public void run() {
+					secondCombo.setBounds(10,yStart+=1,300,40);
+					canvas.repaint();
+
+					if(yStart==50){cancel();
+						try {
+							BufferedImage bar = ImageIO.read(getClass().getResource("/Search Bar.png"));
+							barImage = new JLabel(new ImageIcon(bar));
+							WindowPane.add(barImage,76);
+							WindowPane.setComponentZOrder(barImage,0);
+							barImage.setBounds(11,31,298,40);
+
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+					}
+				}
+			},0, 5);
+			secondCombo.setEditable(true);
+
+
+		}else if(!setUpDirectionsMenu){
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+				int i = 1;
+				int yStart =51;
+				@Override
+				public void run() {
+					secondCombo.setBounds(10,yStart-=1,300,40);
+					canvas.repaint();
+
+					if(yStart==10){
+						cancel();
+						WindowPane.remove(secondCombo);
+						WindowPane.remove(barImage);
+						canvas.repaint();
+					}
+				}
+			},0, 5);
+
+		}
+
+	}
 
 }
