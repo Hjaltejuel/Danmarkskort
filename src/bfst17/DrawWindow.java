@@ -134,30 +134,6 @@ public class DrawWindow implements Observer {
 					canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
 				}
 			}
-
-			//#CLEAN CODE I KNOW, skal nok fjerne det snart, skal bare lige være sikker på det andet er lækkert #MAMBA-OUT
-			/*
-			//Hvis vi er langt ude --> pan så zoom ind
-			if(amountOfZoom >= 1.5){
-				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
-				System.out.println("1");
-			}
-			//Hvis vi er et stykke ude og afstanden er mere end 200
-			else if(amountOfZoom >= 0.8 && distance > 200) {
-				canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
-				System.out.println("2");
-			}
-			//Hvis vi er tæt på og afstand er lille
-			else if(amountOfZoom <= 0.8 && distance < 200){
-				canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
-				System.out.println("3");
-			}
-			//Hvis vi er tæt på men afstand er stor
-        	else{
-				canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
-				System.out.println("4");
-			}
-			*/
 		}
 		else if(!canvas.fancyPan){
 			double dx = distanceToCenterX * canvas.getXZoomFactor();
@@ -167,16 +143,27 @@ public class DrawWindow implements Observer {
 		}
 		canvas.setSearchMode((float) lon,(float) lat);
 	}
+
+	public void addPOIActionListener(JCheckBoxMenuItem item, String s){
+		item.addActionListener(e-> canvas);
+	}
 	public void setUpSideButtons(){
 		sidebarMenu.setOpaque(false);
 		poiMenu = new JPopupMenu("Points of interest");
 		JCheckBoxMenuItem foodAndDrinks = new JCheckBoxMenuItem("Food and drinks");
+		foodAndDrinks.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem attractions = new JCheckBoxMenuItem("Attractions");
+		attractions.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem nature = new JCheckBoxMenuItem("Nature");
+		nature.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem healthCare = new JCheckBoxMenuItem("Healthcare");
+		healthCare.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem utilities = new JCheckBoxMenuItem("Utilities");
+		utilities.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem emergency = new JCheckBoxMenuItem("Emergency");
+		emergency.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem shops = new JCheckBoxMenuItem("Shops");
+		shops.setUI(new StayOpenCheckBoxMenuItemUI());
 		poiMenu.add(foodAndDrinks);
 		poiMenu.add(attractions);
 		poiMenu.add(nature);
@@ -668,7 +655,7 @@ public class DrawWindow implements Observer {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				canvas.setBounds(0,0,window.getWidth(),window.getHeight());
-				sidebarMenu.setBounds(canvas.getWidth()-45,10,40,130);
+				sidebarMenu.setBounds(canvas.getWidth()-60,10,40,130);
 			}
 
 			@Override
