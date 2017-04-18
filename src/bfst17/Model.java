@@ -88,7 +88,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public void loadAllCoastlines(){
-		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("/Users/Mads/Documents/ITU/2. Semester/1. års projekt/Danmarkskortet/resources/DKCoastlines.bin"))) {
+		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("/Users/Mads/Desktop/BHCL.bin"))) {
 			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 			coastlines = (ArrayList<Shape>) in.readObject();
 			System.out.println(coastlines.size());
