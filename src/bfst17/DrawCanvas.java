@@ -10,10 +10,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * Created by trold on 2/8/17.
@@ -137,7 +134,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		double rectSize = 100d / transform.getScaleX();
 		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);
-
+		ArrayList<KDTree.TreeNode> POI = new ArrayList<>();
 		for (KDTree.TreeNode n : model.getTree().getInRange((Rectangle2D) rectangle)) {
 			WayType type = n.getType();
 			if(type!= null){
@@ -160,14 +157,20 @@ public class DrawCanvas extends JComponent implements Observer {
 			Shape rectangle1 = shape.getBounds2D();
 			g.draw(rectangle1);
 			*/
-		} else {
+		} else if(transform.getScaleY()>40000) {
 				if(nameToBoolean.get(n.getPointsOfInterest().getClassification().toString())) {
-					drawPointsOfInterest(g, n.getPointsOfInterest(), n.getX(), n.getY());
+					POI.add(n);
 				}
 
 			}
 
 		}
+		if(transform.getScaleY()>40000) {
+			for (KDTree.TreeNode n : POI) {
+				drawPointsOfInterest(g, n.getPointsOfInterest(), n.getX(), n.getY());
+			}
+		}
+
 		g.setColor(Color.black);
 		g.setStroke(new BasicStroke(0.00008f));
 		g.draw(rectangle);
