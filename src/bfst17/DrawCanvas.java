@@ -10,6 +10,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.TimerTask;
@@ -24,15 +25,19 @@ public class DrawCanvas extends JComponent implements Observer {
 	boolean greyScale = false;
 	boolean nightmode = false;
 	boolean fancyPan = true;
-	boolean pointsOfInterest = true;
-
+	HashMap<String,Boolean> nameToBoolean = new HashMap<>();
 	Point2D pin;
 	boolean searchMode = false;
 
 	public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
-
+		fillNameToBoolean();
+	}
+	public void fillNameToBoolean(){
+		for(POIclasification name: POIclasification.values()){
+			nameToBoolean.put(name.toString(),true);
+		}
 	}
 	public double getCenterCordinateX() {
         return (transform.getTranslateX()/transform.getScaleX())-((getWidth()/transform.getScaleX())/2);
@@ -45,13 +50,10 @@ public class DrawCanvas extends JComponent implements Observer {
         searchMode = true;
         pin = new Point2D.Float(lon,lat);
     }
-    public void setPointsOfInterest(){
-		if(pointsOfInterest){
-			pointsOfInterest = false;
-			repaint();
-		} else
-			pointsOfInterest = true;
-			repaint();
+    public void setPointsOfInterest(String name){
+		boolean nameToBooleanCopy = nameToBoolean.get(name);
+		nameToBoolean.put(name,!nameToBooleanCopy);
+		repaint();
 	}
 	public void setGreyScale()
 	{
@@ -159,9 +161,10 @@ public class DrawCanvas extends JComponent implements Observer {
 			g.draw(rectangle1);
 			*/
 		} else {
-				if(pointsOfInterest) {
+				if(nameToBoolean.get(n.getPointsOfInterest().getClassification().toString())) {
 					drawPointsOfInterest(g, n.getPointsOfInterest(), n.getX(), n.getY());
 				}
+
 			}
 
 		}

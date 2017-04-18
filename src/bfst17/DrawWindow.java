@@ -158,7 +158,7 @@ public class DrawWindow implements Observer {
         combo.setSelectedItem((null));
     }
 	public void setUpButtons(){
-        temporary.addActionListener(e->{canvas.setPointsOfInterest();});
+        temporary.addActionListener(e->{canvas.setPointsOfInterest("UTILITIES");});
 		JButton search = new JButton();
 		try {
 			Image img = ImageIO.read(getClass().getResource("/search.png"));
