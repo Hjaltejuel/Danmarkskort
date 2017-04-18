@@ -144,25 +144,32 @@ public class DrawWindow implements Observer {
 		canvas.setSearchMode((float) lon,(float) lat);
 	}
 
-	public void addPOIActionListener(JCheckBoxMenuItem item, String s){
-		item.addActionListener(e-> canvas);
+	public void addPOIActionListener(JCheckBoxMenuItem item, POIclasification s){
+		item.addActionListener(e-> canvas.setPointsOfInterest(s.toString()));
 	}
 	public void setUpSideButtons(){
 		sidebarMenu.setOpaque(false);
 		poiMenu = new JPopupMenu("Points of interest");
 		JCheckBoxMenuItem foodAndDrinks = new JCheckBoxMenuItem("Food and drinks");
+        addPOIActionListener(foodAndDrinks,POIclasification.FOOD_AND_DRINKS);
 		foodAndDrinks.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem attractions = new JCheckBoxMenuItem("Attractions");
+        addPOIActionListener(attractions,POIclasification.ATTRACTION);
 		attractions.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem nature = new JCheckBoxMenuItem("Nature");
+        addPOIActionListener(nature,POIclasification.NATURE);
 		nature.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem healthCare = new JCheckBoxMenuItem("Healthcare");
+        addPOIActionListener(healthCare,POIclasification.HEALTH_CARE);
 		healthCare.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem utilities = new JCheckBoxMenuItem("Utilities");
+        addPOIActionListener(utilities,POIclasification.UTILITIES);
 		utilities.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem emergency = new JCheckBoxMenuItem("Emergency");
+        addPOIActionListener(emergency,POIclasification.EMERGENCY);
 		emergency.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem shops = new JCheckBoxMenuItem("Shops");
+        addPOIActionListener(shops,POIclasification.SHOPS);
 		shops.setUI(new StayOpenCheckBoxMenuItemUI());
 		poiMenu.add(foodAndDrinks);
 		poiMenu.add(attractions);

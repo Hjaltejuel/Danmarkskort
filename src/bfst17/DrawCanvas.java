@@ -33,7 +33,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 	public void fillNameToBoolean(){
 		for(POIclasification name: POIclasification.values()){
-			nameToBoolean.put(name.toString(),true);
+			nameToBoolean.put(name.toString(),false);
 		}
 	}
 	public double getCenterCordinateX() {
