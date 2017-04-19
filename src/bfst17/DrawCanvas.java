@@ -142,8 +142,10 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		double rectSize = 100d / transform.getScaleX();
 		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);
+		//Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX()-(getWidth()/2/transform.getScaleX()),-getCenterCordinateY()-(getWidth()/2/transform.getScaleX()),getWidth()/transform.getScaleX(),getHeight()/transform.getScaleX());
 		ArrayList<KDTree.TreeNode> POI = new ArrayList<>();
-		for (KDTree.TreeNode n : model.getTree().getInRange((Rectangle2D) rectangle)) {
+		for (KDTree.TreeNode n : model.getTree().getInRange((Rectangle2D) rectangle))
+	     {
 			WayType type = n.getType();
 			if(type!= null){
 			Shape shape = n.getShape();

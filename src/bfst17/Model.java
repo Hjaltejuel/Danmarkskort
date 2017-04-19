@@ -282,7 +282,6 @@ public class Model extends Observable implements Serializable {
                             break;
                         case "place":
                             if(v.equals("village") || v.equals("town") || v.equals("city")){
-                                System.out.println(name);
                                 addressModel.put(name,idToNode.get(nodeID).getPoint2D());
                             }
 					}

@@ -156,7 +156,7 @@ public class DrawWindow implements Observer {
 				double dy = distanceToCenterY * canvas.getYZoomFactor();
 				canvas.pan(dx, dy);
 				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-				canvas.zoom(canvas.getWidth()/(shape.getBounds2D().getMaxX()-shape.getBounds2D().getMinX()));
+				canvas.zoom((canvas.getWidth()/(shape.getBounds2D().getMaxX()-shape.getBounds2D().getMinX()))/canvas.getXZoomFactor());
 				canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
 				canvas.repaint();
 			}
