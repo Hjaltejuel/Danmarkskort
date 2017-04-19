@@ -9,6 +9,7 @@ package bfst17;
 		import javax.swing.text.JTextComponent;
 		import java.awt.*;
 		import java.awt.event.*;
+		import java.awt.geom.Point2D;
 		import java.awt.image.BufferedImage;
 		import java.io.File;
 		import java.io.IOException;
@@ -95,6 +96,7 @@ public class DrawWindow implements Observer {
 	public void paintAutocomplete() {
 		this.listItems = new ArrayList();
 		this.listItems.addAll(addressModel.getAddressToCordinate().keySet().stream().map(a -> a.toString().toLowerCase()).collect(Collectors.toList()));
+		this.listItems.addAll(addressModel.getRegionToShape().keySet().stream().map(a->a.toString().toLowerCase()).collect(Collectors.toList()));
 		this.searchable = new StringSearchable(this.listItems);
 		this.combo = new AutocompleteJComboBox(this.searchable);
 		this.combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
@@ -140,6 +142,23 @@ public class DrawWindow implements Observer {
 					canvas.zoomAndCenter();
 				}
 				canvas.setSearchMode((float) lon, (float) lat);
+			} else if(addressModel.getRegion(s.trim())!=null){
+				Shape shape = addressModel.getRegion(s.trim()).getShape();
+				Point2D center = addressModel.getRegion(s.trim()).getCenter().getPoint2D();
+				canvas.regionSearch(shape);
+				double lat = -center.getY();
+				double lon = -center.getX();
+
+
+				double distanceToCenterY = lat - canvas.getCenterCordinateY();
+				double distanceToCenterX = lon - canvas.getCenterCordinateX();
+				double dx = distanceToCenterX * canvas.getXZoomFactor();
+				double dy = distanceToCenterY * canvas.getYZoomFactor();
+				canvas.pan(dx, dy);
+				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+				canvas.zoom(canvas.getWidth()/(shape.getBounds2D().getMaxX()-shape.getBounds2D().getMinX()));
+				canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+				canvas.repaint();
 			}
 		}
 	}

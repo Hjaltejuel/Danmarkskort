@@ -14,8 +14,11 @@ import java.util.zip.ZipInputStream;
  * Created by trold on 2/1/17.
  */
 public class Model extends Observable implements Serializable {
-	private HashMap<String,Point2D> addressToCordinate = new HashMap<>();
 	private String[] addressBuilder = new String[4];
+    String name= "";
+    OSMNode regionCenter = null;
+    boolean adminRelation = false;
+
 	private boolean isAddressNode = false;
 	private AddressModel addressModel = new AddressModel();
 	private HashMap<String, WayType> namesToWayTypes = new HashMap<>(); {
@@ -36,6 +39,7 @@ public class Model extends Observable implements Serializable {
         load(filename);
     }
 
+
     public KDTree getTree(){
         return tree;
     }
@@ -46,7 +50,6 @@ public class Model extends Observable implements Serializable {
         return shapes.get(type);
     }
 
-    public List<Point2D> get(String type) {return pointsOfInterest.get(type);}
 
     private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
@@ -274,10 +277,26 @@ public class Model extends Observable implements Serializable {
 						case "building":
 							type = WayType.BUILDING;
 							break;
+                        case "name":
+                            name = v;
+                            break;
+                        case "place":
+                            if(v.equals("village") || v.equals("town") || v.equals("city")){
+                                System.out.println(name);
+                                addressModel.put(name,idToNode.get(nodeID).getPoint2D());
+                            }
 					}
 					break;
 				case "member":
-					ref = Long.parseLong(atts.getValue("ref"));
+				    String role = atts.getValue("role");
+                    ref = Long.parseLong(atts.getValue("ref"));
+                    if(role.equals("admin_centre")){
+                        regionCenter = idToNode.get(ref);
+                        if(regionCenter ==null){
+                            regionCenter = new OSMNode((maxlon+minlon)/2,(maxlat+minlat)/2);
+                        }
+                        adminRelation = true;
+                    }
 					relation.add(idToWay.get(ref));
 					break;
 			}
@@ -294,10 +313,6 @@ public class Model extends Observable implements Serializable {
                             }
                         }
                         String address = addressBuilder[0] + " " + addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
-                        addressModel.put(addressBuilder[2] + " " + addressBuilder[3],idToNode.get(nodeID).getPoint2D());
-                        addressModel.put(addressBuilder[3],idToNode.get(nodeID).getPoint2D());
-
-
                         //LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
                         //LongToPointMap.Node k = new LongToPointMap.Node(m.key, (float) m.getX(), (float) m.getY(), null);
                         addressModel.put(Address.parse(address).toString(), idToNode.get(nodeID).getPoint2D());
@@ -323,7 +338,12 @@ public class Model extends Observable implements Serializable {
                     }
                     break;
                 case "relation":
-                    add(type, relation.toPath2D());
+                    if(adminRelation == true){
+                        addressModel.putRegion(name,new Region(relation.toPath2D(),regionCenter));
+                        adminRelation = false;
+                    } else {
+                        add(type, relation.toPath2D());
+                    }
                     break;
                 case "osm":
                     coastlines.forEach((key, way) -> {

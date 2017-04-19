@@ -18,6 +18,8 @@ import java.util.*;
 public class DrawCanvas extends JComponent implements Observer {
 	Model model;
 	AffineTransform transform = new AffineTransform();
+    Shape regionShape = null;
+    boolean regionSearch = false;
 	boolean antiAlias;
 	boolean greyScale = false;
 	boolean nightmode = false;
@@ -36,6 +38,11 @@ public class DrawCanvas extends JComponent implements Observer {
 			nameToBoolean.put(name.toString(),false);
 		}
 	}
+	public void regionSearch(Shape shape){
+        regionSearch = true;
+        regionShape = shape;
+    }
+
 	public double getCenterCordinateX() {
         return (transform.getTranslateX()/transform.getScaleX())-((getWidth()/transform.getScaleX())/2);
 	}
@@ -45,6 +52,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
     public void setSearchMode(float lon,float lat){
         searchMode = true;
+        regionSearch = false;
         pin = new Point2D.Float(lon,lat);
     }
     public void setPointsOfInterest(String name){
@@ -130,7 +138,7 @@ public class DrawCanvas extends JComponent implements Observer {
 			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
 			g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
 			g.fill(s);
-		}
+        }
 
 		double rectSize = 100d / transform.getScaleX();
 		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);
@@ -196,6 +204,14 @@ public class DrawCanvas extends JComponent implements Observer {
 		}
 		/**/
 		setPin(g);
+        if(regionSearch){
+            Color color = g.getColor();
+            g.setColor(Color.RED);
+            g.draw(regionShape);
+            g.setColor(color);
+
+        }
+
 	}
 
 	public void pan(double dx, double dy) {
@@ -231,8 +247,8 @@ public class DrawCanvas extends JComponent implements Observer {
             ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             imageTransform.setToIdentity();
 
-            imageTransform.translate(-pin.getX(),-pin.getY());
-			imageTransform.scale(((1/transform.getScaleX())/7),((1/transform.getScaleY())/7));
+            imageTransform.translate(-pin.getX()-(((image.getWidth()/10)/2))/transform.getScaleX(),-pin.getY()-((image.getHeight()/10)/transform.getScaleX()));
+			imageTransform.scale(((1/transform.getScaleX())/10),((1/transform.getScaleY())/10));
             ((Graphics2D) g).drawImage(image, imageTransform, null);
             searchMode = false;
         }
