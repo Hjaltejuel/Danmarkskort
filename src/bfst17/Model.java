@@ -100,7 +100,10 @@ public class Model extends Observable implements Serializable {
 		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("/Users/Mads/Desktop/heleDKCL.bin"))) {
 			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 			coastlines = (ArrayList<Shape>) in.readObject();
-		} catch (FileNotFoundException e) {
+
+            System.out.println("minX:" + coastlines.get(0).getBounds2D().getMinX() + " maxX:" + coastlines.get(0).getBounds2D().getMaxX());
+            System.out.println("minY:" + coastlines.get(0).getBounds2D().getMinY() + " maxY:" + coastlines.get(0).getBounds2D().getMaxY());
+        } catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -185,6 +188,8 @@ public class Model extends Observable implements Serializable {
         minlon += newMinLon;
     }
 
+
+    float lonfactor; //FIXME
     private class OSMHandler implements ContentHandler {
         //LongToPointMap idToNode = new LongToPointMap(18000000);
         Map<Long,OSMWay> idToWay = new HashMap<>();
@@ -193,7 +198,6 @@ public class Model extends Observable implements Serializable {
         OSMWay way;
         OSMRelation relation;
         WayType type;
-        private float lonfactor;
 
         @Override
         public void setDocumentLocator(Locator locator) {
@@ -333,6 +337,7 @@ public class Model extends Observable implements Serializable {
                 case "way":
 
                     if (type == WayType.NATURAL_COASTLINE) {
+
                         OSMWay before = tmpcoastlines.remove(way.getFromNode());
                         OSMWay after = tmpcoastlines.remove(way.getToNode());
                         OSMWay merged = new OSMWay();
@@ -345,10 +350,12 @@ public class Model extends Observable implements Serializable {
                         }
                         tmpcoastlines.put(merged.getFromNode(), merged);
                         tmpcoastlines.put(merged.getToNode(), merged);
-                    } /* else {
-                        System.out.println("jeeee");
+                        System.out.println("minX:" + merged.toPath2D().getBounds2D().getMinX() + " maxX:" + merged.toPath2D().getBounds2D().getMaxX());
+                        System.out.println("minY:" + merged.toPath2D().getBounds2D().getMinY() + " maxY:" + merged.toPath2D().getBounds2D().getMaxY());
+
+                    } else {
                         add(type, way.toPath2D());
-                    }*/
+                    }
 
                     break;
                 case "relation":
