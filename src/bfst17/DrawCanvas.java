@@ -208,7 +208,7 @@ public class DrawCanvas extends JComponent implements Observer {
 		setPin(g);
         if(regionSearch){
             Color color = g.getColor();
-            g.setColor(Color.RED);
+            g.setColor(new Color(255,0,0,127));
             g.draw(regionShape);
             g.setColor(color);
 

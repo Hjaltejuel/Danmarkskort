@@ -4,6 +4,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.awt.*;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
@@ -337,11 +338,12 @@ public class Model extends Observable implements Serializable {
                     }
                     break;
                 case "relation":
+                    Path2D path = relation.toPath2D();
                     if(adminRelation == true){
-                        addressModel.putRegion(name,new Region(relation.toPath2D(),regionCenter));
+                        addressModel.putRegion(name,new Region(path,regionCenter));
                         adminRelation = false;
                     } else {
-                        add(type, relation.toPath2D());
+                        add(type, path);
                     }
                     break;
                 case "osm":
