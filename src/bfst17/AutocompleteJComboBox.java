@@ -71,7 +71,7 @@ public class AutocompleteJComboBox extends JComboBox {
                             AutocompleteJComboBox.this.addItem(userInput.getText());
                         }
                             int i = 0;
-                            for(String s: foundSet){
+                            for(String s: founds){
 
                                 StringBuffer res = new StringBuffer();
 
