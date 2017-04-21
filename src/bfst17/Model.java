@@ -63,6 +63,7 @@ public class Model extends Observable implements Serializable {
 
 	public Model() {
 		load(this.getClass().getResource("/bornholm.osm").getPath());
+		System.out.println(this.getClass().getResource("/bornholm.osm").getPath());
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -144,7 +145,7 @@ public class Model extends Observable implements Serializable {
 	}
 
     public void loadAllCoastlines(){
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("/Users/Mads/Desktop/dkclmedlonfactor.bin"))) {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(this.getClass().getResource("/dkCoastlines.bin").getPath()))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             coastlines = (ArrayList<Shape>) in.readObject();
             lonfactor = in.readFloat();
@@ -184,7 +185,11 @@ public class Model extends Observable implements Serializable {
 		minlon += newMinLon;
 	}
 
-	private class OSMHandler implements ContentHandler {
+    public ArrayList<Shape> getCoastlines() {
+        return coastlines;
+    }
+
+    private class OSMHandler implements ContentHandler {
 		//LongToPointMap idToNode = new LongToPointMap(18000000);
 		Long tid = System.nanoTime();
 		Map<Long,OSMWay> idToWay = new HashMap<>();
