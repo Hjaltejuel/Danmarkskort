@@ -20,8 +20,9 @@ public class Model extends Observable implements Serializable {
 	private HashSet<String> PostCode = new HashSet<>();
 	private boolean isAddressNode = false;
 	private AddressModel addressModel = new AddressModel();
-    private KDTree tree = new KDTree();
-    private float minlat, minlon, maxlat, maxlon;
+    private KDTree t = new KDTree();
+    private tmpKDTree tree = new tmpKDTree();
+	private float minlat, minlon, maxlat, maxlon;
     private long nodeID;
 
 
@@ -29,7 +30,7 @@ public class Model extends Observable implements Serializable {
         load(filename);
     }
 
-    public KDTree getTree(){
+    public tmpKDTree getTree(){
         return tree;
     }
 
@@ -98,7 +99,10 @@ public class Model extends Observable implements Serializable {
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
-                tree.fillTree(shapes);
+				tree.fillTree(shapes);
+				t.fillTree(shapes);
+				System.out.println(tree.maxDepth);
+				System.out.println(tree.count);
 				dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -109,7 +113,6 @@ public class Model extends Observable implements Serializable {
 			} catch (ClassCastException e) {
 				e.printStackTrace();
 			}
-
 		}
 	}
 
@@ -123,7 +126,6 @@ public class Model extends Observable implements Serializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public float getMinLon() {
@@ -140,8 +142,7 @@ public class Model extends Observable implements Serializable {
 
 	public float getMinLat() {return minlat;}
 
-	public void addToBounds(float newMaxLat, float newMinLat, float newMaxLon,float newMinLon)
-	{
+	public void addToBounds(float newMaxLat, float newMinLat, float newMaxLon,float newMinLon) {
 		maxlat += newMaxLat;
 		minlat += newMinLat;
 		maxlon += newMaxLon;

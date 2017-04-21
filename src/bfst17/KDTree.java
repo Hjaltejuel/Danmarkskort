@@ -3,10 +3,11 @@ package bfst17;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
-public class KDTree {
+public class KDTree implements Serializable {
     TreeNode root;
     int size;
     Point2D point;
@@ -21,14 +22,13 @@ public class KDTree {
         return root;
     }
 
-    public class TreeNode implements Comparable<TreeNode> {
+    public class TreeNode implements Comparable<TreeNode>, Serializable {
         //private Point2D point;
         private double x, y;
         private Shape shape;
         private WayType type;
         private TreeNode left;
         private TreeNode right;
-        Integer depth=0;
 
         public TreeNode(double x, double y, Shape s, WayType type) {
             this.x = x;
@@ -37,17 +37,9 @@ public class KDTree {
             this.type = type;
         }
 
-        public WayType getType() {
-            return type;
-        }
-
         @Override
         public String toString() {
             return "(" + x + "," + y + ")";
-        }
-
-        public Shape getShape() {
-            return shape;
         }
 
         public int compareTo(TreeNode other) {
@@ -79,11 +71,10 @@ public class KDTree {
                 //Add en node for hvert hjørne i bounds
                 Rectangle2D bounds = s.getBounds2D();
                 listOfShapes.add(new TreeNode(bounds.getCenterX(), bounds.getCenterY(), s, type));
-                //listOfShapes.add(new TreeNode(bounds.getX(), bounds.getY(), s, type));
-                //listOfShapes.add(new TreeNode(bounds.getX(), bounds.getY() + bounds.getHeight(), s, type));
-                //listOfShapes.add(new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY(), s, type));
-                //listOfShapes.add(new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight(), s, type));
-                //
+                listOfShapes.add(new TreeNode(bounds.getX(), bounds.getY(), s, type));
+                listOfShapes.add(new TreeNode(bounds.getX(), bounds.getY() + bounds.getHeight(), s, type));
+                listOfShapes.add(new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY(), s, type));
+                listOfShapes.add(new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight(), s, type));
             }
         }
         TreeNode[] allShapes = listOfShapes.toArray(new TreeNode[listOfShapes.size()]);
@@ -148,10 +139,6 @@ public class KDTree {
         if (!isLargerThan(startNode, rect.getMaxX(), rect.getMaxY(), vertical)) {
             getShapesBelowNodeInsideBounds(startNode.right, rect, !vertical);
         }
-    }
-
-    public boolean isEmpty() {
-        return size == 0;
     }
 
     Integer count = 0;

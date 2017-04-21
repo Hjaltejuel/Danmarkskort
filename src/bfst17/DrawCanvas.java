@@ -32,6 +32,7 @@ public class DrawCanvas extends JComponent implements Observer {
 		model.addObserver(this);
 
 	}
+
 	public double getCenterCordinateX() {
         return (transform.getTranslateX()/transform.getScaleX())-((getWidth()/transform.getScaleX())/2);
 	}
@@ -39,7 +40,7 @@ public class DrawCanvas extends JComponent implements Observer {
 		return (transform.getTranslateY() / transform.getScaleY()) -((getHeight() / transform.getScaleY())/2);
     }
 
-    public void setSearchMode(float lon,float lat){
+    public void setSearchMode(float lon,float lat) {
         searchMode = true;
         pin = new Point2D.Float(lon,lat);
     }
@@ -123,9 +124,10 @@ public class DrawCanvas extends JComponent implements Observer {
 			g.fill(s);
 		}
 
-		Point2D p1 = screenCoordsToLonLat(0,0);
-		Point2D p2 = screenCoordsToLonLat(getWidth(),getHeight());
-		Shape screenRectangle = new Rectangle2D.Double(p1.getX(),p1.getY(),p2.getX()-p1.getX(),p2.getY()-p1.getY());
+		Point2D topLeft = screenCoordsToLonLat(150,150);
+		Point2D topRight = screenCoordsToLonLat(getWidth()-150,getHeight()-150);
+		Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
+				topRight.getX()- topLeft.getX(),topRight.getY()- topLeft.getY());
 
 		EnumMap<WayType, List<Shape>> shapes = model.getTree().getInRange((Rectangle2D) screenRectangle);
 		for (WayType type : WayType.values()) {
@@ -137,20 +139,21 @@ public class DrawCanvas extends JComponent implements Observer {
 				if (type.getFillType() == FillType.LINE) {
 					for (Shape shape : shapes.get(type)) {
 						g.draw(shape);
+						g.draw(shape.getBounds2D());
 					}
 				} else if (type.getFillType() == FillType.SOLID) {
 					for (Shape shape : shapes.get(type)) {
 						g.fill(shape);
+
+						g.draw(shape.getBounds2D());
 					}
 				}
 			}
-			/*
-			g.setStroke(new BasicStroke(0.000008f));
-			Shape rectangle1 = shape.getBounds2D();
-			g.draw(rectangle1);
-			*/
-
 		}
+
+		g.setColor(Color.black);
+		g.draw(screenRectangle);
+
 		setPin(g);
 	}
 
