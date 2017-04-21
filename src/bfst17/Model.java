@@ -128,6 +128,7 @@ public class Model extends Observable implements Serializable {
 
 	private void loadOSM(InputSource source) {
 		try {
+            loadAllCoastlines();
 			XMLReader reader = XMLReaderFactory.createXMLReader();
 			reader.setContentHandler(new OSMHandler());
 			reader.parse(source);
@@ -139,7 +140,26 @@ public class Model extends Observable implements Serializable {
 
 	}
 
-	public float getMinLon() {
+    public void loadAllCoastlines(){
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("/Users/Mads/Desktop/dkclmedlonfactor.bin"))) {
+            //Ryk rundt på dem her og få med Jens' knytnæve at bestille
+            coastlines = (ArrayList<Shape>) in.readObject();
+            lonfactor = in.readFloat();
+            clminlon = in.readFloat();
+            clminlat = in.readFloat();
+            clmaxlon = in.readFloat();
+            clmaxlat = in.readFloat();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public float getMinLon() {
 		return minlon;
 	}
 
