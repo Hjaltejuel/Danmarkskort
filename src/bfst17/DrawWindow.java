@@ -88,9 +88,10 @@ public class DrawWindow {
 	}
 
 
-	public void setComponentListener(ComponentListener controller){
+	public void setComponentListener(ComponentListener controller) {
 		window.addComponentListener(controller);
 	}
+
 	public void setKeyListener(KeyListener controller) {
 		combo.getEditor().getEditorComponent().addKeyListener((controller));
 	}
@@ -362,19 +363,21 @@ public class DrawWindow {
 
 
 	}
-	public void showMenuTwo(){
-		if(!isClicked2){
-			popUpMenu.show(menu,0,40);
-			isClicked2=true;
-		}else if(isClicked2){
+
+	public void showMenuTwo() {
+		if (!isClicked2) {
+			popUpMenu.show(menu, 0, 40);
+			isClicked2 = true;
+		} else if (isClicked2) {
 			popUpMenu.setVisible(false);
-			isClicked2=false;
+			isClicked2 = false;
 		}
 		canvas.repaint();
 	}
-	public void showMenuOne(){
+
+	public void showMenuOne() {
 		if (!isClicked1) {
-			poiMenu.show(sidebarMenu,0,130);
+			poiMenu.show(sidebarMenu, 0, 130);
 			isClicked1 = true;
 		} else if (isClicked1) {
 			poiMenu.setVisible(false);
@@ -424,33 +427,34 @@ public class DrawWindow {
 	}
 
 
-     public void tearSecondSearch(){
-			Timer timer = new Timer();
-			timer.scheduleAtFixedRate(new TimerTask() {
-				int i = 1;
-				int yStart =51;
-				@Override
-				public void run() {
-					secondCombo.setBounds(10,yStart-=1,300,40);
+	public void tearSecondSearch() {
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			int i = 1;
+			int yStart = 51;
+
+			@Override
+			public void run() {
+				secondCombo.setBounds(10, yStart -= 1, 300, 40);
+				canvas.repaint();
+
+				if (yStart == 10) {
+					cancel();
+					windowPane.remove(secondCombo);
+					windowPane.remove(barImage);
 					canvas.repaint();
-
-					if(yStart==10){
-						cancel();
-						windowPane.remove(secondCombo);
-						windowPane.remove(barImage);
-						canvas.repaint();
-					}
 				}
-			},0, 5);
+			}
+		}, 0, 5);
 
-		}
+	}
 
-}
 
 	public AutocompleteJComboBox getCombo() {
 		return combo;
 	}
-	public JCheckBoxMenuItem getDirections(){
+
+	public JCheckBoxMenuItem getDirections() {
 		return directions;
 	}
 
@@ -485,5 +489,12 @@ public class DrawWindow {
 	public JFrame getWindow() {
 		return window;
 	}
-	public JMenuItem getNightMode(){return nightMode;}
-	public  JMenuItem getGreyScale(){return greyScale;}
+
+	public JMenuItem getNightMode() {
+		return nightMode;
+	}
+
+	public JMenuItem getGreyScale() {
+		return greyScale;
+	}
+}
