@@ -148,6 +148,7 @@ public class Model extends Observable implements Serializable {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             coastlines = (ArrayList<Shape>) in.readObject();
             lonfactor = in.readFloat();
+            System.out.println(lonfactor);
             clminlon = in.readFloat();
             clminlat = in.readFloat();
             clmaxlon = in.readFloat();
@@ -241,17 +242,15 @@ public class Model extends Observable implements Serializable {
 			}
 			switch(qName) {
 				case "bounds":
-					minlat = Float.parseFloat(atts.getValue("minlat"));
-					minlon = Float.parseFloat(atts.getValue("minlon"));
-					maxlat = Float.parseFloat(atts.getValue("maxlat"));
-					maxlon = Float.parseFloat(atts.getValue("maxlon"));
-					float avglat = minlat + (maxlat - minlat) / 2;
-					lonfactor = (float) Math.cos(avglat / 180 * Math.PI);
-					minlon *= lonfactor;
-					maxlon *= lonfactor;
-					minlat = -minlat;
-					maxlat = -maxlat;
-					break;
+                    minlat = Float.parseFloat(atts.getValue("minlat"));
+                    minlon = Float.parseFloat(atts.getValue("minlon"));
+                    maxlat = Float.parseFloat(atts.getValue("maxlat"));
+                    maxlon = Float.parseFloat(atts.getValue("maxlon"));
+
+                    minlon *= lonfactor;
+                    maxlon *= lonfactor;
+
+                    break;
 				case "node":
 					nodeID = Long.parseLong(atts.getValue("id"));
 					lat = Float.parseFloat(atts.getValue("lat"));
