@@ -115,10 +115,7 @@ public class Model extends Observable implements Serializable {
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
 
-                System.out.println("done " + minlon +" " + minlat + " " +maxlon + " " + maxlat);
-
                 tree.fillTree(shapes,pointsOfInterest);
-                System.out.println(tree.size);
                 dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -148,11 +145,12 @@ public class Model extends Observable implements Serializable {
 	}
 
     public void loadAllCoastlines(){
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("/Users/Mads/Documents/ITU/2. Semester/1. års projekt/Danmarkskortet/resources/dkCoastlines.bin"))) {
+
+        String path = System.getProperty("user.dir") + "/resources/dkCoastlines.bin";
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             coastlines = (ArrayList<Shape>) in.readObject();
             lonfactor = in.readFloat();
-            System.out.println(lonfactor);
             clminlon = in.readFloat();
             clminlat = in.readFloat();
             clmaxlon = in.readFloat();
