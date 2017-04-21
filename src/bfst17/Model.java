@@ -62,7 +62,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
-		load(this.getClass().getResource("/map.osm").getPath());
+		load(this.getClass().getResource("/bornholm.osm").getPath());
 	}
 
 	public void add(WayType type, Shape shape) {
