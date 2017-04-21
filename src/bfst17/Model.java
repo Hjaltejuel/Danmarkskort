@@ -200,7 +200,6 @@ public class Model extends Observable implements Serializable {
 		OSMWay way;
 		OSMRelation relation;
 		WayType type;
-		private float lonfactor;
 
 		@Override
 		public void setDocumentLocator(Locator locator) {
