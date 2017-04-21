@@ -63,7 +63,6 @@ public class Model extends Observable implements Serializable {
 
 	public Model() {
 		load(this.getClass().getResource("/bornholm.osm").getPath());
-		System.out.println(this.getClass().getResource("/bornholm.osm").getPath());
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -145,7 +144,7 @@ public class Model extends Observable implements Serializable {
 	}
 
     public void loadAllCoastlines(){
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(this.getClass().getResource("/dkCoastlines.bin").getPath()))) {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("/Users/Mads/Documents/ITU/2. Semester/1. års projekt/Danmarkskortet/resources/dkCoastlines.bin"))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             coastlines = (ArrayList<Shape>) in.readObject();
             lonfactor = in.readFloat();
@@ -349,18 +348,7 @@ public class Model extends Observable implements Serializable {
                     break;
                 case "way":
                     if (type == WayType.NATURAL_COASTLINE) {
-                        OSMWay before = coastlines.remove(way.getFromNode());
-                        OSMWay after = coastlines.remove(way.getToNode());
-                        OSMWay merged = new OSMWay();
-                        if (before != null) {
-                            merged.addAll(before.subList(0, before.size() - 1));
-                        }
-                        merged.addAll(way);
-                        if (after != null) {
-                            merged.addAll(after.subList(1, after.size()));
-                        }
-                        coastlines.put(merged.getFromNode(), merged);
-                        coastlines.put(merged.getToNode(), merged);
+                        //DO NOTHING
                     } else {
                         add(type, way.toPath2D());
                     }
