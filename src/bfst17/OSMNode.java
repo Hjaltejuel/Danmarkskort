@@ -2,11 +2,12 @@ package bfst17;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 
 /**
  * Created by trold on 2/15/17.
  */
-public class OSMNode {
+public class OSMNode implements Serializable {
 	float lon, lat;
 
 	public float getLon() {

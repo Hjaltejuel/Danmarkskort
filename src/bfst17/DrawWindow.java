@@ -32,14 +32,18 @@ public class DrawWindow {
 	private JPopupMenu popUpMenu;
 	private JPopupMenu poiMenu;
 	private JLabel barImage;
+	private JMenuItem save;
+	private JMenuItem load;
+	private JMenuItem exit;
+	JCheckBoxMenuItem directions;
 	private JButton search;
 	private JButton menu;
 	private JButton zoomIn;
 	private JButton zoomOut;
 	private JButton pointsOfInterest;
+	private JCheckBoxMenuItem[] pointsOfInterestMenues;
+
 	private JPanel sidebarMenu  = new JPanel(new GridLayout(0,1));
-	boolean isClicked1 = false;
-	boolean isClicked2 = false;
 	boolean setUpDirectionsMenu = false;
 
 
@@ -56,7 +60,7 @@ public class DrawWindow {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
-		this.model = model;
+		pointsOfInterestMenues = new JCheckBoxMenuItem[7];
 		window = new JFrame("Danmarkskort gruppe A");
 		windowPane = new JLayeredPane();
 		window.setPreferredSize(new Dimension(750, 750));
@@ -66,7 +70,7 @@ public class DrawWindow {
 		setUpSideButtons();
 
 		window.pack();
-		setUpButtons();
+		setUpTopButtons();
 		canvas.setBounds(0,0,window.getWidth(),window.getHeight());
 
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -81,16 +85,43 @@ public class DrawWindow {
 	}
 	public void setMouseListener(MouseListener controller){
 		search.addMouseListener(controller);
-		search.setActionCommand("Search");
+		zoomIn.addMouseListener(controller);
+		zoomOut.addMouseListener(controller);
+		pointsOfInterest.addMouseListener(controller);
+		menu.addMouseListener(controller);
+	}
+
+	public void addActionListener(ActionListener controller){
+		for(JCheckBoxMenuItem items: pointsOfInterestMenues){
+			items.addActionListener(controller);
+		}
+		load.addActionListener(controller);
+		load.setActionCommand("Load");
+		save.addActionListener(controller);
+		save.setActionCommand("Save");
+		exit.addActionListener(controller);
+		exit.setActionCommand("Exit");
+		directions.addActionListener(controller);
+		directions.setActionCommand("Directions");
 	}
 
 	public AutocompleteJComboBox getCombo(){
 		return combo;
 	}
+	public JCheckBoxMenuItem[] getPointsOfInterestMenues(){return pointsOfInterestMenues;}
+
 	public JButton getSearch(){
 		return search;
 	}
+	public JButton getMenu(){return menu;}
+	public JPopupMenu getPopUpMenu(){return popUpMenu;}
+	public JPopupMenu getPoiPopUpMenu(){return poiMenu;}
+	public JButton getPointsOfInterest(){return pointsOfInterest;}
+	public JButton getZoomIn(){return zoomIn;}
 	public DrawCanvas getCanvas(){return canvas;}
+	public JButton getZoomOut(){return zoomOut;}
+	public JFrame getWindow(){return window;}
+
 
 	public void setComponentzZOrder(){
 		windowPane.add(canvas,100);
@@ -116,34 +147,35 @@ public class DrawWindow {
 		combo = new AutocompleteJComboBox(this.searchable);
 		combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 	}
-
-	public void addPOIActionListener(JCheckBoxMenuItem item, POIclasification s){
-		item.addActionListener(e-> canvas.setPointsOfInterest(s.toString()));
-	}
 	public void setUpSideButtons(){
 		sidebarMenu.setOpaque(false);
+		int i = 0;
+
 		poiMenu = new JPopupMenu("Points of interest");
 		JCheckBoxMenuItem foodAndDrinks = new JCheckBoxMenuItem("Food and drinks");
-        addPOIActionListener(foodAndDrinks,POIclasification.FOOD_AND_DRINKS);
-		foodAndDrinks.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem attractions = new JCheckBoxMenuItem("Attractions");
-        addPOIActionListener(attractions,POIclasification.ATTRACTION);
-		attractions.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem nature = new JCheckBoxMenuItem("Nature");
-        addPOIActionListener(nature,POIclasification.NATURE);
-		nature.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem healthCare = new JCheckBoxMenuItem("Healthcare");
-        addPOIActionListener(healthCare,POIclasification.HEALTH_CARE);
-		healthCare.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem utilities = new JCheckBoxMenuItem("Utilities");
-        addPOIActionListener(utilities,POIclasification.UTILITIES);
-		utilities.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem emergency = new JCheckBoxMenuItem("Emergency");
-        addPOIActionListener(emergency,POIclasification.EMERGENCY);
-		emergency.setUI(new StayOpenCheckBoxMenuItemUI());
 		JCheckBoxMenuItem shops = new JCheckBoxMenuItem("Shops");
-        addPOIActionListener(shops,POIclasification.SHOPS);
+
+		pointsOfInterestMenues[i++]=foodAndDrinks;
+		pointsOfInterestMenues[i++]=attractions;
+		pointsOfInterestMenues[i++]=nature;
+		pointsOfInterestMenues[i++]=healthCare;
+		pointsOfInterestMenues[i++]=utilities;
+		pointsOfInterestMenues[i++]=emergency;
+		pointsOfInterestMenues[i++]=shops;
+
+		foodAndDrinks.setUI(new StayOpenCheckBoxMenuItemUI());
+		attractions.setUI(new StayOpenCheckBoxMenuItemUI());
+		nature.setUI(new StayOpenCheckBoxMenuItemUI());
+		healthCare.setUI(new StayOpenCheckBoxMenuItemUI());
+		utilities.setUI(new StayOpenCheckBoxMenuItemUI());
+		emergency.setUI(new StayOpenCheckBoxMenuItemUI());
 		shops.setUI(new StayOpenCheckBoxMenuItemUI());
+
 		poiMenu.add(foodAndDrinks);
 		poiMenu.add(attractions);
 		poiMenu.add(nature);
@@ -154,97 +186,34 @@ public class DrawWindow {
 
 		zoomIn = new JButton();
 		zoomIn.setBounds(window.getHeight()-45,window.getWidth()-67,40,40);
-
-		try {
-			Image img3 = ImageIO.read(getClass().getResource("/zoomin.png"));
-			zoomIn.setIcon(new ImageIcon(img3.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
-
-		}catch (Exception ex){
-			System.out.println(ex);
-		}
 		zoomIn.setBorderPainted(false);
 		zoomIn.setFocusPainted(false);
 		zoomIn.setContentAreaFilled(false);
-		sidebarMenu.add(zoomIn);
-		zoomIn.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-				canvas.zoom(1.25);
-				canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-
-
-		});
 
 		zoomOut = new JButton();
 		zoomOut.setBounds(window.getHeight()-85,window.getWidth()-67,40,40);
-
-		try {
-			Image img4 = ImageIO.read(getClass().getResource("/zoomout.png"));
-			zoomOut.setIcon(new ImageIcon(img4.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
-
-		}catch (Exception ex){
-			System.out.println(ex);
-		}
 		zoomOut.setBorderPainted(false);
 		zoomOut.setFocusPainted(false);
 		zoomOut.setContentAreaFilled(false);
-		sidebarMenu.add(zoomOut);
-
-
 		zoomOut.setPreferredSize(new Dimension(30,30));
-		zoomOut.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-				canvas.zoom(0.75);
-				canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-
-		});
 
 		pointsOfInterest = new JButton();
 		pointsOfInterest.setBounds(window.getHeight()-85,window.getWidth()-67,40,40);
+		pointsOfInterest.setBorderPainted(false);
+		pointsOfInterest.setFocusPainted(false);
+		pointsOfInterest.setContentAreaFilled(false);
+		pointsOfInterest.setPreferredSize(new Dimension(30,30));
 
+		sidebarMenu.add(zoomIn);
+		sidebarMenu.add(zoomOut);
+		sidebarMenu.add(pointsOfInterest);
+
+		giveSideButtonsIcons();
+
+
+
+}
+	public void giveSideButtonsIcons(){
 		try {
 			Image img4 = ImageIO.read(getClass().getResource("/pointsOfInterest.png"));
 			pointsOfInterest.setIcon(new ImageIcon(img4.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
@@ -252,62 +221,22 @@ public class DrawWindow {
 		}catch (Exception ex){
 			System.out.println(ex);
 		}
-		pointsOfInterest.setBorderPainted(false);
-		pointsOfInterest.setFocusPainted(false);
-		pointsOfInterest.setContentAreaFilled(false);
-		sidebarMenu.add(pointsOfInterest);
-
-
-		pointsOfInterest.setPreferredSize(new Dimension(30,30));
-		pointsOfInterest.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if(!isClicked1){
-					poiMenu.show(e.getComponent(),0,40);
-					isClicked1=true;
-				}else if(isClicked1){
-					poiMenu.setVisible(false);
-					isClicked1=false;
-				}
-				canvas.repaint();
-			}
-
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-
-		});
-
-
-
-	}
-
-	public void setUpButtons(){
-		search = new JButton();
 		try {
-			Image img = ImageIO.read(getClass().getResource("/search.png"));
-			search.setIcon(new ImageIcon(img.getScaledInstance(40,40, Image.SCALE_SMOOTH)));
-
-		} catch (Exception ex) {
+			Image img4 = ImageIO.read(getClass().getResource("/zoomout.png"));
+			zoomOut.setIcon(new ImageIcon(img4.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
+		}catch (Exception ex){
 			System.out.println(ex);
 		}
+		try {
+			Image img3 = ImageIO.read(getClass().getResource("/zoomin.png"));
+			zoomIn.setIcon(new ImageIcon(img3.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
+		}catch (Exception ex){
+			System.out.println(ex);
+		}
+	}
+
+	public void setUpTopButtons(){
+		search = new JButton();
 		search.setBorderPainted(false);
 		search.setFocusPainted(false);
 		search.setContentAreaFilled(false);
@@ -316,7 +245,25 @@ public class DrawWindow {
 
 		menu = new JButton();
 		menu.setBounds(357,10,40,40);
+		menu.setBorderPainted(false);
+		menu.setFocusPainted(false);
+		menu.setContentAreaFilled(false);
+		menu.setPreferredSize(new Dimension(30,30));
+		setUpMenu();
+		menu.setComponentPopupMenu(popUpMenu);
+		windowPane.add(menu);
+		windowPane.setComponentZOrder(menu,0);
+		setTopMenuIcons();
+	}
 
+	public void setTopMenuIcons(){
+		try {
+			Image img = ImageIO.read(getClass().getResource("/search.png"));
+			search.setIcon(new ImageIcon(img.getScaledInstance(40,40, Image.SCALE_SMOOTH)));
+
+		} catch (Exception ex) {
+			System.out.println(ex);
+		}
 		try {
 			Image img2 = ImageIO.read(getClass().getResource("/Untitled.png"));
 			menu.setIcon(new ImageIcon(img2.getScaledInstance(40,40, Image.SCALE_SMOOTH)));
@@ -324,39 +271,6 @@ public class DrawWindow {
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
-		menu.setBorderPainted(false);
-		menu.setFocusPainted(false);
-		menu.setContentAreaFilled(false);
-
-		menu.setPreferredSize(new Dimension(30,30));
-		setUpMenu();
-
-		menu.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {}
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if(!isClicked2){
-					popUpMenu.show(e.getComponent(),-100,40);
-					isClicked2=true;
-				}else if(isClicked2){
-					popUpMenu.setVisible(false);
-					isClicked2=false;
-				}
-				canvas.repaint();
-			}
-			@Override
-			public void mouseReleased(MouseEvent e) {canvas.repaint();}
-			@Override
-			public void mouseEntered(MouseEvent e) {canvas.repaint();}
-			@Override
-			public void mouseExited(MouseEvent e) {canvas.repaint();}
-		});
-		menu.setComponentPopupMenu(popUpMenu);
-		windowPane.add(menu);
-		windowPane.setComponentZOrder(menu,0);
-
-
 	}
 
 
@@ -402,16 +316,16 @@ public class DrawWindow {
 	public void setUpMenu() {
 		popUpMenu = new JPopupMenu("Options");
 
-		JMenuItem save = new JMenuItem("Save", KeyEvent.VK_S);
+		save = new JMenuItem("Save", KeyEvent.VK_S);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_S,Event.CTRL_MASK),"action5",save);
 
-		JMenuItem load = new JMenuItem("Load", KeyEvent.VK_L);
+		load = new JMenuItem("Load", KeyEvent.VK_L);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_L,Event.CTRL_MASK),"action6",load);
 
-		JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_Q);
+		exit = new JMenuItem("Exit", KeyEvent.VK_Q);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_Q,Event.CTRL_MASK),"action7",exit);
 
-		JCheckBoxMenuItem directions = new JCheckBoxMenuItem("Directions");
+		directions = new JCheckBoxMenuItem("Directions");
 
 
 		popUpMenu.add(save);
@@ -489,83 +403,6 @@ public class DrawWindow {
 			canvas.toggleAA();
 		});
 
-		//metode til at save
-		save.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser fileChooser = new JFileChooser();
-
-				fileChooser.setDialogTitle("Choose save location");
-
-				int userSelection = fileChooser.showSaveDialog(window);
-
-				if (userSelection == JFileChooser.APPROVE_OPTION) {
-					File fileToSave = fileChooser.getSelectedFile();
-
-					model.save(fileToSave.getAbsolutePath() + ".bin");
-				}
-			}
-		});
-
-		//metode til at loade
-		load.addActionListener(new ActionListener() {
-			boolean first = true;
-			File currentPath;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(first) {
-					currentPath = null;
-				}
-
-				JFileChooser fileChooser = new JFileChooser();
-				if(currentPath != null) {
-					fileChooser.setCurrentDirectory(currentPath);
-				}
-
-				fileChooser.setAcceptAllFileFilterUsed(false);
-				fileChooser.setFileFilter(new FileFilter() {
-					@Override
-					public boolean accept(File file) {
-						return file.getName().endsWith(".osm") || file.getName().endsWith(".bin") || file.getName().endsWith(".zip") || (file.isDirectory() && !file.getName().endsWith(".app"));
-					}
-
-					@Override
-					public String getDescription() {
-						return ".osm files, .bin files or .zip files";
-					}
-				});
-				fileChooser.setDialogTitle("Choose file to load");
-
-				int userSelection = fileChooser.showOpenDialog(window);
-				if (userSelection == JFileChooser.APPROVE_OPTION) {
-
-					File fileToLoad = fileChooser.getSelectedFile();
-					if(fileChooser.accept(fileToLoad) && fileToLoad.exists()){
-						model.load(fileToLoad.getAbsolutePath());
-						window.dispose();
-						DrawWindow a = new DrawWindow(model);
-						first = true;
-					}
-					else if(!fileChooser.accept(fileToLoad)){
-						JOptionPane.showMessageDialog(window, "You must choose a correct filetype to load");
-						currentPath = fileChooser.getCurrentDirectory();
-						first = false;
-						load.doClick();
-
-					}
-					else if(!fileToLoad.exists()){
-						JOptionPane.showMessageDialog(window, "File does not exist");
-						currentPath = fileChooser.getCurrentDirectory();
-						first = false;
-						load.doClick();
-					}
-
-				}
-
-
-			}
-		});
 		directions.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

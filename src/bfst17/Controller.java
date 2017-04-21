@@ -1,9 +1,11 @@
 package bfst17;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.stream.Collectors;
@@ -17,6 +19,11 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
     DrawCanvas canvas;
     AddressModel addressModel;
     AutocompleteJComboBox combo;
+    int counter = 0;
+    boolean isClicked1 = false;
+    boolean isClicked2 = false;
+    boolean first = true;
+    File currentPath ;
 
     public Controller(DrawWindow window,Model model){
         this.window = window;
@@ -31,11 +38,25 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
         window.setComponentzZOrder();
         window.setKeyListener(this);
         window.setMouseListener(this);
+        window.addActionListener(this);
 
     }
 
     public void actionPerformed(ActionEvent e) {
-
+        Object source = e.getSource();
+        String command = e.getActionCommand();
+        if(source instanceof JCheckBoxMenuItem){
+            JCheckBoxMenuItem[] menu = window.getPointsOfInterestMenues();
+            for(int i = 0; i<menu.length;i++){
+                if(e.getSource() ==menu[i] ) {
+                    canvas.setPointsOfInterest(POIclasification.values()[i].toString());
+                }
+            }
+        } else if(command.equals("Save")){
+            save();
+        } else if(command.equals("Load")){
+            load();
+        }
     }
 
     @Override
@@ -54,6 +75,71 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
             search();
         }
     }
+    public void load(){
+        if(first) {
+            currentPath = null;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        if(currentPath != null) {
+            fileChooser.setCurrentDirectory(currentPath);
+        }
+
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.getName().endsWith(".osm") || file.getName().endsWith(".bin") || file.getName().endsWith(".zip") || (file.isDirectory() && !file.getName().endsWith(".app"));
+            }
+
+            @Override
+            public String getDescription() {
+                return ".osm files, .bin files or .zip files";
+            }
+        });
+        fileChooser.setDialogTitle("Choose file to load");
+
+        int userSelection = fileChooser.showOpenDialog(window.getWindow());
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+
+            File fileToLoad = fileChooser.getSelectedFile();
+            if(fileChooser.accept(fileToLoad) && fileToLoad.exists()){
+                model.load(fileToLoad.getAbsolutePath());
+                window.getWindow().dispose();
+                DrawWindow a = new DrawWindow(model);
+                first = true;
+            }
+            else if(!fileChooser.accept(fileToLoad)){
+                JOptionPane.showMessageDialog(window.getWindow(), "You must choose a correct filetype to load");
+                currentPath = fileChooser.getCurrentDirectory();
+                first = false;
+                load();
+
+            }
+            else if(!fileToLoad.exists()){
+                JOptionPane.showMessageDialog(window.getWindow(), "File does not exist");
+                currentPath = fileChooser.getCurrentDirectory();
+                first = false;
+                load();
+            }
+
+        }
+
+
+    }
+
+    public void save(){JFileChooser fileChooser = new JFileChooser();
+
+        fileChooser.setDialogTitle("Choose save location");
+
+        int userSelection = fileChooser.showSaveDialog(window.getWindow());
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+
+            model.save(fileToSave.getAbsolutePath() + ".bin");
+        }}
+
     public void search() {
         String s = (String) combo.getSelectedItem();
         if (!s.equals("")) {
@@ -110,15 +196,44 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if((JButton)e.getComponent()==window.getSearch()){
+        Component component = e.getComponent();
+        if(component==window.getSearch()){
             search();
+        } else if(component == window.getZoomIn()){
+            canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+            canvas.zoom(1.25);
+            canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
+        } else if(component == window.getZoomOut()){
+            canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+            canvas.zoom(0.75);
+            canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
         }
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-
+        Component component = e.getComponent();
+        if(component == window.getPointsOfInterest()) {
+            if (!isClicked1) {
+                window.getPoiPopUpMenu().show(e.getComponent(), 0, 40);
+                isClicked1 = true;
+            } else if (isClicked1) {
+                window.getPoiPopUpMenu().setVisible(false);
+                isClicked1 = false;
+            }
+            canvas.repaint();
+        } else if(component == window.getMenu()){
+            if(!isClicked2){
+                window.getPopUpMenu().show(e.getComponent(),-100,40);
+                isClicked2=true;
+            }else if(isClicked2){
+                window.getPopUpMenu().setVisible(false);
+                isClicked2=false;
+            }
+            canvas.repaint();
+        }
     }
+
 
     @Override
     public void mouseReleased(MouseEvent e) {
