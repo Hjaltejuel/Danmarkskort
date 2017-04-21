@@ -35,6 +35,12 @@ public class DrawWindow {
 	private JMenuItem save;
 	private JMenuItem load;
 	private JMenuItem exit;
+	private JMenuItem zoomInMenu;
+	private JMenuItem zoomOutMenu;
+	private JMenuItem greyScale;
+	private JMenuItem nightMode;
+	private JMenuItem aA;
+	private JMenuItem fancyPan;
 	JCheckBoxMenuItem directions;
 	private JButton search;
 	private JButton menu;
@@ -42,9 +48,10 @@ public class DrawWindow {
 	private JButton zoomOut;
 	private JButton pointsOfInterest;
 	private JCheckBoxMenuItem[] pointsOfInterestMenues;
+	boolean isClicked1 = false;
+	boolean isClicked2 = false;
 
-	private JPanel sidebarMenu  = new JPanel(new GridLayout(0,1));
-	boolean setUpDirectionsMenu = false;
+	private JPanel sidebarMenu = new JPanel(new GridLayout(0, 1));
 
 
 	public DrawWindow(Model model) {
@@ -71,19 +78,24 @@ public class DrawWindow {
 
 		window.pack();
 		setUpTopButtons();
-		canvas.setBounds(0,0,window.getWidth(),window.getHeight());
+		canvas.setBounds(0, 0, window.getWidth(), window.getHeight());
 
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
 
 		canvas.pan(-model.getMinLon(), model.getMaxLat());
-		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
+		canvas.zoom(canvas.getWidth() / (model.getMaxLon() - model.getMinLon()));
 	}
 
-	public void setKeyListener(KeyListener controller){
+
+	public void setComponentListener(ComponentListener controller){
+		window.addComponentListener(controller);
+	}
+	public void setKeyListener(KeyListener controller) {
 		combo.getEditor().getEditorComponent().addKeyListener((controller));
 	}
-	public void setMouseListener(MouseListener controller){
+
+	public void setMouseListener(MouseListener controller) {
 		search.addMouseListener(controller);
 		zoomIn.addMouseListener(controller);
 		zoomOut.addMouseListener(controller);
@@ -91,8 +103,8 @@ public class DrawWindow {
 		menu.addMouseListener(controller);
 	}
 
-	public void addActionListener(ActionListener controller){
-		for(JCheckBoxMenuItem items: pointsOfInterestMenues){
+	public void addActionListener(ActionListener controller) {
+		for (JCheckBoxMenuItem items : pointsOfInterestMenues) {
 			items.addActionListener(controller);
 		}
 		load.addActionListener(controller);
@@ -103,51 +115,47 @@ public class DrawWindow {
 		exit.setActionCommand("Exit");
 		directions.addActionListener(controller);
 		directions.setActionCommand("Directions");
+		zoomInMenu.addActionListener(controller);
+		zoomInMenu.setActionCommand("ZoomIn");
+		zoomOutMenu.addActionListener(controller);
+		zoomOutMenu.setActionCommand("ZoomOut");
+		greyScale.addActionListener(controller);
+		greyScale.setActionCommand("Greyscale");
+		nightMode.addActionListener(controller);
+		nightMode.setActionCommand("Nightmode");
+		aA.addActionListener(controller);
+		aA.setActionCommand("Aa");
+		fancyPan.addActionListener(controller);
+		fancyPan.setActionCommand("Fancypan");
 	}
 
-	public AutocompleteJComboBox getCombo(){
-		return combo;
-	}
-	public JCheckBoxMenuItem[] getPointsOfInterestMenues(){return pointsOfInterestMenues;}
-
-	public JButton getSearch(){
-		return search;
-	}
-	public JButton getMenu(){return menu;}
-	public JPopupMenu getPopUpMenu(){return popUpMenu;}
-	public JPopupMenu getPoiPopUpMenu(){return poiMenu;}
-	public JButton getPointsOfInterest(){return pointsOfInterest;}
-	public JButton getZoomIn(){return zoomIn;}
-	public DrawCanvas getCanvas(){return canvas;}
-	public JButton getZoomOut(){return zoomOut;}
-	public JFrame getWindow(){return window;}
-
-
-	public void setComponentzZOrder(){
-		windowPane.add(canvas,100);
+	public void setComponentzZOrder() {
+		windowPane.add(canvas, 100);
 		windowPane.add(combo, 50);
-		windowPane.add(sidebarMenu,50);
+		windowPane.add(sidebarMenu, 50);
 		windowPane.add(search);
 
-		windowPane.setComponentZOrder(canvas,1);
-		windowPane.setComponentZOrder(search,0);
-		windowPane.setComponentZOrder(sidebarMenu,0);
-		windowPane.setComponentZOrder(combo,0);
-		
-		search.setBounds(313,10,40,40);
-		combo.setBounds(10,10,300,40);
+		windowPane.setComponentZOrder(canvas, 1);
+		windowPane.setComponentZOrder(search, 0);
+		windowPane.setComponentZOrder(sidebarMenu, 0);
+		windowPane.setComponentZOrder(combo, 0);
+
+		search.setBounds(313, 10, 40, 40);
+		combo.setBounds(10, 10, 300, 40);
 		window.add(windowPane, BorderLayout.CENTER);
 
 	}
+
 	/**
 	 * Makes the autocomplete bar with all the addresses
 	 */
-	public void createAutocomplete(ArrayList listItems){
+	public void createAutocomplete(ArrayList listItems) {
 		this.searchable = new StringSearchable(listItems);
 		combo = new AutocompleteJComboBox(this.searchable);
 		combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 	}
-	public void setUpSideButtons(){
+
+	public void setUpSideButtons() {
 		sidebarMenu.setOpaque(false);
 		int i = 0;
 
@@ -160,13 +168,13 @@ public class DrawWindow {
 		JCheckBoxMenuItem emergency = new JCheckBoxMenuItem("Emergency");
 		JCheckBoxMenuItem shops = new JCheckBoxMenuItem("Shops");
 
-		pointsOfInterestMenues[i++]=foodAndDrinks;
-		pointsOfInterestMenues[i++]=attractions;
-		pointsOfInterestMenues[i++]=nature;
-		pointsOfInterestMenues[i++]=healthCare;
-		pointsOfInterestMenues[i++]=utilities;
-		pointsOfInterestMenues[i++]=emergency;
-		pointsOfInterestMenues[i++]=shops;
+		pointsOfInterestMenues[i++] = foodAndDrinks;
+		pointsOfInterestMenues[i++] = attractions;
+		pointsOfInterestMenues[i++] = nature;
+		pointsOfInterestMenues[i++] = healthCare;
+		pointsOfInterestMenues[i++] = utilities;
+		pointsOfInterestMenues[i++] = emergency;
+		pointsOfInterestMenues[i++] = shops;
 
 		foodAndDrinks.setUI(new StayOpenCheckBoxMenuItemUI());
 		attractions.setUI(new StayOpenCheckBoxMenuItemUI());
@@ -185,24 +193,24 @@ public class DrawWindow {
 		poiMenu.add(shops);
 
 		zoomIn = new JButton();
-		zoomIn.setBounds(window.getHeight()-45,window.getWidth()-67,40,40);
+		zoomIn.setBounds(window.getHeight() - 45, window.getWidth() - 67, 40, 40);
 		zoomIn.setBorderPainted(false);
 		zoomIn.setFocusPainted(false);
 		zoomIn.setContentAreaFilled(false);
 
 		zoomOut = new JButton();
-		zoomOut.setBounds(window.getHeight()-85,window.getWidth()-67,40,40);
+		zoomOut.setBounds(window.getHeight() - 85, window.getWidth() - 67, 40, 40);
 		zoomOut.setBorderPainted(false);
 		zoomOut.setFocusPainted(false);
 		zoomOut.setContentAreaFilled(false);
-		zoomOut.setPreferredSize(new Dimension(30,30));
+		zoomOut.setPreferredSize(new Dimension(30, 30));
 
 		pointsOfInterest = new JButton();
-		pointsOfInterest.setBounds(window.getHeight()-85,window.getWidth()-67,40,40);
+		pointsOfInterest.setBounds(window.getHeight() - 85, window.getWidth() - 67, 40, 40);
 		pointsOfInterest.setBorderPainted(false);
 		pointsOfInterest.setFocusPainted(false);
 		pointsOfInterest.setContentAreaFilled(false);
-		pointsOfInterest.setPreferredSize(new Dimension(30,30));
+		pointsOfInterest.setPreferredSize(new Dimension(30, 30));
 
 		sidebarMenu.add(zoomIn);
 		sidebarMenu.add(zoomOut);
@@ -211,62 +219,62 @@ public class DrawWindow {
 		giveSideButtonsIcons();
 
 
+	}
 
-}
-	public void giveSideButtonsIcons(){
+	public void giveSideButtonsIcons() {
 		try {
 			Image img4 = ImageIO.read(getClass().getResource("/pointsOfInterest.png"));
-			pointsOfInterest.setIcon(new ImageIcon(img4.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
+			pointsOfInterest.setIcon(new ImageIcon(img4.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
 
-		}catch (Exception ex){
+		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 		try {
 			Image img4 = ImageIO.read(getClass().getResource("/zoomout.png"));
-			zoomOut.setIcon(new ImageIcon(img4.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
-		}catch (Exception ex){
+			zoomOut.setIcon(new ImageIcon(img4.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 		try {
 			Image img3 = ImageIO.read(getClass().getResource("/zoomin.png"));
-			zoomIn.setIcon(new ImageIcon(img3.getScaledInstance(40,40,Image.SCALE_SMOOTH)));
-		}catch (Exception ex){
+			zoomIn.setIcon(new ImageIcon(img3.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 	}
 
-	public void setUpTopButtons(){
+	public void setUpTopButtons() {
 		search = new JButton();
 		search.setBorderPainted(false);
 		search.setFocusPainted(false);
 		search.setContentAreaFilled(false);
 		search.setBorder(BorderFactory.createEmptyBorder());
-		search.setPreferredSize(new Dimension(30,30));
+		search.setPreferredSize(new Dimension(30, 30));
 
 		menu = new JButton();
-		menu.setBounds(357,10,40,40);
+		menu.setBounds(357, 10, 40, 40);
 		menu.setBorderPainted(false);
 		menu.setFocusPainted(false);
 		menu.setContentAreaFilled(false);
-		menu.setPreferredSize(new Dimension(30,30));
+		menu.setPreferredSize(new Dimension(30, 30));
 		setUpMenu();
 		menu.setComponentPopupMenu(popUpMenu);
 		windowPane.add(menu);
-		windowPane.setComponentZOrder(menu,0);
+		windowPane.setComponentZOrder(menu, 0);
 		setTopMenuIcons();
 	}
 
-	public void setTopMenuIcons(){
+	public void setTopMenuIcons() {
 		try {
 			Image img = ImageIO.read(getClass().getResource("/search.png"));
-			search.setIcon(new ImageIcon(img.getScaledInstance(40,40, Image.SCALE_SMOOTH)));
+			search.setIcon(new ImageIcon(img.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
 
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 		try {
 			Image img2 = ImageIO.read(getClass().getResource("/Untitled.png"));
-			menu.setIcon(new ImageIcon(img2.getScaledInstance(40,40, Image.SCALE_SMOOTH)));
+			menu.setIcon(new ImageIcon(img2.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
 
 		} catch (Exception ex) {
 			System.out.println(ex);
@@ -274,37 +282,36 @@ public class DrawWindow {
 	}
 
 
-	public void setUpNightMode(JComboBox combo, JPopupMenu menu, JMenuItem tools,  JPopupMenu popUpMenu){
-		menu.setBackground(new Color(36,47,62));
-		combo.getEditor().getEditorComponent().setBackground(new Color(36,47,62));
+	public void setUpNightMode() {
+		menu.setBackground(new Color(36, 47, 62));
+		combo.getEditor().getEditorComponent().setBackground(new Color(36, 47, 62));
 		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
 		component.setForeground(Color.WHITE);
 		component.setCaretColor(Color.WHITE);
-		BasicComboPopup popup = (BasicComboPopup)combo.getAccessibleContext().getAccessibleChild(0);
+		BasicComboPopup popup = (BasicComboPopup) combo.getAccessibleContext().getAccessibleChild(0);
 		JList list = popup.getList();
-		list.setBackground(new Color(36,47,62));
+		list.setBackground(new Color(36, 47, 62));
 		list.setForeground(Color.WHITE);
-		tools.setForeground(Color.WHITE);
 		popUpMenu.setForeground(Color.WHITE);
 
 	}
 
-	public void tearDownNightMode(JComboBox combo, JPopupMenu menu, JMenuItem tools, JPopupMenu popUpMenu){
+	public void tearDownNightMode() {
 		menu.setBackground(null);
 		combo.getEditor().getEditorComponent().setBackground(Color.WHITE);
 		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
 		component.setForeground(Color.BLACK);
 		component.setCaretColor(Color.BLACK);
-		BasicComboPopup popup = (BasicComboPopup)combo.getAccessibleContext().getAccessibleChild(0);
+		BasicComboPopup popup = (BasicComboPopup) combo.getAccessibleContext().getAccessibleChild(0);
 		JList list = popup.getList();
 		list.setBackground(null);
 		list.setForeground(null);
-		tools.setForeground(Color.BLACK);
 		popUpMenu.setForeground(Color.BLACK);
 
 	}
-	public void addKeyListeners(KeyStroke stroke, String action, JMenuItem clicker){
-		windowPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(stroke,action);
+
+	public void addKeyListeners(KeyStroke stroke, String action, JMenuItem clicker) {
+		windowPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(stroke, action);
 		windowPane.getActionMap().put(action, new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -317,16 +324,19 @@ public class DrawWindow {
 		popUpMenu = new JPopupMenu("Options");
 
 		save = new JMenuItem("Save", KeyEvent.VK_S);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_S,Event.CTRL_MASK),"action5",save);
-
 		load = new JMenuItem("Load", KeyEvent.VK_L);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_L,Event.CTRL_MASK),"action6",load);
-
 		exit = new JMenuItem("Exit", KeyEvent.VK_Q);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_Q,Event.CTRL_MASK),"action7",exit);
-
+		zoomInMenu = new JMenuItem("Zoom In (CTRL-MINUS)", KeyEvent.VK_PLUS);
+		zoomOutMenu = new JMenuItem("Zoom Out (CTRL-PLUS)", KeyEvent.VK_MINUS);
+		greyScale = new JMenuItem("GreyScale (CTRL-G)", KeyEvent.VK_G);
+		nightMode = new JMenuItem("NightMode (CTRL-N)", KeyEvent.VK_N);
+		fancyPan = new JMenuItem("FancyPan (CTRL-F)", KeyEvent.VK_F);
+		aA = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
 		directions = new JCheckBoxMenuItem("Directions");
 
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK), "action5", save);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK), "action6", load);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK), "action7", exit);
 
 		popUpMenu.add(save);
 		popUpMenu.add(load);
@@ -334,166 +344,87 @@ public class DrawWindow {
 		popUpMenu.addSeparator();
 
 		JMenu tools = new JMenu("Tools");
-		JMenuItem zoomIn = new JMenuItem("Zoom In (CTRL-MINUS)", KeyEvent.VK_PLUS);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS,Event.CTRL_MASK),"action1",zoomIn);
-
-		JMenuItem zoomOut = new JMenuItem("Zoom Out (CTRL-PLUS)", KeyEvent.VK_MINUS);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,Event.CTRL_MASK),"action2",zoomOut);
-
-		JMenuItem greyScale = new JMenuItem("GreyScale (CTRL-G)", KeyEvent.VK_G);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_G,Event.CTRL_MASK),"action3",greyScale);
-
-		JMenuItem nightMode = new JMenuItem("NightMode (CTRL-N)", KeyEvent.VK_N);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_N,Event.CTRL_MASK),"action4",nightMode);
-
-		JMenuItem fancyPan = new JMenuItem("FancyPan (CTRL-F)", KeyEvent.VK_F);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_F,Event.CTRL_MASK),"action9", fancyPan);
-
-		JMenuItem aA = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_T,Event.CTRL_MASK),"action11", aA);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Event.CTRL_MASK), "action1", zoomInMenu);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK), "action2", zoomOutMenu);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK), "action3", greyScale);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK), "action4", nightMode);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK), "action9", fancyPan);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_T, Event.CTRL_MASK), "action11", aA);
 
 		tools.add(nightMode);
 		tools.add(greyScale);
 		tools.add(fancyPan);
 		tools.add(aA);
+		tools.add(zoomInMenu);
+		tools.add(zoomOutMenu);
 
-		tools.add(zoomIn);
-		tools.add(zoomOut);
 		popUpMenu.add(tools);
-		nightMode.addActionListener(e->{
-			if(nightMode.getText().equals("NightMode")){
-				canvas.setNightMode();
-				canvas.setGreyScaleFalse();
-				greyScale.setText("GreyScale");
-				canvas.repaint();
-				nightMode.setText("Color");
-				setUpNightMode(combo,popUpMenu,tools,popUpMenu);
 
-
-			} else {
-				canvas.setNightModeFalse();
-				tearDownNightMode(combo,popUpMenu,tools,popUpMenu);
-				canvas.repaint();
-				nightMode.setText("NightMode");
-			}
-		});
-
-		greyScale.addActionListener(e->{
-			if(greyScale.getText().equals("GreyScale")) {
-				canvas.setGreyScale();
-				canvas.setNightModeFalse();
-				if(nightMode.getText().equals("Color")) {
-					nightMode.setText("NightMode");
-					tearDownNightMode(combo,popUpMenu,tools,popUpMenu);
-				}
-				canvas.repaint();
-				greyScale.setText("Color");} else
-			{
-				canvas.setGreyScaleFalse();
-				canvas.repaint();
-				greyScale.setText("GreyScale");
-			}
-		});
-
-		fancyPan.addActionListener(e->{
-			canvas.toggleFancyPan();
-		});
-
-		aA.addActionListener(e->{
-			canvas.toggleAA();
-		});
-
-		directions.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setUpDirectionsMenu = !setUpDirectionsMenu;
-				SetAndTearSecondSearch();
-			}
-		});
-		exit.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		});
-
-
-		zoomIn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-				canvas.zoom(1.25);
-				canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
-			}
-		});
-		zoomOut.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-				canvas.zoom(0.75);
-				canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
-			}
-		});
-		window.addComponentListener(new ComponentListener() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				canvas.setBounds(0,0,window.getWidth(),window.getHeight());
-				sidebarMenu.setBounds(canvas.getWidth()-60,10,40,130);
-			}
-
-			@Override
-			public void componentMoved(ComponentEvent e) {
-
-			}
-
-			@Override
-			public void componentShown(ComponentEvent e) {
-
-			}
-
-			@Override
-			public void componentHidden(ComponentEvent e) {
-
-			}
-		});
 
 	}
+	public void showMenuTwo(){
+		if(!isClicked2){
+			popUpMenu.show(menu,0,40);
+			isClicked2=true;
+		}else if(isClicked2){
+			popUpMenu.setVisible(false);
+			isClicked2=false;
+		}
+		canvas.repaint();
+	}
+	public void showMenuOne(){
+		if (!isClicked1) {
+			poiMenu.show(sidebarMenu,0,130);
+			isClicked1 = true;
+		} else if (isClicked1) {
+			poiMenu.setVisible(false);
+			isClicked1 = false;
+		}
+		canvas.repaint();
+	}
 
-	public void SetAndTearSecondSearch(){
-		if(setUpDirectionsMenu){
-			secondCombo = new AutocompleteJComboBox(searchable);
-			windowPane.add(secondCombo,75);
-			windowPane.setComponentZOrder(secondCombo,2);
+	public void setBounds() {
+		canvas.setBounds(0, 0, window.getWidth(), window.getHeight());
+		sidebarMenu.setBounds(canvas.getWidth() - 60, 10, 40, 130);
+	}
 
-			Timer timer = new Timer();
-			timer.scheduleAtFixedRate(new TimerTask() {
+	public void SetSecondSearch() {
+		secondCombo = new AutocompleteJComboBox(searchable);
+		windowPane.add(secondCombo, 75);
+		windowPane.setComponentZOrder(secondCombo, 2);
 
-				int i = 1;
-				int yStart =10;
-				@Override
-				public void run() {
-					secondCombo.setBounds(10,yStart+=1,300,40);
-					canvas.repaint();
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
 
-					if(yStart==50){cancel();
-						try {
-							BufferedImage bar = ImageIO.read(getClass().getResource("/Search Bar.png"));
-							barImage = new JLabel(new ImageIcon(bar));
-							windowPane.add(barImage,76);
-							windowPane.setComponentZOrder(barImage,0);
-							barImage.setBounds(11,31,298,40);
+			int i = 1;
+			int yStart = 10;
 
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+			@Override
+			public void run() {
+				secondCombo.setBounds(10, yStart += 1, 300, 40);
+				canvas.repaint();
 
+				if (yStart == 50) {
+					cancel();
+					try {
+						BufferedImage bar = ImageIO.read(getClass().getResource("/Search Bar.png"));
+						barImage = new JLabel(new ImageIcon(bar));
+						windowPane.add(barImage, 76);
+						windowPane.setComponentZOrder(barImage, 0);
+						barImage.setBounds(11, 31, 298, 40);
+
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
+
 				}
-			},0, 5);
-			secondCombo.setEditable(true);
+			}
+		}, 0, 5);
+		secondCombo.setEditable(true);
+	}
 
 
-		}else if(!setUpDirectionsMenu){
+     public void tearSecondSearch(){
 			Timer timer = new Timer();
 			timer.scheduleAtFixedRate(new TimerTask() {
 				int i = 1;
@@ -514,6 +445,45 @@ public class DrawWindow {
 
 		}
 
+}
+
+	public AutocompleteJComboBox getCombo() {
+		return combo;
+	}
+	public JCheckBoxMenuItem getDirections(){
+		return directions;
 	}
 
-}
+	public JCheckBoxMenuItem[] getPointsOfInterestMenues() {
+		return pointsOfInterestMenues;
+	}
+
+	public JButton getSearch() {
+		return search;
+	}
+
+	public JButton getMenu() {
+		return menu;
+	}
+
+	public JButton getPointsOfInterest() {
+		return pointsOfInterest;
+	}
+
+	public JButton getZoomIn() {
+		return zoomIn;
+	}
+
+	public DrawCanvas getCanvas() {
+		return canvas;
+	}
+
+	public JButton getZoomOut() {
+		return zoomOut;
+	}
+
+	public JFrame getWindow() {
+		return window;
+	}
+	public JMenuItem getNightMode(){return nightMode;}
+	public  JMenuItem getGreyScale(){return greyScale;}

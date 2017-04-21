@@ -13,23 +13,27 @@ import java.util.stream.Collectors;
 /**
  * Created by Hjalte on 21-04-2017.
  */
-public class Controller implements KeyListener, ActionListener, MouseListener {
+public class Controller implements KeyListener, ActionListener, MouseListener, ComponentListener {
     DrawWindow window;
     Model model;
     DrawCanvas canvas;
     AddressModel addressModel;
     AutocompleteJComboBox combo;
     int counter = 0;
-    boolean isClicked1 = false;
-    boolean isClicked2 = false;
     boolean first = true;
-    File currentPath ;
+    boolean setUpDirectionsMenu = false;
+    File currentPath;
 
     public Controller(DrawWindow window,Model model){
         this.window = window;
         this.model = model;
         this.canvas = window.getCanvas();
         this.addressModel = model.getAddressModel();
+        initiate();
+
+    }
+
+    public void initiate(){
         ArrayList listItems = new ArrayList();
         listItems.addAll(addressModel.getAddressToCordinate().keySet().stream().map(a -> a.toString().toLowerCase()).collect(Collectors.toList()));
         listItems.addAll(addressModel.getRegionToShape().keySet().stream().map(a->a.toString().toLowerCase()).collect(Collectors.toList()));
@@ -38,14 +42,13 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
         window.setComponentzZOrder();
         window.setKeyListener(this);
         window.setMouseListener(this);
+        window.setComponentListener(this);
         window.addActionListener(this);
-
     }
-
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         String command = e.getActionCommand();
-        if(source instanceof JCheckBoxMenuItem){
+        if(source instanceof JCheckBoxMenuItem && source!=window.getDirections()){
             JCheckBoxMenuItem[] menu = window.getPointsOfInterestMenues();
             for(int i = 0; i<menu.length;i++){
                 if(e.getSource() ==menu[i] ) {
@@ -56,6 +59,58 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
             save();
         } else if(command.equals("Load")){
             load();
+        } else if(command.equals("Exit")){
+            System.exit(0);
+        } else if (command.equals("Directions")){
+            setUpDirectionsMenu = !setUpDirectionsMenu;
+            if(setUpDirectionsMenu) {
+                window.SetSecondSearch();
+            } else window.tearSecondSearch();
+        } else if(command.equals("Nightmode")){
+                setNightMode();
+        } else if(command.equals("Greyscale")){
+                setGreyScale();
+        } else if(command.equals("Aa")){
+            canvas.toggleAA();
+        } else if(command.equals("Fancypan")){
+            canvas.toggleFancyPan();
+        } else if(command.equals("ZoomIn")){
+            zoomIn();
+        } else if (command.equals("ZoomOut")){
+            zoomOut();
+        }
+    }
+
+    public void setGreyScale(){
+        if (window.getGreyScale().getText().equals("GreyScale")) {
+            canvas.setGreyScale();
+            canvas.setNightModeFalse();
+        if (window.getNightMode().getText().equals("Color")) {
+            window.getNightMode().setText("NightMode");
+            window.tearDownNightMode();
+        }
+            canvas.repaint();
+            window.getGreyScale().setText("Color");
+    } else {
+            canvas.setGreyScaleFalse();
+            canvas.repaint();
+            window.getGreyScale().setText("GreyScale");
+    }}
+    public void setNightMode(){
+        if(window.getNightMode().getText().equals("NightMode")) {
+            canvas.setNightMode();
+            canvas.setGreyScaleFalse();
+            window.getGreyScale().setText("GreyScale");
+            canvas.repaint();
+            window.getNightMode().setText("Color");
+            window.setUpNightMode();
+
+
+        } else {
+            canvas.setNightModeFalse();
+            window.tearDownNightMode();
+            canvas.repaint();
+            window.getNightMode().setText("NightMode");
         }
     }
 
@@ -75,6 +130,7 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
             search();
         }
     }
+
     public void load(){
         if(first) {
             currentPath = null;
@@ -106,7 +162,9 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
             if(fileChooser.accept(fileToLoad) && fileToLoad.exists()){
                 model.load(fileToLoad.getAbsolutePath());
                 window.getWindow().dispose();
-                DrawWindow a = new DrawWindow(model);
+                Controller b = this;
+                Controller a = new Controller(new DrawWindow(model),model);
+                b = null;
                 first = true;
             }
             else if(!fileChooser.accept(fileToLoad)){
@@ -200,13 +258,9 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
         if(component==window.getSearch()){
             search();
         } else if(component == window.getZoomIn()){
-            canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-            canvas.zoom(1.25);
-            canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
+            zoomIn();
         } else if(component == window.getZoomOut()){
-            canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-            canvas.zoom(0.75);
-            canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
+            zoomOut();
         }
     }
 
@@ -214,23 +268,9 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
     public void mousePressed(MouseEvent e) {
         Component component = e.getComponent();
         if(component == window.getPointsOfInterest()) {
-            if (!isClicked1) {
-                window.getPoiPopUpMenu().show(e.getComponent(), 0, 40);
-                isClicked1 = true;
-            } else if (isClicked1) {
-                window.getPoiPopUpMenu().setVisible(false);
-                isClicked1 = false;
-            }
-            canvas.repaint();
+            window.showMenuOne();
         } else if(component == window.getMenu()){
-            if(!isClicked2){
-                window.getPopUpMenu().show(e.getComponent(),-100,40);
-                isClicked2=true;
-            }else if(isClicked2){
-                window.getPopUpMenu().setVisible(false);
-                isClicked2=false;
-            }
-            canvas.repaint();
+            window.showMenuTwo();
         }
     }
 
@@ -247,6 +287,37 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+
+    }
+    public void zoomIn(){
+        canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+        canvas.zoom(1.25);
+        canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
+    }
+    public void zoomOut(){
+        canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+        canvas.zoom(0.75);
+        canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
+    }
+
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+        window.setBounds();
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
+
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
 
     }
 }
