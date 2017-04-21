@@ -14,6 +14,7 @@ public class Main {
 			}
 
 			DrawWindow drawWindow = new DrawWindow(model);
+			Controller controller = new Controller(drawWindow,model);
 
 		});
 	}
