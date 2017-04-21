@@ -427,6 +427,12 @@ public enum WayType {
 					1500,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
+	LANDUSE_MILITARY
+			(new Color(240, 209, 203),
+					null,
+					1500,
+					FillType.SOLID,
+					new Color(36, 47, 62)),
 	MILITARY_DANGER_AREA
 			(new Color(252, 198, 201),
 					null,
