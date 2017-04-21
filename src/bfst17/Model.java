@@ -62,7 +62,7 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
-		load(this.getClass().getResource("/bornholm.osm").getPath());
+		load(this.getClass().getResource("/map.osm").getPath());
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -85,7 +85,6 @@ public class Model extends Observable implements Serializable {
 			out.writeFloat(maxlon);
 			out.writeFloat(maxlat);
 			out.flush();
-            System.out.println("done " + minlon +" " + minlat + " " +maxlon + " " + maxlat);
         } catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
