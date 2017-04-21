@@ -4,6 +4,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.awt.*;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
@@ -33,7 +34,10 @@ public class Model extends Observable implements Serializable {
 	}
     private KDTree tree = new KDTree();
     private float minlat, minlon, maxlat, maxlon;
+    private float clminlat, clminlon, clmaxlat, clmaxlon;
     private long nodeID;
+    private ArrayList<Shape> coastlines = new ArrayList<>();
+    private float lonfactor;
 
     public Model(String filename) {
         load(filename);
@@ -81,7 +85,7 @@ public class Model extends Observable implements Serializable {
 			out.writeFloat(maxlon);
 			out.writeFloat(maxlat);
 			out.flush();
-		} catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -91,7 +95,7 @@ public class Model extends Observable implements Serializable {
 	public void load(String filename) {
 		if (filename.endsWith(".osm")) {
 			loadOSM(new InputSource(filename));
-		} else if (filename.endsWith(".zip")) {
+        } else if (filename.endsWith(".zip")) {
 			try {
 				ZipInputStream zip = new ZipInputStream(new FileInputStream(filename));
 				zip.getNextEntry();
@@ -110,8 +114,9 @@ public class Model extends Observable implements Serializable {
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
+
                 tree.fillTree(shapes,pointsOfInterest);
-				dirty();
+                dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -127,6 +132,7 @@ public class Model extends Observable implements Serializable {
 
 	private void loadOSM(InputSource source) {
 		try {
+            loadAllCoastlines();
 			XMLReader reader = XMLReaderFactory.createXMLReader();
 			reader.setContentHandler(new OSMHandler());
 			reader.parse(source);
@@ -138,7 +144,28 @@ public class Model extends Observable implements Serializable {
 
 	}
 
-	public float getMinLon() {
+    public void loadAllCoastlines(){
+
+        String path = System.getProperty("user.dir") + "/resources/dkCoastlines.bin";
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
+            //Ryk rundt på dem her og få med Jens' knytnæve at bestille
+            coastlines = (ArrayList<Shape>) in.readObject();
+            lonfactor = in.readFloat();
+            clminlon = in.readFloat();
+            clminlat = in.readFloat();
+            clmaxlon = in.readFloat();
+            clmaxlat = in.readFloat();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public float getMinLon() {
 		return minlon;
 	}
 
@@ -160,7 +187,11 @@ public class Model extends Observable implements Serializable {
 		minlon += newMinLon;
 	}
 
-	private class OSMHandler implements ContentHandler {
+    public ArrayList<Shape> getCoastlines() {
+        return coastlines;
+    }
+
+    private class OSMHandler implements ContentHandler {
 		//LongToPointMap idToNode = new LongToPointMap(18000000);
 		Long tid = System.nanoTime();
 		Map<Long,OSMWay> idToWay = new HashMap<>();
@@ -171,7 +202,6 @@ public class Model extends Observable implements Serializable {
 		OSMWay way;
 		OSMRelation relation;
 		WayType type;
-		private float lonfactor;
 
 		@Override
 		public void setDocumentLocator(Locator locator) {
@@ -213,17 +243,15 @@ public class Model extends Observable implements Serializable {
 			}
 			switch(qName) {
 				case "bounds":
-					minlat = Float.parseFloat(atts.getValue("minlat"));
-					minlon = Float.parseFloat(atts.getValue("minlon"));
-					maxlat = Float.parseFloat(atts.getValue("maxlat"));
-					maxlon = Float.parseFloat(atts.getValue("maxlon"));
-					float avglat = minlat + (maxlat - minlat) / 2;
-					lonfactor = (float) Math.cos(avglat / 180 * Math.PI);
-					minlon *= lonfactor;
-					maxlon *= lonfactor;
-					minlat = -minlat;
-					maxlat = -maxlat;
-					break;
+                    minlat = Float.parseFloat(atts.getValue("minlat"));
+                    minlon = Float.parseFloat(atts.getValue("minlon"));
+                    maxlat = Float.parseFloat(atts.getValue("maxlat"));
+                    maxlon = Float.parseFloat(atts.getValue("maxlon"));
+
+                    minlon *= lonfactor;
+                    maxlon *= lonfactor;
+
+                    break;
 				case "node":
 					nodeID = Long.parseLong(atts.getValue("id"));
 					lat = Float.parseFloat(atts.getValue("lat"));
@@ -320,28 +348,18 @@ public class Model extends Observable implements Serializable {
                     break;
                 case "way":
                     if (type == WayType.NATURAL_COASTLINE) {
-                        OSMWay before = coastlines.remove(way.getFromNode());
-                        OSMWay after = coastlines.remove(way.getToNode());
-                        OSMWay merged = new OSMWay();
-                        if (before != null) {
-                            merged.addAll(before.subList(0, before.size() - 1));
-                        }
-                        merged.addAll(way);
-                        if (after != null) {
-                            merged.addAll(after.subList(1, after.size()));
-                        }
-                        coastlines.put(merged.getFromNode(), merged);
-                        coastlines.put(merged.getToNode(), merged);
+                        //DO NOTHING
                     } else {
                         add(type, way.toPath2D());
                     }
                     break;
                 case "relation":
+                    Path2D path = relation.toPath2D();
                     if(adminRelation == true){
-                        addressModel.putRegion(name,new Region(relation.toPath2D(),regionCenter));
+                        addressModel.putRegion(name,new Region(path,regionCenter));
                         adminRelation = false;
                     } else {
-                        add(type, relation.toPath2D());
+                        add(type, path);
                     }
                     break;
                 case "osm":

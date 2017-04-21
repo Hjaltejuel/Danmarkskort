@@ -74,6 +74,15 @@ public class DrawCanvas extends JComponent implements Observer {
 	public void setNightModeFalse(){
 		nightmode = false;
 	}
+
+	private void drawCoastlines(Graphics2D g) {
+		for(Shape s: model.getCoastlines()) {
+			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
+			g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
+			g.fill(s);
+		}
+	}
+
 	/**
 	 * Calls the UI delegate's paint method, if the UI delegate
 	 * is non-<code>null</code>.  We pass the delegate a copy of the
@@ -133,6 +142,8 @@ public class DrawCanvas extends JComponent implements Observer {
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+		drawCoastlines(g);
 
 		for(Shape s: model.get(WayType.NATURAL_COASTLINE)) {
 			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
@@ -208,7 +219,7 @@ public class DrawCanvas extends JComponent implements Observer {
 		setPin(g);
         if(regionSearch){
             Color color = g.getColor();
-            g.setColor(Color.RED);
+            g.setColor(new Color(255,0,0,127));
             g.draw(regionShape);
             g.setColor(color);
 

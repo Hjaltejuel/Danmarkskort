@@ -12,6 +12,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.concurrent.*;
 
 public class AutocompleteJComboBox extends JComboBox {
     private final StringSearchable searcher;
@@ -40,6 +41,7 @@ public class AutocompleteJComboBox extends JComboBox {
         Component c = this.getEditor().getEditorComponent();
         if (c instanceof JTextComponent) {
             userInput = (JTextComponent) c;
+            userInput.getDocument().putProperty("key",userInput);
             userInput.getDocument().addDocumentListener(new DocumentListener() {
                 public void changedUpdate(DocumentEvent arg0) {
                 }
@@ -50,39 +52,39 @@ public class AutocompleteJComboBox extends JComboBox {
 
                 public void removeUpdate(DocumentEvent arg0) {
                     this.update();
+
+
                 }
 
                 public void update() {
                     SwingUtilities.invokeLater(() -> {
-                            ArrayList founds = new ArrayList(AutocompleteJComboBox.this.searcher.search(userInput.getText().toLowerCase()));
-                            HashSet foundSet = new HashSet();
-                            Iterator var3 = founds.iterator();
-                            String s1;
-                            while (var3.hasNext()) {
-                                s1 = (String) var3.next();
-                                foundSet.add(s1.toLowerCase());
+
+                            ArrayList<String> founds = new ArrayList(AutocompleteJComboBox.this.searcher.search(userInput.getText().toLowerCase()));
+                            HashSet<String> foundSet = new HashSet();
+                            for(String s: founds){
+                                foundSet.add(s.toLowerCase());
                             }
 
                             AutocompleteJComboBox.this.setEditable(false);
                             AutocompleteJComboBox.this.removeAllItems();
-                            if (!foundSet.contains(userInput.getText().toLowerCase())) {
-                                AutocompleteJComboBox.this.addItem(userInput.getText());
-                            }
+                        if (!foundSet.contains(userInput.getText().toLowerCase())) {
+                            AutocompleteJComboBox.this.addItem(userInput.getText());
+                        }
+                            int i = 0;
+                            for(String s: founds){
 
-
-                            var3 = founds.iterator();
-
-                            while (var3.hasNext()) {
-                                s1 = (String) var3.next();
                                 StringBuffer res = new StringBuffer();
 
-                                String[] strArray = s1.split(" ");
+                                String[] strArray = s.split(" ");
                                 for (String str : strArray) {
+                                    i++;
                                     char[] stringArray = str.trim().toCharArray();
                                     stringArray[0] = Character.toUpperCase(stringArray[0]);
                                     str = new String(stringArray);
+                                    if(i!=strArray.length) {
+                                        res.append(str).append(" ");
+                                    } else res.append(str);
 
-                                    res.append(str).append(" ");
                                 }
                                 AutocompleteJComboBox.this.addItem(res.toString());
                             }
@@ -91,16 +93,19 @@ public class AutocompleteJComboBox extends JComboBox {
                     });
                 }
             });
+
             userInput.addFocusListener(new FocusListener() {
                 public void focusGained(FocusEvent arg0) {
                     if (userInput.getText().length() > 0) {
                         setPopupVisible(true);
+
                     }
-                }
+                    }
 
                 public void focusLost(FocusEvent arg0) {
                 }
             });
+
         }
 
 
