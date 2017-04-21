@@ -34,7 +34,10 @@ public class Model extends Observable implements Serializable {
 	}
     private KDTree tree = new KDTree();
     private float minlat, minlon, maxlat, maxlon;
+    private float clminlat, clminlon, clmaxlat, clmaxlon;
     private long nodeID;
+    private ArrayList<Shape> coastlines = new ArrayList<>();
+    private float lonfactor;
 
     public Model(String filename) {
         load(filename);
