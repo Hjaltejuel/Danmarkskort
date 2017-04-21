@@ -85,7 +85,8 @@ public class Model extends Observable implements Serializable {
 			out.writeFloat(maxlon);
 			out.writeFloat(maxlat);
 			out.flush();
-		} catch (FileNotFoundException e) {
+            System.out.println("done " + minlon +" " + minlat + " " +maxlon + " " + maxlat);
+        } catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -95,7 +96,7 @@ public class Model extends Observable implements Serializable {
 	public void load(String filename) {
 		if (filename.endsWith(".osm")) {
 			loadOSM(new InputSource(filename));
-		} else if (filename.endsWith(".zip")) {
+        } else if (filename.endsWith(".zip")) {
 			try {
 				ZipInputStream zip = new ZipInputStream(new FileInputStream(filename));
 				zip.getNextEntry();
@@ -114,8 +115,12 @@ public class Model extends Observable implements Serializable {
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
+
+                System.out.println("done " + minlon +" " + minlat + " " +maxlon + " " + maxlat);
+
                 tree.fillTree(shapes,pointsOfInterest);
-				dirty();
+                System.out.println(tree.size);
+                dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

@@ -86,7 +86,7 @@ public class DrawWindow implements Observer {
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
 
-		canvas.pan(-model.getMinLon(), -model.getMaxLat());
+		canvas.pan(-model.getMinLon(), model.getMaxLat());
 		canvas.zoom(canvas.getWidth()/(model.getMaxLon()-model.getMinLon()));
 	}
 
