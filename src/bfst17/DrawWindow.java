@@ -2,29 +2,20 @@ package bfst17;
 
 		import javax.imageio.ImageIO;
 		import javax.swing.*;
-		import javax.swing.border.LineBorder;
-		import javax.swing.event.DocumentEvent;
-		import javax.swing.filechooser.FileFilter;
 		import javax.swing.plaf.basic.BasicComboPopup;
 		import javax.swing.text.JTextComponent;
 		import java.awt.*;
 		import java.awt.event.*;
-		import java.awt.geom.Point2D;
 		import java.awt.image.BufferedImage;
-		import java.io.File;
 		import java.io.IOException;
 		import java.util.*;
-		import java.util.stream.Collectors;
 		import java.util.Timer;
-		import java.util.concurrent.TimeUnit;
 
 /**
  * Created by trold on 2/1/17.
  */
 public class DrawWindow {
 	JFrame window;
-	Model model;
-	DrawCanvas canvas;
 	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
 	private AutocompleteJComboBox secondCombo;
@@ -54,7 +45,7 @@ public class DrawWindow {
 	private JPanel sidebarMenu = new JPanel(new GridLayout(0, 1));
 
 
-	public DrawWindow(Model model) {
+	public DrawWindow() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 
@@ -71,20 +62,11 @@ public class DrawWindow {
 		window = new JFrame("Danmarkskort gruppe A");
 		windowPane = new JLayeredPane();
 		window.setPreferredSize(new Dimension(750, 750));
-		canvas = new DrawCanvas(model);
-		new CanvasMouseController(canvas, model);
-
 		setUpSideButtons();
-
 		window.pack();
 		setUpTopButtons();
-		canvas.setBounds(0, 0, window.getWidth(), window.getHeight());
-
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
-
-		canvas.pan(-model.getMinLon(), model.getMaxLat());
-		canvas.zoom(canvas.getWidth() / (model.getMaxLon() - model.getMinLon()));
 	}
 
 
@@ -130,7 +112,7 @@ public class DrawWindow {
 		fancyPan.setActionCommand("Fancypan");
 	}
 
-	public void setComponentzZOrder() {
+	public void setComponentzZOrder(DrawCanvas canvas) {
 		windowPane.add(canvas, 100);
 		windowPane.add(combo, 50);
 		windowPane.add(sidebarMenu, 50);
@@ -372,7 +354,7 @@ public class DrawWindow {
 			popUpMenu.setVisible(false);
 			isClicked2 = false;
 		}
-		canvas.repaint();
+		window.repaint();
 	}
 
 	public void showMenuOne() {
@@ -383,10 +365,10 @@ public class DrawWindow {
 			poiMenu.setVisible(false);
 			isClicked1 = false;
 		}
-		canvas.repaint();
+		window.repaint();
 	}
 
-	public void setBounds() {
+	public void setBounds(DrawCanvas canvas) {
 		canvas.setBounds(0, 0, window.getWidth(), window.getHeight());
 		sidebarMenu.setBounds(canvas.getWidth() - 60, 10, 40, 130);
 	}
@@ -405,7 +387,7 @@ public class DrawWindow {
 			@Override
 			public void run() {
 				secondCombo.setBounds(10, yStart += 1, 300, 40);
-				canvas.repaint();
+				window.repaint();
 
 				if (yStart == 50) {
 					cancel();
@@ -436,13 +418,13 @@ public class DrawWindow {
 			@Override
 			public void run() {
 				secondCombo.setBounds(10, yStart -= 1, 300, 40);
-				canvas.repaint();
+				window.repaint();
 
 				if (yStart == 10) {
 					cancel();
 					windowPane.remove(secondCombo);
 					windowPane.remove(barImage);
-					canvas.repaint();
+					window.repaint();
 				}
 			}
 		}, 0, 5);
@@ -476,10 +458,6 @@ public class DrawWindow {
 
 	public JButton getZoomIn() {
 		return zoomIn;
-	}
-
-	public DrawCanvas getCanvas() {
-		return canvas;
 	}
 
 	public JButton getZoomOut() {
