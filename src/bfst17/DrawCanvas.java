@@ -231,6 +231,13 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	}
 
+	private Point2D screenCoordsToLonLat(double x, double y) {
+		if(x<0||x>getWidth()||y<0||y>getHeight()){
+			System.out.println("Tror du bruger den forkerte funktion.. (screenCoordsToLonLat)");
+		}
+		return new Point2D.Double(-(transform.getTranslateX()-x)/getXZoomFactor(),-(transform.getTranslateY()-y)/getYZoomFactor());
+	}
+
 	public void pan(double dx, double dy) {
 		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
 		repaint();
