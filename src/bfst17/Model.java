@@ -62,7 +62,13 @@ public class Model extends Observable implements Serializable {
 	}
 
 	public Model() {
+        //Til osm
 		load(this.getClass().getResource("/bornholm.osm").getPath());
+
+        //til bin
+        //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
+        loadAllCoastlines();
+        //load(path);
 	}
 
 	public void add(WayType type, Shape shape) {
