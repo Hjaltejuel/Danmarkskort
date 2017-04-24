@@ -16,7 +16,7 @@ public enum WayType {
 	NATURAL_BEACH
 			(new Color(255, 240, 169),
 					null,
-					1500,
+					20000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	NATURAL_GRASSLAND
@@ -40,7 +40,7 @@ public enum WayType {
 	LANDUSE_RESIDENTIAL
 			(new Color(218, 218, 218),
 					null,
-					4000,
+					5000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_COMMERCIAL
@@ -52,31 +52,31 @@ public enum WayType {
 	LANDUSE_RETAIL
 			(new Color(254, 202, 197),
 					null,
-					1500,
+					20000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_INDUSTRIAL
 			(new Color(230, 209, 227),
 					null,
-					1500,
+					20000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_RAILWAY
 			(new Color(230, 209, 227),
 					null,
-					1500,
+					5000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_CEMETERY
 			(new Color(170, 202, 174),
 					null,
-					1500,
+					10000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LEISURE_GOLF_COURSE
 			(new Color(181, 226, 181),
 					null,
-					1500,
+					10000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	NATURAL_WATER
@@ -88,7 +88,7 @@ public enum WayType {
 	LEISURE_SWIMMING_POOL
 			(new Color(181, 208, 208),
 					null,
-					1500,
+					35000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	NATURAL_WOOD
@@ -100,13 +100,13 @@ public enum WayType {
 	NATURAL_SCRUB
 			(new Color(181, 227, 181),
 					null,
-					1500,
+					10000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	NATURAL_HEATH
 			(new Color(214, 217, 159),
 					null,
-					1500,
+					15000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	NATURAL_SAND
@@ -196,7 +196,7 @@ public enum WayType {
 	AMENITY_GRAVE_YARD
 			(new Color(170, 202, 174),
 					null,
-					1500,
+					20000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	RELIGION_CHRISTIAN
@@ -256,7 +256,7 @@ public enum WayType {
 	LANDUSE_FARMYARD
 			(new Color(218, 187, 143),
 					null,
-					1500,
+					5000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_FARMLAND
@@ -268,7 +268,7 @@ public enum WayType {
 	LANDUSE_ALLOTMENTS
 			(new Color(238, 207, 179),
 					null,
-					1500,
+					10000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_ORCHARD
@@ -322,13 +322,13 @@ public enum WayType {
 	NATURAL_MEADOW
 			(new Color(197, 236, 148),
 					null,
-					1500,
+					10000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_RECREATION_GROUND
 			(new Color(197, 236, 148),
 					null,
-					1500,
+					1000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_VILLAGE_GREEN
@@ -340,7 +340,7 @@ public enum WayType {
 	LEISURE_GARDEN
 			(new Color(197, 236, 148),
 					null,
-					1500,
+					25000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LEISURE_RECREATION_GROUND
@@ -376,49 +376,49 @@ public enum WayType {
 	LEISURE_TRACK
 			(new Color(189, 227, 203),
 					null,
-					1500,
+					15000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LEISURE_MINIATURE_GOLF
 			(new Color(181, 226, 181),
 					null,
-					1500,
+					20000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	AMENITY_SCHOOL
 			(new Color(240, 241, 215),
 					null,
-					1500,
+					30000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	AMENITY_KINDERGARTEN
 			(new Color(240, 241, 215),
 					null,
-					1500,
+					30000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	AMENITY_COLLEGE
 			(new Color(240, 241, 215),
 					null,
-					1500,
+					30000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	AMENITY_UNIVERSITY
 			(new Color(240, 241, 215),
 					null,
-					1500,
+					30000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	AMENITY_HOSPITAL
 			(new Color(240, 241, 215),
 					null,
-					1500,
+					30000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	AMENITY_PRISON
 			(new Color(228, 226, 221),
 					null,
-					1500,
+					30000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	AMENITY_PLACE_OF_WORSHIP
@@ -442,7 +442,7 @@ public enum WayType {
 	BUILDING
 			(new Color(217, 208, 201),
 					null,
-					50000,
+					37000,
 					FillType.SOLID,
 					new Color(47, 57, 72)),
 	WATERWAY_DRAIN
@@ -470,7 +470,7 @@ public enum WayType {
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_PRIMARY
-			(new Color(252, 214, 164),
+			(new Color(252, 193, 97),
 					new BasicStroke(0.0001f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
 					450,
 					FillType.LINE,
@@ -484,7 +484,7 @@ public enum WayType {
 	HIGHWAY_TERTIARY
 			(new Color(157, 157, 157),
 					null,
-					20000,
+					5000,
 					FillType.LINE,
 					new Color(116, 104, 85)),
 	HIGHWAY_UNCLASSIFIED
@@ -496,7 +496,7 @@ public enum WayType {
 	HIGHWAY_RESIDENTIAL
 			(new Color(246, 239, 239),
 					new BasicStroke(0.00004f),
-					20000,
+					10000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_SERVICE
@@ -508,13 +508,13 @@ public enum WayType {
 	HIGHWAY_LIVING_STREET
 			(new Color(237, 237, 237),
 					null,
-					20000,
+					5000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_PEDESTRIAN
 			(new Color(150, 148, 149),
 					null,
-					30000,
+					5000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_BRIDLEWAY
@@ -556,31 +556,31 @@ public enum WayType {
 	TRACKTYPE_GRADE1
 			(new Color(216, 188, 134),
 					null,
-					1500,
+					20000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	TRACKTYPE_GRADE2
 			(new Color(180, 145, 73),
 					null,
-					1500,
+					20000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	TRACKTYPE_GRADE3
 			(new Color(237, 230, 216),
 					null,
-					1500,
+					20000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	TRACKTYPE_GRADE4
 			(new Color(236, 230, 216),
 					null,
-					1500,
+					20000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	TRACKTYPE_GRADE5
 			(new Color(209, 188, 146),
 					null,
-					1500,
+					20000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_BUS_GUIDEWAY
@@ -604,7 +604,7 @@ public enum WayType {
 	RAILWAY_RAIL
 			(new Color(153, 153, 153),
 					null,
-					1500,
+					20000,
 					FillType.LINE,
 					new Color(36, 47, 62)),
 	RAILWAY_TRAM
@@ -736,19 +736,19 @@ public enum WayType {
 	BARRIER_CHAIN
 			(new Color(172, 171, 167),
 					null,
-					1500,
+					30000,
 					FillType.LINE,
 					new Color(36, 47, 62)),
 	BARRIER_GUARD_RAIL
 			(new Color(172, 171, 167),
 					null,
-					1500,
+					30000,
 					FillType.LINE,
 					new Color(36, 47, 62)),
 	BARRIER_HANDRAIL
 			(new Color(172, 171, 167),
 					null,
-					1500,
+					35000,
 					FillType.LINE,
 					new Color(36, 47, 62)),
 	BARRIER_DITCH
@@ -760,13 +760,13 @@ public enum WayType {
 	BARRIER_KERB
 			(new Color(172, 171, 167),
 					null,
-					1500,
+					30000,
 					FillType.LINE,
 					new Color(36, 47, 62)),
 	BARRIER_HEDGE
 			(new Color(174, 209, 160),
 					null,
-					1500,
+					35000,
 					FillType.LINE,
 					new Color(36, 47, 62)),
 	NATURAL_TREE_ROW
@@ -850,7 +850,7 @@ public enum WayType {
 	UNKNOWN
 			(new Color(250, 255, 0, 0),
 					null,
-					1500,
+					1000000,
 					FillType.LINE,
 					new Color(36, 47, 62));
 
