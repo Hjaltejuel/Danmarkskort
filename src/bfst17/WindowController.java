@@ -38,10 +38,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     public void initiate(){
-        ArrayList listItems = new ArrayList();
-        listItems.addAll(addressModel.getAddressToCordinate().keySet().stream().map(a -> a.toString().toLowerCase()).collect(Collectors.toList()));
-        listItems.addAll(addressModel.getRegionToShape().keySet().stream().map(a->a.toString().toLowerCase()).collect(Collectors.toList()));
-        window.createAutocomplete(listItems);
+        window.createAutocomplete(addressModel.getTSTTree());
         this.combo = window.getCombo();
         window.setComponentzZOrder(canvas);
         window.setKeyListener(this);
@@ -68,7 +65,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         } else if (command.equals("Directions")){
             setUpDirectionsMenu = !setUpDirectionsMenu;
             if(setUpDirectionsMenu) {
-                window.SetSecondSearch();
+                window.SetSecondSearch(addressModel.getTSTTree());
             } else window.tearSecondSearch();
         } else if(command.equals("Nightmode")){
                 setNightMode();
