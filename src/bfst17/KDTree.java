@@ -71,10 +71,6 @@ public class KDTree implements Serializable {
                 //Add en node for hvert hjørne i bounds
                 Rectangle2D bounds = s.getBounds2D();
                 listOfShapes.add(new TreeNode(bounds.getCenterX(), bounds.getCenterY(), s, type));
-                listOfShapes.add(new TreeNode(bounds.getX(), bounds.getY(), s, type));
-                listOfShapes.add(new TreeNode(bounds.getX(), bounds.getY() + bounds.getHeight(), s, type));
-                listOfShapes.add(new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY(), s, type));
-                listOfShapes.add(new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight(), s, type));
             }
         }
         TreeNode[] allShapes = listOfShapes.toArray(new TreeNode[listOfShapes.size()]);
@@ -133,12 +129,20 @@ public class KDTree implements Serializable {
         if(rect.contains(startNode.getX(),startNode.getY())){
             add(startNode);
         }
+        Rectangle2D bounds = startNode.shape.getBounds2D();
+        if (bounds.getMinX() < rect.getMaxX() || bounds.getMinY() < rect.getMaxY()) {
+            getShapesBelowNodeInsideBounds(startNode.right, rect, !vertical);
+        }
+        if (bounds.getMaxX() > rect.getMinX() || bounds.getMaxY() > rect.getMinY()) {
+            getShapesBelowNodeInsideBounds(startNode.left, rect, !vertical);
+        }
+        /*
         if (isLargerThan(startNode, rect.getMinX(), rect.getMinY(), vertical)) {
             getShapesBelowNodeInsideBounds(startNode.left, rect, !vertical);
         }
         if (!isLargerThan(startNode, rect.getMaxX(), rect.getMaxY(), vertical)) {
             getShapesBelowNodeInsideBounds(startNode.right, rect, !vertical);
-        }
+        }*/
     }
 
     Integer count = 0;

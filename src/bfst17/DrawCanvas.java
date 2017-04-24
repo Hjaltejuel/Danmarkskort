@@ -137,7 +137,7 @@ public class DrawCanvas extends JComponent implements Observer {
 				if (type.getFillType() == FillType.LINE) {
 					for (Shape shape : shapes.get(type)) {
 						g.draw(shape);
-						g.draw(shape.getBounds2D());
+						//g.draw(shape.getBounds2D());
 					}
 				} else if (type.getFillType() == FillType.SOLID) {
 					for (Shape shape : shapes.get(type)) {
@@ -161,7 +161,7 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
 	}
 
-	public void setPin(Graphics g)  {
+	public void setPin(Graphics g) {
         if(pin!=null) {
             BufferedImage image = null;
             try {

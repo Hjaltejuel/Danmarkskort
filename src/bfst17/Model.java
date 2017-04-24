@@ -30,7 +30,7 @@ public class Model extends Observable implements Serializable {
         load(filename);
     }
 
-    public tmpKDTree getTree(){
+    public tmpKDTree getTree() {
         return tree;
     }
 
