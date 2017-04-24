@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Hjalte on 21-04-2017.
  */
-public class Controller implements KeyListener, ActionListener, MouseListener, ComponentListener {
+public class WindowController implements KeyListener, ActionListener, MouseListener, ComponentListener {
     DrawWindow window;
     Model model;
     DrawCanvas canvas;
@@ -24,11 +24,15 @@ public class Controller implements KeyListener, ActionListener, MouseListener, C
     boolean setUpDirectionsMenu = false;
     File currentPath;
 
-    public Controller(DrawWindow window,Model model){
-        this.window = window;
+    public WindowController(Model model){
+        window = new DrawWindow();
         this.model = model;
-        this.canvas = window.getCanvas();
         this.addressModel = model.getAddressModel();
+        this.canvas = new DrawCanvas(model);
+        canvas.setBounds(0, 0, window.getWindow().getWidth(), window.getWindow().getHeight());
+        canvas.pan(-model.getMinLon(), model.getMaxLat());
+        canvas.zoom(canvas.getWidth() / (model.getMaxLon() - model.getMinLon()));
+        new CanvasMouseController(canvas, model);
         initiate();
 
     }
@@ -39,7 +43,7 @@ public class Controller implements KeyListener, ActionListener, MouseListener, C
         listItems.addAll(addressModel.getRegionToShape().keySet().stream().map(a->a.toString().toLowerCase()).collect(Collectors.toList()));
         window.createAutocomplete(listItems);
         this.combo = window.getCombo();
-        window.setComponentzZOrder();
+        window.setComponentzZOrder(canvas);
         window.setKeyListener(this);
         window.setMouseListener(this);
         window.setComponentListener(this);
@@ -162,8 +166,8 @@ public class Controller implements KeyListener, ActionListener, MouseListener, C
             if(fileChooser.accept(fileToLoad) && fileToLoad.exists()){
                 model.load(fileToLoad.getAbsolutePath());
                 window.getWindow().dispose();
-                Controller b = this;
-                Controller a = new Controller(new DrawWindow(model),model);
+                WindowController b = this;
+                WindowController a = new WindowController(model);
                 b = null;
                 first = true;
             }
@@ -303,7 +307,7 @@ public class Controller implements KeyListener, ActionListener, MouseListener, C
 
     @Override
     public void componentResized(ComponentEvent e) {
-        window.setBounds();
+        window.setBounds(canvas);
     }
 
     @Override
