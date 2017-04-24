@@ -86,27 +86,27 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     public void setGreyScale(){
-        if (window.getGreyScale().getText().equals("GreyScale")) {
+        if (window.getGreyScale().getText().equals("GreyScale (CTRL-G)")) {
             canvas.setGreyScale();
             canvas.setNightModeFalse();
-        if (window.getNightMode().getText().equals("Color")) {
-            window.getNightMode().setText("NightMode");
+        if (window.getNightMode().getText().equals("Color (CTRL-N)")) {
+            window.getNightMode().setText("NightMode (CTRL-N)");
             window.tearDownNightMode();
         }
             canvas.repaint();
-            window.getGreyScale().setText("Color");
+            window.getGreyScale().setText("Color (CTRL-G)");
     } else {
             canvas.setGreyScaleFalse();
             canvas.repaint();
-            window.getGreyScale().setText("GreyScale");
+            window.getGreyScale().setText("GreyScale (CTRL-G)");
     }}
     public void setNightMode(){
-        if(window.getNightMode().getText().equals("NightMode")) {
+        if(window.getNightMode().getText().equals("NightMode (CTRL-N)")) {
             canvas.setNightMode();
             canvas.setGreyScaleFalse();
-            window.getGreyScale().setText("GreyScale");
+            window.getGreyScale().setText("GreyScale (CTRL-G)");
             canvas.repaint();
-            window.getNightMode().setText("Color");
+            window.getNightMode().setText("Color (CTRL-N)");
             window.setUpNightMode();
 
 
@@ -114,7 +114,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             canvas.setNightModeFalse();
             window.tearDownNightMode();
             canvas.repaint();
-            window.getNightMode().setText("NightMode");
+            window.getNightMode().setText("NightMode (CTRL-N)");
         }
     }
 

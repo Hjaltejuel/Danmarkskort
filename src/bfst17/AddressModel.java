@@ -13,6 +13,10 @@ public class AddressModel extends Observable implements Serializable {
     public AddressModel() {
         this.addressToCordinate = new HashMap<>();
         this.regionToShape = new HashMap<>();
+        TST<String> tree = new TST<>();
+        tree.fillTree(new String[]{"hej","med","dig", "psda", "dasdsa", "dgas","aa","bb"});
+
+
     }
 
 

@@ -16,6 +16,7 @@ public class OSMWay extends ArrayList<OSMNode> {
             path.lineTo(node.getLon(), node.getLat());
         }
         return path;
+
     }
 
 

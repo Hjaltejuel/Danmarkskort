@@ -81,9 +81,11 @@ public class KDTree {
         for (List<Shape> list : shapes.values()) {
             arrLength += list.size() * 4;
         }
+
         for(List<Point2D> list: POI.values()){
             arrLength += list.size();
         }
+
         TreeNode[] allShapes = new TreeNode[arrLength];
         Integer index = 0;
         for(WayType type: WayType.values()) {
@@ -97,21 +99,19 @@ public class KDTree {
                 allShapes[index++] = (new TreeNode(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight(), s, type,null));
             }
         }
+
         for(PointsOfInterest type: PointsOfInterest.values()){
             List<Point2D> list = POI.get(type.name());
             for(Point2D p: list){
                 allShapes[index++] = (new TreeNode(p.getX(),p.getY(),null,null,type));
             }
         }
+
         long time = System.nanoTime();
         Arrays.sort(allShapes);
         insertArray(allShapes,0,arrLength-1,true);
         System.out.println(maxDepth);
         System.out.println(arrLength+" "+count);
-    }
-
-    public void fillTreeWithPOI(){
-
     }
 
     public void insertArray(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
@@ -124,11 +124,12 @@ public class KDTree {
         Integer medianIndex = (lo+hi)/2;
         insert(allShapes[medianIndex]);
         //Indsæt medianerne fra de to subarrays (Uden at inkludere medianIndex)
-        if(lo<medianIndex){
-            insertArray(allShapes, lo, medianIndex-1, !vertical);
-        }
+
         if(hi>medianIndex) {
             insertArray(allShapes, medianIndex+1, hi, !vertical);
+        }
+        if(lo<medianIndex){
+            insertArray(allShapes, lo, medianIndex-1, !vertical);
         }
     }
 
@@ -192,6 +193,7 @@ public class KDTree {
 
     Integer count=0;
     Integer maxDepth = 0;
+
     public TreeNode insert(TreeNode node) {
         count++;
         if(root==null) {
@@ -204,7 +206,7 @@ public class KDTree {
             boolean _isVertical = depth%2==0; //Skifter ved hver depth
             double compare = _isVertical ? node.getX() - comparisonNode.getX() : node.getY() - comparisonNode.getY();
             depth++;
-            if (compare < 0) { //Ryk til venstre hvis comparisonNode er mindre end
+            if (compare <= 0) { //Ryk til venstre hvis comparisonNode er mindre end
                 if (comparisonNode.left != null) {
                     comparisonNode=comparisonNode.left;
                     continue;

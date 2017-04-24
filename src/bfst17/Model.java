@@ -319,7 +319,7 @@ public class Model extends Observable implements Serializable {
                     if(role.equals("admin_centre")){
                         regionCenter = idToNode.get(ref);
                         if(regionCenter ==null){
-                            regionCenter = new OSMNode((maxlon+minlon)/2,(maxlat+minlat)/2);
+                            regionCenter = new OSMNode((maxlon+minlon)/2,-(maxlat+minlat)/2);
                         }
                         adminRelation = true;
                     }
