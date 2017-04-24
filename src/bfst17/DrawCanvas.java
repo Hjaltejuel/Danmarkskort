@@ -151,10 +151,15 @@ public class DrawCanvas extends JComponent implements Observer {
 			g.fill(s);
         }
 
-		Rectangle2D rectangle = new Rectangle2D.Double(-getCenterCordinateX() - getWidth()/2, -getCenterCordinateY() - getHeight()/2, getWidth(), getHeight());
+
+		Point2D topLeft = screenCoordsToLonLat(150,150);
+		Point2D topRight = screenCoordsToLonLat(getWidth()-150,getHeight()-150);
+		Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
+				topRight.getX()- topLeft.getX(),topRight.getY()- topLeft.getY());
+
 		//Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX()-(getWidth()/2/transform.getScaleX()),-getCenterCordinateY()-(getWidth()/2/transform.getScaleX()),getWidth()/transform.getScaleX(),getHeight()/transform.getScaleX());
 		ArrayList<KDTree.TreeNode> POI = new ArrayList<>();
-		for (KDTree.TreeNode n : model.getTree().getInRange(rectangle))
+		for (KDTree.TreeNode n : model.getTree().getInRange(screenRectangle))
 	     {
 			WayType type = n.getType();
 			if(type!= null){
@@ -193,7 +198,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		g.setColor(Color.black);
 		g.setStroke(new BasicStroke(0.00008f));
-		g.draw(rectangle);
+		g.draw(screenRectangle);
 
 		/*
 		//Draw all shapes
