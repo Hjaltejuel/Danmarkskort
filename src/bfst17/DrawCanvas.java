@@ -130,8 +130,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	@Override
 	protected void paintComponent(Graphics _g) {
-		//System.out.println(getXZoomFactor() + " " + getYZoomFactor());
-		Graphics2D g = (Graphics2D) _g;
+        Graphics2D g = (Graphics2D) _g;
 		if (nightmode) {
 			g.setColor(WayType.NATURAL_WATER.getNightModeColor());
 		} else {
@@ -153,33 +152,27 @@ public class DrawCanvas extends JComponent implements Observer {
         }
 
 		double rectSize = 100d / transform.getScaleX();
-		//Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);
-		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX()-(getWidth()/2/transform.getScaleY()),-getCenterCordinateY()-(getWidth()/2/transform.getScaleX()),getWidth()/transform.getScaleX(),getHeight()/transform.getScaleX());
+		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);
+		//Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX()-(getWidth()/2/transform.getScaleX()),-getCenterCordinateY()-(getWidth()/2/transform.getScaleX()),getWidth()/transform.getScaleX(),getHeight()/transform.getScaleX());
 		ArrayList<KDTree.TreeNode> POI = new ArrayList<>();
-
-		HashSet<WayType> typeW = new HashSet<>();
-
 		for (KDTree.TreeNode n : model.getTree().getInRange((Rectangle2D) rectangle))
 	     {
 			WayType type = n.getType();
-
 			if(type!= null){
-				if (type.getZoomFactor() > getXZoomFactor()) { continue; }
-				typeW.add(type);
-
 			Shape shape = n.getShape();
 			Color drawColor=getDrawColor(type);
 
 			g.setColor(drawColor);
 			g.setStroke(type.getDrawStroke());
 
+			if (type.getZoomFactor() < getXZoomFactor()) {
 				//How should the shapes be drawn?
 				if (type.getFillType() == FillType.LINE) {
 					g.draw(shape);
 				} else if (type.getFillType() == FillType.SOLID) {
 					g.fill(shape);
 				}
-
+			}
 			/*
 			g.setStroke(new BasicStroke(0.000008f));
 			Shape rectangle1 = shape.getBounds2D();
@@ -193,21 +186,15 @@ public class DrawCanvas extends JComponent implements Observer {
 			}
 
 		}
-
-
-
 		if(transform.getScaleY()>40000) {
 			for (KDTree.TreeNode n : POI) {
-                drawPointsOfInterest(g, n.getPointsOfInterest(), n.getX(), n.getY());
+				drawPointsOfInterest(g, n.getPointsOfInterest(), n.getX(), n.getY());
 			}
 		}
 
-
-		/*
 		g.setColor(Color.black);
 		g.setStroke(new BasicStroke(0.00008f));
 		g.draw(rectangle);
-		*/
 
 		/*
 		//Draw all shapes
