@@ -152,9 +152,9 @@ public class DrawCanvas extends JComponent implements Observer {
         }
 
 
-		Point2D topLeft = screenCoordsToLonLat(150,150);
-		Point2D topRight = screenCoordsToLonLat(getWidth()-150,getHeight()-150);
-		Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
+		Point2D topLeft = screenCoordsToLonLat(0,0);
+		Point2D topRight = screenCoordsToLonLat(getWidth(),getHeight());
+		Rectangle2D screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
 				topRight.getX()- topLeft.getX(),topRight.getY()- topLeft.getY());
 
 		//Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX()-(getWidth()/2/transform.getScaleX()),-getCenterCordinateY()-(getWidth()/2/transform.getScaleX()),getWidth()/transform.getScaleX(),getHeight()/transform.getScaleX());
