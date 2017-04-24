@@ -130,7 +130,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	@Override
 	protected void paintComponent(Graphics _g) {
-        Graphics2D g = (Graphics2D) _g;
+		//System.out.println(getXZoomFactor() + " " + getYZoomFactor());
+		Graphics2D g = (Graphics2D) _g;
 		if (nightmode) {
 			g.setColor(WayType.NATURAL_WATER.getNightModeColor());
 		} else {
@@ -151,32 +152,34 @@ public class DrawCanvas extends JComponent implements Observer {
 			g.fill(s);
         }
 
-
-		Point2D topLeft = screenCoordsToLonLat(0,0);
-		Point2D topRight = screenCoordsToLonLat(getWidth(),getHeight());
-		Rectangle2D screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
-				topRight.getX()- topLeft.getX(),topRight.getY()- topLeft.getY());
-
-		//Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX()-(getWidth()/2/transform.getScaleX()),-getCenterCordinateY()-(getWidth()/2/transform.getScaleX()),getWidth()/transform.getScaleX(),getHeight()/transform.getScaleX());
+		double rectSize = 100d / transform.getScaleX();
+		//Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX() - rectSize, -getCenterCordinateY() - rectSize, 2 * rectSize, 2 * rectSize);
+		Shape rectangle = new Rectangle2D.Double(-getCenterCordinateX()-(getWidth()/2/transform.getScaleY()),-getCenterCordinateY()-(getWidth()/2/transform.getScaleX()),getWidth()/transform.getScaleX(),getHeight()/transform.getScaleX());
 		ArrayList<KDTree.TreeNode> POI = new ArrayList<>();
-		for (KDTree.TreeNode n : model.getTree().getInRange(screenRectangle))
+
+		HashSet<WayType> typeW = new HashSet<>();
+
+		for (KDTree.TreeNode n : model.getTree().getInRange((Rectangle2D) rectangle))
 	     {
 			WayType type = n.getType();
+
 			if(type!= null){
+				if (type.getZoomFactor() > getXZoomFactor()) { continue; }
+				typeW.add(type);
+
 			Shape shape = n.getShape();
 			Color drawColor=getDrawColor(type);
 
 			g.setColor(drawColor);
 			g.setStroke(type.getDrawStroke());
 
-			if (type.getZoomFactor() < getXZoomFactor()) {
 				//How should the shapes be drawn?
 				if (type.getFillType() == FillType.LINE) {
 					g.draw(shape);
 				} else if (type.getFillType() == FillType.SOLID) {
 					g.fill(shape);
 				}
-			}
+
 			/*
 			g.setStroke(new BasicStroke(0.000008f));
 			Shape rectangle1 = shape.getBounds2D();
@@ -190,15 +193,21 @@ public class DrawCanvas extends JComponent implements Observer {
 			}
 
 		}
+
+
+
 		if(transform.getScaleY()>40000) {
 			for (KDTree.TreeNode n : POI) {
-				drawPointsOfInterest(g, n.getPointsOfInterest(), n.getX(), n.getY());
+                drawPointsOfInterest(g, n.getPointsOfInterest(), n.getX(), n.getY());
 			}
 		}
 
+
+		/*
 		g.setColor(Color.black);
 		g.setStroke(new BasicStroke(0.00008f));
-		g.draw(screenRectangle);
+		g.draw(rectangle);
+		*/
 
 		/*
 		//Draw all shapes
@@ -229,13 +238,6 @@ public class DrawCanvas extends JComponent implements Observer {
 
         }
 
-	}
-
-	private Point2D screenCoordsToLonLat(double x, double y) {
-		if(x<0||x>getWidth()||y<0||y>getHeight()){
-			System.out.println("Tror du bruger den forkerte funktion.. (screenCoordsToLonLat)");
-		}
-		return new Point2D.Double(-(transform.getTranslateX()-x)/getXZoomFactor(),-(transform.getTranslateY()-y)/getYZoomFactor());
 	}
 
 	public void pan(double dx, double dy) {
