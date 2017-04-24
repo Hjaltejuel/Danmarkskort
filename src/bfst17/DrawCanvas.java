@@ -30,7 +30,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
-
 	}
 
 	public double getCenterCordinateX() {
@@ -97,7 +96,6 @@ public class DrawCanvas extends JComponent implements Observer {
 			int green = (int) (drawColor.getGreen() * 0.587);
 			int blue = (int) (drawColor.getBlue() * 0.114);
 			int sum = red + green + blue;
-
 			drawColor = new Color(sum, sum, sum);
 		}
 		return drawColor;
