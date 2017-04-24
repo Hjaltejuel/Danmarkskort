@@ -151,7 +151,7 @@ public class Model extends Observable implements Serializable {
 	}
 
     public void loadAllCoastlines(){
-        String path = System.getProperty("user.dir") + "/resources/dkCoastlines.bin";
+        String path = System.getProperty("user.dir") + "/resources/dkcoast.bin";
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             coastlines = (ArrayList<Shape>) in.readObject();
