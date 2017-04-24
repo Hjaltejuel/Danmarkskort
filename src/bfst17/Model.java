@@ -221,6 +221,7 @@ public class Model extends Observable implements Serializable {
 		@Override
 		public void endDocument() throws SAXException {
             tree.fillTree(shapes,pointsOfInterest);
+			addressModel.fillTree();
 		}
 
 		@Override
