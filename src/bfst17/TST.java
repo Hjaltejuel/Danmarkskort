@@ -89,7 +89,8 @@ public class TST<Value,Value2> {
         if (c < x.c) x.left = put(x.left, key, val,val2, d);
         else if (c > x.c) x.right = put(x.right, key, val,val2, d);
         else if (d < key.length() - 1) x.mid = put(x.mid, key, val,val2, d + 1);
-        else if(x.val!=null) x.val = val;
+        else if(val!=null){
+            x.val = val;}
         else x.val2 = val2;
         return x;
     }
