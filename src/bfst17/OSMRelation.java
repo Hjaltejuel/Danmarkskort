@@ -1,19 +1,23 @@
 package bfst17;
 
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by trold on 2/15/17.
  */
 public class OSMRelation extends ArrayList<OSMWay> {
-    public Path2D toPath2D() {
-        Path2D path = new Path2D.Float(Path2D.WIND_EVEN_ODD);
+    public ArrayList<ArrayList<Point2D>> toList() {
+        ArrayList<ArrayList<Point2D>> returnList = new ArrayList<>();
         for (OSMWay way : this) {
             if (way != null) {
-                path.append(way.toPath2D(), false);
+                returnList.add((ArrayList<Point2D>) way.toList());
             }
         }
-        return path;
+        if(returnList.size()!=0) {
+            return returnList;
+        } else return null;
     }
 }

@@ -50,10 +50,9 @@ public class Model extends Observable implements Serializable {
 
     public AddressModel getAddressModel() { return addressModel; }
 
-    public Iterable<Shape> get(WayType type) {
-        return shapes.get(type);
-    }
-
+	public Iterable<Shape> get(WayType type) {
+		return shapes.get(type);
+	}
 
     private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
@@ -355,22 +354,25 @@ public class Model extends Observable implements Serializable {
                     if (type == WayType.NATURAL_COASTLINE) {
                         //DO NOTHING
                     } else {
-                        add(type, way.toPath2D());
+                        add(type, new PolygonApprox(way.toList()));
                     }
                     break;
                 case "relation":
-                    Path2D path = relation.toPath2D();
-                    if(adminRelation == true){
-                        addressModel.putRegion(name,new Region(path,regionCenter));
-                        adminRelation = false;
-                    } else {
-                        add(type, path);
-                    }
+                	ArrayList<ArrayList<Point2D>> list = relation.toList();
+                	if(list!=null) {
+						MultiPolygonApprox path = new MultiPolygonApprox(list);
+						if (adminRelation == true) {
+							addressModel.putRegion(name, new Region(path, regionCenter));
+							adminRelation = false;
+						} else {
+							add(type, path);
+						}
+					}
                     break;
                 case "osm":
                     coastlines.forEach((key, way) -> {
                         if (key == way.getFromNode()) {
-                            add(WayType.NATURAL_COASTLINE, way.toPath2D());
+                            add(WayType.NATURAL_COASTLINE,new PolygonApprox(way.toList()));
                         }
                     });
                     break;
