@@ -7,15 +7,15 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 
 public class TST<Value,Value2> {
-    private int n;              // size
+    private int n;
     private Node<Value,Value2> root;
-    private String oldPrefix;// root of TST
+    private String oldPrefix;
 
     private static class Node<Value,Value2> {
-        private char c;                        // character
-        private Node<Value,Value2> left, mid, right;  // left, middle, and right subtries
+        private char c;
+        private Node<Value,Value2> left, mid, right;
         private Value val;
-        private Value2 val2;// value associated with string
+        private Value2 val2;
     }
 
     public TST() {
@@ -63,15 +63,7 @@ public class TST<Value,Value2> {
         else return x;
     }
 
-    /**
-     * Inserts the key-value pair into the symbol table, overwriting the old value
-     * with the new value if the key is already in the symbol table.
-     * If the value is {@code null}, this effectively deletes the key from the symbol table.
-     *
-     * @param key the key
-     * @param val the value
-     * @throws IllegalArgumentException if {@code key} is {@code null}
-     */
+
     public void put(String key, Value val,Value2 val2) {
         if (key == null) {
             throw new IllegalArgumentException("calls put() with null key");
@@ -118,7 +110,6 @@ public class TST<Value,Value2> {
         return returnList;
     }
 
-    // all keys in subtrie rooted at x with given prefix
     private void collect(Node<Value,Value2> x, StringBuilder prefix, PriorityQueue<PriorityStrings> queue) {
         if (x == null) return;
         collect(x.left, prefix, queue);
