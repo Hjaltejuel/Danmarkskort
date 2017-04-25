@@ -16,9 +16,9 @@ import java.util.zip.ZipInputStream;
  */
 public class Model extends Observable implements Serializable {
 	private String[] addressBuilder = new String[4];
-    String name= "";
-    OSMNode regionCenter = null;
-    boolean adminRelation = false;
+	String name= "";
+	OSMNode regionCenter = null;
+	boolean adminRelation = false;
 
 	private boolean isAddressNode = false;
 	private AddressModel addressModel = new AddressModel();
@@ -32,42 +32,42 @@ public class Model extends Observable implements Serializable {
 			pointsOfInterest.put(type.name(),new ArrayList<>());
 		}
 	}
-    private KDTree tree = new KDTree();
-    private float minlat, minlon, maxlat, maxlon;
-    private float clminlat, clminlon, clmaxlat, clmaxlon;
-    private long nodeID;
-    private ArrayList<Shape> coastlines = new ArrayList<>();
-    private float lonfactor;
+	private KDTree tree = new KDTree();
+	private float minlat, minlon, maxlat, maxlon;
+	private float clminlat, clminlon, clmaxlat, clmaxlon;
+	private long nodeID;
+	private ArrayList<Shape> coastlines = new ArrayList<>();
+	private float lonfactor;
 
-    public Model(String filename) {
-        load(filename);
-    }
+	public Model(String filename) {
+		load(filename);
+	}
 
 
-    public KDTree getTree(){
-        return tree;
-    }
+	public KDTree getTree(){
+		return tree;
+	}
 
-    public AddressModel getAddressModel() { return addressModel; }
+	public AddressModel getAddressModel() { return addressModel; }
 
 	public Iterable<Shape> get(WayType type) {
 		return shapes.get(type);
 	}
 
-    private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
+	private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
 			shapes.put(type, new ArrayList<>());
 		}
 	}
 
 	public Model() {
-        //Til osm
+		//Til osm
 		load(this.getClass().getResource("/bornholm.osm").getPath());
 
-        //til bin
-        //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
-        loadAllCoastlines();
-        //load(path);
+		//til bin
+		//String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
+		loadAllCoastlines();
+		//load(path);
 	}
 
 	public void add(WayType type, Shape shape) {
@@ -90,7 +90,7 @@ public class Model extends Observable implements Serializable {
 			out.writeFloat(maxlon);
 			out.writeFloat(maxlat);
 			out.flush();
-        } catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -100,7 +100,7 @@ public class Model extends Observable implements Serializable {
 	public void load(String filename) {
 		if (filename.endsWith(".osm")) {
 			loadOSM(new InputSource(filename));
-        } else if (filename.endsWith(".zip")) {
+		} else if (filename.endsWith(".zip")) {
 			try {
 				ZipInputStream zip = new ZipInputStream(new FileInputStream(filename));
 				zip.getNextEntry();
@@ -120,8 +120,8 @@ public class Model extends Observable implements Serializable {
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
 
-                tree.fillTree(shapes,pointsOfInterest);
-                dirty();
+				tree.fillTree(shapes,pointsOfInterest);
+				dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -137,7 +137,7 @@ public class Model extends Observable implements Serializable {
 
 	private void loadOSM(InputSource source) {
 		try {
-            loadAllCoastlines();
+			loadAllCoastlines();
 			XMLReader reader = XMLReaderFactory.createXMLReader();
 			reader.setContentHandler(new OSMHandler());
 			reader.parse(source);
@@ -149,27 +149,27 @@ public class Model extends Observable implements Serializable {
 
 	}
 
-    public void loadAllCoastlines(){
-        String path = System.getProperty("user.dir") + "/resources/dkcoast.bin";
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
-            //Ryk rundt på dem her og få med Jens' knytnæve at bestille
-            coastlines = (ArrayList<Shape>) in.readObject();
-            lonfactor = in.readFloat();
-            clminlon = in.readFloat();
-            clminlat = in.readFloat();
-            clmaxlon = in.readFloat();
-            clmaxlat = in.readFloat();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
+	public void loadAllCoastlines(){
+		String path = System.getProperty("user.dir") + "/resources/dkcoast.bin";
+		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
+			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
+			coastlines = (ArrayList<Shape>) in.readObject();
+			lonfactor = in.readFloat();
+			clminlon = in.readFloat();
+			clminlat = in.readFloat();
+			clmaxlon = in.readFloat();
+			clmaxlat = in.readFloat();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 
 
-    public float getMinLon() {
+	public float getMinLon() {
 		return minlon;
 	}
 
@@ -191,15 +191,15 @@ public class Model extends Observable implements Serializable {
 		minlon += newMinLon;
 	}
 
-    public ArrayList<Shape> getCoastlines() {
-        return coastlines;
-    }
+	public ArrayList<Shape> getCoastlines() {
+		return coastlines;
+	}
 
-    private class OSMHandler implements ContentHandler {
+	private class OSMHandler implements ContentHandler {
 		//LongToPointMap idToNode = new LongToPointMap(18000000);
 		Long tid = System.nanoTime();
 		Map<Long,OSMWay> idToWay = new HashMap<>();
-        HashMap<Long, OSMNode> idToNode = new HashMap<>();
+		HashMap<Long, OSMNode> idToNode = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
 		float lat;
 		float lon;
@@ -225,7 +225,7 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
-            tree.fillTree(shapes,pointsOfInterest);
+			tree.fillTree(shapes,pointsOfInterest);
 		}
 
 		@Override
@@ -242,20 +242,20 @@ public class Model extends Observable implements Serializable {
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
 			count++;
-            if(count%100000==0) {
+			if(count%100000==0) {
 				System.out.println(count);
 			}
 			switch(qName) {
 				case "bounds":
-                    minlat = Float.parseFloat(atts.getValue("minlat"));
-                    minlon = Float.parseFloat(atts.getValue("minlon"));
-                    maxlat = Float.parseFloat(atts.getValue("maxlat"));
-                    maxlon = Float.parseFloat(atts.getValue("maxlon"));
+					minlat = Float.parseFloat(atts.getValue("minlat"));
+					minlon = Float.parseFloat(atts.getValue("minlon"));
+					maxlat = Float.parseFloat(atts.getValue("maxlat"));
+					maxlon = Float.parseFloat(atts.getValue("maxlon"));
 
-                    minlon *= lonfactor;
-                    maxlon *= lonfactor;
+					minlon *= lonfactor;
+					maxlon *= lonfactor;
 
-                    break;
+					break;
 				case "node":
 					nodeID = Long.parseLong(atts.getValue("id"));
 					lat = Float.parseFloat(atts.getValue("lat"));
@@ -309,25 +309,25 @@ public class Model extends Observable implements Serializable {
 						case "building":
 							type = WayType.BUILDING;
 							break;
-                        case "name":
-                            name = v;
-                            break;
-                        case "place":
-                            if(v.equals("village") || v.equals("town") || v.equals("city")){
-                                addressModel.put(name,idToNode.get(nodeID).getPoint2D());
-                            }
+						case "name":
+							name = v;
+							break;
+						case "place":
+							if(v.equals("village") || v.equals("town") || v.equals("city")){
+								addressModel.put(name,idToNode.get(nodeID).getPoint2D());
+							}
 					}
 					break;
 				case "member":
-				    String role = atts.getValue("role");
-                    ref = Long.parseLong(atts.getValue("ref"));
-                    if(role.equals("admin_centre")){
-                        regionCenter = idToNode.get(ref);
-                        if(regionCenter ==null){
-                            regionCenter = new OSMNode((maxlon+minlon)/2,-(maxlat+minlat)/2);
-                        }
-                        adminRelation = true;
-                    }
+					String role = atts.getValue("role");
+					ref = Long.parseLong(atts.getValue("ref"));
+					if(role.equals("admin_centre")){
+						regionCenter = idToNode.get(ref);
+						if(regionCenter ==null){
+							regionCenter = new OSMNode((maxlon+minlon)/2,-(maxlat+minlat)/2);
+						}
+						adminRelation = true;
+					}
 					relation.add(idToWay.get(ref));
 					break;
 			}
@@ -335,31 +335,31 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endElement(String uri, String localName, String qName) throws SAXException {
-            switch (qName) {
-                case "node":
-                    if (isAddressNode == true) {
-                        for (int i = 0; i < addressBuilder.length; i++) {
-                            if (addressBuilder[i] == null) {
-                                addressBuilder[i] = "";
-                            }
-                        }
-                        String address = addressBuilder[0] + " " + addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
-                        //LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
-                        //LongToPointMap.Node k = new LongToPointMap.Node(m.key, (float) m.getX(), (float) m.getY(), null);
-                        addressModel.put(Address.parse(address).toString(), idToNode.get(nodeID).getPoint2D());
-                        isAddressNode = false;
-                    }
-                    break;
-                case "way":
-                    if (type == WayType.NATURAL_COASTLINE) {
-                        //DO NOTHING
-                    } else {
-                        add(type, new PolygonApprox(way.toList()));
-                    }
-                    break;
-                case "relation":
-                	ArrayList<ArrayList<Point2D>> list = relation.toList();
-                	if(list!=null) {
+			switch (qName) {
+				case "node":
+					if (isAddressNode == true) {
+						for (int i = 0; i < addressBuilder.length; i++) {
+							if (addressBuilder[i] == null) {
+								addressBuilder[i] = "";
+							}
+						}
+						String address = addressBuilder[0] + " " + addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
+						//LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
+						//LongToPointMap.Node k = new LongToPointMap.Node(m.key, (float) m.getX(), (float) m.getY(), null);
+						addressModel.put(Address.parse(address).toString(), idToNode.get(nodeID).getPoint2D());
+						isAddressNode = false;
+					}
+					break;
+				case "way":
+					if (type == WayType.NATURAL_COASTLINE) {
+						//DO NOTHING
+					} else {
+						add(type, new PolygonApprox(way.toList()));
+					}
+					break;
+				case "relation":
+					ArrayList<ArrayList<Point2D>> list = relation.toList();
+					if(list!=null) {
 						MultiPolygonApprox path = new MultiPolygonApprox(list);
 						if (adminRelation == true) {
 							addressModel.putRegion(name, new Region(path, regionCenter));
@@ -368,16 +368,16 @@ public class Model extends Observable implements Serializable {
 							add(type, path);
 						}
 					}
-                    break;
-                case "osm":
-                    coastlines.forEach((key, way) -> {
-                        if (key == way.getFromNode()) {
-                            add(WayType.NATURAL_COASTLINE,new PolygonApprox(way.toList()));
-                        }
-                    });
-                    break;
-            }
-        }
+					break;
+				case "osm":
+					coastlines.forEach((key, way) -> {
+						if (key == way.getFromNode()) {
+							add(WayType.NATURAL_COASTLINE,new PolygonApprox(way.toList()));
+						}
+					});
+					break;
+			}
+		}
 
 		@Override
 		public void characters(char[] ch, int start, int length) throws SAXException {
