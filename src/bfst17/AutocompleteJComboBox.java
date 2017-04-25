@@ -12,14 +12,15 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.PriorityQueue;
 import java.util.concurrent.*;
 
 public class AutocompleteJComboBox extends JComboBox {
-    private final StringSearchable searcher;
+    private final TST searcher;
     private boolean firstTime = true;
     private JTextComponent userInput;
 
-    public AutocompleteJComboBox(StringSearchable s) {
+    public AutocompleteJComboBox(TST tree) {
 
         //Makes the arrow invisible and set it so it does nothing
         setUI(new BasicComboBoxUI() {
@@ -36,7 +37,7 @@ public class AutocompleteJComboBox extends JComboBox {
             }
         });
         this.setBorder(BorderFactory.createLineBorder(Color.lightGray));
-        this.searcher = s;
+        this.searcher = tree;
         this.setEditable(true);
         Component c = this.getEditor().getEditorComponent();
         if (c instanceof JTextComponent) {
@@ -55,41 +56,55 @@ public class AutocompleteJComboBox extends JComboBox {
 
 
                 }
+                public String makeUpperCase(String s) {
+                    if (!s.equals("")) {
+                        StringBuffer res = new StringBuffer();
+                        int i = 0;
+                        String[] strArray = s.split(" ");
+                        for (String str : strArray) {
+                            i++;
+                            char[] stringArray = str.trim().toCharArray();
+                            stringArray[0] = Character.toUpperCase(stringArray[0]);
+                            str = new String(stringArray);
+                            if (i != strArray.length) {
+                                res.append(str).append(" ");
+                            } else res.append(str);
+
+                        }
+                        return res.toString();
+                    }
+                    return "";
+                }
 
                 public void update() {
                     SwingUtilities.invokeLater(() -> {
 
-                            ArrayList<String> founds = new ArrayList(AutocompleteJComboBox.this.searcher.search(userInput.getText().toLowerCase()));
-                            HashSet<String> foundSet = new HashSet();
-                            for(String s: founds){
-                                foundSet.add(s.toLowerCase());
-                            }
-
-                            AutocompleteJComboBox.this.setEditable(false);
-                            AutocompleteJComboBox.this.removeAllItems();
-                        if (!foundSet.contains(userInput.getText().toLowerCase())) {
-                            AutocompleteJComboBox.this.addItem(userInput.getText());
-                        }
-                            int i = 0;
-                            for(String s: founds){
-
-                                StringBuffer res = new StringBuffer();
-
-                                String[] strArray = s.split(" ");
-                                for (String str : strArray) {
-                                    i++;
-                                    char[] stringArray = str.trim().toCharArray();
-                                    stringArray[0] = Character.toUpperCase(stringArray[0]);
-                                    str = new String(stringArray);
-                                    if(i!=strArray.length) {
-                                        res.append(str).append(" ");
-                                    } else res.append(str);
-
+                            ArrayList<String> founds = tree.keysWithPrefix(makeUpperCase(userInput.getText()));
+                            if(founds!=null) {
+                                HashSet<String> foundSet = new HashSet();
+                                for (String s : founds) {
+                                    foundSet.add(s.toLowerCase());
                                 }
-                                AutocompleteJComboBox.this.addItem(res.toString());
-                            }
-                            setEditable(true);
+
+                                AutocompleteJComboBox.this.setEditable(false);
+                                AutocompleteJComboBox.this.removeAllItems();
+                                if (!foundSet.contains(userInput.getText().toLowerCase())) {
+                                    AutocompleteJComboBox.this.addItem(userInput.getText());
+                                }
+
+                                for (String s : founds) {
+
+                                    String res = makeUpperCase(s);
+                                    AutocompleteJComboBox.this.addItem(res);
+                                }
+                                setEditable(true);
+                                userInput.requestFocus();
+                            } else {AutocompleteJComboBox.this.removeAllItems();
+                            userInput.setVisible(false);
+                            userInput.setVisible(true);
                             userInput.requestFocus();
+
+                            }
                     });
                 }
             });

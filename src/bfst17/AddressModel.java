@@ -3,6 +3,7 @@ package bfst17;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
+import java.lang.instrument.Instrumentation;
 import java.util.*;
 
 /**
@@ -11,33 +12,28 @@ import java.util.*;
 public class AddressModel extends Observable implements Serializable {
 
     public AddressModel() {
-        this.addressToCordinate = new HashMap<>();
-        this.regionToShape = new HashMap<>();
+        tree = new TST<>();
     }
 
-
-    public HashMap<String,Point2D> getAddressToCordinate(){return addressToCordinate;}
-    public HashMap<String,Region> getRegionToShape(){return regionToShape;}
-
+    public TST<Point2D,Region> getTSTTree(){return tree;}
 
     public void put(String address, Point2D point) {
-            addressToCordinate.put(address, point);
-            setChanged();
-            notifyObservers();
+        if(!address.equals("")) {
+            tree.put(address, point, null);
+        }
     }
 
     public void putRegion(String region, Region shape){
-        regionToShape.put(region,shape);
+        tree.put(region,null,shape);
     }
 
-    public HashMap<String, Point2D> addressToCordinate;
-    private HashMap<String, Region> regionToShape;
+    TST<Point2D,Region> tree;
 
     public Region getRegion(String region){
-        return regionToShape.get(region);
+        return tree.getval2(region);
     }
 
     public Point2D getPoint2DToAddress(String address) {
-        return addressToCordinate.get(Address.parse(address).toString());
+        return tree.get(Address.parse(address).toString());
     }
 }
