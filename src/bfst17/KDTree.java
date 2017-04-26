@@ -14,7 +14,6 @@ public class KDTree implements Serializable {
     TreeNode root;
     WayType type;
     int size;
-    Point2D point;
     boolean isVertical = true;
 
     public KDTree(WayType type) {
@@ -35,11 +34,13 @@ public class KDTree implements Serializable {
         private TreeNode high;
         private double highSplit;
         private double lowSplit;
+        private Rectangle2D bounds;
 
         public TreeNode(Shape s, double x , double y) {
             this.x = x;
             this.y = y;
             this.shape = s;
+            bounds = s.getBounds2D();
         }
 
         @Override
@@ -83,8 +84,6 @@ public class KDTree implements Serializable {
         }
         TreeNode[] allShapes = allShapesList.toArray(new TreeNode[allShapesList.size()]);
         insertArray(allShapes, 0, allShapes.length - 1, true);
-        //System.out.println("Max tree depth: " + maxDepth);
-        //System.out.println("Der burde være: " + allShapes.length + " Der er: " + +count);
     }
 
     public void insertArray(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
@@ -94,7 +93,7 @@ public class KDTree implements Serializable {
             return;
         }
         isVertical = vertical;
-        Arrays.sort(allShapes, lo, hi+1);
+        Arrays.sort(allShapes, lo, hi + 1);
         Integer medianIndex = (lo + hi) / 2;
         tmpDepth=0;
         insert(allShapes[medianIndex], root, true);
@@ -109,12 +108,9 @@ public class KDTree implements Serializable {
 
 
     private HashSet<Shape> shapes;
-    public HashSet<Line2D> lines;
     public HashSet<Shape> getInRange(Rectangle2D rect) {
         shapes = new HashSet<>();
-        lines= new HashSet<>();
         getShapesBelowNodeInsideBounds(root, rect, true);
-        //System.out.println(shapes.size());
         return shapes;
     }
 
@@ -122,36 +118,17 @@ public class KDTree implements Serializable {
         shapes.add(node.shape);
     }
 
-    boolean isLargerThan(TreeNode node, double x, double y, boolean vertical) {
-        boolean isBigger = vertical ? node.getX() > x : node.getY() > y;
-        return isBigger;
-    }
-
     public void getShapesBelowNodeInsideBounds(TreeNode startNode, Rectangle2D rect, boolean vertical) {
         if (startNode == null) {
             return;
         }
 
-        Line2D line;
-        Line2D line1;
-        if(vertical) {
-            line = new Line2D.Double( startNode.lowSplit, 0, startNode.lowSplit,-60);
-            line1 = new Line2D.Double( startNode.highSplit, 0, startNode.highSplit,-60);
-        } else{
-            line = new Line2D.Double(50,startNode.lowSplit, 0, startNode.lowSplit);
-            line1 = new Line2D.Double(50,startNode.highSplit, 0, startNode.highSplit);
-        }
-        lines.add(line);
-        lines.add(line1);
-
-
-        /*if(rect.contains(startNode.shape.getBounds2D())) {
+        //Kun tegn det der er inde for skærmen
+        if(rect.intersects(startNode.bounds)) {
             add(startNode);
-        }*/
-        add(startNode);
+        }
 
         if(vertical){
-            //if(startNode.highSplit<rect.getMinY()){return;}
             if(startNode.lowSplit < rect.getMaxX()) {
                 getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
             }
@@ -159,7 +136,6 @@ public class KDTree implements Serializable {
                 getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
             }
         } else {
-            //System.out.println(startNode.highSplit-rect.getMinY());
             if (startNode.highSplit > rect.getMinY()) {
                 getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
             }
@@ -167,39 +143,6 @@ public class KDTree implements Serializable {
                 getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
             }
         }
-        /*
-        if(vertical){
-            //if(startNode.highSplit<rect.getMinY()){return;}
-            if(startNode.lowSplit > rect.getMaxX()) {
-                getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
-                return;
-            }
-            if(startNode.highSplit <rect.getMinX()) {
-                getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
-                return;
-            }
-        } else {
-            if (startNode.highSplit < rect.getMinY()) {
-                getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
-                return;
-            }
-            if (startNode.lowSplit > rect.getMaxY()) {
-                getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
-                return;
-            }
-        }
-        getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
-        getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
-        */
-        /*
-        if(rect.contains(startNode.shape.getBounds2D())) {
-            //System.out.println("A");
-            //add(startNode);
-            getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
-            getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
-            return;
-        }
-        */
     }
 
     Integer count = 0;
@@ -207,8 +150,8 @@ public class KDTree implements Serializable {
     Integer tmpDepth=0;
     public TreeNode insert(TreeNode insertNode, TreeNode compareNode, boolean vertical) {
         if (compareNode == null) {
-            insertNode.highSplit = insertNode.shape.getBounds2D().getMaxX();
-            insertNode.lowSplit = insertNode.shape.getBounds2D().getMinX();
+            insertNode.highSplit = insertNode.bounds.getMaxX();
+            insertNode.lowSplit = insertNode.bounds.getMinX();
             root = insertNode;
             count++;
             return insertNode;
@@ -220,9 +163,9 @@ public class KDTree implements Serializable {
             insert(insertNode, nextNode, !vertical);
         }
         else {
-            insertNode.highSplit = !vertical ? insertNode.shape.getBounds2D().getMaxX() : insertNode.shape.getBounds2D().getMaxY();
-            insertNode.lowSplit = !vertical ? insertNode.shape.getBounds2D().getMinX() : insertNode.shape.getBounds2D().getMinY();
-            if (isSmaller) { //Ryk til venstre hvis comparisonNode er mindre end
+            insertNode.highSplit = !vertical ? insertNode.bounds.getMaxX() : insertNode.bounds.getMaxY();
+            insertNode.lowSplit = !vertical ? insertNode.bounds.getMinX() : insertNode.bounds.getMinY();
+            if (isSmaller) {
                 compareNode.low = insertNode;
             } else {
                 compareNode.high = insertNode;
