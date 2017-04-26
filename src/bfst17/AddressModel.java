@@ -15,25 +15,22 @@ public class AddressModel extends Observable implements Serializable {
         tree = new TST<>();
     }
 
-    public TST<Point2D,Region> getTSTTree(){return tree;}
+    public TST<TSTInterface> getTSTTree(){return tree;}
 
-    public void put(String address, Point2D point) {
+    public void put(String address, OSMNode point) {
         if(!address.equals("")) {
-            tree.put(address, point, null);
+            tree.put(address, point);
         }
     }
 
     public void putRegion(String region, Region shape){
-        tree.put(region,null,shape);
+        tree.put(region,shape);
     }
 
-    TST<Point2D,Region> tree;
+    TST<TSTInterface> tree;
 
-    public Region getRegion(String region){
-        return tree.getval2(region);
-    }
 
-    public Point2D getPoint2DToAddress(String address) {
+    public TSTInterface getAddress(String address) {
         return tree.get(Address.parse(address).toString());
     }
 }

@@ -203,9 +203,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         String s = (String) combo.getSelectedItem();
         if (!s.equals("")) {
             //points lat, lon
-            if(addressModel.getPoint2DToAddress(s.trim())!=null) {
-                double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
-                double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
+            TSTInterface address = addressModel.getAddress(s.trim());
+            if(address!=null && !(address instanceof Region)) {
+                double lat = -address.getY();
+                double lon = -address.getX();
 
                 //distance from center of screen in lat lon
                 double distanceToCenterY = lat - canvas.getCenterCordinateY();
@@ -232,12 +233,11 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     canvas.zoomAndCenter();
                 }
                 canvas.setSearchMode((float) lon, (float) lat);
-            } else if(addressModel.getRegion(s.trim())!=null){
-                Shape shape = addressModel.getRegion(s.trim()).getShape();
-                Point2D center = addressModel.getRegion(s.trim()).getCenter().getPoint2D();
+            } else if(address!=null && address instanceof Region){
+                Shape shape = address.getShape();
                 canvas.regionSearch(shape);
-                double lat = -center.getY();
-                double lon = -center.getX();
+                double lat = -address.getY();
+                double lon = -address.getX();
 
 
                 double distanceToCenterY = lat - canvas.getCenterCordinateY();

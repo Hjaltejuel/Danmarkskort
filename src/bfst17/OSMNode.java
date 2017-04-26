@@ -7,23 +7,20 @@ import java.io.Serializable;
 /**
  * Created by trold on 2/15/17.
  */
-public class OSMNode implements Serializable {
-	float lon, lat;
-
-	public float getLon() {
-		return lon;
+public class OSMNode extends Point2D.Float implements TSTInterface {
+	String address;
+	public OSMNode(float x, float y) {
+		super(x, y);
+		this.address = null;
 	}
-
-	public float getLat() {
-		return lat;
+	public void setAddressName(String address){
+		this.address = address;
 	}
+	public void getAddress(){}
 
-	public OSMNode(float lon, float lat) {
-		this.lon = lon;
-		this.lat = lat;
-	}
-
-	public Point2D getPoint2D(){
-		return new Point2D.Double(lon, lat);
+	@Override
+	public Shape getShape() {
+		return null;
 	}
 }
+
