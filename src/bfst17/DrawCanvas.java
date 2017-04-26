@@ -4,14 +4,10 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
-import java.util.List;
 
 /**
  * Created by trold on 2/8/17.
@@ -33,10 +29,10 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
 	public double getCenterCordinateX() {
-        return (transform.getTranslateX()/transform.getScaleX())-((getWidth()/transform.getScaleX())/2);
+        return (transform.getTranslateX()-getWidth()/2)/transform.getScaleX();
 	}
 	public double getCenterCordinateY() {
-		return (transform.getTranslateY() / transform.getScaleY()) -((getHeight() / transform.getScaleY())/2);
+		return (transform.getTranslateY()-getHeight()/2) / transform.getScaleY();
     }
 
     public void setSearchMode(float lon,float lat) {
@@ -86,7 +82,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	 * @see #paint
 	 */
 
-	private Color getDrawColor(WayType type){
+	private Color getDrawColor(WayType type) {
 		Color drawColor = type.getDrawColor();
 
 		if(nightmode) {
@@ -103,7 +99,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	@Override
 	protected void paintComponent(Graphics _g) {
-        Graphics2D g = (Graphics2D) _g;
+		Graphics2D g = (Graphics2D) _g;
 		if (nightmode) {
 			g.setColor(WayType.NATURAL_WATER.getNightModeColor());
 		} else {
@@ -116,43 +112,41 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		for(Shape s: model.get(WayType.NATURAL_COASTLINE)) {
+		for (Shape s : model.get(WayType.NATURAL_COASTLINE)) {
 			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
 			g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
 			g.fill(s);
 		}
 
-		Point2D topLeft = screenCoordsToLonLat(150,150);
-		Point2D topRight = screenCoordsToLonLat(getWidth()-150,getHeight()-150);
+		Point2D topLeft = screenCordsToLonLat(0, 0);
+		Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
 		Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
-				topRight.getX()- topLeft.getX(),topRight.getY()- topLeft.getY());
+				topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
 
-		EnumMap<WayType, List<Shape>> shapes = model.getTree().getInRange((Rectangle2D) screenRectangle);
-		for (WayType type : WayType.values()) {
+		for (KDTree tree : model.getTree()) {
+			WayType type = tree.type;
+			if (type.getZoomFactor() > getXZoomFactor()) {
+				continue;
+			}
+
+			HashSet<Shape> shapes = tree.getInRange((Rectangle2D) screenRectangle);
 			g.setColor(getDrawColor(type));
 
 			g.setStroke(type.getDrawStroke());
-			if (type.getZoomFactor() < getXZoomFactor()) {
-				//How should the data be drawn?
-				if (type.getFillType() == FillType.LINE) {
-					for (Shape shape : shapes.get(type)) {
-						g.draw(shape);
-						//g.draw(shape.getBounds2D());
-					}
-				} else if (type.getFillType() == FillType.SOLID) {
-					for (Shape shape : shapes.get(type)) {
-						g.fill(shape);
 
-						g.draw(shape.getBounds2D());
-					}
+			//Her bestemmes om shapes skal fyldes eller ej
+			if (type.getFillType() == FillType.LINE) {
+				for (Shape shape : shapes) {
+					g.draw(shape);
+				}
+			} else if (type.getFillType() == FillType.SOLID) {
+				for (Shape shape : shapes) {
+					g.fill(shape);
 				}
 			}
 		}
-
-		g.setColor(Color.black);
-		g.draw(screenRectangle);
-
 		setPin(g);
+
 	}
 
 	public void pan(double dx, double dy) {
@@ -161,7 +155,7 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
 	}
 
-	public void setPin(Graphics g) {
+	public void setPin(Graphics2D g) {
         if(pin!=null) {
             BufferedImage image = null;
             try {
@@ -170,7 +164,7 @@ public class DrawCanvas extends JComponent implements Observer {
                 e.printStackTrace();
             }
             AffineTransform imageTransform = new AffineTransform();
-            ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             imageTransform.setToIdentity();
 
             //System.out.println(pin.getX() + " " + pin.getY());
@@ -179,7 +173,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
             imageTransform.translate(-pin.getX(),-pin.getY());
             imageTransform.scale(((1/transform.getScaleX())/7),((1/transform.getScaleY())/7));
-            ((Graphics2D) g).drawImage(image, imageTransform, null);
+            g.drawImage(image, imageTransform, null);
             searchMode = false;
         }
 	}
@@ -210,9 +204,9 @@ public class DrawCanvas extends JComponent implements Observer {
 	private Point2D pixelToLonLat(double x, double y) {
 		return new Point2D.Double(x/getXZoomFactor(),y/getYZoomFactor());
 	}
-	private Point2D screenCoordsToLonLat(double x, double y) {
-		if(x<0||x>getWidth()||y<0||y>getHeight()){
-			System.out.println("Tror du bruger den forkerte funktion.. (screenCoordsToLonLat)");
+	private Point2D screenCordsToLonLat(double x, double y) {
+		if(x<0||x>getWidth()||y<0||y>getHeight()) {
+			System.out.println("Tror du bruger den forkerte funktion.. (screenCordsToLonLat)");
 		}
 		return new Point2D.Double(-(transform.getTranslateX()-x)/getXZoomFactor(),-(transform.getTranslateY()-y)/getYZoomFactor());
 	}
@@ -239,9 +233,7 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 				pan(partDX, partDY);
 				panCounter++;
-
 			}
-
 		}, 0, 10);
 	}
 

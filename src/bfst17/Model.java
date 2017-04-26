@@ -2,7 +2,6 @@ package bfst17;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
-import sun.swing.StringUIClientPropertyKey;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -20,8 +19,8 @@ public class Model extends Observable implements Serializable {
 	private HashSet<String> PostCode = new HashSet<>();
 	private boolean isAddressNode = false;
 	private AddressModel addressModel = new AddressModel();
-    private KDTree t = new KDTree();
-    private tmpKDTree tree = new tmpKDTree();
+    //private KDTree t = new KDTree();
+    private ArrayList<KDTree> treeList = new ArrayList<>();
 	private float minlat, minlon, maxlat, maxlon;
     private long nodeID;
 
@@ -30,8 +29,8 @@ public class Model extends Observable implements Serializable {
         load(filename);
     }
 
-    public tmpKDTree getTree() {
-        return tree;
+    public ArrayList<KDTree> getTree() {
+        return treeList;
     }
 
     public AddressModel getAddressModel() { return addressModel; }
@@ -99,10 +98,8 @@ public class Model extends Observable implements Serializable {
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
-				tree.fillTree(shapes);
-				t.fillTree(shapes);
-				System.out.println(tree.maxDepth);
-				System.out.println(tree.count);
+				fillTrees();
+				//t.fillTreeWithShapes(shapes);
 				dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -114,6 +111,25 @@ public class Model extends Observable implements Serializable {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private void fillTrees() {
+		for (WayType type : WayType.values()) {
+			List<Shape> list = shapes.get(type);
+			if (list.size() == 0 || type==WayType.UNKNOWN || type==WayType.NATURAL_COASTLINE) {
+				continue;
+			}
+			KDTree treeWithType = new KDTree(type);
+			treeWithType.fillTreeWithShapes(list);
+			treeList.add(treeWithType);
+			System.out.println("MaxDepth: " + treeWithType.maxDepth + "\t\t\tElement Count:" + treeWithType.count + "\t\t\tType: " + type);
+		}
+		System.out.println("Number of trees: "+treeList.size());
+	}
+
+	private Point2D[] shapeToPoints(Shape s) {
+    	
+    	return null;
 	}
 
 	private void loadOSM(InputSource source) {
@@ -180,7 +196,7 @@ public class Model extends Observable implements Serializable {
 			for(String s: PostCode){
 				addressModel.put(s,null);
 			}
-            tree.fillTree(shapes);
+			fillTrees();
 		}
 
 		@Override
@@ -285,7 +301,6 @@ public class Model extends Observable implements Serializable {
                         String address = addressBuilder[0] + " " + addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
                         PostCode.add(addressBuilder[2] + " " + addressBuilder[3]);
                         PostCode.add(addressBuilder[3]);
-
 
                         //LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
                         //LongToPointMap.Node k = new LongToPointMap.Node(m.key, (float) m.getX(), (float) m.getY(), null);

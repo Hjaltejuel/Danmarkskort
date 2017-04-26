@@ -1,6 +1,9 @@
 package bfst17;
 
+import sun.reflect.generics.tree.Tree;
+
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
@@ -9,13 +12,15 @@ import java.util.List;
 
 public class KDTree implements Serializable {
     TreeNode root;
+    WayType type;
     int size;
     Point2D point;
     boolean isVertical = true;
 
-    public KDTree() {
+    public KDTree(WayType type) {
         size = 0;
         root = null;
+        this.type = type;
     }
 
     public TreeNode getRoot() {
@@ -26,15 +31,15 @@ public class KDTree implements Serializable {
         //private Point2D point;
         private double x, y;
         private Shape shape;
-        private WayType type;
-        private TreeNode left;
-        private TreeNode right;
+        private TreeNode low;
+        private TreeNode high;
+        private double highSplit;
+        private double lowSplit;
 
-        public TreeNode(double x, double y, Shape s, WayType type) {
+        public TreeNode(Shape s, double x , double y) {
             this.x = x;
             this.y = y;
             this.shape = s;
-            this.type = type;
         }
 
         @Override
@@ -61,22 +66,22 @@ public class KDTree implements Serializable {
         }
     }
 
-    public void fillTree(EnumMap<WayType, List<Shape>> shapes) {
-        ArrayList<TreeNode> listOfShapes = new ArrayList<>();
-        /**/
-        for (WayType type : WayType.values()) {
-            //WayType type = WayType.NATURAL_WOOD;
-            List<Shape> list = shapes.get(type);
-            for (Shape s : list) {
-                //Add en node for hvert hjørne i bounds
-                Rectangle2D bounds = s.getBounds2D();
-                listOfShapes.add(new TreeNode(bounds.getCenterX(), bounds.getCenterY(), s, type));
-            }
-        }
-        TreeNode[] allShapes = listOfShapes.toArray(new TreeNode[listOfShapes.size()]);
-        if(allShapes.length==0) {
+    public void fillTreeWithShapes(List<Shape> shapes) {
+        if (shapes.size() == 0) {
             return;
         }
+
+        ArrayList<TreeNode> allShapesList = new ArrayList<>();
+        for(int i=0;i<shapes.size();i++) {
+            Shape shape = shapes.get(i);
+            Rectangle2D bounds = shape.getBounds2D();
+            allShapesList.add(new TreeNode(shape, bounds.getCenterX(), bounds.getCenterY()));
+            allShapesList.add(new TreeNode(shape, bounds.getMinX(), bounds.getMinY()));
+            allShapesList.add(new TreeNode(shape, bounds.getMinX(), bounds.getMaxY()));
+            allShapesList.add(new TreeNode(shape, bounds.getMaxX(), bounds.getMinY()));
+            allShapesList.add(new TreeNode(shape, bounds.getMaxX(), bounds.getMaxY()));
+        }
+        TreeNode[] allShapes = allShapesList.toArray(new TreeNode[allShapesList.size()]);
         insertArray(allShapes, 0, allShapes.length - 1, true);
         //System.out.println("Max tree depth: " + maxDepth);
         //System.out.println("Der burde være: " + allShapes.length + " Der er: " + +count);
@@ -103,18 +108,18 @@ public class KDTree implements Serializable {
     }
 
 
-    private EnumMap<WayType, List<Shape>> shapes;
-    public EnumMap<WayType, List<Shape>> getInRange(Rectangle2D rect) {
-        shapes = new EnumMap<>(WayType.class);
-        for (WayType type : WayType.values()) {
-            shapes.put(type, new ArrayList<>());
-        }
+    private HashSet<Shape> shapes;
+    public HashSet<Line2D> lines;
+    public HashSet<Shape> getInRange(Rectangle2D rect) {
+        shapes = new HashSet<>();
+        lines= new HashSet<>();
         getShapesBelowNodeInsideBounds(root, rect, true);
+        //System.out.println(shapes.size());
         return shapes;
     }
 
     private void add(TreeNode node){
-        shapes.get(node.type).add(node.shape);
+        shapes.add(node.shape);
     }
 
     boolean isLargerThan(TreeNode node, double x, double y, boolean vertical) {
@@ -126,23 +131,75 @@ public class KDTree implements Serializable {
         if (startNode == null) {
             return;
         }
-        if(rect.contains(startNode.getX(),startNode.getY())){
+
+        Line2D line;
+        Line2D line1;
+        if(vertical) {
+            line = new Line2D.Double( startNode.lowSplit, 0, startNode.lowSplit,-60);
+            line1 = new Line2D.Double( startNode.highSplit, 0, startNode.highSplit,-60);
+        } else{
+            line = new Line2D.Double(50,startNode.lowSplit, 0, startNode.lowSplit);
+            line1 = new Line2D.Double(50,startNode.highSplit, 0, startNode.highSplit);
+        }
+        lines.add(line);
+        lines.add(line1);
+
+
+        /*if(rect.contains(startNode.shape.getBounds2D())) {
             add(startNode);
-        }
-        Rectangle2D bounds = startNode.shape.getBounds2D();
-        if (bounds.getMinX() < rect.getMaxX() || bounds.getMinY() < rect.getMaxY()) {
-            getShapesBelowNodeInsideBounds(startNode.right, rect, !vertical);
-        }
-        if (bounds.getMaxX() > rect.getMinX() || bounds.getMaxY() > rect.getMinY()) {
-            getShapesBelowNodeInsideBounds(startNode.left, rect, !vertical);
+        }*/
+        add(startNode);
+
+        if(vertical){
+            //if(startNode.highSplit<rect.getMinY()){return;}
+            if(startNode.lowSplit < rect.getMaxX()) {
+                getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
+            }
+            if(startNode.highSplit > rect.getMinX()) {
+                getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
+            }
+        } else {
+            //System.out.println(startNode.highSplit-rect.getMinY());
+            if (startNode.highSplit > rect.getMinY()) {
+                getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
+            }
+            if (startNode.lowSplit < rect.getMaxY()) {
+                getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
+            }
         }
         /*
-        if (isLargerThan(startNode, rect.getMinX(), rect.getMinY(), vertical)) {
-            getShapesBelowNodeInsideBounds(startNode.left, rect, !vertical);
+        if(vertical){
+            //if(startNode.highSplit<rect.getMinY()){return;}
+            if(startNode.lowSplit > rect.getMaxX()) {
+                getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
+                return;
+            }
+            if(startNode.highSplit <rect.getMinX()) {
+                getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
+                return;
+            }
+        } else {
+            if (startNode.highSplit < rect.getMinY()) {
+                getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
+                return;
+            }
+            if (startNode.lowSplit > rect.getMaxY()) {
+                getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
+                return;
+            }
         }
-        if (!isLargerThan(startNode, rect.getMaxX(), rect.getMaxY(), vertical)) {
-            getShapesBelowNodeInsideBounds(startNode.right, rect, !vertical);
-        }*/
+        getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
+        getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
+        */
+        /*
+        if(rect.contains(startNode.shape.getBounds2D())) {
+            //System.out.println("A");
+            //add(startNode);
+            getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
+            getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
+            return;
+        }
+        */
     }
 
     Integer count = 0;
@@ -150,21 +207,25 @@ public class KDTree implements Serializable {
     Integer tmpDepth=0;
     public TreeNode insert(TreeNode insertNode, TreeNode compareNode, boolean vertical) {
         if (compareNode == null) {
+            insertNode.highSplit = insertNode.shape.getBounds2D().getMaxX();
+            insertNode.lowSplit = insertNode.shape.getBounds2D().getMinX();
             root = insertNode;
             count++;
             return insertNode;
         }
         tmpDepth++;
         boolean isSmaller = vertical ? insertNode.getX() < compareNode.getX() : insertNode.getY() < compareNode.getY();
-        TreeNode nextNode = isSmaller ? compareNode.left : compareNode.right;
+        TreeNode nextNode = isSmaller ? compareNode.low : compareNode.high;
         if (nextNode != null) {
             insert(insertNode, nextNode, !vertical);
         }
         else {
+            insertNode.highSplit = !vertical ? insertNode.shape.getBounds2D().getMaxX() : insertNode.shape.getBounds2D().getMaxY();
+            insertNode.lowSplit = !vertical ? insertNode.shape.getBounds2D().getMinX() : insertNode.shape.getBounds2D().getMinY();
             if (isSmaller) { //Ryk til venstre hvis comparisonNode er mindre end
-                compareNode.left = insertNode;
+                compareNode.low = insertNode;
             } else {
-                compareNode.right = insertNode;
+                compareNode.high = insertNode;
             }
             count++;
             maxDepth = Math.max(tmpDepth, maxDepth);
