@@ -25,6 +25,12 @@ public enum WayType {
 					1500,
 					FillType.SOLID,
 					new Color(38, 60, 63)),
+    LANDUSE_FOREST
+            (new Color(157, 202, 138),
+                    null,
+                    700,
+                    FillType.SOLID,
+                    new Color(36, 47, 62)),
 	LANDUSE_GRASS
 			(new Color(197, 236, 148),
 					null,
@@ -275,12 +281,6 @@ public enum WayType {
 			(new Color(158, 220, 144),
 					null,
 					1500,
-					FillType.SOLID,
-					new Color(36, 47, 62)),
-	LANDUSE_FOREST
-			(new Color(157, 202, 138),
-					null,
-					700,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_VINEYARD

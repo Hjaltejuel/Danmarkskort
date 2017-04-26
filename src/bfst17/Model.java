@@ -21,9 +21,7 @@ public class Model extends Observable implements Serializable {
 
 	private boolean isAddressNode = false;
 	private AddressModel addressModel = new AddressModel();
-    //private KDTree t = new KDTree();
-    private ArrayList<KDTree> treeList = new ArrayList<>();
-	private float minlat, minlon, maxlat, maxlon;
+
 	private HashMap<String, WayType> namesToWayTypes = new HashMap<>(); {
 		for(WayType type : WayType.values()){
 			namesToWayTypes.put(type.name(),type);
@@ -34,7 +32,9 @@ public class Model extends Observable implements Serializable {
 			pointsOfInterest.put(type.name(),new ArrayList<>());
 		}
 	}
-    private KDTree tree = new KDTree();
+
+    private ArrayList<KDTree> treeList = new ArrayList<>();
+
     private float minlat, minlon, maxlat, maxlon;
     private float clminlat, clminlon, clmaxlat, clmaxlon;
     private long nodeID;
@@ -48,6 +48,7 @@ public class Model extends Observable implements Serializable {
 
     public ArrayList<KDTree> getTree() {
         return treeList;
+    }
 
     public AddressModel getAddressModel() { return addressModel; }
 
@@ -361,9 +362,6 @@ public class Model extends Observable implements Serializable {
                             }
                         }
                         String address = addressBuilder[0] + " " + addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
-                        PostCode.add(addressBuilder[2] + " " + addressBuilder[3]);
-                        PostCode.add(addressBuilder[3]);
-
                         //LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
                         //LongToPointMap.Node k = new LongToPointMap.Node(m.key, (float) m.getX(), (float) m.getY(), null);
                         addressModel.put(Address.parse(address).toString(), idToNode.get(nodeID));
