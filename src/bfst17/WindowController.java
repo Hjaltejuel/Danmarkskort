@@ -234,7 +234,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 canvas.setSearchMode((float) lon, (float) lat);
             } else if(addressModel.getRegion(s.trim())!=null){
                 Shape shape = addressModel.getRegion(s.trim()).getShape();
-                Point2D center = addressModel.getRegion(s.trim()).getCenter().getPoint2D();
+                Point2D center = addressModel.getRegion(s.trim()).getCenter();
                 canvas.regionSearch(shape);
                 double lat = -center.getY();
                 double lon = -center.getX();
