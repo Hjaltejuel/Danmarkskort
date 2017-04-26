@@ -62,7 +62,7 @@ public class Model extends Observable implements Serializable {
 
 	public Model() {
 		//Til osm
-		load(this.getClass().getResource("/bornholm.osm").getPath());
+		load(this.getClass().getResource("/denmark-latest.osm").getPath());
 
 		//til bin
 		//String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
@@ -241,10 +241,6 @@ public class Model extends Observable implements Serializable {
 		Integer count=0;
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-			count++;
-			if(count%100000==0) {
-				System.out.println(count);
-			}
 			switch(qName) {
 				case "bounds":
 					minlat = Float.parseFloat(atts.getValue("minlat"));
@@ -257,6 +253,10 @@ public class Model extends Observable implements Serializable {
 
 					break;
 				case "node":
+					count++;
+					if(count%100000==0) {
+						System.out.println(count);
+					}
 					nodeID = Long.parseLong(atts.getValue("id"));
 					lat = Float.parseFloat(atts.getValue("lat"));
 					lon = Float.parseFloat(atts.getValue("lon"));
@@ -346,7 +346,7 @@ public class Model extends Observable implements Serializable {
 						String address = addressBuilder[0] + " " + addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
 						//LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
 						//LongToPointMap.Node k = new LongToPointMap.Node(m.key, (float) m.getX(), (float) m.getY(), null);
-						addressModel.put(Address.parse(address).toString(), idToNode.get(nodeID).getPoint2D());
+						//addressModel.put(Address.parse(address).toString(), idToNode.get(nodeID).getPoint2D());
 						isAddressNode = false;
 					}
 					break;
@@ -362,7 +362,7 @@ public class Model extends Observable implements Serializable {
 					if(list!=null) {
 						MultiPolygonApprox path = new MultiPolygonApprox(list);
 						if (adminRelation == true) {
-							addressModel.putRegion(name, new Region(path, regionCenter));
+							//addressModel.putRegion(name, new Region(path, regionCenter));
 							adminRelation = false;
 						} else {
 							add(type, path);
