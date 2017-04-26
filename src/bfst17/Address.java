@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 public class Address implements Serializable {
     private final String street, house, floor, side, postcode, city;
-    private static HashMap<Integer, String> postCodeHashMap;
 
     private Address(String _street, String _house, String _floor, String _side, String _postcode, String _city) {
         street = _street;
@@ -86,32 +85,6 @@ public class Address implements Serializable {
         }
     }
 
-    public String street() {
-        return street;
-    }
-
-    public String house() {
-        return house;
-    }
-
-    public String floor() {
-        return floor;
-    }
-
-    public String side() {
-        return side;
-    }
-
-    public String postcode() {
-        return postcode;
-    }
-
-    public String city() {
-        return city;
-    }
-
-
-    private static ArrayList<Pattern> patterns = new ArrayList();
     private static Pattern[] regList = new Pattern[]{
 
             Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?) +(?<floor>[0-9]+) *. *(?<side>[th|mf|tv]+) *, +(?<postcode>[0-9]{4}) +(?<city>[\\p{L} ])"),

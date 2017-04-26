@@ -13,7 +13,7 @@ public class Main {
 				model = new Model(args[0]);
 			}
 
-			DrawWindow drawWindow = new DrawWindow(model);
+			WindowController controller = new WindowController(model);
 
 		});
 	}

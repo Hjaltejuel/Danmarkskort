@@ -4,7 +4,10 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 
-import java.awt.geom.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
@@ -15,18 +18,31 @@ import java.util.*;
 public class DrawCanvas extends JComponent implements Observer {
 	Model model;
 	AffineTransform transform = new AffineTransform();
+    Shape regionShape = null;
+    boolean regionSearch = false;
 	boolean antiAlias;
 	boolean greyScale = false;
 	boolean nightmode = false;
 	boolean fancyPan = true;
-
+	HashMap<String,Boolean> nameToBoolean = new HashMap<>();
 	Point2D pin;
 	boolean searchMode = false;
 
 	public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
+		fillNameToBoolean();
 	}
+
+	public void fillNameToBoolean(){
+		for(POIclasification name: POIclasification.values()){
+			nameToBoolean.put(name.toString(),false);
+		}
+	}
+	public void regionSearch(Shape shape){
+        regionSearch = true;
+        regionShape = shape;
+    }
 
 	public double getCenterCordinateX() {
         return (transform.getTranslateX()-getWidth()/2)/transform.getScaleX();
@@ -37,8 +53,14 @@ public class DrawCanvas extends JComponent implements Observer {
 
     public void setSearchMode(float lon,float lat) {
         searchMode = true;
+        regionSearch = false;
         pin = new Point2D.Float(lon,lat);
     }
+    public void setPointsOfInterest(String name){
+		boolean nameToBooleanCopy = nameToBoolean.get(name);
+		nameToBoolean.put(name,!nameToBooleanCopy);
+		repaint();
+	}
 	public void setGreyScale()
 	{
 		greyScale = true;
@@ -53,6 +75,15 @@ public class DrawCanvas extends JComponent implements Observer {
 	public void setNightModeFalse(){
 		nightmode = false;
 	}
+
+	private void drawCoastlines(Graphics2D g) {
+		for(Shape s: model.getCoastlines()) {
+			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
+			g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
+			g.fill(s);
+		}
+	}
+
 	/**
 	 * Calls the UI delegate's paint method, if the UI delegate
 	 * is non-<code>null</code>.  We pass the delegate a copy of the
@@ -99,7 +130,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	@Override
 	protected void paintComponent(Graphics _g) {
-		Graphics2D g = (Graphics2D) _g;
+        Graphics2D g = (Graphics2D) _g;
 		if (nightmode) {
 			g.setColor(WayType.NATURAL_WATER.getNightModeColor());
 		} else {
@@ -112,40 +143,60 @@ public class DrawCanvas extends JComponent implements Observer {
 
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		for (Shape s : model.get(WayType.NATURAL_COASTLINE)) {
-			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
-			g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
-			g.fill(s);
-		}
+		drawCoastlines(g);
 
-		Point2D topLeft = screenCordsToLonLat(0, 0);
-		Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
-		Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
-				topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
 
-		for (KDTree tree : model.getTree()) {
-			WayType type = tree.type;
-			if (type.getZoomFactor() > getXZoomFactor()) {
-				continue;
-			}
+        Point2D topLeft = screenCordsToLonLat(0, 0);
+        Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
+        Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
+                topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
 
-			HashSet<Shape> shapes = tree.getInRange((Rectangle2D) screenRectangle);
-			g.setColor(getDrawColor(type));
+        for (KDTree tree : model.getTree()) {
+            WayType type = tree.type;
+            if (type.getZoomFactor() > getXZoomFactor()) {
+                continue;
+            }
 
-			g.setStroke(type.getDrawStroke());
+            HashSet<Shape> shapes = tree.getInRange((Rectangle2D) screenRectangle);
+            g.setColor(getDrawColor(type));
 
-			//Her bestemmes om shapes skal fyldes eller ej
-			if (type.getFillType() == FillType.LINE) {
-				for (Shape shape : shapes) {
-					g.draw(shape);
-				}
-			} else if (type.getFillType() == FillType.SOLID) {
-				for (Shape shape : shapes) {
-					g.fill(shape);
-				}
-			}
-		}
+            g.setStroke(type.getDrawStroke());
+
+            //Her bestemmes om shapes skal fyldes eller ej
+            if (type.getFillType() == FillType.LINE) {
+                for (Shape shape : shapes) {
+                    g.draw(shape);
+                }
+            } else if (type.getFillType() == FillType.SOLID) {
+                for (Shape shape : shapes) {
+                    g.fill(shape);
+                }
+            }
+        }/*
+        else if(transform.getScaleY()>40000) {
+            if(nameToBoolean.get(n.getPointsOfInterest().getClassification().toString())) {
+                POI.add(n);
+            }
+
+        }
+
+    }
+		if(transform.getScaleY()>40000) {
+        for (KDTree.TreeNode n : POI) {
+            drawPointsOfInterest(g, n.getPointsOfInterest(), n.getX(), n.getY());
+        }
+    }
+    /
+		/**/
 		setPin(g);
+
+        if(regionSearch){
+            Color color = g.getColor();
+            g.setColor(new Color(255,0,0,127));
+            g.draw(regionShape);
+            g.setColor(color);
+
+        }
 
 	}
 
@@ -154,6 +205,21 @@ public class DrawCanvas extends JComponent implements Observer {
 		repaint();
         revalidate();
 	}
+	public void drawPointsOfInterest(Graphics2D g, PointsOfInterest type, double x, double y) {
+			BufferedImage image = null;
+				try {
+					image = ImageIO.read(getClass().getResource("/POI/" + type.name() + ".png"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				AffineTransform imageTransform = new AffineTransform();
+				((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+						imageTransform.setToIdentity();
+						imageTransform.translate(x, y);
+						imageTransform.scale(((1 / transform.getScaleX())), ((1 / transform.getScaleY())));
+						((Graphics2D) g).drawImage(image, imageTransform, null);
+			}
+
 
 	public void setPin(Graphics2D g) {
         if(pin!=null) {
@@ -167,13 +233,9 @@ public class DrawCanvas extends JComponent implements Observer {
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             imageTransform.setToIdentity();
 
-            //System.out.println(pin.getX() + " " + pin.getY());
-            double offsetHeight = (image.getHeight()/transform.getScaleY())/7;
-            double offsetWidth = ((image.getWidth()/4)/transform.getScaleX())/7;
-
-            imageTransform.translate(-pin.getX(),-pin.getY());
-            imageTransform.scale(((1/transform.getScaleX())/7),((1/transform.getScaleY())/7));
-            g.drawImage(image, imageTransform, null);
+            imageTransform.translate(-pin.getX()-(((image.getWidth()/10)/2))/transform.getScaleX(),-pin.getY()-((image.getHeight()/10)/transform.getScaleX()));
+            imageTransform.scale(((1/transform.getScaleX())/10),((1/transform.getScaleY())/10));
+            ((Graphics2D) g).drawImage(image, imageTransform, null);
             searchMode = false;
         }
 	}
@@ -233,7 +295,9 @@ public class DrawCanvas extends JComponent implements Observer {
 				}
 				pan(partDX, partDY);
 				panCounter++;
+
 			}
+
 		}, 0, 10);
 	}
 
@@ -289,7 +353,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	public void zoom(double factor) {
 		transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
-		repaint();
+        repaint();
         revalidate();
 	}
 
