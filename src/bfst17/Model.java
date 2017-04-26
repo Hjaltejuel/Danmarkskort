@@ -50,10 +50,9 @@ public class Model extends Observable implements Serializable {
 
     public AddressModel getAddressModel() { return addressModel; }
 
-    public Iterable<Shape> get(WayType type) {
-        return shapes.get(type);
-    }
-
+	public Iterable<Shape> get(WayType type) {
+		return shapes.get(type);
+	}
 
     private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
 		for (WayType type : WayType.values()) {
@@ -151,7 +150,7 @@ public class Model extends Observable implements Serializable {
 	}
 
     public void loadAllCoastlines(){
-        String path = System.getProperty("user.dir") + "/resources/dkCoastlines.bin";
+        String path = System.getProperty("user.dir") + "/resources/dkcoast.bin";
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             coastlines = (ArrayList<Shape>) in.readObject();
@@ -315,7 +314,7 @@ public class Model extends Observable implements Serializable {
                             break;
                         case "place":
                             if(v.equals("village") || v.equals("town") || v.equals("city")){
-                                addressModel.put(name,idToNode.get(nodeID).getPoint2D());
+                                addressModel.put(name,idToNode.get(nodeID));
                             }
 					}
 					break;
@@ -325,11 +324,14 @@ public class Model extends Observable implements Serializable {
                     if(role.equals("admin_centre")){
                         regionCenter = idToNode.get(ref);
                         if(regionCenter ==null){
-                            regionCenter = new OSMNode((maxlon+minlon)/2,(maxlat+minlat)/2);
+                            regionCenter = new OSMNode((maxlon+minlon)/2,-(maxlat+minlat)/2);
                         }
                         adminRelation = true;
                     }
-					relation.add(idToWay.get(ref));
+					OSMWay way = idToWay.get(ref);
+					if(way!=null) {
+						relation.add(idToWay.get(ref));
+					}
 					break;
 			}
 		}
@@ -347,7 +349,7 @@ public class Model extends Observable implements Serializable {
                         String address = addressBuilder[0] + " " + addressBuilder[1] + ", " + addressBuilder[2] + " " + addressBuilder[3];
                         //LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
                         //LongToPointMap.Node k = new LongToPointMap.Node(m.key, (float) m.getX(), (float) m.getY(), null);
-                        addressModel.put(Address.parse(address).toString(), idToNode.get(nodeID).getPoint2D());
+                        addressModel.put(Address.parse(address).toString(), idToNode.get(nodeID));
                         isAddressNode = false;
                     }
                     break;
@@ -355,22 +357,24 @@ public class Model extends Observable implements Serializable {
                     if (type == WayType.NATURAL_COASTLINE) {
                         //DO NOTHING
                     } else {
-                        add(type, way.toPath2D());
+                        add(type, new PolygonApprox(way));
                     }
                     break;
                 case "relation":
-                    Path2D path = relation.toPath2D();
-                    if(adminRelation == true){
-                        addressModel.putRegion(name,new Region(path,regionCenter));
-                        adminRelation = false;
-                    } else {
-                        add(type, path);
-                    }
+                		if(relation.size()!= 0) {
+							MultiPolygonApprox path = new MultiPolygonApprox(relation);
+							if (adminRelation == true) {
+								addressModel.putRegion(name, new Region(path, regionCenter));
+								adminRelation = false;
+							} else {
+								add(type, path);
+							}
+						}
                     break;
                 case "osm":
                     coastlines.forEach((key, way) -> {
                         if (key == way.getFromNode()) {
-                            add(WayType.NATURAL_COASTLINE, way.toPath2D());
+                            add(WayType.NATURAL_COASTLINE,new PolygonApprox(way));
                         }
                     });
                     break;

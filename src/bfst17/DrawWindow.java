@@ -16,7 +16,6 @@ package bfst17;
  */
 public class DrawWindow {
 	JFrame window;
-	private StringSearchable searchable;
 	private AutocompleteJComboBox combo;
 	private AutocompleteJComboBox secondCombo;
 	private JLayeredPane windowPane;
@@ -132,9 +131,8 @@ public class DrawWindow {
 	/**
 	 * Makes the autocomplete bar with all the addresses
 	 */
-	public void createAutocomplete(ArrayList listItems) {
-		this.searchable = new StringSearchable(listItems);
-		combo = new AutocompleteJComboBox(this.searchable);
+	public void createAutocomplete(TST tree) {
+		combo = new AutocompleteJComboBox(tree);
 		combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 	}
 
@@ -373,8 +371,8 @@ public class DrawWindow {
 		sidebarMenu.setBounds(canvas.getWidth() - 60, 10, 40, 130);
 	}
 
-	public void SetSecondSearch() {
-		secondCombo = new AutocompleteJComboBox(searchable);
+	public void SetSecondSearch(TST tree) {
+		secondCombo = new AutocompleteJComboBox(tree);
 		windowPane.add(secondCombo, 75);
 		windowPane.setComponentZOrder(secondCombo, 2);
 
