@@ -46,11 +46,11 @@ public class Model extends Observable implements Serializable {
         load(filename);
     }
 
-    private ArrayList<KDTree> treeList;
+    private ArrayList<KDTree> treeList = new ArrayList<>();
     public ArrayList<KDTree> getTrees() {
         return treeList;
     }
-    private POIKDTree POITree;
+    private POIKDTree POITree = new POIKDTree();
     public POIKDTree getPOITree() {
         return POITree;
     }
