@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.stream.Collectors;
@@ -59,7 +61,11 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         } else if(command.equals("Save")){
             save();
         } else if(command.equals("Load")){
-            load();
+            try {
+                load();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         } else if(command.equals("Exit")){
             System.exit(0);
         } else if (command.equals("Directions")){
@@ -132,7 +138,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
     }
 
-    public void load(){
+    public void load() throws IOException {
         if(first) {
             currentPath = null;
         }

@@ -39,7 +39,7 @@ public class Model extends Observable implements Serializable {
     private ArrayList<Shape> coastlines = new ArrayList<>();
     private float lonfactor;
 
-    public Model(String filename) {
+    public Model(String filename) throws IOException {
         load(filename);
     }
 
@@ -62,11 +62,11 @@ public class Model extends Observable implements Serializable {
 
 	public Model() {
         //Til osm
-		load(this.getClass().getResource("/bornholm.osm").getPath());
+		//load(this.getClass().getResource("/bornholm.osm").getPath());
 
         //til bin
         //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
-        loadAllCoastlines();
+        //loadAllCoastlines();
         //load(path);
 	}
 
@@ -97,12 +97,42 @@ public class Model extends Observable implements Serializable {
 		}
 	}
 
-	public void load(String filename) {
+	public void load(String filename) throws IOException {
+
+		long loadTime = -System.nanoTime();
+		BufferedInputStream input = new BufferedInputStream(new FileInputStream(filename));
+		int total = input.available();
+		long starttime = System.nanoTime();
+		Timer progressPrinter = new Timer();
+		progressPrinter.scheduleAtFixedRate(
+				new TimerTask() {
+					@Override
+					public void run() {
+						try {
+							double fractionLeft = input.available() / (double) total;
+							double fractionDone = 1 - fractionLeft;
+							if (fractionLeft < 1) {
+								double secondsUsed = (System.nanoTime() - starttime) / 1e9;
+								long secondsLeft = Math.round(secondsUsed / fractionDone * fractionLeft);
+								String progressText = "Parsing " + 100 * fractionDone + "% done, time left: " + secondsLeft / 60 + " " + secondsLeft % 60;
+
+								System.out.printf("\rParsing %.1f%% done, time left: %d:%02d", 100 * fractionDone, secondsLeft / 60, secondsLeft % 60);
+							}
+						} catch (IOException e) {
+							//FIXME måske skal det her laves om?
+							//Den er færdig når den kommer herind. Streamclosed skaber en fejl, men det virker fint sådan.
+							System.out.print("\rParsing 100% done, time left: 0:00");
+							System.out.println("\nNow drawing shapes, please wait.");
+							progressPrinter.cancel();
+						}
+					}
+				}, 0, 1000);
+
 		if (filename.endsWith(".osm")) {
-			loadOSM(new InputSource(filename));
+			loadOSM(new InputSource(input));
         } else if (filename.endsWith(".zip")) {
 			try {
-				ZipInputStream zip = new ZipInputStream(new FileInputStream(filename));
+				ZipInputStream zip = new ZipInputStream(input);
 				zip.getNextEntry();
 				loadOSM(new InputSource(zip));
 			} catch (FileNotFoundException e) {
@@ -111,7 +141,8 @@ public class Model extends Observable implements Serializable {
 				e.printStackTrace();
 			}
 		} else {
-			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+			try (ObjectInputStream in = new ObjectInputStream(input)) {
+				long time = -System.nanoTime();
 				//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 				shapes = (EnumMap<WayType, List<Shape>>) in.readObject();
 				addressModel = (AddressModel) in.readObject();
@@ -121,6 +152,9 @@ public class Model extends Observable implements Serializable {
 				maxlat = in.readFloat();
 
                 tree.fillTree(shapes,pointsOfInterest);
+
+				time += System.nanoTime();
+				System.out.printf("Object deserialization: %f s\n", time / 1000000 / 1000d);
                 dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -133,6 +167,11 @@ public class Model extends Observable implements Serializable {
 			}
 
 		}
+		/*progressPrinter.cancel();
+		loadTime += System.nanoTime();
+		loadTime /= 1_000_000_000;
+		System.out.printf("\nLoad time: %d:%02d\n", loadTime / 60, loadTime % 60);
+		*/
 	}
 
 	private void loadOSM(InputSource source) {
@@ -241,10 +280,6 @@ public class Model extends Observable implements Serializable {
 		Integer count=0;
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-			count++;
-            if(count%100000==0) {
-				System.out.println(count);
-			}
 			switch(qName) {
 				case "bounds":
                     minlat = Float.parseFloat(atts.getValue("minlat"));
