@@ -239,7 +239,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
             imageTransform.translate(-pin.getX()-(((image.getWidth()/10)/2))/getXZoomFactor(),-pin.getY()-((image.getHeight()/10)/getXZoomFactor()));
             imageTransform.scale(((1/getXZoomFactor())/10),((1/getYZoomFactor())/10));
-            ((Graphics2D) g).drawImage(image, imageTransform, null);
+            g.drawImage(image, imageTransform, null);
             searchMode = false;
         }
 	}
