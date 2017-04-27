@@ -1,14 +1,14 @@
 package bfst17;
 
-import bfst17.Enums.GUIMode;
-import bfst17.Enums.POIclasification;
-
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.stream.Collectors;
 
 /**
  * Created by Hjalte on 21-04-2017.
@@ -53,7 +53,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             JCheckBoxMenuItem[] menu = window.getPointsOfInterestMenues();
             for(int i = 0; i<menu.length;i++){
                 if(e.getSource() ==menu[i] ) {
-                    canvas.setPointsOfInterest(POIclasification.values()[i]);
+                    canvas.setPointsOfInterest(POIclasification.values()[i].toString());
                 }
             }
         } else if(command.equals("Save")){
@@ -68,9 +68,9 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 window.SetSecondSearch(addressModel.getTSTTree());
             } else window.tearSecondSearch();
         } else if(command.equals("Nightmode")){
-            setColorTheme(GUIMode.NIGHT);
+                setNightMode();
         } else if(command.equals("Greyscale")){
-            setColorTheme(GUIMode.GREYSCALE);
+                setGreyScale();
         } else if(command.equals("Aa")){
             canvas.toggleAA();
         } else if(command.equals("Fancypan")){
@@ -82,28 +82,37 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
     }
 
-    public void setColorTheme(GUIMode newTheme) {
-        if(canvas.GUITheme==newTheme) {
-            newTheme = GUIMode.NORMAL;
+    public void setGreyScale(){
+        if (window.getGreyScale().getText().equals("GreyScale (CTRL-G)")) {
+            canvas.setGreyScale();
+            canvas.setNightModeFalse();
+        if (window.getNightMode().getText().equals("Color (CTRL-N)")) {
+            window.getNightMode().setText("NightMode (CTRL-N)");
+            window.tearDownNightMode();
         }
+            canvas.repaint();
+            window.getGreyScale().setText("Color (CTRL-G)");
+    } else {
+            canvas.setGreyScaleFalse();
+            canvas.repaint();
+            window.getGreyScale().setText("GreyScale (CTRL-G)");
+    }}
+    public void setNightMode(){
+        if(window.getNightMode().getText().equals("NightMode (CTRL-N)")) {
+            canvas.setNightMode();
+            canvas.setGreyScaleFalse();
+            window.getGreyScale().setText("GreyScale (CTRL-G)");
+            canvas.repaint();
+            window.getNightMode().setText("Color (CTRL-N)");
+            window.setUpNightMode();
 
-        //Hvad gør setup & tear down?? Der er umiddelbart ingen forskel om de er med eller fra
 
-        canvas.setGUITheme(newTheme);
-        if (newTheme == GUIMode.NORMAL) {
-            window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
-            window.getGreyScaleMenuItem().setText("GreyScale (CTRL-G)");
-            //window.tearDownNightMode();
-        } else if (newTheme == GUIMode.GREYSCALE) {
-            window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
-            window.getGreyScaleMenuItem().setText("Color (CTRL-G)");
-            //window.tearDownNightMode();
-        } else if (newTheme == GUIMode.NIGHT) {
-            window.getNightModeMenuItem().setText("Color (CTRL-N)");
-            window.getGreyScaleMenuItem().setText("GreyScale (CTRL-G)");
-            //window.setUpNightMode();
+        } else {
+            canvas.setNightModeFalse();
+            window.tearDownNightMode();
+            canvas.repaint();
+            window.getNightMode().setText("NightMode (CTRL-N)");
         }
-        canvas.repaint();
     }
 
     @Override
@@ -194,9 +203,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         String s = (String) combo.getSelectedItem();
         if (!s.equals("")) {
             //points lat, lon
-            if(addressModel.getPoint2DToAddress(s.trim())!=null) {
-                double lat = -addressModel.getPoint2DToAddress(s.trim()).getY();
-                double lon = -addressModel.getPoint2DToAddress(s.trim()).getX();
+            TSTInterface address = addressModel.getAddress(s.trim());
+            if(address!=null && !(address instanceof Region)) {
+                double lat = -address.getY();
+                double lon = -address.getX();
 
                 //distance from center of screen in lat lon
                 double distanceToCenterY = lat - canvas.getCenterCordinateY();
@@ -223,12 +233,11 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     canvas.zoomAndCenter();
                 }
                 canvas.setSearchMode((float) lon, (float) lat);
-            } else if(addressModel.getRegion(s.trim())!=null){
-                Shape shape = addressModel.getRegion(s.trim()).getShape();
-                Point2D center = addressModel.getRegion(s.trim()).getCenter();
+            } else if(address!=null && address instanceof Region){
+                Shape shape = address.getShape();
                 canvas.regionSearch(shape);
-                double lat = -center.getY();
-                double lon = -center.getX();
+                double lat = -address.getY();
+                double lon = -address.getX();
 
 
                 double distanceToCenterY = lat - canvas.getCenterCordinateY();
