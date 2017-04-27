@@ -162,19 +162,19 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void drawPOIImage(Graphics2D g, PointsOfInterest type, double x, double y) {
-        BufferedImage image = null;
         String imagePath = "/POI/" + type.name() + ".png";
-        drawImageAtLocation(g, imagePath, x, y);
+        drawImageAtLocation(g, imagePath, -x, -y);
     }
 
     public void drawImageAtLocation(Graphics2D g, String imagePath, double x, double y) {
         try {
             BufferedImage image = ImageIO.read(getClass().getResource(imagePath));
-            Point2D drawLocation = lonLatToScreenCords(pin.getX(), pin.getY());
-            if (drawLocation.getX() + image.getWidth() < 0 || drawLocation.getX() > getWidth() ||
-                    drawLocation.getY() + image.getHeight() < 0 || drawLocation.getY() > getWidth()) {
+            Rectangle2D imageRect = new Rectangle2D.Double(-x,-y,image.getWidth()/getXZoomFactor(),image.getHeight()/getYZoomFactor());
+
+            if(!screenRectangle.intersects(imageRect)){
                 return; //Billedet er ikke inden for skærmen
             }
+            Point2D drawLocation = lonLatToScreenCords(x, y);
             g.drawImage(image, (int) drawLocation.getX() - image.getWidth() / 2, (int) drawLocation.getY() - image.getHeight(), this);
         } catch (IOException e) {
             e.printStackTrace();

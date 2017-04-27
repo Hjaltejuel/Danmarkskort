@@ -1,15 +1,15 @@
 package bfst17;
 
-		import javax.imageio.ImageIO;
-		import javax.swing.*;
-		import javax.swing.plaf.basic.BasicComboPopup;
-		import javax.swing.text.JTextComponent;
-		import java.awt.*;
-		import java.awt.event.*;
-		import java.awt.image.BufferedImage;
-		import java.io.IOException;
-		import java.util.*;
-		import java.util.Timer;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.*;
+import java.util.Timer;
 
 /**
  * Created by trold on 2/1/17.
@@ -204,7 +204,7 @@ public class DrawWindow {
 
 	public void giveSideButtonsIcons() {
 		try {
-			Image img4 = ImageIO.read(getClass().getResource("/pointsOfInterestButton.png"));
+			Image img4 = ImageIO.read(getClass().getResource("/pointsOfInterest.png"));
 			pointsOfInterestButton.setIcon(new ImageIcon(img4.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
 
 		} catch (Exception ex) {
