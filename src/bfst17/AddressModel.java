@@ -34,6 +34,6 @@ public class AddressModel extends Observable implements Serializable {
 
 
     public TSTInterface getAddress(String address) {
-        return tree.get(Address.parse(address).toString());
+        return tree.get(address);
     }
 }
