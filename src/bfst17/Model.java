@@ -349,10 +349,8 @@ public class Model extends Observable implements Serializable {
                         String address = addressBuilder[0] + " " + addressBuilder[1];
                         //LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
                         //LongToPointMap.Node k = new LongToPointMap.Node(m.key, (float) m.getX(), (float) m.getY(), null);
-						OSMNode node = idToNode.get(nodeID);
-						node.setAddressName(addressBuilder[2] + " " + addressBuilder[3]);
 
-                        addressModel.put(Address.parse(address).toString(),node);
+                        addressModel.put(Address.parse(address).toString(),new AddressNode(idToNode.get(nodeID),addressBuilder[2] + " " + addressBuilder[3]));
                         isAddressNode = false;
                     }
                     break;

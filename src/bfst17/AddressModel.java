@@ -17,7 +17,7 @@ public class AddressModel extends Observable implements Serializable {
 
     public TST<TSTInterface> getTSTTree(){return tree;}
 
-    public void put(String address, OSMNode point) {
+    public void put(String address, AddressNode point) {
         if(!address.equals("")) {
             tree.put(address, point);
         }
