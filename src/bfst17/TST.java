@@ -3,20 +3,21 @@ package bfst17;
 import sun.awt.image.ImageWatched;
 
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TST<TSTInterface> {
+public class TST<TSTInterface> implements Serializable {
     private int n;
     private Node<TSTInterface> root;
     private String oldPrefix;
     private String leftover;
     Pattern pattern = Pattern.compile("\\d{4}+.*");
 
-    private static class Node<TSTInterface> {
+    private static class Node<TSTInterface> implements Serializable{
         private char c;
         private Node<TSTInterface> left, mid, right;
         private TSTInterface val;

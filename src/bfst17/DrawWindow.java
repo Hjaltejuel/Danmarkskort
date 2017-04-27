@@ -473,4 +473,10 @@ public class DrawWindow {
 	public JMenuItem getGreyScaleMenuItem() {
 		return greyScaleMenuItem;
 	}
+
+
+	public void loadProgress(){
+		JLabel progess = new JLabel("goddav");
+		window.add(progess);
+	}
 }

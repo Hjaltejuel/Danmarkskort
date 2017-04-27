@@ -2,11 +2,12 @@ package bfst17;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 
 /**
  * Created by Michelle on 4/27/2017.
  */
-public class AddressNode implements TSTInterface{
+public class AddressNode implements TSTInterface, Serializable{
     OSMNode node;
     String cityAndPostcode;
     public AddressNode(OSMNode node, String cityAndPostcode){
