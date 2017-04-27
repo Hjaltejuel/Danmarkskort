@@ -105,11 +105,14 @@ public class Model extends Observable implements Serializable {
         }
     }
 
+    public double currentTimeInSeconds() {
+        return System.nanoTime() / 1_000_000_000d;
+    }
+
     public void load(String filename) throws IOException {
-        long loadTime = -System.nanoTime();
         BufferedInputStream input = new BufferedInputStream(new FileInputStream(filename));
         int total = input.available();
-        long starttime = System.nanoTime();
+        double startTime = currentTimeInSeconds();
         Timer progressPrinter = new Timer();
         progressPrinter.scheduleAtFixedRate(
                 new TimerTask() {
@@ -119,7 +122,7 @@ public class Model extends Observable implements Serializable {
                             double fractionLeft = input.available() / (double) total;
                             double fractionDone = 1 - fractionLeft;
                             if (fractionLeft < 1) {
-                                double secondsUsed = (System.nanoTime() - starttime) / 1e9;
+                                double secondsUsed = currentTimeInSeconds() - startTime;
                                 long secondsLeft = Math.round(secondsUsed / fractionDone * fractionLeft);
                                 System.out.printf("\rParsing %.1f%% done, time left: %d:%02d\n", 100 * fractionDone, secondsLeft / 60, secondsLeft % 60);
                             }
@@ -130,8 +133,6 @@ public class Model extends Observable implements Serializable {
                         }
                     }
                 }, 0, 1000);
-
-
 
         if (filename.endsWith(".osm")) {
             loadOSM(new InputSource(input));
@@ -147,17 +148,16 @@ public class Model extends Observable implements Serializable {
             }
         } else {
             try (ObjectInputStream in = new ObjectInputStream(input)) {
-                long time = -System.nanoTime();
                 //Ryk rundt på dem her og få med Jens' knytnæve at bestille
-                treeList = (ArrayList<KDTree>)in.readObject();
+                treeList = (ArrayList<KDTree>) in.readObject();
                 POITree = (POIKDTree) in.readObject();
                 addressModel = (AddressModel) in.readObject();
                 minlon = in.readFloat();
                 minlat = in.readFloat();
                 maxlon = in.readFloat();
                 maxlat = in.readFloat();
-                time += System.nanoTime();
-                System.out.printf("Object deserialization: %f s\n", time / 1000000 / 1000d);
+                double elapsedTime = currentTimeInSeconds() - startTime;
+                System.out.printf("Object deserialization: %f s\n", elapsedTime);
                 dirty();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -170,8 +170,7 @@ public class Model extends Observable implements Serializable {
             }
         }
         progressPrinter.cancel();
-        loadTime += System.nanoTime();
-        loadTime /= 1_000_000_000;
+        int loadTime = (int)Math.round(currentTimeInSeconds() - startTime);
         System.out.printf("\nLoad time: %d:%02d\n", loadTime / 60, loadTime % 60);
 
     }
@@ -243,15 +242,6 @@ public class Model extends Observable implements Serializable {
         return maxlon;
     }
 
-    public float getMinLat() {return minlat;}
-
-    public void addToBounds(float newMaxLat, float newMinLat, float newMaxLon,float newMinLon) {
-        maxlat += newMaxLat;
-        minlat += newMinLat;
-        maxlon += newMaxLon;
-        minlon += newMinLon;
-    }
-
     public ArrayList<Shape> getCoastlines() {
         return coastlines;
     }
@@ -299,7 +289,6 @@ public class Model extends Observable implements Serializable {
 
         }
 
-        Integer count=0;
         @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
             switch(qName) {

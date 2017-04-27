@@ -1,6 +1,7 @@
 package bfst17;
 
 import bfst17.Enums.*;
+import com.sun.org.apache.xerces.internal.impl.dv.xs.YearDV;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -8,6 +9,7 @@ import java.awt.*;
 
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
+import java.beans.XMLDecoder;
 import java.io.IOException;
 import java.util.*;
 
@@ -21,7 +23,7 @@ public class DrawCanvas extends JComponent implements Observer {
     boolean regionSearch = false;
 	boolean antiAlias;
 	GUIMode GUITheme = GUIMode.NORMAL;
-	boolean fancyPan = true;
+	boolean shouldFancyPan = true;
 	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
 	Point2D pin;
 
@@ -293,6 +295,44 @@ public class DrawCanvas extends JComponent implements Observer {
 		}, 0, 10);
 	}
 
+	public Point2D getDistanceToPoint(double lon, double lat) {
+		//distance from center of screen in lat lon
+		double Xdist = lat - getCenterCordinateY();
+		double Ydist = lon - getCenterCordinateX();
+    	return new Point2D.Double(Xdist, Ydist);
+	}
+
+	public void panToPoint(double lon, double lat) {
+    	Point2D distanceVector = getDistanceToPoint(lon, lat);
+		double distanceToCenterX = distanceVector.getX();
+		double distanceToCenterY = distanceVector.getY();
+
+		pan(distanceToCenterX, distanceToCenterY);
+
+		/*double dx = distanceToCenterX * canvas.getXZoomFactor();
+		double dy = distanceToCenterY * canvas.getYZoomFactor();
+		canvas.pan(dx, dy);*/
+
+	}
+
+	public void fancyPan(double lon, double lat) {
+    	Point2D distanceVector = getDistanceToPoint(lon, lat);
+    	double distanceToCenterX = distanceVector.getX();
+    	double distanceToCenterY = distanceVector.getY();
+
+		double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX * getXZoomFactor(), 2) + Math.pow(distanceToCenterY * getYZoomFactor(), 2)));
+		double amountOfZoom = 150000 / getXZoomFactor();
+
+		if (amountOfZoom >= 2) {
+			panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
+		} else {
+			if (distance < 400) {
+				panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
+			} else {
+				zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+			}
+		}
+	}
 
     public void zoomOutSlowAndThenPan(double distanceToCenterX, double distanceToCenterY) {
         java.util.Timer timer = new java.util.Timer();
@@ -363,6 +403,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
 	public void toggleFancyPan() {
-		fancyPan = !fancyPan;
+		shouldFancyPan = !shouldFancyPan;
 	}
 }

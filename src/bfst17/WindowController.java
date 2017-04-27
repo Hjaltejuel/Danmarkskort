@@ -2,11 +2,9 @@ package bfst17;
 
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
-import com.sun.org.apache.regexp.internal.RE;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.synth.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
@@ -147,7 +145,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         JFileChooser fileChooser = new JFileChooser();
 
         if (currentPath==null) {
-            currentPath = new File(this.getClass().getResource("").getPath());;
+            currentPath = new File(System.getProperty("user.dir"));;
         }
         fileChooser.setCurrentDirectory(currentPath);
 
@@ -204,57 +202,45 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     public void search() {
         String s = (String) combo.getSelectedItem();
-        if (!s.equals("")) {
-            //points lat, lon
-            TSTInterface address = addressModel.getAddress(s.trim());
-            if (address != null && !(address instanceof Region)) {
-                double lat = -address.getY();
-                double lon = -address.getX();
+        if (s == null || s.length()==0) {
+            return; //Ikke noget at søge efter!
+        }
 
-                //distance from center of screen in lat lon
-                double distanceToCenterY = lat - canvas.getCenterCordinateY();
-                double distanceToCenterX = lon - canvas.getCenterCordinateX();
+        //points lat, lon
+        TSTInterface address = addressModel.getAddress(s.trim());
+        if(address == null) {
+            return; //Ingen adresse fundet...
+        }
+        if (!(address instanceof Region)) {
+            double lat = -address.getY();
+            double lon = -address.getX();
 
-
-                if (canvas.fancyPan) {
-                    double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX * canvas.getXZoomFactor(), 2) + Math.pow(distanceToCenterY * canvas.getYZoomFactor(), 2)));
-                    double amountOfZoom = 150000 / canvas.getXZoomFactor();
-
-                    if (amountOfZoom >= 2) {
-                        canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
-                    } else {
-                        if (distance < 400) {
-                            canvas.panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
-                        } else {
-                            canvas.zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
-                        }
-                    }
-                } else if (!canvas.fancyPan) {
-                    double dx = distanceToCenterX * canvas.getXZoomFactor();
-                    double dy = distanceToCenterY * canvas.getYZoomFactor();
-                    canvas.pan(dx, dy);
-                    canvas.zoomAndCenter();
-                }
-                canvas.setSearchMode((float) lon, (float) lat);
-            } else if (address != null && address instanceof Region) {
-                Shape shape = address.getShape();
-                Point2D center = new Point2D.Float((float) -address.getX(), (float) -address.getY());
-                canvas.regionSearch(shape, center);
-                double lat = center.getY();
-                double lon = center.getX();
-
-                double distanceToCenterY = lat - canvas.getCenterCordinateY();
-                double distanceToCenterX = lon - canvas.getCenterCordinateX();
-                double dx = distanceToCenterX * canvas.getXZoomFactor();
-                double dy = distanceToCenterY * canvas.getYZoomFactor();
-                canvas.pan(dx, dy);
-                canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-                canvas.zoom((canvas.getWidth() / (shape.getBounds2D().getMaxX() - shape.getBounds2D().getMinX())) / canvas.getXZoomFactor());
-                canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
-                canvas.repaint();
+            if (canvas.shouldFancyPan) {
+                canvas.fancyPan(lon, lat);
+            } else {
+                canvas.panToPoint(lon,lat);
+                canvas.zoomAndCenter();
             }
+            canvas.setSearchMode((float) lon, (float) lat);
+        } else if (address instanceof Region) {
+            Shape shape = address.getShape();
+            Point2D center = new Point2D.Float((float) -address.getX(), (float) -address.getY());
+            canvas.regionSearch(shape, center);
+            double lat = center.getY();
+            double lon = center.getX();
+
+            double distanceToCenterY = lat - canvas.getCenterCordinateY();
+            double distanceToCenterX = lon - canvas.getCenterCordinateX();
+            double dx = distanceToCenterX * canvas.getXZoomFactor();
+            double dy = distanceToCenterY * canvas.getYZoomFactor();
+            canvas.pan(dx, dy);
+            canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
+            canvas.zoom((canvas.getWidth() / (shape.getBounds2D().getMaxX() - shape.getBounds2D().getMinX())) / canvas.getXZoomFactor());
+            canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
+            canvas.repaint();
         }
     }
+
 
     @Override
     public void mouseClicked(MouseEvent e) {
