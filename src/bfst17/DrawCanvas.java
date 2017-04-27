@@ -144,9 +144,11 @@ public class DrawCanvas extends JComponent implements Observer {
 
 
 
-        Point2D topLeft = screenCordsToLonLat(150, 150);
-        Point2D topRight = screenCordsToLonLat(550, 550);
-        Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
+		//Point2D topLeft = screenCordsToLonLat(0, 0);
+		//Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
+		Point2D topLeft = screenCordsToLonLat(150, 150);
+		Point2D topRight = screenCordsToLonLat(550, 550);
+		Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
                 topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
 
         for (KDTree tree : model.getTree()) {
@@ -154,7 +156,6 @@ public class DrawCanvas extends JComponent implements Observer {
             if (type.getZoomFactor() > getXZoomFactor()) {
                 continue;
             }
-
             HashSet<Shape> shapes = tree.getInRange((Rectangle2D) screenRectangle);
             g.setColor(getDrawColor(type));
 
@@ -172,13 +173,14 @@ public class DrawCanvas extends JComponent implements Observer {
                 }
             }
 
-            for(Line2D line : tree.lines){
-                g.setColor(Color.black);
-                g.draw(line);
-            }
         }
-        g.setColor(Color.black);
-        g.draw(screenRectangle);/*
+        if(getXZoomFactor() > 40000) {
+			POIKDTree POITree = model.getPOITree();
+			for (POIKDTree.TreeNode PoiNodes : POITree.getInRange((Rectangle2D)screenRectangle)) {
+				drawPointOfInterest(g, PoiNodes.getPOIType(), PoiNodes.getX(), PoiNodes.getY());
+			}
+		}
+        /*
         else if(transform.getScaleY()>40000) {
             if(nameToBoolean.get(n.getPointsOfInterest().getClassification().toString())) {
                 POI.add(n);
@@ -211,7 +213,7 @@ public class DrawCanvas extends JComponent implements Observer {
 		repaint();
         revalidate();
 	}
-	public void drawPointsOfInterest(Graphics2D g, PointsOfInterest type, double x, double y) {
+	public void drawPointOfInterest(Graphics2D g, PointsOfInterest type, double x, double y) {
 			BufferedImage image = null;
 				try {
 					image = ImageIO.read(getClass().getResource("/POI/" + type.name() + ".png"));
@@ -219,11 +221,11 @@ public class DrawCanvas extends JComponent implements Observer {
 					e.printStackTrace();
 				}
 				AffineTransform imageTransform = new AffineTransform();
-				((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 						imageTransform.setToIdentity();
 						imageTransform.translate(x, y);
 						imageTransform.scale(((1 / transform.getScaleX())), ((1 / transform.getScaleY())));
-						((Graphics2D) g).drawImage(image, imageTransform, null);
+						g.drawImage(image, imageTransform, null);
 			}
 
 

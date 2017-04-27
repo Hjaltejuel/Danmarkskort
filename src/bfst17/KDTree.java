@@ -35,7 +35,6 @@ public class KDTree implements Serializable {
         private TreeNode high;
         private double highSplit;
         private double lowSplit;
-        private double parentSplit;
         private Rectangle2D bounds;
 
         public TreeNode(Shape s, double x , double y) {
@@ -67,6 +66,41 @@ public class KDTree implements Serializable {
         public double getY() {
             return y;
         }
+    }
+
+    public Shape getNearestNeighbour(Point2D point) {
+        TreeNode champion = neighbourRecursion(point, root, true, root, 100);
+        if(champion!=null) {
+            return champion.shape;
+        } else {
+            return null;
+        }
+    }
+
+    public double distance(Point2D p1, TreeNode node) {
+        Point2D p2 = new Point2D.Double(node.bounds.getCenterX(), node.bounds.getCenterY());
+        return Math.sqrt(Math.pow(p1.getX()-p2.getX(),2)+Math.pow(p1.getY()-p2.getY(),2));
+    }
+    public TreeNode neighbourRecursion(Point2D point, TreeNode node, boolean vertical, TreeNode champion, double bestDistance) {
+        if (node == null) {
+            return champion;
+        }
+
+        double distance = distance(point, node);
+        if (distance < bestDistance) {
+            bestDistance = distance;
+            champion = node;
+        }
+        boolean nodeIsSmaller = vertical ? node.getX() < point.getX() : node.getY() < point.getY();
+        TreeNode nextNode = nodeIsSmaller ? node.high : node.low;
+        TreeNode otherNode = !nodeIsSmaller ? node.high : node.low;
+
+        return neighbourRecursion(point, nextNode, !vertical, champion, bestDistance);
+    }
+
+
+    public void fillTreeWithPoints(List<Point2D> points) {
+
     }
 
     public void fillTreeWithShapes(List<Shape> shapes) {
@@ -179,7 +213,6 @@ public class KDTree implements Serializable {
         if (compareNode == null) {
             insertNode.highSplit = insertNode.bounds.getMaxX();
             insertNode.lowSplit = insertNode.bounds.getMinX();
-            insertNode.parentSplit=0;
             root = insertNode;
             count++;
             return insertNode;
@@ -193,7 +226,7 @@ public class KDTree implements Serializable {
         else {
             insertNode.highSplit = !vertical ? insertNode.bounds.getMaxX() : insertNode.bounds.getMaxY();
             insertNode.lowSplit = !vertical ? insertNode.bounds.getMinX() : insertNode.bounds.getMinY();
-            insertNode.parentSplit=compareNode.lowSplit;
+
             if (isSmaller) {
                 compareNode.low = insertNode;
             } else {

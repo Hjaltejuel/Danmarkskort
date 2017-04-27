@@ -33,8 +33,6 @@ public class Model extends Observable implements Serializable {
 		}
 	}
 
-    private ArrayList<KDTree> treeList = new ArrayList<>();
-
     private float minlat, minlon, maxlat, maxlon;
     private float clminlat, clminlon, clmaxlat, clmaxlon;
     private long nodeID;
@@ -46,8 +44,13 @@ public class Model extends Observable implements Serializable {
         load(filename);
     }
 
+    private ArrayList<KDTree> treeList;
     public ArrayList<KDTree> getTree() {
         return treeList;
+    }
+    private POIKDTree POITree;
+    public POIKDTree getPOITree() {
+        return POITree;
     }
 
     public AddressModel getAddressModel() { return addressModel; }
@@ -122,7 +125,6 @@ public class Model extends Observable implements Serializable {
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
 				fillTrees();
-				//tree.fillTree(shapes,pointsOfInterest);
                 dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -137,18 +139,25 @@ public class Model extends Observable implements Serializable {
 	}
 
 	private void fillTrees() {
+        treeList = new ArrayList<>();
+        POITree = new POIKDTree();
+
 		for (WayType type : WayType.values()) {
 			List<Shape> list = shapes.get(type);
 			if (list.size() == 0 || type==WayType.UNKNOWN || type==WayType.NATURAL_COASTLINE) {
 				continue;
 			}
-			if(type!=WayType.LANDUSE_FOREST){continue;}
+			if(type!=WayType.WATERWAY_STREAM){continue;}
 			KDTree treeWithType = new KDTree(type);
 			treeWithType.fillTreeWithShapes(list);
 			treeList.add(treeWithType);
 			System.out.println("MaxDepth: " + treeWithType.maxDepth + "\t\t\tElement Count:" + treeWithType.count + "\t\t\tType: " + type);
 		}
 		System.out.println("Number of trees: "+treeList.size());
+
+		if(pointsOfInterest != null) {
+            POITree.fillTree(pointsOfInterest);
+        }
 	}
 
 	private void loadOSM(InputSource source) {
@@ -301,10 +310,11 @@ public class Model extends Observable implements Serializable {
 						type = typeTest;
 					} else {
 						List<Point2D> typePointsOfInterest = pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase());
-						if(typePointsOfInterest!= null){
-							pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase()).add(new Point2D.Double(lon*lonfactor,-lat));
+						if(typePointsOfInterest != null){
+							pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase()).add(new Point2D.Double(lon*lonfactor, -lat));
 						}
 					}
+
 					switch (k) {
 						case "addr:street":
 							addressBuilder[0] = v;
@@ -330,14 +340,14 @@ public class Model extends Observable implements Serializable {
                             break;
                         case "place":
                             if(v.equals("village") || v.equals("town") || v.equals("city")){
-                                addressModel.put(name,idToNode.get(nodeID));
+                                addressModel.put(name, idToNode.get(nodeID));
                             }
 					}
 					break;
 				case "member":
 				    String role = atts.getValue("role");
                     ref = Long.parseLong(atts.getValue("ref"));
-                    if(role.equals("admin_centre")){
+                    if(role.equals("admin_centre")) {
                         regionCenter = idToNode.get(ref);
                         if(regionCenter ==null){
                             regionCenter = new OSMNode((maxlon+minlon)/2,-(maxlat+minlat)/2);
