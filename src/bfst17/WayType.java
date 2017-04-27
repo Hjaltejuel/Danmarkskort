@@ -30,19 +30,19 @@ public enum WayType {
                     null,
                     700,
                     FillType.SOLID,
-                    new Color(36, 47, 62)),
+                    new Color(42, 62, 51)),
 	LANDUSE_GRASS
 			(new Color(197, 236, 148),
 					null,
 					1500,
 					FillType.SOLID,
-					new Color(114, 170, 107)),
+					new Color(54, 80, 50)),
 	LANDUSE_MEADOW
 			(new Color(205, 235, 176),
 					null,
 					1500,
 					FillType.SOLID,
-					new Color(114, 170, 107)),
+					new Color(43, 80, 42)),
 	LANDUSE_RESIDENTIAL
 			(new Color(218, 218, 218),
 					null,

@@ -18,10 +18,9 @@ public class DrawCanvas extends JComponent implements Observer {
     Shape regionShape = null;
     boolean regionSearch = false;
 	boolean antiAlias;
-	boolean greyScale = false;
-	boolean nightmode = false;
+	GUIMode GUITheme = GUIMode.NORMAL;
 	boolean fancyPan = true;
-	HashMap<String,Boolean> nameToBoolean = new HashMap<>();
+	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
 	Point2D pin;
 	boolean searchMode = false;
 
@@ -33,9 +32,16 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	public void fillNameToBoolean(){
 		for(POIclasification name: POIclasification.values()){
-			nameToBoolean.put(name.toString(),false);
+			nameToBoolean.put(name, false);
 		}
 	}
+
+    public void setPointsOfInterest(POIclasification name){
+        boolean nameToBooleanCopy = nameToBoolean.get(name);
+        nameToBoolean.put(name,!nameToBooleanCopy);
+        repaint();
+    }
+
 	public void regionSearch(Shape shape){
         regionSearch = true;
         regionShape = shape;
@@ -53,25 +59,10 @@ public class DrawCanvas extends JComponent implements Observer {
         regionSearch = false;
         pin = new Point2D.Float(lon,lat);
     }
-    public void setPointsOfInterest(String name){
-		boolean nameToBooleanCopy = nameToBoolean.get(name);
-		nameToBoolean.put(name,!nameToBooleanCopy);
-		repaint();
-	}
-	public void setGreyScale()
-	{
-		greyScale = true;
-	}
-	public void setGreyScaleFalse()
-	{
-		greyScale = false;
-	}
-	public void setNightMode(){
-		nightmode = true;
-	}
-	public void setNightModeFalse(){
-		nightmode = false;
-	}
+
+    public void setGUITheme(GUIMode newTheme) {
+	    GUITheme = newTheme;
+    }
 
 	private void drawCoastlines(Graphics2D g) {
 		for(Shape s: model.getCoastlines()) {
@@ -113,9 +104,9 @@ public class DrawCanvas extends JComponent implements Observer {
 	private Color getDrawColor(WayType type) {
 		Color drawColor = type.getDrawColor();
 
-		if(nightmode) {
+		if(GUITheme == GUIMode.NIGHT) {
 			drawColor = type.getNightModeColor();
-		} else if (greyScale) {
+		} else if (GUITheme == GUIMode.GREYSCALE) {
 			int red = (int) (drawColor.getRed() * 0.299);
 			int green = (int) (drawColor.getGreen() * 0.587);
 			int blue = (int) (drawColor.getBlue() * 0.114);
@@ -128,72 +119,31 @@ public class DrawCanvas extends JComponent implements Observer {
 	@Override
 	protected void paintComponent(Graphics _g) {
         Graphics2D g = (Graphics2D) _g;
-		if (nightmode) {
-			g.setColor(WayType.NATURAL_WATER.getNightModeColor());
-		} else {
-			g.setColor(WayType.NATURAL_WATER.getDrawColor());
-		}
 
+        //Tegn vand
+        g.setColor(getDrawColor(WayType.NATURAL_WATER));
 		g.fillRect(0, 0, getWidth(), getHeight());
+
 		g.setTransform(transform);
 		g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
 		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+		//Tegn coastlines
 		drawCoastlines(g);
 
-
-
+		//Definér skærmbilledet
 		Point2D topLeft = screenCordsToLonLat(0, 0);
 		Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
 		Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
                 topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
 
-        for (KDTree tree : model.getTree()) {
-            WayType type = tree.type;
-            if (type.getZoomFactor() > getXZoomFactor()) {
-                continue;
-            }
-            HashSet<Shape> shapes = tree.getInRange((Rectangle2D) screenRectangle);
-            g.setColor(getDrawColor(type));
+		//Hent og tegn shapes fra diverse KDTræer
+        drawShapes(g, (Rectangle2D)screenRectangle);
 
-            g.setStroke(type.getDrawStroke());
+        //Hent og tegn POIS, hvis der er zoomet tilstrækkeligt ind og der er sat hak
+        drawPointsOfInteres(g, (Rectangle2D)screenRectangle);
 
-            //Her bestemmes om shapes skal fyldes eller ej
-            if (type.getFillType() == FillType.LINE) {
-                for (Shape shape : shapes) {
-                    g.draw(shape);
-                }
-            } else if (type.getFillType() == FillType.SOLID) {
-                for (Shape shape : shapes) {
-                    g.fill(shape);
-                    g.draw(shape.getBounds2D());
-                }
-            }
-
-        }
-        if(getXZoomFactor() > 40000) {
-			POIKDTree POITree = model.getPOITree();
-			for (POIKDTree.TreeNode PoiNodes : POITree.getInRange((Rectangle2D)screenRectangle)) {
-				drawPointOfInterest(g, PoiNodes.getPOIType(), PoiNodes.getX(), PoiNodes.getY());
-			}
-		}
-        /*
-        else if(transform.getScaleY()>40000) {
-            if(nameToBoolean.get(n.getPointsOfInterest().getClassification().toString())) {
-                POI.add(n);
-            }
-
-        }
-
-    }
-		if(transform.getScaleY()>40000) {
-        for (KDTree.TreeNode n : POI) {
-            drawPointsOfInterest(g, n.getPointsOfInterest(), n.getX(), n.getY());
-        }
-    }
-    /
-		/**/
 		setPin(g);
 
         if(regionSearch){
@@ -206,27 +156,64 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	}
 
-	public void pan(double dx, double dy) {
-		transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
-		repaint();
+	public void drawShapes(Graphics2D g, Rectangle2D screenRectangle) {
+        for (KDTree tree : model.getTree()) {
+            WayType type = tree.type;
+            if (type.getZoomFactor() > getXZoomFactor()) {
+                continue;
+            }
+            HashSet<Shape> shapes = tree.getInRange(screenRectangle);
+            g.setColor(getDrawColor(type));
+
+            g.setStroke(type.getDrawStroke());
+
+            //Her bestemmes om shapes skal fyldes eller ej
+            if (type.getFillType() == FillType.LINE) {
+                for (Shape shape : shapes) {
+                    g.draw(shape);
+                }
+            } else if (type.getFillType() == FillType.SOLID) {
+                for (Shape shape : shapes) {
+                    g.fill(shape);
+                }
+            }
+        }
+    }
+
+	public void drawPointsOfInteres(Graphics2D g, Rectangle2D screenRectangle) {
+        if(getXZoomFactor() > 40000) {
+            POIKDTree POITree = model.getPOITree();
+            for (POIKDTree.TreeNode PoiNodes : POITree.getInRange(screenRectangle)) {
+                PointsOfInterest POIType = PoiNodes.getPOIType();
+                if(nameToBoolean.get(POIType.getClassification())) {
+                    drawPOIImage(g, POIType, PoiNodes.getX(), PoiNodes.getY());
+                }
+            }
+        }
+    }
+
+	public void drawPOIImage(Graphics2D g, PointsOfInterest type, double x, double y) {
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(getClass().getResource("/POI/" + type.name() + ".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        AffineTransform imageTransform = new AffineTransform();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        imageTransform.setToIdentity();
+        imageTransform.translate(x, y);
+        imageTransform.scale(((1 / transform.getScaleX())), ((1 / transform.getScaleY())));
+        g.drawImage(image, imageTransform, null);
+    }
+
+
+
+    public void pan(double dx, double dy) {
+        transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
+        repaint();
         revalidate();
-	}
-	public void drawPointOfInterest(Graphics2D g, PointsOfInterest type, double x, double y) {
-			BufferedImage image = null;
-				try {
-					image = ImageIO.read(getClass().getResource("/POI/" + type.name() + ".png"));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				AffineTransform imageTransform = new AffineTransform();
-				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-						imageTransform.setToIdentity();
-						imageTransform.translate(x, y);
-						imageTransform.scale(((1 / transform.getScaleX())), ((1 / transform.getScaleY())));
-						g.drawImage(image, imageTransform, null);
-			}
-
-
+    }
 	public void setPin(Graphics2D g) {
         if(pin!=null) {
             BufferedImage image = null;

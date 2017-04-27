@@ -6,9 +6,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.EventListener;
-import java.util.stream.Collectors;
 
 /**
  * Created by Hjalte on 21-04-2017.
@@ -53,7 +50,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             JCheckBoxMenuItem[] menu = window.getPointsOfInterestMenues();
             for(int i = 0; i<menu.length;i++){
                 if(e.getSource() ==menu[i] ) {
-                    canvas.setPointsOfInterest(POIclasification.values()[i].toString());
+                    canvas.setPointsOfInterest(POIclasification.values()[i]);
                 }
             }
         } else if(command.equals("Save")){
@@ -68,9 +65,9 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 window.SetSecondSearch(addressModel.getTSTTree());
             } else window.tearSecondSearch();
         } else if(command.equals("Nightmode")){
-                setNightMode();
+            setColorTheme(GUIMode.NIGHT);
         } else if(command.equals("Greyscale")){
-                setGreyScale();
+            setColorTheme(GUIMode.GREYSCALE);
         } else if(command.equals("Aa")){
             canvas.toggleAA();
         } else if(command.equals("Fancypan")){
@@ -82,36 +79,51 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
     }
 
-    public void setGreyScale(){
-        if (window.getGreyScale().getText().equals("GreyScale (CTRL-G)")) {
-            canvas.setGreyScale();
-            canvas.setNightModeFalse();
-        if (window.getNightMode().getText().equals("Color (CTRL-N)")) {
-            window.getNightMode().setText("NightMode (CTRL-N)");
-            window.tearDownNightMode();
+    public void setColorTheme(GUIMode newTheme) {
+        if(canvas.GUITheme==newTheme) {
+            newTheme = GUIMode.NORMAL;
         }
-            canvas.repaint();
-            window.getGreyScale().setText("Color (CTRL-G)");
-    } else {
-            canvas.setGreyScaleFalse();
-            canvas.repaint();
-            window.getGreyScale().setText("GreyScale (CTRL-G)");
-    }}
-    public void setNightMode(){
-        if(window.getNightMode().getText().equals("NightMode (CTRL-N)")) {
-            canvas.setNightMode();
-            canvas.setGreyScaleFalse();
-            window.getGreyScale().setText("GreyScale (CTRL-G)");
-            canvas.repaint();
-            window.getNightMode().setText("Color (CTRL-N)");
-            window.setUpNightMode();
 
-
-        } else {
-            canvas.setNightModeFalse();
+        canvas.setGUITheme(newTheme);
+        if (newTheme == GUIMode.NORMAL) {
+            window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
+            window.getGreyScaleMenuItem().setText("GreyScale (CTRL-G)");
             window.tearDownNightMode();
+        } else if (newTheme == GUIMode.GREYSCALE) {
+            window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
+            window.getGreyScaleMenuItem().setText("Color (CTRL-G)");
+            window.tearDownNightMode();
+        } else if (newTheme == GUIMode.NIGHT) {
+            window.getNightModeMenuItem().setText("Color (CTRL-N)");
+            window.getGreyScaleMenuItem().setText("GreyScale (CTRL-G)");
+            window.setUpNightMode();
+        }
+        canvas.repaint();
+    }
+    public void setGreyScale() {
+        if (window.getGreyScaleMenuItem().getText().equals("GreyScale (CTRL-G)")) {
+            canvas.setGUITheme(GUIMode.GREYSCALE);
+            if (window.getNightModeMenuItem().getText().equals("Color (CTRL-N)")) {
+
+
+            }
             canvas.repaint();
-            window.getNightMode().setText("NightMode (CTRL-N)");
+            window.getGreyScaleMenuItem().setText("Color (CTRL-G)");
+        } else {
+            canvas.setGUITheme(GUIMode.NORMAL);
+        }
+    }
+    public void setNightMode(){
+        if(window.getNightModeMenuItem().getText().equals("NightMode (CTRL-N)")) {
+            canvas.setGUITheme(GUIMode.NIGHT);
+            window.getGreyScaleMenuItem().setText("GreyScale (CTRL-G)");
+            canvas.repaint();
+            window.getNightModeMenuItem().setText("Color (CTRL-N)");
+            window.setUpNightMode();
+        } else {
+            canvas.setGUITheme(GUIMode.NORMAL);
+            canvas.repaint();
+            window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
         }
     }
 

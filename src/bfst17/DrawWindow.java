@@ -27,9 +27,9 @@ public class DrawWindow {
 	private JMenuItem exit;
 	private JMenuItem zoomInMenu;
 	private JMenuItem zoomOutMenu;
-	private JMenuItem greyScale;
-	private JMenuItem nightMode;
-	private JMenuItem aA;
+	private JMenuItem greyScaleMenuItem;
+	private JMenuItem nightModeMenuItem;
+	private JMenuItem AntiAliasinToggle;
 	private JMenuItem fancyPan;
 	JCheckBoxMenuItem directions;
 	private JButton search;
@@ -101,12 +101,12 @@ public class DrawWindow {
 		zoomInMenu.setActionCommand("ZoomIn");
 		zoomOutMenu.addActionListener(controller);
 		zoomOutMenu.setActionCommand("ZoomOut");
-		greyScale.addActionListener(controller);
-		greyScale.setActionCommand("Greyscale");
-		nightMode.addActionListener(controller);
-		nightMode.setActionCommand("Nightmode");
-		aA.addActionListener(controller);
-		aA.setActionCommand("Aa");
+		greyScaleMenuItem.addActionListener(controller);
+		greyScaleMenuItem.setActionCommand("Greyscale");
+		nightModeMenuItem.addActionListener(controller);
+		nightModeMenuItem.setActionCommand("Nightmode");
+		AntiAliasinToggle.addActionListener(controller);
+		AntiAliasinToggle.setActionCommand("Aa");
 		fancyPan.addActionListener(controller);
 		fancyPan.setActionCommand("Fancypan");
 	}
@@ -309,10 +309,10 @@ public class DrawWindow {
 		exit = new JMenuItem("Exit", KeyEvent.VK_Q);
 		zoomInMenu = new JMenuItem("Zoom In (CTRL-MINUS)", KeyEvent.VK_PLUS);
 		zoomOutMenu = new JMenuItem("Zoom Out (CTRL-PLUS)", KeyEvent.VK_MINUS);
-		greyScale = new JMenuItem("GreyScale (CTRL-G)", KeyEvent.VK_G);
-		nightMode = new JMenuItem("NightMode (CTRL-N)", KeyEvent.VK_N);
+		greyScaleMenuItem = new JMenuItem("GreyScale (CTRL-G)", KeyEvent.VK_G);
+		nightModeMenuItem = new JMenuItem("NightMode (CTRL-N)", KeyEvent.VK_N);
 		fancyPan = new JMenuItem("FancyPan (CTRL-F)", KeyEvent.VK_F);
-		aA = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
+		AntiAliasinToggle = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
 		directions = new JCheckBoxMenuItem("Directions");
 
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK), "action5", save);
@@ -327,15 +327,15 @@ public class DrawWindow {
 		JMenu tools = new JMenu("Tools");
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Event.CTRL_MASK), "action1", zoomInMenu);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK), "action2", zoomOutMenu);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK), "action3", greyScale);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK), "action4", nightMode);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK), "action3", greyScaleMenuItem);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK), "action4", nightModeMenuItem);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK), "action9", fancyPan);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_T, Event.CTRL_MASK), "action11", aA);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_T, Event.CTRL_MASK), "action11", AntiAliasinToggle);
 
-		tools.add(nightMode);
-		tools.add(greyScale);
+		tools.add(nightModeMenuItem);
+		tools.add(greyScaleMenuItem);
 		tools.add(fancyPan);
-		tools.add(aA);
+		tools.add(AntiAliasinToggle);
 		tools.add(zoomInMenu);
 		tools.add(zoomOutMenu);
 
@@ -466,11 +466,11 @@ public class DrawWindow {
 		return window;
 	}
 
-	public JMenuItem getNightMode() {
-		return nightMode;
+	public JMenuItem getNightModeMenuItem() {
+		return nightModeMenuItem;
 	}
 
-	public JMenuItem getGreyScale() {
-		return greyScale;
+	public JMenuItem getGreyScaleMenuItem() {
+		return greyScaleMenuItem;
 	}
 }
