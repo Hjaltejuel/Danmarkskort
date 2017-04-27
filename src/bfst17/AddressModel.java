@@ -17,14 +17,17 @@ public class AddressModel extends Observable implements Serializable {
 
     public TST<TSTInterface> getTSTTree(){return tree;}
 
-    public void put(String address, AddressNode point) {
+    public void putAddress(String address, AddressNode point) {
         if(!address.equals("")) {
             tree.put(address, point);
         }
     }
-
     public void putRegion(String region, Region shape){
         tree.put(region,shape);
+    }
+
+    public void putCity(String city, OSMNode point){
+        tree.put(city,point);
     }
 
     TST<TSTInterface> tree;

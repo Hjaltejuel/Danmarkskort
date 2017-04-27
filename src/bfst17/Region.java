@@ -15,6 +15,12 @@ public class Region implements Serializable,TSTInterface {
         this.center = center;
     }
     public Shape getShape(){return shape;}
+
+    @Override
+    public String getAddress() {
+        return null;
+    }
+
     public double getX(){return center.getX();}
     public double getY(){return center.getY();}
 

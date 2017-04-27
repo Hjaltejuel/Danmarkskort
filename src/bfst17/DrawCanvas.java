@@ -27,7 +27,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	boolean fancyPan = true;
 	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
 	Point2D pin;
-	boolean searchMode = false;
 
 	public DrawCanvas(Model model) {
 		this.model = model;
@@ -47,7 +46,8 @@ public class DrawCanvas extends JComponent implements Observer {
         repaint();
     }
 
-	public void regionSearch(Shape shape) {
+	public void regionSearch(Shape shape,Point2D center) {
+		pin = center;
         regionSearch = true;
         regionShape = shape;
     }
@@ -60,7 +60,6 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void setSearchMode(float lon,float lat) {
-        searchMode = true;
         regionSearch = false;
         pin = new Point2D.Float(lon,lat);
     }
@@ -127,14 +126,13 @@ public class DrawCanvas extends JComponent implements Observer {
         //Hent og tegn POIS, hvis der er zoomet tilstrækkeligt ind og der er sat hak
         drawPointsOfInteres(g, (Rectangle2D)screenRectangle);
 
-		setPin(g);
-
         if(regionSearch){
             Color color = g.getColor();
             g.setColor(new Color(255,0,0,127));
             g.draw(regionShape);
             g.setColor(color);
         }
+		setPin(g);
 	}
 
     /**
@@ -164,7 +162,7 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
 	public void drawShapes(Graphics2D g, Rectangle2D screenRectangle) {
-        for (KDTree tree : model.getTree()) {
+        for (KDTree tree : model.getTrees()) {
             WayType type = tree.type;
             if (type.getZoomFactor() > getXZoomFactor()) {
                 continue;
@@ -240,7 +238,7 @@ public class DrawCanvas extends JComponent implements Observer {
             imageTransform.translate(-pin.getX()-(((image.getWidth()/10)/2))/getXZoomFactor(),-pin.getY()-((image.getHeight()/10)/getXZoomFactor()));
             imageTransform.scale(((1/getXZoomFactor())/10),((1/getYZoomFactor())/10));
             g.drawImage(image, imageTransform, null);
-            searchMode = false;
+           
         }
 	}
 

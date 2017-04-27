@@ -35,7 +35,7 @@ public class Address implements Serializable {
             streetString = street;
         }
         if(house != null) {
-            houseString = house + ",";
+            houseString = house;
         }
         if(postcode != null) {
             postcodeString = postcode;

@@ -29,4 +29,11 @@ public class AddressNode implements TSTInterface{
     public Shape getShape() {
         return null;
     }
+
+    @Override
+    public String getAddress() {
+        return cityAndPostcode;
+    }
+
+    public String toString(){return cityAndPostcode;}
 }
