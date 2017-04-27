@@ -24,6 +24,9 @@ public class DrawCanvas extends JComponent implements Observer {
 	boolean shouldFancyPan = true;
 	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
 	Point2D pin;
+	Integer FrameCounter=0;
+	double timeTracker;
+	Integer FPS;
 
     public DrawCanvas(Model model) {
 		this.model = model;
@@ -68,6 +71,15 @@ public class DrawCanvas extends JComponent implements Observer {
 	    GUITheme = newTheme;
     }
 
+    public void checkFPS(){
+        FrameCounter++;
+        if(System.nanoTime()-timeTracker>=1_000_000_000) {
+            FPS = FrameCounter;
+            System.out.println(FPS);
+            timeTracker = System.nanoTime();
+            FrameCounter = 0;
+        }
+    }
 
 	/**
 	 * Calls the UI delegate's paint method, if the UI delegate
@@ -97,7 +109,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	 *
 	 * @see #paint
 	 */
-
 	@Override
 	protected void paintComponent(Graphics _g) {
         Graphics2D g = (Graphics2D) _g;
@@ -107,6 +118,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
         //Tegn overlay (Pin, POI, Målebånd)
         drawOverlay(g);
+
+        checkFPS();
 	}
 
     //<editor-fold desc="Funktioner der tegner">
@@ -239,8 +252,8 @@ public class DrawCanvas extends JComponent implements Observer {
             BufferedImage image = ImageIO.read(getClass().getResource("/temppin.png"));
 
             Point2D drawLocation = lonLatToScreenCords(pin.getX(), pin.getY());
-            System.out.println(drawLocation);
-            g.drawImage(image, (int) drawLocation.getX(), (int) drawLocation.getY(), this);
+
+            g.drawImage(image, (int) drawLocation.getX() - image.getWidth()/2, (int) drawLocation.getY() - image.getHeight(), this);
         } catch (IOException e) {
             e.printStackTrace();
         }
