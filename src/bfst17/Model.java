@@ -42,7 +42,7 @@ public class Model extends Observable implements Serializable {
     private float lonfactor;
 
 
-    public Model(String filename) {
+    public Model(String filename) throws IOException {
         load(filename);
     }
 
@@ -69,7 +69,7 @@ public class Model extends Observable implements Serializable {
 
     public Model() {
         //Til osm
-        load(this.getClass().getResource("/bornholm.osm").getPath());
+        //load(this.getClass().getResource("/bornholm.osm").getPath());
 
         //til bin
         //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
@@ -90,7 +90,8 @@ public class Model extends Observable implements Serializable {
     public void save(String filename) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
-            out.writeObject(shapes);
+            out.writeObject(treeList);
+            out.writeObject(POITree);
             out.writeObject(addressModel);
             out.writeFloat(minlon);
             out.writeFloat(minlat);
@@ -104,12 +105,39 @@ public class Model extends Observable implements Serializable {
         }
     }
 
-    public void load(String filename) {
+    public void load(String filename) throws IOException {
+        long loadTime = -System.nanoTime();
+        BufferedInputStream input = new BufferedInputStream(new FileInputStream(filename));
+        int total = input.available();
+        long starttime = System.nanoTime();
+        Timer progressPrinter = new Timer();
+        progressPrinter.scheduleAtFixedRate(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            double fractionLeft = input.available() / (double) total;
+                            double fractionDone = 1 - fractionLeft;
+                            if (fractionLeft < 1) {
+                                double secondsUsed = (System.nanoTime() - starttime) / 1e9;
+                                long secondsLeft = Math.round(secondsUsed / fractionDone * fractionLeft);
+                                System.out.printf("\rParsing %.1f%% done, time left: %d:%02d", 100 * fractionDone, secondsLeft / 60, secondsLeft % 60);
+                            }
+                        } catch (IOException e) {
+                            System.out.print("\rParsing 100% done, time left: 0:00");
+                            System.out.println("\nNow drawing shapes, please wait.");
+                            progressPrinter.cancel();
+                        }
+                    }
+                }, 0, 1000);
+
+
+
         if (filename.endsWith(".osm")) {
-            loadOSM(new InputSource(filename));
+            loadOSM(new InputSource(input));
         } else if (filename.endsWith(".zip")) {
             try {
-                ZipInputStream zip = new ZipInputStream(new FileInputStream(filename));
+                ZipInputStream zip = new ZipInputStream(input);
                 zip.getNextEntry();
                 loadOSM(new InputSource(zip));
             } catch (FileNotFoundException e) {
@@ -118,15 +146,18 @@ public class Model extends Observable implements Serializable {
                 e.printStackTrace();
             }
         } else {
-            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+            try (ObjectInputStream in = new ObjectInputStream(input)) {
+                long time = -System.nanoTime();
                 //Ryk rundt på dem her og få med Jens' knytnæve at bestille
-                shapes = (EnumMap<WayType, List<Shape>>) in.readObject();
+                treeList = (ArrayList<KDTree>)in.readObject();
+                POITree = (POIKDTree) in.readObject();
                 addressModel = (AddressModel) in.readObject();
                 minlon = in.readFloat();
                 minlat = in.readFloat();
                 maxlon = in.readFloat();
                 maxlat = in.readFloat();
-                fillTrees();
+                time += System.nanoTime();
+                System.out.printf("Object deserialization: %f s\n", time / 1000000 / 1000d);
                 dirty();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -138,6 +169,11 @@ public class Model extends Observable implements Serializable {
                 e.printStackTrace();
             }
         }
+        progressPrinter.cancel();
+        loadTime += System.nanoTime();
+        loadTime /= 1_000_000_000;
+        System.out.printf("\nLoad time: %d:%02d\n", loadTime / 60, loadTime % 60);
+
     }
 
     private void fillTrees() {
@@ -266,10 +302,6 @@ public class Model extends Observable implements Serializable {
         Integer count=0;
         @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-            count++;
-            if(count%100000==0) {
-                System.out.println(count);
-            }
             switch(qName) {
                 case "bounds":
                     minlat = Float.parseFloat(atts.getValue("minlat"));
