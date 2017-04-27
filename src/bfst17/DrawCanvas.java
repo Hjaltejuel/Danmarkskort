@@ -4,10 +4,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
@@ -146,8 +143,9 @@ public class DrawCanvas extends JComponent implements Observer {
 		drawCoastlines(g);
 
 
-        Point2D topLeft = screenCordsToLonLat(0, 0);
-        Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
+
+        Point2D topLeft = screenCordsToLonLat(150, 150);
+        Point2D topRight = screenCordsToLonLat(550, 550);
         Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
                 topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
 
@@ -170,9 +168,17 @@ public class DrawCanvas extends JComponent implements Observer {
             } else if (type.getFillType() == FillType.SOLID) {
                 for (Shape shape : shapes) {
                     g.fill(shape);
+                    g.draw(shape.getBounds2D());
                 }
             }
-        }/*
+
+            for(Line2D line : tree.lines){
+                g.setColor(Color.black);
+                g.draw(line);
+            }
+        }
+        g.setColor(Color.black);
+        g.draw(screenRectangle);/*
         else if(transform.getScaleY()>40000) {
             if(nameToBoolean.get(n.getPointsOfInterest().getClassification().toString())) {
                 POI.add(n);
@@ -314,14 +320,12 @@ public class DrawCanvas extends JComponent implements Observer {
 					panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
                     cancel();
                 }
-                else if (zoomOutCounter < 100){
-
+                else if (zoomOutCounter < 100) {
 					pan(-getWidth() / 2, -getHeight() / 2);
 					zoom(150000 / getXZoomFactor() * 10 / zoomOutCounter);
 					pan(getWidth() / 2, getHeight() / 2);
 
 					zoomOutCounter++;
-
                 }
             }
         }, 0 , 20);
@@ -332,9 +336,6 @@ public class DrawCanvas extends JComponent implements Observer {
 		zoom(150000 / getXZoomFactor());
 		pan(getWidth() / 2, getHeight() / 2);
 	}
-
-
-
 
 	public double getXZoomFactor(){return transform.getScaleX();}
 	public double getYZoomFactor(){return transform.getScaleY();}
@@ -352,6 +353,10 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
 	public void zoom(double factor) {
+        //Zoom begrænsning
+	    if(getXZoomFactor()*factor>800000) {
+            return;
+        }
 		transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
         repaint();
         revalidate();

@@ -142,6 +142,7 @@ public class Model extends Observable implements Serializable {
 			if (list.size() == 0 || type==WayType.UNKNOWN || type==WayType.NATURAL_COASTLINE) {
 				continue;
 			}
+			if(type!=WayType.LANDUSE_FOREST){continue;}
 			KDTree treeWithType = new KDTree(type);
 			treeWithType.fillTreeWithShapes(list);
 			treeList.add(treeWithType);
