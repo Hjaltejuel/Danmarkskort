@@ -32,11 +32,11 @@ public class DrawWindow {
 	private JMenuItem AntiAliasinToggle;
 	private JMenuItem fancyPan;
 	JCheckBoxMenuItem directions;
-	private JButton search;
-	private JButton menu;
-	private JButton zoomIn;
-	private JButton zoomOut;
-	private JButton pointsOfInterest;
+	private JButton searchButton;
+	private JButton menuButton;
+	private JButton zoomInButton;
+	private JButton zoomOutButton;
+	private JButton pointsOfInterestButton;
 	private JCheckBoxMenuItem[] pointsOfInterestMenues;
 	boolean isClicked1 = false;
 	boolean isClicked2 = false;
@@ -78,11 +78,11 @@ public class DrawWindow {
 	}
 
 	public void setMouseListener(MouseListener controller) {
-		search.addMouseListener(controller);
-		zoomIn.addMouseListener(controller);
-		zoomOut.addMouseListener(controller);
-		pointsOfInterest.addMouseListener(controller);
-		menu.addMouseListener(controller);
+		searchButton.addMouseListener(controller);
+		zoomInButton.addMouseListener(controller);
+		zoomOutButton.addMouseListener(controller);
+		pointsOfInterestButton.addMouseListener(controller);
+		menuButton.addMouseListener(controller);
 	}
 
 	public void addActionListener(ActionListener controller) {
@@ -115,14 +115,14 @@ public class DrawWindow {
 		windowPane.add(canvas, 100);
 		windowPane.add(combo, 50);
 		windowPane.add(sidebarMenu, 50);
-		windowPane.add(search);
+		windowPane.add(searchButton);
 
 		windowPane.setComponentZOrder(canvas, 1);
-		windowPane.setComponentZOrder(search, 0);
+		windowPane.setComponentZOrder(searchButton, 0);
 		windowPane.setComponentZOrder(sidebarMenu, 0);
 		windowPane.setComponentZOrder(combo, 0);
 
-		search.setBounds(313, 10, 40, 40);
+		searchButton.setBounds(313, 10, 40, 40);
 		combo.setBounds(10, 10, 300, 40);
 		window.add(windowPane, BorderLayout.CENTER);
 
@@ -173,29 +173,29 @@ public class DrawWindow {
 		poiMenu.add(emergency);
 		poiMenu.add(shops);
 
-		zoomIn = new JButton();
-		zoomIn.setBounds(window.getHeight() - 45, window.getWidth() - 67, 40, 40);
-		zoomIn.setBorderPainted(false);
-		zoomIn.setFocusPainted(false);
-		zoomIn.setContentAreaFilled(false);
+		zoomInButton = new JButton();
+		zoomInButton.setBounds(window.getHeight() - 45, window.getWidth() - 67, 40, 40);
+		zoomInButton.setBorderPainted(false);
+		zoomInButton.setFocusPainted(false);
+		zoomInButton.setContentAreaFilled(false);
 
-		zoomOut = new JButton();
-		zoomOut.setBounds(window.getHeight() - 85, window.getWidth() - 67, 40, 40);
-		zoomOut.setBorderPainted(false);
-		zoomOut.setFocusPainted(false);
-		zoomOut.setContentAreaFilled(false);
-		zoomOut.setPreferredSize(new Dimension(30, 30));
+		zoomOutButton = new JButton();
+		zoomOutButton.setBounds(window.getHeight() - 85, window.getWidth() - 67, 40, 40);
+		zoomOutButton.setBorderPainted(false);
+		zoomOutButton.setFocusPainted(false);
+		zoomOutButton.setContentAreaFilled(false);
+		zoomOutButton.setPreferredSize(new Dimension(30, 30));
 
-		pointsOfInterest = new JButton();
-		pointsOfInterest.setBounds(window.getHeight() - 85, window.getWidth() - 67, 40, 40);
-		pointsOfInterest.setBorderPainted(false);
-		pointsOfInterest.setFocusPainted(false);
-		pointsOfInterest.setContentAreaFilled(false);
-		pointsOfInterest.setPreferredSize(new Dimension(30, 30));
+		pointsOfInterestButton = new JButton();
+		pointsOfInterestButton.setBounds(window.getHeight() - 85, window.getWidth() - 67, 40, 40);
+		pointsOfInterestButton.setBorderPainted(false);
+		pointsOfInterestButton.setFocusPainted(false);
+		pointsOfInterestButton.setContentAreaFilled(false);
+		pointsOfInterestButton.setPreferredSize(new Dimension(30, 30));
 
-		sidebarMenu.add(zoomIn);
-		sidebarMenu.add(zoomOut);
-		sidebarMenu.add(pointsOfInterest);
+		sidebarMenu.add(zoomInButton);
+		sidebarMenu.add(zoomOutButton);
+		sidebarMenu.add(pointsOfInterestButton);
 
 		giveSideButtonsIcons();
 
@@ -204,58 +204,58 @@ public class DrawWindow {
 
 	public void giveSideButtonsIcons() {
 		try {
-			Image img4 = ImageIO.read(getClass().getResource("/pointsOfInterest.png"));
-			pointsOfInterest.setIcon(new ImageIcon(img4.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+			Image img4 = ImageIO.read(getClass().getResource("/pointsOfInterestButton.png"));
+			pointsOfInterestButton.setIcon(new ImageIcon(img4.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
 
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 		try {
 			Image img4 = ImageIO.read(getClass().getResource("/zoomout.png"));
-			zoomOut.setIcon(new ImageIcon(img4.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+			zoomOutButton.setIcon(new ImageIcon(img4.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 		try {
 			Image img3 = ImageIO.read(getClass().getResource("/zoomin.png"));
-			zoomIn.setIcon(new ImageIcon(img3.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+			zoomInButton.setIcon(new ImageIcon(img3.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 	}
 
 	public void setUpTopButtons() {
-		search = new JButton();
-		search.setBorderPainted(false);
-		search.setFocusPainted(false);
-		search.setContentAreaFilled(false);
-		search.setBorder(BorderFactory.createEmptyBorder());
-		search.setPreferredSize(new Dimension(30, 30));
+		searchButton = new JButton();
+		searchButton.setBorderPainted(false);
+		searchButton.setFocusPainted(false);
+		searchButton.setContentAreaFilled(false);
+		searchButton.setBorder(BorderFactory.createEmptyBorder());
+		searchButton.setPreferredSize(new Dimension(30, 30));
 
-		menu = new JButton();
-		menu.setBounds(357, 10, 40, 40);
-		menu.setBorderPainted(false);
-		menu.setFocusPainted(false);
-		menu.setContentAreaFilled(false);
-		menu.setPreferredSize(new Dimension(30, 30));
+		menuButton = new JButton();
+		menuButton.setBounds(357, 10, 40, 40);
+		menuButton.setBorderPainted(false);
+		menuButton.setFocusPainted(false);
+		menuButton.setContentAreaFilled(false);
+		menuButton.setPreferredSize(new Dimension(30, 30));
 		setUpMenu();
-		menu.setComponentPopupMenu(popUpMenu);
-		windowPane.add(menu);
-		windowPane.setComponentZOrder(menu, 0);
+		menuButton.setComponentPopupMenu(popUpMenu);
+		windowPane.add(menuButton);
+		windowPane.setComponentZOrder(menuButton, 0);
 		setTopMenuIcons();
 	}
 
 	public void setTopMenuIcons() {
 		try {
 			Image img = ImageIO.read(getClass().getResource("/search.png"));
-			search.setIcon(new ImageIcon(img.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+			searchButton.setIcon(new ImageIcon(img.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
 
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 		try {
 			Image img2 = ImageIO.read(getClass().getResource("/Untitled.png"));
-			menu.setIcon(new ImageIcon(img2.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+			menuButton.setIcon(new ImageIcon(img2.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
 
 		} catch (Exception ex) {
 			System.out.println(ex);
@@ -264,7 +264,7 @@ public class DrawWindow {
 
 
 	public void setUpNightMode() {
-		menu.setBackground(new Color(36, 47, 62));
+		menuButton.setBackground(new Color(36, 47, 62));
 		combo.getEditor().getEditorComponent().setBackground(new Color(36, 47, 62));
 		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
 		component.setForeground(Color.WHITE);
@@ -278,7 +278,7 @@ public class DrawWindow {
 	}
 
 	public void tearDownNightMode() {
-		menu.setBackground(null);
+		menuButton.setBackground(null);
 		combo.getEditor().getEditorComponent().setBackground(Color.WHITE);
 		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
 		component.setForeground(Color.BLACK);
@@ -346,7 +346,7 @@ public class DrawWindow {
 
 	public void showMenuTwo() {
 		if (!isClicked2) {
-			popUpMenu.show(menu, 0, 40);
+			popUpMenu.show(menuButton, 0, 40);
 			isClicked2 = true;
 		} else if (isClicked2) {
 			popUpMenu.setVisible(false);
@@ -442,24 +442,24 @@ public class DrawWindow {
 		return pointsOfInterestMenues;
 	}
 
-	public JButton getSearch() {
-		return search;
+	public JButton getSearchButton() {
+		return searchButton;
 	}
 
-	public JButton getMenu() {
-		return menu;
+	public JButton getMenuButton() {
+		return menuButton;
 	}
 
-	public JButton getPointsOfInterest() {
-		return pointsOfInterest;
+	public JButton getPointsOfInterestButton() {
+		return pointsOfInterestButton;
 	}
 
-	public JButton getZoomIn() {
-		return zoomIn;
+	public JButton getZoomInButton() {
+		return zoomInButton;
 	}
 
-	public JButton getZoomOut() {
-		return zoomOut;
+	public JButton getZoomOutButton() {
+		return zoomOutButton;
 	}
 
 	public JFrame getWindow() {

@@ -69,12 +69,17 @@ public class Model extends Observable implements Serializable {
 
     public Model() {
         //Til osm
-        //load(this.getClass().getResource("/bornholm.osm").getPath());
+        try{
+            //load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
+            load(this.getClass().getResource("/bornholm.osm").getPath());
+        } catch (Exception e){
+
+        }
 
         //til bin
         //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
         loadAllCoastlines();
-        //load(path);
+        //loadFile(path);
     }
 
     public void add(WayType type, Shape shape) {
@@ -203,8 +208,10 @@ public class Model extends Observable implements Serializable {
             reader.setContentHandler(new OSMHandler());
             reader.parse(source);
         } catch (SAXException e) {
+            System.out.println("A");
             e.printStackTrace();
         } catch (IOException e) {
+            System.out.println("A");
             e.printStackTrace();
         }
 
@@ -229,7 +236,6 @@ public class Model extends Observable implements Serializable {
         }
     }
 
-
     public float getMinLon() {
         return minlon;
     }
@@ -248,7 +254,6 @@ public class Model extends Observable implements Serializable {
 
     private class OSMHandler implements ContentHandler {
         //LongToPointMap idToNode = new LongToPointMap(18000000);
-        Long tid = System.nanoTime();
         Map<Long,OSMWay> idToWay = new HashMap<>();
         HashMap<Long, OSMNode> idToNode = new HashMap<>();
         Map<OSMNode,OSMWay> coastlines = new HashMap<>();

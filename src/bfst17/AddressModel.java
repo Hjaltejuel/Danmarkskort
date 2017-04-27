@@ -11,6 +11,8 @@ import java.util.*;
  */
 public class AddressModel extends Observable implements Serializable {
 
+    TST<TSTInterface> tree;
+
     public AddressModel() {
         tree = new TST<>();
     }
@@ -29,9 +31,6 @@ public class AddressModel extends Observable implements Serializable {
     public void putCity(String city, OSMNode point){
         tree.put(city,point);
     }
-
-    TST<TSTInterface> tree;
-
 
     public TSTInterface getAddress(String address) {
         return tree.get(address);

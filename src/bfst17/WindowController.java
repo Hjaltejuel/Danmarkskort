@@ -7,7 +7,6 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 
@@ -19,10 +18,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     Model model;
     DrawCanvas canvas;
     AddressModel addressModel;
-    AutocompleteJComboBox combo;
-    int counter = 0;
     boolean setUpDirectionsMenu = false;
-    File currentPath;
 
     public WindowController(Model model) {
         window = new DrawWindow();
@@ -39,7 +35,6 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     public void initiate() {
         window.createAutocomplete(addressModel.getTSTTree());
-        this.combo = window.getCombo();
         window.setComponentzZOrder(canvas);
         window.setKeyListener(this);
         window.setMouseListener(this);
@@ -64,7 +59,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     break;
                 case "Load":
                     try {
-                        load();
+                        loadFile();
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
@@ -141,13 +136,15 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
     }
 
-    public void load() throws IOException {
+    public void loadFile() throws IOException {
+        File startingDirectory = new File(System.getProperty("user.dir"));
+        loadFile(startingDirectory);
+    }
+
+    public void loadFile(File startingDirectory) throws IOException {
         JFileChooser fileChooser = new JFileChooser();
 
-        if (currentPath==null) {
-            currentPath = new File(System.getProperty("user.dir"));;
-        }
-        fileChooser.setCurrentDirectory(currentPath);
+        fileChooser.setCurrentDirectory(startingDirectory);
 
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setFileFilter(new FileFilter() {
@@ -161,108 +158,101 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 return ".osm files, .bin files or .zip files";
             }
         });
-        fileChooser.setDialogTitle("Choose file to load");
+        fileChooser.setDialogTitle("Choose file to loadFile");
 
         int userSelection = fileChooser.showOpenDialog(window.getWindow());
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToLoad = fileChooser.getSelectedFile();
-            if (fileChooser.accept(fileToLoad) && fileToLoad.exists()) {
+            if (fileChooser.accept(fileToLoad) && fileToLoad.exists()) { //Filen er fundet! Indlæs:
                 model.load(fileToLoad.getAbsolutePath());
                 window.getWindow().dispose();
-                WindowController b = this;
-                WindowController a = new WindowController(model);
-                b = null;
-                currentPath = null;
-            } else if (!fileChooser.accept(fileToLoad)) {
-                JOptionPane.showMessageDialog(window.getWindow(), "You must choose a correct filetype to load");
-                currentPath = fileChooser.getCurrentDirectory();
-                load();
+            } else { //Filen blev ikke fundet - giv fejlmeddelelse
+                if (!fileChooser.accept(fileToLoad)) {
+                    JOptionPane.showMessageDialog(window.getWindow(), "You must choose a correct filetype to loadFile");
 
-            } else if (!fileToLoad.exists()) {
-                JOptionPane.showMessageDialog(window.getWindow(), "File does not exist");
-                currentPath = fileChooser.getCurrentDirectory();
-                load();
+                } else if (!fileToLoad.exists()) {
+                    JOptionPane.showMessageDialog(window.getWindow(), "File does not exist");
+                }
+                loadFile(fileChooser.getCurrentDirectory()); //Prøv igen..
             }
         }
     }
 
     public void save() {
         JFileChooser fileChooser = new JFileChooser();
-
         fileChooser.setDialogTitle("Choose save location");
-
         int userSelection = fileChooser.showSaveDialog(window.getWindow());
-
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
-
             model.save(fileToSave.getAbsolutePath() + ".bin");
         }
     }
 
     public void search() {
-        String s = (String) combo.getSelectedItem();
+        String s = (String) window.getCombo().getSelectedItem();
         if (s == null || s.length()==0) {
             return; //Ikke noget at søge efter!
         }
 
-        //points lat, lon
         TSTInterface address = addressModel.getAddress(s.trim());
         if(address == null) {
             return; //Ingen adresse fundet...
         }
-        if (!(address instanceof Region)) {
-            double lat = -address.getY();
-            double lon = -address.getX();
 
+        double lat = -address.getY();
+        double lon = -address.getX();
+
+        boolean isRegion = (address instanceof Region);
+        canvas.setPin(address, isRegion);
+
+        if (!isRegion) {
             if (canvas.shouldFancyPan) {
                 canvas.fancyPan(lon, lat);
             } else {
-                canvas.panToPoint(lon,lat);
-                canvas.zoomAndCenter();
+                canvas.panToPoint(lon, lat);
+                canvas.centerZoomToZoomLevel(150000);
             }
-            canvas.setSearchMode((float) lon, (float) lat);
-        } else if (address instanceof Region) {
-            Shape shape = address.getShape();
-            Point2D center = new Point2D.Float((float) -address.getX(), (float) -address.getY());
-            canvas.regionSearch(shape, center);
-            double lat = center.getY();
-            double lon = center.getX();
-
-            double distanceToCenterY = lat - canvas.getCenterCordinateY();
-            double distanceToCenterX = lon - canvas.getCenterCordinateX();
-            double dx = distanceToCenterX * canvas.getXZoomFactor();
-            double dy = distanceToCenterY * canvas.getYZoomFactor();
-            canvas.pan(dx, dy);
-            canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-            canvas.zoom((canvas.getWidth() / (shape.getBounds2D().getMaxX() - shape.getBounds2D().getMinX())) / canvas.getXZoomFactor());
-            canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
-            canvas.repaint();
+        } else {
+            canvas.panToPoint(lon, lat);
+            double regionZoomLevel = canvas.getWidth() / address.getShape().getBounds2D().getWidth();
+            canvas.centerZoomToZoomLevel(regionZoomLevel);
         }
+        canvas.repaint();
     }
 
+
+    public void zoomIn() {
+        canvas.centerZoom(1.25);
+    }
+
+    public void zoomOut() {
+        canvas.centerZoom(0.75);
+    }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        Component component = e.getComponent();
-        if (component == window.getSearch()) {
+        Component clickedButton = e.getComponent();
+        if (clickedButton == window.getSearchButton()) {
             search();
-        } else if (component == window.getZoomIn()) {
+        } else if (clickedButton == window.getZoomInButton()) {
             zoomIn();
-        } else if (component == window.getZoomOut()) {
+        } else if (clickedButton == window.getZoomOutButton()) {
             zoomOut();
+        } else if (clickedButton == window.getPointsOfInterestButton()) {
+            window.showMenuOne();
+        } else if (clickedButton == window.getMenuButton()) {
+            window.showMenuTwo();
         }
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-        Component component = e.getComponent();
-        if (component == window.getPointsOfInterest()) {
-            window.showMenuOne();
-        } else if (component == window.getMenu()) {
-            window.showMenuTwo();
-        }
+    public void componentResized(ComponentEvent e) {
+        window.setBounds(canvas);
     }
+
+    //<editor-fold desc="Ting vi skal override, men ikke bruger">
+    @Override
+    public void mousePressed(MouseEvent e) { }
 
 
     @Override
@@ -280,24 +270,6 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     }
 
-    public void zoomIn() {
-        canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-        canvas.zoom(1.25);
-        canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
-    }
-
-    public void zoomOut() {
-        canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-        canvas.zoom(0.75);
-        canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
-    }
-
-
-    @Override
-    public void componentResized(ComponentEvent e) {
-        window.setBounds(canvas);
-    }
-
     @Override
     public void componentMoved(ComponentEvent e) {
 
@@ -312,4 +284,5 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     public void componentHidden(ComponentEvent e) {
 
     }
+    //</editor-fold>
 }

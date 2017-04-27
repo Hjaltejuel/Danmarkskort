@@ -1,7 +1,6 @@
 package bfst17;
 
 import bfst17.Enums.*;
-import com.sun.org.apache.xerces.internal.impl.dv.xs.YearDV;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -9,7 +8,6 @@ import java.awt.*;
 
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
-import java.beans.XMLDecoder;
 import java.io.IOException;
 import java.util.*;
 
@@ -27,7 +25,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
 	Point2D pin;
 
-	public DrawCanvas(Model model) {
+    public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
 		fillNameToBoolean();
@@ -39,28 +37,31 @@ public class DrawCanvas extends JComponent implements Observer {
 		}
 	}
 
+    public void toggleAA() {
+        antiAlias = !antiAlias;
+        repaint();
+        revalidate();
+    }
+
+    public void toggleFancyPan() {
+        shouldFancyPan = !shouldFancyPan;
+    }
+
     public void setPointsOfInterest(POIclasification name) {
         boolean nameToBooleanCopy = nameToBoolean.get(name);
         nameToBoolean.put(name,!nameToBooleanCopy);
         repaint();
     }
 
-	public void regionSearch(Shape shape,Point2D center) {
-		pin = center;
-        regionSearch = true;
-        regionShape = shape;
-    }
-
-	public double getCenterCordinateX() {
-        return (transform.getTranslateX()-getWidth()/2)/getXZoomFactor();
-	}
-	public double getCenterCordinateY() {
-		return (transform.getTranslateY()-getHeight()/2) / getYZoomFactor();
-    }
-
-    public void setSearchMode(float lon,float lat) {
-        regionSearch = false;
-        pin = new Point2D.Float(lon,lat);
+    /**
+     * Placér den blå pin på den givne adresse / region
+     * @param address   Den adresse pinnen skal placeres på
+     * @param isRegion Hvorvidt 'address' er en region
+     */
+    public void setPin(TSTInterface address, boolean isRegion) {
+        regionSearch = isRegion;
+        regionShape = address.getShape();
+        pin = new Point2D.Double(-address.getX(),-address.getY());
     }
 
     public void setGUITheme(GUIMode newTheme) {
@@ -101,42 +102,57 @@ public class DrawCanvas extends JComponent implements Observer {
 	protected void paintComponent(Graphics _g) {
         Graphics2D g = (Graphics2D) _g;
 
+        //Tegn kortet
+        drawMap(g);
+
+        //Tegn overlay (Pin, POI, Målebånd)
+        drawOverlay(g);
+	}
+
+    //<editor-fold desc="Funktioner der tegner">
+    private void drawOverlay(Graphics2D g) {
+        //Reset transform til billeder / overlay
+        g.setTransform(new AffineTransform());
+        drawPin(g);
+
+        //Tegn målebånd nederst til højre
+        drawMeasureBand(g);
+
+    }
+    private void drawMap(Graphics2D g) {
         //Tegn vand
         g.setColor(getDrawColor(WayType.NATURAL_WATER));
-		g.fillRect(0, 0, getWidth(), getHeight());
+        g.fillRect(0, 0, getWidth(), getHeight());
 
-		g.setTransform(transform);
-		g.setStroke(new BasicStroke(Float.MIN_VALUE));
+        g.setTransform(transform);
+        g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
-		if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		//Tegn coastlines
-		drawCoastlines(g);
+        //Tegn coastlines
+        drawCoastlines(g);
 
-		//Definér skærmbilledet
-		Point2D topLeft = screenCordsToLonLat(0, 0);
-		Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
-		Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
+        //Definér skærmbilledet
+        Point2D topLeft = screenCordsToLonLat(0, 0);
+        Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
+        Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
                 topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
 
-		//Hent og tegn shapes fra diverse KDTræer
-        drawShapes(g, (Rectangle2D)screenRectangle);
+        //Hent og tegn shapes fra diverse KDTræer
+        drawShapes(g, (Rectangle2D) screenRectangle);
 
         //Hent og tegn POIS, hvis der er zoomet tilstrækkeligt ind og der er sat hak
-        drawPointsOfInteres(g, (Rectangle2D)screenRectangle);
+        drawPointsOfInteres(g, (Rectangle2D) screenRectangle);
 
+        //Tegn regionen, hvis der er søgt efter den
         if(regionSearch){
             Color color = g.getColor();
             g.setColor(new Color(255,0,0,127));
             g.draw(regionShape);
             g.setColor(color);
         }
-		setPin(g);
-	}
+    }
 
-    /**
-     * Tegne tegne ting
-     */
     private Color getDrawColor(WayType type) {
         Color drawColor = type.getDrawColor();
 
@@ -150,6 +166,11 @@ public class DrawCanvas extends JComponent implements Observer {
             drawColor = new Color(sum, sum, sum);
         }
         return drawColor;
+    }
+
+    private void drawMeasureBand(Graphics2D g) {
+        Line2D line = new Line2D.Double(screenCordsToLonLat(480,500),screenCordsToLonLat(500,500));
+        g.draw(line);
     }
 
     private void drawCoastlines(Graphics2D g) {
@@ -207,22 +228,25 @@ public class DrawCanvas extends JComponent implements Observer {
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         imageTransform.setToIdentity();
         imageTransform.translate(x, y);
-        imageTransform.scale(((1 / getXZoomFactor())), ((1 / getYZoomFactor())));
         g.drawImage(image, imageTransform, null);
     }
 
-    /**
-     * Tegne tegne slut
-     */
+    public void drawPin(Graphics2D g) {
+        if (pin == null) {
+            return; //Lad være at tegne, hvis der ikke er en pin
+        }
+        try {
+            BufferedImage image = ImageIO.read(getClass().getResource("/temppin.png"));
 
-
-    public void pan(double dx, double dy) {
-        transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
-        repaint();
-        revalidate();
+            Point2D drawLocation = lonLatToScreenCords(pin.getX(), pin.getY());
+            System.out.println(drawLocation);
+            g.drawImage(image, (int) drawLocation.getX(), (int) drawLocation.getY(), this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-	public void setPin(Graphics2D g) {
+    public void drawPin2(Graphics2D g) {
         if(pin!=null) {
             BufferedImage image = null;
             try {
@@ -237,102 +261,148 @@ public class DrawCanvas extends JComponent implements Observer {
             imageTransform.translate(-pin.getX()-(((image.getWidth()/10)/2))/getXZoomFactor(),-pin.getY()-((image.getHeight()/10)/getXZoomFactor()));
             imageTransform.scale(((1/getXZoomFactor())/10),((1/getYZoomFactor())/10));
             g.drawImage(image, imageTransform, null);
-           
+
         }
-	}
+    }
+    //</editor-fold>
 
-	public void zoomWithFactor(double factor) {
-		java.util.Timer timer = new java.util.Timer();
-		timer.scheduleAtFixedRate(new TimerTask() {
-			int zoomInCounter = 1;
+    //<editor-fold desc="Zoom funktioner, Punktudregnings funktioner, Panerings funktioner & Panko rasp!">
 
-			@Override
-			public void run() {
-				if (zoomInCounter > 100) {
-					cancel();
-				} else {
-					pan(-getWidth() / 2, -getHeight() / 2);
-					zoom(150000 / getXZoomFactor() * zoomInCounter * factor);
-					pan(getWidth() / 2, getHeight() / 2);
-					zoomInCounter++;
-				}
-			}
-		}, 0, 20);
-	}
+    //Punktudregnings ting
+    public double getCenterCordinateX() {
+        return (transform.getTranslateX()-getWidth()/2)/getXZoomFactor();
+    }
+    public double getCenterCordinateY() {
+        return (transform.getTranslateY()-getHeight()/2) / getYZoomFactor();
+    }
 
-	private Point2D screenCordsToLonLat(double x, double y) {
-		if(x<0||x>getWidth()||y<0||y>getHeight()) {
-			System.out.println("Tror du bruger den forkerte funktion.. (screenCordsToLonLat)");
-		}
-		return new Point2D.Double(-(transform.getTranslateX()-x)/getXZoomFactor(),-(transform.getTranslateY()-y)/getYZoomFactor());
-	}
+    public Point2D getCenterCordinate() {
+	    return screenCordsToLonLat(getWidth()/2,getHeight()/2);
+    }
 
-	public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
-		java.util.Timer timer = new java.util.Timer();
+    public Point2D getDistanceInPixelToPoint(double lon, double lat) {
+        //distance from center of screen in lat lon
+        double Xdist = (lon - getCenterCordinateX()) * getXZoomFactor();
+        double Ydist = (lat - getCenterCordinateY()) * getYZoomFactor();
+        return new Point2D.Double(Xdist, Ydist);
+    }
 
-		timer.scheduleAtFixedRate(new TimerTask() {
-			double dx = distanceToCenterX * getXZoomFactor();
-			double dy = distanceToCenterY * getYZoomFactor();
+    private Point2D screenCordsToLonLat(double x, double y) {
+        double correctedX = -(transform.getTranslateX() - x) / getXZoomFactor();
+        double correctedY = -(transform.getTranslateY() - y) / getYZoomFactor();
+        return new Point2D.Double(correctedX, correctedY);
+    }
 
-			double partDX = dx / 100;
-			double partDY = dy / 100;
+    private Point2D lonLatToScreenCords(double x, double y) {
+        double correctedX = -(x * getXZoomFactor() - transform.getTranslateX());
+        double correctedY = -(y * getYZoomFactor() - transform.getTranslateY());
+        return new Point2D.Double(correctedX, correctedY);
+    }
 
-			int panCounter = 1;
+    public Point2D toModelCoords(Point2D lastMousePosition) {
+        try {
+            return transform.inverseTransform(lastMousePosition, null);
+        } catch (NoninvertibleTransformException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-			@Override
-			public void run() {
-				if (panCounter >= 100) {
-					if (needToZoom) {
-						zoomWithFactor(3.0 / 100.0);
-					}
-					cancel();
-				}
-				pan(partDX, partDY);
-				panCounter++;
+    //Pan ting
+    public void pan(double dx, double dy) {
+        transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
+        repaint();
+        revalidate();
+    }
 
-			}
+    public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
+        java.util.Timer timer = new java.util.Timer();
 
-		}, 0, 10);
-	}
+        timer.scheduleAtFixedRate(new TimerTask() {
+            double partDX = distanceToCenterX / 100;
+            double partDY = distanceToCenterY / 100;
 
-	public Point2D getDistanceToPoint(double lon, double lat) {
-		//distance from center of screen in lat lon
-		double Xdist = lat - getCenterCordinateY();
-		double Ydist = lon - getCenterCordinateX();
-    	return new Point2D.Double(Xdist, Ydist);
-	}
+            int panCounter = 1;
 
-	public void panToPoint(double lon, double lat) {
-    	Point2D distanceVector = getDistanceToPoint(lon, lat);
-		double distanceToCenterX = distanceVector.getX();
-		double distanceToCenterY = distanceVector.getY();
+            @Override
+            public void run() {
+                if (panCounter >= 100) {
+                    if (needToZoom) {
+                        zoomWithFactor(3.0 / 100.0);
+                    }
+                    cancel();
+                }
+                pan(partDX, partDY);
+                panCounter++;
 
-		pan(distanceToCenterX, distanceToCenterY);
+            }
 
-		/*double dx = distanceToCenterX * canvas.getXZoomFactor();
-		double dy = distanceToCenterY * canvas.getYZoomFactor();
-		canvas.pan(dx, dy);*/
+        }, 0, 10);
+    }
 
-	}
+    public void panToPoint(double lon, double lat) {
+        Point2D distanceVector = getDistanceInPixelToPoint(lon, lat);
+        double distanceToCenterX = distanceVector.getX();
+        double distanceToCenterY = distanceVector.getY();
 
-	public void fancyPan(double lon, double lat) {
-    	Point2D distanceVector = getDistanceToPoint(lon, lat);
-    	double distanceToCenterX = distanceVector.getX();
-    	double distanceToCenterY = distanceVector.getY();
+        pan(distanceToCenterX, distanceToCenterY);
+    }
 
-		double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX * getXZoomFactor(), 2) + Math.pow(distanceToCenterY * getYZoomFactor(), 2)));
-		double amountOfZoom = 150000 / getXZoomFactor();
+    public void fancyPan(double lon, double lat) {
+        Point2D distanceVector = getDistanceInPixelToPoint(lon, lat);
+        double distanceToCenterX = distanceVector.getX();
+        double distanceToCenterY = distanceVector.getY();
 
-		if (amountOfZoom >= 2) {
-			panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
-		} else {
-			if (distance < 400) {
-				panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
-			} else {
-				zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
-			}
-		}
-	}
+        double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX, 2) + Math.pow(distanceToCenterY, 2)));
+        double amountOfZoom = 150000 / getXZoomFactor();
+
+        if (amountOfZoom >= 2) {
+            panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
+        } else {
+            if (distance < 400) {
+                panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
+            } else {
+                zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+            }
+        }
+    }
+
+    //Zoom ting
+    public void zoom(double factor) {
+        //Zoom begrænsning
+        if(getXZoomFactor()*factor>800000) {
+            return;
+        }
+        transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
+        repaint();
+        revalidate();
+    }
+
+    public void centerZoomToZoomLevel(double zoomLevel){
+        centerZoom(zoomLevel / getXZoomFactor());
+    }
+
+    public void centerZoom(double factor) {
+        pan(-getWidth() / 2, -getHeight() / 2);
+        zoom(factor);
+        pan(getWidth() / 2, getHeight() / 2);
+    }
+
+    public void zoomWithFactor(double factor) {
+        java.util.Timer timer = new java.util.Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            int zoomInCounter = 1;
+
+            @Override
+            public void run() {
+                if (zoomInCounter > 100) {
+                    cancel();
+                } else {
+                    centerZoomToZoomLevel(150000 * zoomInCounter * factor);
+                    zoomInCounter++;
+                }
+            }
+        }, 0, 20);
+    }
 
     public void zoomOutSlowAndThenPan(double distanceToCenterX, double distanceToCenterY) {
         java.util.Timer timer = new java.util.Timer();
@@ -342,29 +412,23 @@ public class DrawCanvas extends JComponent implements Observer {
 
             @Override
             public void run() {
-				if(zoomOutCounter >= 100) {
-					panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
+                if(zoomOutCounter >= 100) {
+                    panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
                     cancel();
                 }
                 else if (zoomOutCounter < 100) {
-					pan(-getWidth() / 2, -getHeight() / 2);
-					zoom(150000 / getXZoomFactor() * 10 / zoomOutCounter);
-					pan(getWidth() / 2, getHeight() / 2);
+                    centerZoomToZoomLevel(150000  * 10 / zoomOutCounter);
 
-					zoomOutCounter++;
+                    zoomOutCounter++;
                 }
             }
         }, 0 , 20);
     }
 
-    public void zoomAndCenter(){
-		pan(-getWidth() / 2, -getHeight() / 2);
-		zoom(150000 / getXZoomFactor());
-		pan(getWidth() / 2, getHeight() / 2);
-	}
+    public double getXZoomFactor(){return transform.getScaleY();}
+    public double getYZoomFactor(){return transform.getScaleY();}
+    //</editor-fold>
 
-	public double getXZoomFactor(){return transform.getScaleY();}
-	public double getYZoomFactor(){return transform.getScaleY();}
 	/**
 	 * This method is called whenever the observed object is changed. An
 	 * application calls an <tt>Observable</tt> object's
@@ -376,33 +440,5 @@ public class DrawCanvas extends JComponent implements Observer {
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
-	}
-
-	public void zoom(double factor) {
-        //Zoom begrænsning
-	    if(getXZoomFactor()*factor>800000) {
-            return;
-        }
-		transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
-        repaint();
-        revalidate();
-	}
-
-	public Point2D toModelCoords(Point2D lastMousePosition) {
-		try {
-			return transform.inverseTransform(lastMousePosition, null);
-		} catch (NoninvertibleTransformException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public void toggleAA() {
-		antiAlias = !antiAlias;
-		repaint();
-        revalidate();
-	}
-
-	public void toggleFancyPan() {
-		shouldFancyPan = !shouldFancyPan;
 	}
 }
