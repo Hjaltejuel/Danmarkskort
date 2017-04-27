@@ -26,7 +26,8 @@ public class DrawCanvas extends JComponent implements Observer {
 	Point2D pin;
 	Integer FrameCounter=0;
 	double timeTracker;
-	Integer FPS;
+	Integer FPS=0;
+	Rectangle2D screenRectangle;
 
     public DrawCanvas(Model model) {
 		this.model = model;
@@ -75,7 +76,6 @@ public class DrawCanvas extends JComponent implements Observer {
         FrameCounter++;
         if(System.nanoTime()-timeTracker>=1_000_000_000) {
             FPS = FrameCounter;
-            System.out.println(FPS);
             timeTracker = System.nanoTime();
             FrameCounter = 0;
         }
@@ -113,6 +113,12 @@ public class DrawCanvas extends JComponent implements Observer {
 	protected void paintComponent(Graphics _g) {
         Graphics2D g = (Graphics2D) _g;
 
+        //Definér skærmbilledet
+        Point2D topLeft = screenCordsToLonLat(0, 0);
+        Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
+        screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
+                topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
+
         //Tegn kortet
         drawMap(g);
 
@@ -126,12 +132,89 @@ public class DrawCanvas extends JComponent implements Observer {
     private void drawOverlay(Graphics2D g) {
         //Reset transform til billeder / overlay
         g.setTransform(new AffineTransform());
+
         drawPin(g);
 
-        //Tegn målebånd nederst til højre
+        drawPointsOfInteres(g);
+
         drawMeasureBand(g);
 
+        drawFPSCounter(g);
     }
+
+    public void drawPin(Graphics2D g) {
+        if (pin == null) {
+            return; //Lad være at tegne, hvis der ikke er en pin
+        }
+        drawImageAtLocation(g,"/temppin.png",pin.getX(),pin.getY());
+    }
+
+    public void drawPointsOfInteres(Graphics2D g) {
+        if (getXZoomFactor() > 40000) {
+            POIKDTree POITree = model.getPOITree();
+            for (POIKDTree.TreeNode PoiNodes : POITree.getInRange(screenRectangle)) {
+                PointsOfInterest POIType = PoiNodes.getPOIType();
+                if (nameToBoolean.get(POIType.getClassification())) {
+                    drawPOIImage(g, POIType, PoiNodes.getX(), PoiNodes.getY());
+                }
+            }
+        }
+    }
+
+    public void drawPOIImage(Graphics2D g, PointsOfInterest type, double x, double y) {
+        BufferedImage image = null;
+        String imagePath = "/POI/" + type.name() + ".png";
+        drawImageAtLocation(g, imagePath, x, y);
+    }
+
+    public void drawImageAtLocation(Graphics2D g, String imagePath, double x, double y) {
+        try {
+            BufferedImage image = ImageIO.read(getClass().getResource(imagePath));
+            Point2D drawLocation = lonLatToScreenCords(pin.getX(), pin.getY());
+            if (drawLocation.getX() + image.getWidth() < 0 || drawLocation.getX() > getWidth() ||
+                    drawLocation.getY() + image.getHeight() < 0 || drawLocation.getY() > getWidth()) {
+                return; //Billedet er ikke inden for skærmen
+            }
+            g.drawImage(image, (int) drawLocation.getX() - image.getWidth() / 2, (int) drawLocation.getY() - image.getHeight(), this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    final float lonToKM = 111.320f, KMToMiles = 0.621371192f;
+
+    private void drawMeasureBand(Graphics2D g) {
+	    g.setColor(Color.black);
+	    g.setStroke(new BasicStroke(1f));
+	    Integer Y = getHeight() - 55;
+	    Integer X1 = getWidth()-100, X2=getWidth()-35;
+
+	    Point2D p1 = screenCordsToLonLat(X1,Y);
+        Point2D p2 = screenCordsToLonLat(X2,Y);
+
+        double distance = (p2.getX()-p1.getX()) * lonToKM;
+        String mål = " KM";
+        if(distance<1) { //Konvertér til meter
+            distance *= 1000;
+            mål=" M";
+        }
+        Integer roundedDistance = (int)Math.round(distance);
+
+        Line2D line = new Line2D.Double(X1,Y,X2,Y);
+        Line2D rightVertLine = new Line2D.Double(X2,Y-5,X2,Y);
+        Line2D leftVertLine = new Line2D.Double(X1,Y-5,X1,Y);
+
+        String showString = roundedDistance+mål;
+        g.drawString(showString,X1+(32-showString.length()*4),Y-2);
+        g.draw(line);
+        g.draw(rightVertLine);
+        g.draw(leftVertLine);
+    }
+
+    private void drawFPSCounter(Graphics2D g) {
+        g.drawString("FPS: "+FPS,5,getHeight()-55);
+    }
+
     private void drawMap(Graphics2D g) {
         //Tegn vand
         g.setColor(getDrawColor(WayType.NATURAL_WATER));
@@ -145,17 +228,8 @@ public class DrawCanvas extends JComponent implements Observer {
         //Tegn coastlines
         drawCoastlines(g);
 
-        //Definér skærmbilledet
-        Point2D topLeft = screenCordsToLonLat(0, 0);
-        Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
-        Shape screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
-                topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
-
         //Hent og tegn shapes fra diverse KDTræer
-        drawShapes(g, (Rectangle2D) screenRectangle);
-
-        //Hent og tegn POIS, hvis der er zoomet tilstrækkeligt ind og der er sat hak
-        drawPointsOfInteres(g, (Rectangle2D) screenRectangle);
+        drawShapes(g);
 
         //Tegn regionen, hvis der er søgt efter den
         if(regionSearch){
@@ -181,11 +255,6 @@ public class DrawCanvas extends JComponent implements Observer {
         return drawColor;
     }
 
-    private void drawMeasureBand(Graphics2D g) {
-        Line2D line = new Line2D.Double(screenCordsToLonLat(480,500),screenCordsToLonLat(500,500));
-        g.draw(line);
-    }
-
     private void drawCoastlines(Graphics2D g) {
         for(Shape s: model.getCoastlines()) {
             g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
@@ -194,7 +263,7 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
-	public void drawShapes(Graphics2D g, Rectangle2D screenRectangle) {
+	public void drawShapes(Graphics2D g) {
         for (KDTree tree : model.getTrees()) {
             WayType type = tree.type;
             if (type.getZoomFactor() > getXZoomFactor()) {
@@ -215,66 +284,6 @@ public class DrawCanvas extends JComponent implements Observer {
                     g.fill(shape);
                 }
             }
-        }
-    }
-
-	public void drawPointsOfInteres(Graphics2D g, Rectangle2D screenRectangle) {
-        if (getXZoomFactor() > 40000) {
-            POIKDTree POITree = model.getPOITree();
-            for (POIKDTree.TreeNode PoiNodes : POITree.getInRange(screenRectangle)) {
-                PointsOfInterest POIType = PoiNodes.getPOIType();
-                if (nameToBoolean.get(POIType.getClassification())) {
-                    drawPOIImage(g, POIType, PoiNodes.getX(), PoiNodes.getY());
-                }
-            }
-        }
-    }
-
-	public void drawPOIImage(Graphics2D g, PointsOfInterest type, double x, double y) {
-        BufferedImage image = null;
-        try {
-            image = ImageIO.read(getClass().getResource("/POI/" + type.name() + ".png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        AffineTransform imageTransform = new AffineTransform();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        imageTransform.setToIdentity();
-        imageTransform.translate(x, y);
-        g.drawImage(image, imageTransform, null);
-    }
-
-    public void drawPin(Graphics2D g) {
-        if (pin == null) {
-            return; //Lad være at tegne, hvis der ikke er en pin
-        }
-        try {
-            BufferedImage image = ImageIO.read(getClass().getResource("/temppin.png"));
-
-            Point2D drawLocation = lonLatToScreenCords(pin.getX(), pin.getY());
-
-            g.drawImage(image, (int) drawLocation.getX() - image.getWidth()/2, (int) drawLocation.getY() - image.getHeight(), this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void drawPin2(Graphics2D g) {
-        if(pin!=null) {
-            BufferedImage image = null;
-            try {
-                image = ImageIO.read(getClass().getResource("/temppin.png"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            AffineTransform imageTransform = new AffineTransform();
-            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            imageTransform.setToIdentity();
-
-            imageTransform.translate(-pin.getX()-(((image.getWidth()/10)/2))/getXZoomFactor(),-pin.getY()-((image.getHeight()/10)/getXZoomFactor()));
-            imageTransform.scale(((1/getXZoomFactor())/10),((1/getYZoomFactor())/10));
-            g.drawImage(image, imageTransform, null);
-
         }
     }
     //</editor-fold>
