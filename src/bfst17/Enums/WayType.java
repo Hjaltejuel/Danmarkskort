@@ -1,7 +1,5 @@
 package bfst17.Enums;
 
-import bfst17.FillType;
-
 import java.awt.*;
 
 /**
@@ -142,7 +140,7 @@ public enum WayType {
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	NATURAL_WETLAND
-			(new Color(255, 255, 255),
+			(new Color(169, 209, 186),
 					null,
 					1500,
 					FillType.SOLID,

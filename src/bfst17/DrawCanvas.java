@@ -1,9 +1,6 @@
 package bfst17;
 
-import bfst17.Enums.GUIMode;
-import bfst17.Enums.POIclasification;
-import bfst17.Enums.PointsOfInterest;
-import bfst17.Enums.WayType;
+import bfst17.Enums.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
