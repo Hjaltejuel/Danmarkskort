@@ -1,6 +1,7 @@
 package bfst17;
 
-import java.awt.*;
+import bfst17.Enums.PointsOfInterest;
+
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;

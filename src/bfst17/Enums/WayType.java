@@ -1,4 +1,6 @@
-package bfst17;
+package bfst17.Enums;
+
+import bfst17.FillType;
 
 import java.awt.*;
 

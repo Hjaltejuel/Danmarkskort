@@ -1,7 +1,6 @@
 package bfst17;
 
-import javafx.scene.shape.Line;
-import sun.reflect.generics.tree.Tree;
+import bfst17.Enums.WayType;
 
 import java.awt.*;
 import java.awt.geom.Line2D;

@@ -1,5 +1,7 @@
 package bfst17;
 
+import bfst17.Enums.PointsOfInterest;
+import bfst17.Enums.WayType;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 

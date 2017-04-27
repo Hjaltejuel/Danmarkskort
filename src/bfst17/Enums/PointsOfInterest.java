@@ -1,4 +1,6 @@
-package bfst17;
+package bfst17.Enums;
+
+import bfst17.Enums.POIclasification;
 
 /**
  * Created by Michelle on 4/3/2017.

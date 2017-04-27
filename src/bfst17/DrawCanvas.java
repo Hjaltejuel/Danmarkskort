@@ -1,5 +1,10 @@
 package bfst17;
 
+import bfst17.Enums.GUIMode;
+import bfst17.Enums.POIclasification;
+import bfst17.Enums.PointsOfInterest;
+import bfst17.Enums.WayType;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -30,28 +35,28 @@ public class DrawCanvas extends JComponent implements Observer {
 		fillNameToBoolean();
 	}
 
-	public void fillNameToBoolean(){
-		for(POIclasification name: POIclasification.values()){
+	public void fillNameToBoolean() {
+		for(POIclasification name: POIclasification.values()) {
 			nameToBoolean.put(name, false);
 		}
 	}
 
-    public void setPointsOfInterest(POIclasification name){
+    public void setPointsOfInterest(POIclasification name) {
         boolean nameToBooleanCopy = nameToBoolean.get(name);
         nameToBoolean.put(name,!nameToBooleanCopy);
         repaint();
     }
 
-	public void regionSearch(Shape shape){
+	public void regionSearch(Shape shape) {
         regionSearch = true;
         regionShape = shape;
     }
 
 	public double getCenterCordinateX() {
-        return (transform.getTranslateX()-getWidth()/2)/transform.getScaleX();
+        return (transform.getTranslateX()-getWidth()/2)/getXZoomFactor();
 	}
 	public double getCenterCordinateY() {
-		return (transform.getTranslateY()-getHeight()/2) / transform.getScaleY();
+		return (transform.getTranslateY()-getHeight()/2) / getYZoomFactor();
     }
 
     public void setSearchMode(float lon,float lat) {
@@ -64,13 +69,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	    GUITheme = newTheme;
     }
 
-	private void drawCoastlines(Graphics2D g) {
-		for(Shape s: model.getCoastlines()) {
-			g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
-			g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
-			g.fill(s);
-		}
-	}
 
 	/**
 	 * Calls the UI delegate's paint method, if the UI delegate
@@ -100,21 +98,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	 *
 	 * @see #paint
 	 */
-
-	private Color getDrawColor(WayType type) {
-		Color drawColor = type.getDrawColor();
-
-		if(GUITheme == GUIMode.NIGHT) {
-			drawColor = type.getNightModeColor();
-		} else if (GUITheme == GUIMode.GREYSCALE) {
-			int red = (int) (drawColor.getRed() * 0.299);
-			int green = (int) (drawColor.getGreen() * 0.587);
-			int blue = (int) (drawColor.getBlue() * 0.114);
-			int sum = red + green + blue;
-			drawColor = new Color(sum, sum, sum);
-		}
-		return drawColor;
-	}
 
 	@Override
 	protected void paintComponent(Graphics _g) {
@@ -151,10 +134,34 @@ public class DrawCanvas extends JComponent implements Observer {
             g.setColor(new Color(255,0,0,127));
             g.draw(regionShape);
             g.setColor(color);
-
         }
-
 	}
+
+    /**
+     * Tegne tegne ting
+     */
+    private Color getDrawColor(WayType type) {
+        Color drawColor = type.getDrawColor();
+
+        if(GUITheme == GUIMode.NIGHT) {
+            drawColor = type.getNightModeColor();
+        } else if (GUITheme == GUIMode.GREYSCALE) {
+            int red = (int) (drawColor.getRed() * 0.299);
+            int green = (int) (drawColor.getGreen() * 0.587);
+            int blue = (int) (drawColor.getBlue() * 0.114);
+            int sum = red + green + blue;
+            drawColor = new Color(sum, sum, sum);
+        }
+        return drawColor;
+    }
+
+    private void drawCoastlines(Graphics2D g) {
+        for(Shape s: model.getCoastlines()) {
+            g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
+            g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
+            g.fill(s);
+        }
+    }
 
 	public void drawShapes(Graphics2D g, Rectangle2D screenRectangle) {
         for (KDTree tree : model.getTree()) {
@@ -181,11 +188,11 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
 	public void drawPointsOfInteres(Graphics2D g, Rectangle2D screenRectangle) {
-        if(getXZoomFactor() > 40000) {
+        if (getXZoomFactor() > 40000) {
             POIKDTree POITree = model.getPOITree();
             for (POIKDTree.TreeNode PoiNodes : POITree.getInRange(screenRectangle)) {
                 PointsOfInterest POIType = PoiNodes.getPOIType();
-                if(nameToBoolean.get(POIType.getClassification())) {
+                if (nameToBoolean.get(POIType.getClassification())) {
                     drawPOIImage(g, POIType, PoiNodes.getX(), PoiNodes.getY());
                 }
             }
@@ -203,10 +210,13 @@ public class DrawCanvas extends JComponent implements Observer {
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         imageTransform.setToIdentity();
         imageTransform.translate(x, y);
-        imageTransform.scale(((1 / transform.getScaleX())), ((1 / transform.getScaleY())));
+        imageTransform.scale(((1 / getXZoomFactor())), ((1 / getYZoomFactor())));
         g.drawImage(image, imageTransform, null);
     }
 
+    /**
+     * Tegne tegne slut
+     */
 
 
     public void pan(double dx, double dy) {
@@ -214,6 +224,7 @@ public class DrawCanvas extends JComponent implements Observer {
         repaint();
         revalidate();
     }
+
 	public void setPin(Graphics2D g) {
         if(pin!=null) {
             BufferedImage image = null;
@@ -226,8 +237,8 @@ public class DrawCanvas extends JComponent implements Observer {
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             imageTransform.setToIdentity();
 
-            imageTransform.translate(-pin.getX()-(((image.getWidth()/10)/2))/transform.getScaleX(),-pin.getY()-((image.getHeight()/10)/transform.getScaleX()));
-            imageTransform.scale(((1/transform.getScaleX())/10),((1/transform.getScaleY())/10));
+            imageTransform.translate(-pin.getX()-(((image.getWidth()/10)/2))/getXZoomFactor(),-pin.getY()-((image.getHeight()/10)/getXZoomFactor()));
+            imageTransform.scale(((1/getXZoomFactor())/10),((1/getYZoomFactor())/10));
             ((Graphics2D) g).drawImage(image, imageTransform, null);
             searchMode = false;
         }
@@ -252,13 +263,6 @@ public class DrawCanvas extends JComponent implements Observer {
 		}, 0, 20);
 	}
 
-	private Point2D lonLatToPixel(double x, double y) {
-		return new Point2D.Double(x*getXZoomFactor(),y*getYZoomFactor());
-	}
-
-	private Point2D pixelToLonLat(double x, double y) {
-		return new Point2D.Double(x/getXZoomFactor(),y/getYZoomFactor());
-	}
 	private Point2D screenCordsToLonLat(double x, double y) {
 		if(x<0||x>getWidth()||y<0||y>getHeight()) {
 			System.out.println("Tror du bruger den forkerte funktion.. (screenCordsToLonLat)");
@@ -324,7 +328,7 @@ public class DrawCanvas extends JComponent implements Observer {
 		pan(getWidth() / 2, getHeight() / 2);
 	}
 
-	public double getXZoomFactor(){return transform.getScaleX();}
+	public double getXZoomFactor(){return transform.getScaleY();}
 	public double getYZoomFactor(){return transform.getScaleY();}
 	/**
 	 * This method is called whenever the observed object is changed. An
@@ -367,4 +371,3 @@ public class DrawCanvas extends JComponent implements Observer {
 		fancyPan = !fancyPan;
 	}
 }
-

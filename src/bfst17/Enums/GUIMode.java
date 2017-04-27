@@ -1,4 +1,4 @@
-package bfst17;
+package bfst17.Enums;
 
 /**
  * Created by Jens on 27-04-2017.

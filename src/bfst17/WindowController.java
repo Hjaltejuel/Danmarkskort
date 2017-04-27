@@ -1,5 +1,8 @@
 package bfst17;
 
+import bfst17.Enums.GUIMode;
+import bfst17.Enums.POIclasification;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
@@ -84,47 +87,23 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             newTheme = GUIMode.NORMAL;
         }
 
+        //Hvad gør setup & tear down?? Der er umiddelbart ingen forskel om de er med eller fra
+
         canvas.setGUITheme(newTheme);
         if (newTheme == GUIMode.NORMAL) {
             window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
             window.getGreyScaleMenuItem().setText("GreyScale (CTRL-G)");
-            window.tearDownNightMode();
+            //window.tearDownNightMode();
         } else if (newTheme == GUIMode.GREYSCALE) {
             window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
             window.getGreyScaleMenuItem().setText("Color (CTRL-G)");
-            window.tearDownNightMode();
+            //window.tearDownNightMode();
         } else if (newTheme == GUIMode.NIGHT) {
             window.getNightModeMenuItem().setText("Color (CTRL-N)");
             window.getGreyScaleMenuItem().setText("GreyScale (CTRL-G)");
-            window.setUpNightMode();
+            //window.setUpNightMode();
         }
         canvas.repaint();
-    }
-    public void setGreyScale() {
-        if (window.getGreyScaleMenuItem().getText().equals("GreyScale (CTRL-G)")) {
-            canvas.setGUITheme(GUIMode.GREYSCALE);
-            if (window.getNightModeMenuItem().getText().equals("Color (CTRL-N)")) {
-
-
-            }
-            canvas.repaint();
-            window.getGreyScaleMenuItem().setText("Color (CTRL-G)");
-        } else {
-            canvas.setGUITheme(GUIMode.NORMAL);
-        }
-    }
-    public void setNightMode(){
-        if(window.getNightModeMenuItem().getText().equals("NightMode (CTRL-N)")) {
-            canvas.setGUITheme(GUIMode.NIGHT);
-            window.getGreyScaleMenuItem().setText("GreyScale (CTRL-G)");
-            canvas.repaint();
-            window.getNightModeMenuItem().setText("Color (CTRL-N)");
-            window.setUpNightMode();
-        } else {
-            canvas.setGUITheme(GUIMode.NORMAL);
-            canvas.repaint();
-            window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
-        }
     }
 
     @Override
