@@ -23,11 +23,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     AddressModel addressModel;
     AutocompleteJComboBox combo;
     int counter = 0;
-    boolean first = true;
     boolean setUpDirectionsMenu = false;
     File currentPath;
 
-    public WindowController(Model model){
+    public WindowController(Model model) {
         window = new DrawWindow();
         this.model = model;
         this.addressModel = model.getAddressModel();
@@ -40,7 +39,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     }
 
-    public void initiate(){
+    public void initiate() {
         window.createAutocomplete(addressModel.getTSTTree());
         this.combo = window.getCombo();
         window.setComponentzZOrder(canvas);
@@ -49,48 +48,62 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         window.setComponentListener(this);
         window.addActionListener(this);
     }
+
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         String command = e.getActionCommand();
-        if(source instanceof JCheckBoxMenuItem && source!=window.getDirections()){
+        if (source instanceof JCheckBoxMenuItem && source != window.getDirections()) {
             JCheckBoxMenuItem[] menu = window.getPointsOfInterestMenues();
-            for(int i = 0; i<menu.length;i++){
-                if(e.getSource() ==menu[i] ) {
+            for (int i = 0; i < menu.length; i++) {
+                if (e.getSource() == menu[i]) {
                     canvas.setPointsOfInterest(POIclasification.values()[i]);
                 }
             }
-        } else if(command.equals("Save")){
-            save();
-        } else if(command.equals("Load")){
-            try {
-                load();
-            } catch (IOException e1) {
-                e1.printStackTrace();
+        } else {
+            switch (command) {
+                case "Save":
+                    save();
+                    break;
+                case "Load":
+                    try {
+                        load();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                    break;
+                case "Exit":
+                    System.exit(0);
+                    break;
+                case "Directions":
+                    setUpDirectionsMenu = !setUpDirectionsMenu;
+                    if (setUpDirectionsMenu) {
+                        window.SetSecondSearch(addressModel.getTSTTree());
+                    } else window.tearSecondSearch();
+                    break;
+                case "Nightmode":
+                    setColorTheme(GUIMode.NIGHT);
+                    break;
+                case "Greyscale":
+                    setColorTheme(GUIMode.GREYSCALE);
+                    break;
+                case "Aa":
+                    canvas.toggleAA();
+                    break;
+                case "Fancypan":
+                    canvas.toggleFancyPan();
+                    break;
+                case "ZoomIn":
+                    zoomIn();
+                    break;
+                case "ZoomOut":
+                    zoomOut();
+                    break;
             }
-        } else if(command.equals("Exit")){
-            System.exit(0);
-        } else if (command.equals("Directions")){
-            setUpDirectionsMenu = !setUpDirectionsMenu;
-            if(setUpDirectionsMenu) {
-                window.SetSecondSearch(addressModel.getTSTTree());
-            } else window.tearSecondSearch();
-        } else if(command.equals("Nightmode")){
-            setColorTheme(GUIMode.NIGHT);
-        } else if(command.equals("Greyscale")){
-            setColorTheme(GUIMode.GREYSCALE);
-        } else if(command.equals("Aa")){
-            canvas.toggleAA();
-        } else if(command.equals("Fancypan")){
-            canvas.toggleFancyPan();
-        } else if(command.equals("ZoomIn")){
-            zoomIn();
-        } else if (command.equals("ZoomOut")){
-            zoomOut();
         }
     }
 
     public void setColorTheme(GUIMode newTheme) {
-        if(canvas.GUITheme==newTheme) {
+        if (canvas.GUITheme == newTheme) {
             newTheme = GUIMode.NORMAL;
         }
 
@@ -131,14 +144,12 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     public void load() throws IOException {
-        if(first) {
-            currentPath = null;
-        }
-
         JFileChooser fileChooser = new JFileChooser();
-        if(currentPath != null) {
-            fileChooser.setCurrentDirectory(currentPath);
+
+        if (currentPath==null) {
+            currentPath = new File(this.getClass().getResource("").getPath());;
         }
+        fileChooser.setCurrentDirectory(currentPath);
 
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setFileFilter(new FileFilter() {
@@ -156,36 +167,29 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
         int userSelection = fileChooser.showOpenDialog(window.getWindow());
         if (userSelection == JFileChooser.APPROVE_OPTION) {
-
             File fileToLoad = fileChooser.getSelectedFile();
-            if(fileChooser.accept(fileToLoad) && fileToLoad.exists()){
+            if (fileChooser.accept(fileToLoad) && fileToLoad.exists()) {
                 model.load(fileToLoad.getAbsolutePath());
                 window.getWindow().dispose();
                 WindowController b = this;
                 WindowController a = new WindowController(model);
                 b = null;
-                first = true;
-            }
-            else if(!fileChooser.accept(fileToLoad)){
+                currentPath = null;
+            } else if (!fileChooser.accept(fileToLoad)) {
                 JOptionPane.showMessageDialog(window.getWindow(), "You must choose a correct filetype to load");
                 currentPath = fileChooser.getCurrentDirectory();
-                first = false;
                 load();
 
-            }
-            else if(!fileToLoad.exists()){
+            } else if (!fileToLoad.exists()) {
                 JOptionPane.showMessageDialog(window.getWindow(), "File does not exist");
                 currentPath = fileChooser.getCurrentDirectory();
-                first = false;
                 load();
             }
-
         }
-
-
     }
 
-    public void save(){JFileChooser fileChooser = new JFileChooser();
+    public void save() {
+        JFileChooser fileChooser = new JFileChooser();
 
         fileChooser.setDialogTitle("Choose save location");
 
@@ -195,14 +199,15 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             File fileToSave = fileChooser.getSelectedFile();
 
             model.save(fileToSave.getAbsolutePath() + ".bin");
-        }}
+        }
+    }
 
     public void search() {
         String s = (String) combo.getSelectedItem();
         if (!s.equals("")) {
             //points lat, lon
             TSTInterface address = addressModel.getAddress(s.trim());
-            if(address!=null && !(address instanceof Region)) {
+            if (address != null && !(address instanceof Region)) {
                 double lat = -address.getY();
                 double lon = -address.getX();
 
@@ -231,13 +236,12 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     canvas.zoomAndCenter();
                 }
                 canvas.setSearchMode((float) lon, (float) lat);
-            } else if(address!=null && address instanceof Region){
+            } else if (address != null && address instanceof Region) {
                 Shape shape = address.getShape();
-                Point2D center = new Point2D.Float((float) -address.getX(),(float)-address.getY());
-                canvas.regionSearch(shape,center);
+                Point2D center = new Point2D.Float((float) -address.getX(), (float) -address.getY());
+                canvas.regionSearch(shape, center);
                 double lat = center.getY();
                 double lon = center.getX();
-
 
                 double distanceToCenterY = lat - canvas.getCenterCordinateY();
                 double distanceToCenterX = lon - canvas.getCenterCordinateX();
@@ -245,7 +249,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 double dy = distanceToCenterY * canvas.getYZoomFactor();
                 canvas.pan(dx, dy);
                 canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
-                canvas.zoom((canvas.getWidth()/(shape.getBounds2D().getMaxX()-shape.getBounds2D().getMinX()))/canvas.getXZoomFactor());
+                canvas.zoom((canvas.getWidth() / (shape.getBounds2D().getMaxX() - shape.getBounds2D().getMinX())) / canvas.getXZoomFactor());
                 canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
                 canvas.repaint();
             }
@@ -255,11 +259,11 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     @Override
     public void mouseClicked(MouseEvent e) {
         Component component = e.getComponent();
-        if(component==window.getSearch()){
+        if (component == window.getSearch()) {
             search();
-        } else if(component == window.getZoomIn()){
+        } else if (component == window.getZoomIn()) {
             zoomIn();
-        } else if(component == window.getZoomOut()){
+        } else if (component == window.getZoomOut()) {
             zoomOut();
         }
     }
@@ -267,9 +271,9 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     @Override
     public void mousePressed(MouseEvent e) {
         Component component = e.getComponent();
-        if(component == window.getPointsOfInterest()) {
+        if (component == window.getPointsOfInterest()) {
             window.showMenuOne();
-        } else if(component == window.getMenu()){
+        } else if (component == window.getMenu()) {
             window.showMenuTwo();
         }
     }
@@ -289,15 +293,17 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     public void mouseExited(MouseEvent e) {
 
     }
-    public void zoomIn(){
+
+    public void zoomIn() {
         canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
         canvas.zoom(1.25);
-        canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
+        canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
     }
-    public void zoomOut(){
+
+    public void zoomOut() {
         canvas.pan(-canvas.getWidth() / 2, -canvas.getHeight() / 2);
         canvas.zoom(0.75);
-        canvas.pan(canvas.getWidth()/ 2, canvas.getHeight() / 2);
+        canvas.pan(canvas.getWidth() / 2, canvas.getHeight() / 2);
     }
 
 

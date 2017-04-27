@@ -121,11 +121,11 @@ public class Model extends Observable implements Serializable {
                             if (fractionLeft < 1) {
                                 double secondsUsed = (System.nanoTime() - starttime) / 1e9;
                                 long secondsLeft = Math.round(secondsUsed / fractionDone * fractionLeft);
-                                System.out.printf("\rParsing %.1f%% done, time left: %d:%02d", 100 * fractionDone, secondsLeft / 60, secondsLeft % 60);
+                                System.out.printf("\rParsing %.1f%% done, time left: %d:%02d\n", 100 * fractionDone, secondsLeft / 60, secondsLeft % 60);
                             }
                         } catch (IOException e) {
-                            System.out.print("\rParsing 100% done, time left: 0:00");
-                            System.out.println("\nNow drawing shapes, please wait.");
+                            System.out.print("Parsing 100% done, time left: 0:00\n");
+                            System.out.println("Now drawing shapes, please wait.");
                             progressPrinter.cancel();
                         }
                     }
@@ -188,9 +188,9 @@ public class Model extends Observable implements Serializable {
             KDTree treeWithType = new KDTree(type);
             treeWithType.fillTreeWithShapes(list);
             treeList.add(treeWithType);
-            System.out.println("MaxDepth: " + treeWithType.maxDepth + "\t\t\tElement Count:" + treeWithType.count + "\t\t\tType: " + type);
+            //System.out.println("MaxDepth: " + treeWithType.maxDepth + "\t\t\tElement Count:" + treeWithType.count + "\t\t\tType: " + type);
         }
-        System.out.println("Number of trees: "+treeList.size());
+        //System.out.println("Number of trees: "+treeList.size());
 
         if(pointsOfInterest != null) {
             POITree.fillTree(pointsOfInterest);
