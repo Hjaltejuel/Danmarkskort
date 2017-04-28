@@ -39,9 +39,11 @@ public class TST<TSTInterface> implements Serializable {
 
 
     public TSTInterface get(String unfilteredKey) {
+        String suffix = "";
         String key = unfilteredKey.replace(",", "");
         Matcher matcher = pattern.matcher(key);
         if(matcher.find()){
+            suffix = key.substring(matcher.start(),matcher.end());
             key = key.substring(0,matcher.start()-1);
         }
         if (key == null) {
@@ -50,6 +52,13 @@ public class TST<TSTInterface> implements Serializable {
         if (key.length() == 0) throw new IllegalArgumentException("key must have length >= 1");
         Node<TSTInterface> x = get(root, key, 0);
         if (x == null) return null;
+        if(x.val instanceof DuplicateAddressNode){
+            for(bfst17.TSTInterface node: (DuplicateAddressNode)(x.val)){
+                if(node.getAddress().equals(suffix)){
+                    return (TSTInterface) node;
+                }
+            }
+        }
         return x.val;
     }
 
@@ -69,7 +78,7 @@ public class TST<TSTInterface> implements Serializable {
         if (key == null) {
             throw new IllegalArgumentException("calls put() with null key");
         }
-        if (!contains(key)) n++;
+        n++;
         root = put(root, key, val, 0);
     }
 
@@ -82,7 +91,16 @@ public class TST<TSTInterface> implements Serializable {
         if (c < x.c) x.left = put(x.left, key, val, d);
         else if (c > x.c) x.right = put(x.right, key, val, d);
         else if (d < key.length() - 1) x.mid = put(x.mid, key, val, d + 1);
-        else x.val = val;
+        else  if(x.val != null){
+            if(x.val instanceof DuplicateAddressNode){
+                ((DuplicateAddressNode) x.val).add((bfst17.TSTInterface)val);
+            } else {
+                DuplicateAddressNode addresArray = new DuplicateAddressNode();
+                addresArray.add((bfst17.TSTInterface) x.val);
+                addresArray.add((bfst17.TSTInterface) val);
+                x.val = (TSTInterface) addresArray;
+            }
+        } else x.val = val;
         return x;
     }
 
@@ -95,7 +113,7 @@ public class TST<TSTInterface> implements Serializable {
             String treeSavedAddress = "";
             for(int i = 2; i<split.length; i++){
                 if(i!= 0){
-                    leftover += " " + split;
+                    leftover += " " + split[i];
                 } else
                 leftover += split[i];
             }
@@ -116,6 +134,11 @@ public class TST<TSTInterface> implements Serializable {
 
             if (x == null) return makeArray(queue);
             if (x.val != null ){
+                if(x.val instanceof DuplicateAddressNode){
+                    for(bfst17.TSTInterface node: ((DuplicateAddressNode)x.val)){
+                        addAddressNodeToQueue(queue,(AddressNode)node,treeSavedAddress);
+                    }
+                } else
                 if(x.val instanceof AddressNode) {
                     queue.add(new PriorityStrings(1, treeSavedAddress + ", " + x.val.toString()));
                 } else {
@@ -141,22 +164,36 @@ public class TST<TSTInterface> implements Serializable {
 
         if (x.val != null ) {
             String found = prefix.toString() + x.c;
-            if(x.val instanceof AddressNode)
-            {
-                String compare = x.val.toString();
-                double similarity = similarity(compare,leftover);
-
-                double n = (((double) oldPrefix.length()  / ((double) found.length()+ x.val.toString().length()+2))+similarity);
-                queue.add(new PriorityStrings(n,prefix.toString() + x.c + ", " +x.val.toString()));
+            if(x.val instanceof  DuplicateAddressNode){
+                for(bfst17.TSTInterface node: ((DuplicateAddressNode)x.val)){
+                    addAddressNodeToQueue(queue,(AddressNode) node,found);
+                }
             }
-                else{double n = ((double) oldPrefix.length()  / (double) found.length());
-                queue.add(new PriorityStrings(n,prefix.toString() + x.c));}
+             else if(x.val instanceof AddressNode)
+            {
+                addAddressNodeToQueue(queue,(AddressNode)x.val,found);
+            }
+                else{addOtherNodeToQueue(queue,found);}
 
         }
         collect(x.mid, prefix.append(x.c), queue);
         prefix.deleteCharAt(prefix.length() - 1);
         collect(x.right, prefix, queue);
     }
+
+    public void addAddressNodeToQueue(PriorityQueue<PriorityStrings> queue, AddressNode x, String found){
+        String compare = x.toString();
+        double similarity = similarity(compare,leftover);
+
+        double n = (((double) oldPrefix.length()  / ((double) found.length()+ x.toString().length()+2))+similarity);
+        queue.add(new PriorityStrings(n,found + ", " +x.toString()));
+    }
+
+    public void addOtherNodeToQueue(PriorityQueue<PriorityStrings> queue, String found){
+        double n = ((double) oldPrefix.length()  / (double) found.length());
+        queue.add(new PriorityStrings(n,found));
+    }
+
     public double similarity(String s1, String s2) {
         String longer = s1, shorter = s2;
         if (s1.length() < s2.length()) {

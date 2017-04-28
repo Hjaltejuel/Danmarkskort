@@ -189,6 +189,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     public void search() {
+
         String s = (String) window.getCombo().getSelectedItem();
         if (s == null || s.length()==0) {
             return; //Ikke noget at søge efter!
@@ -198,6 +199,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         if(address == null) {
             return; //Ingen adresse fundet...
         }
+        if(address instanceof DuplicateAddressNode){
+
+        }
+
 
         double lat = -address.getY();
         double lon = -address.getX();
@@ -218,7 +223,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             canvas.centerZoomToZoomLevel(regionZoomLevel);
         }
         canvas.repaint();
+
     }
+
+
 
 
     public void zoomIn() {

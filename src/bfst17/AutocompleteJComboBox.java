@@ -78,24 +78,32 @@ public class AutocompleteJComboBox extends JComboBox {
 
                 public void update() {
                     SwingUtilities.invokeLater(() -> {
-
                             ArrayList<String> founds = tree.keysWithPrefix(makeUpperCase(userInput.getText()));
                             if(founds!=null) {
-                                HashSet<String> foundSet = new HashSet();
+                                ArrayList<String> copyList = new ArrayList<String>();
                                 for (String s : founds) {
-                                    foundSet.add(s.toLowerCase());
+                                    copyList.add(s.toLowerCase().replace(",",""));
                                 }
 
+                                boolean addressWriten =copyList.contains(userInput.getText().toLowerCase().replace(",",""));
                                 AutocompleteJComboBox.this.setEditable(false);
                                 AutocompleteJComboBox.this.removeAllItems();
-                                if (!foundSet.contains(userInput.getText().toLowerCase())) {
+                                int index =copyList.indexOf(userInput.getText().toLowerCase().replace(",",""));
+                                if (!addressWriten) {
                                     AutocompleteJComboBox.this.addItem(userInput.getText());
+                                } else {
+                                    removeItem(founds.get(index));
+                                    addItem(founds.get(index));
                                 }
 
-                                for (String s : founds) {
 
-                                    String res = makeUpperCase(s);
-                                    AutocompleteJComboBox.this.addItem(res);
+
+
+                                for (String s : founds) {
+                                    if(founds.indexOf(s)==index){
+                                        if(addressWriten){} else AutocompleteJComboBox.this.addItem(s);
+                                    } else
+                                        AutocompleteJComboBox.this.addItem(s);
                                 }
                                 setEditable(true);
                                 userInput.requestFocus();
