@@ -336,12 +336,39 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
     }
 
+    public void panToPoint(double lon, double lat) {
+        Point2D distanceVector = getDistanceInPixelToPoint(lon, lat);
+        double distanceToCenterX = distanceVector.getX();
+        double distanceToCenterY = distanceVector.getY();
+
+        pan(distanceToCenterX, distanceToCenterY);
+    }
+
+    public void fancyPan(double lon, double lat) {
+        double distanceToCenterX = lon - getCenterCordinateX();
+        double distanceToCenterY = lat - getCenterCordinateY();
+
+        double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX, 2) + Math.pow(distanceToCenterY, 2)));
+        double amountOfZoom = 150000 / getXZoomFactor();
+
+        if (amountOfZoom >= 2) {
+            panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
+        } else {
+            if (distance < 400/getXZoomFactor()) {
+                panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
+            } else {
+                zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+            }
+        }
+    }
+
     public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
         java.util.Timer timer = new java.util.Timer();
 
+        double partDX = distanceToCenterX * getXZoomFactor() / 100;
+        double partDY = distanceToCenterY * getYZoomFactor() / 100;
+
         timer.scheduleAtFixedRate(new TimerTask() {
-            double partDX = distanceToCenterX / 100;
-            double partDY = distanceToCenterY / 100;
 
             int panCounter = 1;
 
@@ -355,37 +382,30 @@ public class DrawCanvas extends JComponent implements Observer {
                 }
                 pan(partDX, partDY);
                 panCounter++;
-
             }
 
         }, 0, 10);
     }
 
-    public void panToPoint(double lon, double lat) {
-        Point2D distanceVector = getDistanceInPixelToPoint(lon, lat);
-        double distanceToCenterX = distanceVector.getX();
-        double distanceToCenterY = distanceVector.getY();
+    public void zoomOutSlowAndThenPan(double distanceToCenterX, double distanceToCenterY) {
+        java.util.Timer timer = new java.util.Timer();
 
-        pan(distanceToCenterX, distanceToCenterY);
-    }
+        timer.scheduleAtFixedRate(new TimerTask() {
+            int zoomOutCounter = 1;
 
-    public void fancyPan(double lon, double lat) {
-        Point2D distanceVector = getDistanceInPixelToPoint(lon, lat);
-        double distanceToCenterX = distanceVector.getX();
-        double distanceToCenterY = distanceVector.getY();
+            @Override
+            public void run() {
+                if(zoomOutCounter >= 100) {
+                    panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
+                    cancel();
+                }
+                else if (zoomOutCounter < 100) {
+                    centerZoomToZoomLevel(150000  * 10 / zoomOutCounter);
 
-        double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX, 2) + Math.pow(distanceToCenterY, 2)));
-        double amountOfZoom = 150000 / getXZoomFactor();
-
-        if (amountOfZoom >= 2) {
-            panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
-        } else {
-            if (distance < 400) {
-                panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
-            } else {
-                zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
+                    zoomOutCounter++;
+                }
             }
-        }
+        }, 0 , 20);
     }
 
     //Zoom ting
@@ -424,27 +444,6 @@ public class DrawCanvas extends JComponent implements Observer {
                 }
             }
         }, 0, 20);
-    }
-
-    public void zoomOutSlowAndThenPan(double distanceToCenterX, double distanceToCenterY) {
-        java.util.Timer timer = new java.util.Timer();
-
-        timer.scheduleAtFixedRate(new TimerTask() {
-            int zoomOutCounter = 1;
-
-            @Override
-            public void run() {
-                if(zoomOutCounter >= 100) {
-                    panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
-                    cancel();
-                }
-                else if (zoomOutCounter < 100) {
-                    centerZoomToZoomLevel(150000  * 10 / zoomOutCounter);
-
-                    zoomOutCounter++;
-                }
-            }
-        }, 0 , 20);
     }
 
     public double getXZoomFactor(){return transform.getScaleY();}
