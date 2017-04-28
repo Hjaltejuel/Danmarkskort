@@ -20,6 +20,12 @@ public class Model extends Observable implements Serializable {
     OSMNode regionCenter = null;
     boolean adminRelation = false;
 
+	boolean isWay = false;
+	Boolean bicycle = false;
+	Boolean foot = false;
+	Integer maxspeed = 0;
+	Boolean oneway = false;
+
 	private boolean isAddressNode = false;
 	private AddressModel addressModel = new AddressModel();
 	private HashMap<String, WayType> namesToWayTypes = new HashMap<>(); {
@@ -35,6 +41,10 @@ public class Model extends Observable implements Serializable {
     private KDTree tree = new KDTree();
     private float minlat, minlon, maxlat, maxlon;
     private long nodeID;
+
+	Graph graph;
+	private Map<Long,OSMWay> idToWay = new HashMap<>();
+
 
     public Model(String filename) {
         load(filename);
@@ -77,6 +87,7 @@ public class Model extends Observable implements Serializable {
 			//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 			out.writeObject(shapes);
 			out.writeObject(addressModel);
+			out.writeObject(idToWay);
 			out.writeFloat(minlon);
 			out.writeFloat(minlat);
 			out.writeFloat(maxlon);
@@ -107,11 +118,14 @@ public class Model extends Observable implements Serializable {
 				//Ryk rundt på dem her og få med Jens' knytnæve at bestille
 				shapes = (EnumMap<WayType, List<Shape>>) in.readObject();
 				addressModel = (AddressModel) in.readObject();
+				idToWay = (HashMap<Long, OSMWay>) in.readObject();
 				minlon = in.readFloat();
 				minlat = in.readFloat();
 				maxlon = in.readFloat();
 				maxlat = in.readFloat();
                 tree.fillTree(shapes,pointsOfInterest);
+				graph = new Graph((HashMap<Long, OSMWay>)idToWay);
+
 				dirty();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -160,6 +174,10 @@ public class Model extends Observable implements Serializable {
 		maxlon += newMaxLon;
 		minlon += newMinLon;
 	}
+	public Graph getGraph(){
+
+		return graph;
+	}
 
 	private class OSMHandler implements ContentHandler {
 		//LongToPointMap idToNode = new LongToPointMap(18000000);
@@ -193,6 +211,7 @@ public class Model extends Observable implements Serializable {
 		@Override
 		public void endDocument() throws SAXException {
             tree.fillTree(shapes,pointsOfInterest);
+			graph = new Graph((HashMap<Long, OSMWay>)idToWay);
 		}
 
 		@Override
@@ -232,6 +251,7 @@ public class Model extends Observable implements Serializable {
 					idToNode.put(nodeID, new OSMNode(lonfactor * lon, -lat));
 					break;
 				case "way":
+					isWay = true;
 					way = new OSMWay();
 					Long id = Long.parseLong(atts.getValue("id"));
 					type = WayType.UNKNOWN;
@@ -256,6 +276,72 @@ public class Model extends Observable implements Serializable {
 						List<Point2D> typePointsOfInterest = pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase());
 						if(typePointsOfInterest!= null){
 							pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase()).add(new Point2D.Double(lon*lonfactor,-lat));
+						}
+					}
+					if(isWay){
+						switch (k) {
+							case "bicycle":
+								if(v.equals("yes")){
+								bicycle = true;
+								}
+								if(v.equals("no")){
+									bicycle = false;
+								}
+								break;
+							case "foot":
+								if(v.equals("yes")){
+									foot = true;
+								}
+								if(v.equals("no")){
+									foot = false;
+								}
+								break;
+							case "highway":
+								bicycle = true;
+								foot = true;
+								maxspeed = 50;
+								if(v.equals("motorway")){
+									maxspeed = 130;
+									bicycle = false;
+									foot = false;
+								}
+								if(v.equals("primary")){
+									maxspeed = 80;
+									bicycle = true;
+									foot = true;
+								}
+								if(v.equals("secondary")){
+									maxspeed = 80;
+									bicycle = true;
+									foot = true;
+								}
+								if(v.equals("tertiary")){
+									maxspeed = 80;
+									bicycle = true;
+									foot = true;
+								}
+								if(v.equals("unclassified")){
+									maxspeed = 80;
+									bicycle = true;
+									foot = true;
+								}
+								if(v.equals("residential")){
+									maxspeed = 50;
+									bicycle = true;
+									foot = true;
+								}
+								break;
+							case "maxspeed":
+								maxspeed = Integer.parseInt(v);
+								break;
+							case "oneway":
+								if(v.equals("yes")){
+									oneway = true;
+								}
+								if(v.equals("no")){
+									oneway = false;
+								}
+								break;
 						}
 					}
 					switch (k) {
@@ -320,6 +406,23 @@ public class Model extends Observable implements Serializable {
                     }
                     break;
                 case "way":
+
+                	for (int i = 0; i < way.size(); i++){
+
+                		way.get(i).setNodeTags(bicycle,foot,maxspeed,oneway);
+					if(bicycle == true || foot == true || oneway == true || maxspeed > 0){
+							way.get(i).setRelevantForRouting(true);
+						}
+					//	}
+					//	if(bicycle == true || foot == true || oneway == true || maxspeed > 0){
+					//		way.setRelevantForRouting(true);
+					}
+					bicycle = false;
+					foot = false;
+					oneway = false;
+					maxspeed = 0;
+					isWay = false;
+
                     if (type == WayType.NATURAL_COASTLINE) {
                         OSMWay before = coastlines.remove(way.getFromNode());
                         OSMWay after = coastlines.remove(way.getToNode());

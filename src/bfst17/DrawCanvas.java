@@ -3,11 +3,7 @@ package bfst17;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
@@ -185,6 +181,22 @@ public class DrawCanvas extends JComponent implements Observer {
 		g.setStroke(new BasicStroke(0.00008f));
 		g.draw(rectangle);
 
+		Graph graph = model.getGraph();
+		OSMNode source = graph.getSourceTest();
+		OSMNode target = graph.getTargetTest();
+		ArrayList<OSMNode> alist = graph.getPath(source, target);
+		for(int i = 0; i < alist.size()-1; i++)
+		{
+			source = alist.get(i);
+			for(int j = 0; j < source.getEdgeList().size()-1; j++){
+				OSMNode dest = source.getEdgeList().get(j).getDestination();
+				System.out.println(dest);
+				g.draw(new Line2D.Double(source.getPoint2D().getX(), source.getPoint2D().getY(),dest.getPoint2D().getX(), dest.getPoint2D().getY()));
+
+			}
+			g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),alist.get(i+1).getPoint2D().getX(), alist.get(i+1).getPoint2D().getY()));
+		}
+
 		/*
 		//Draw all shapes
 		for (WayType type : WayType.values()) {
@@ -205,6 +217,7 @@ public class DrawCanvas extends JComponent implements Observer {
 			}
 		}
 		/**/
+
 		setPin(g);
         if(regionSearch){
             Color color = g.getColor();

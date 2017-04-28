@@ -7,6 +7,8 @@ import java.awt.geom.Point2D;
 
 /**
  * Created by trold on 2/8/17.
+ *
+ *
  */
 public class CanvasMouseController extends MouseAdapter {
 	Model model;
