@@ -258,7 +258,7 @@ public class TST<TSTInterface> implements Serializable {
         double similarity = similarity(compare,suffix);
 
         double n = (((double) this.prefix.length()  / ((double) found.length()+ x.toString().length()+2))+similarity);
-        System.out.println(prefix + " " + n);
+        //System.out.println(prefix + " " + n);
         queue.add(new PriorityStrings(n,found + ", " +x.toString()));
     }
 

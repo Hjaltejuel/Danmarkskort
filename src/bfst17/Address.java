@@ -18,6 +18,14 @@ public class Address implements Serializable {
         city = _city;
     }
 
+    public String getStreetAndHouseNum() {
+        return street + " " + house;
+    }
+
+    public String getPostcodeAndCity() {
+        return postcode + " " + city;
+    }
+
     public String toString() {
         String floorSideString = "";
         String streetString = "";

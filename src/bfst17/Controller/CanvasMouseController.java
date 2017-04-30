@@ -1,4 +1,7 @@
-package bfst17;
+package bfst17.Controller;
+
+import bfst17.DrawCanvas;
+import bfst17.Model;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

@@ -1,4 +1,6 @@
-package bfst17;
+package bfst17.GUI;
+
+import bfst17.TST;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -10,10 +12,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.PriorityQueue;
-import java.util.concurrent.*;
 
 public class AutocompleteJComboBox extends JComboBox {
     private final TST searcher;
@@ -21,7 +19,6 @@ public class AutocompleteJComboBox extends JComboBox {
     private JTextComponent userInput;
 
     public AutocompleteJComboBox(TST tree) {
-
         //Makes the arrow invisible and set it so it does nothing
         setUI(new BasicComboBoxUI() {
             protected JButton createArrowButton() {

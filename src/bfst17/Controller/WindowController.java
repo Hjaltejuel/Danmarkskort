@@ -1,5 +1,6 @@
-package bfst17;
+package bfst17.Controller;
 
+import bfst17.*;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
 
@@ -46,7 +47,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         Object source = e.getSource();
         String command = e.getActionCommand();
         if (source instanceof JCheckBoxMenuItem && source != window.getDirections()) {
-            JCheckBoxMenuItem[] menu = window.getPointsOfInterestMenues();
+            JCheckBoxMenuItem[] menu = window.getPOICheckBoxArray();
             for (int i = 0; i < menu.length; i++) {
                 if (e.getSource() == menu[i]) {
                     canvas.setPointsOfInterest(POIclasification.values()[i]);
@@ -68,10 +69,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     System.exit(0);
                     break;
                 case "Directions":
-                    setUpDirectionsMenu = !setUpDirectionsMenu;
-                    if (setUpDirectionsMenu) {
-                        window.SetSecondSearch(addressModel.getTSTTree());
-                    } else window.tearSecondSearch();
+                    window.toggleDirectionsBar();
                     break;
                 case "Nightmode":
                     setColorTheme(GUIMode.NIGHT);
@@ -96,7 +94,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     public void setColorTheme(GUIMode newTheme) {
-        if (canvas.GUITheme == newTheme) {
+        if (canvas.getGUITheme() == newTheme) {
             newTheme = GUIMode.NORMAL;
         }
 
@@ -211,7 +209,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         canvas.setPin(address, isRegion);
 
         if (!isRegion) {
-            if (canvas.shouldFancyPan) {
+            if (canvas.isFancyPanEnabled()) {
                 canvas.fancyPan(lon, lat);
             } else {
                 canvas.panToPoint(lon, lat);
@@ -223,11 +221,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             canvas.centerZoomToZoomLevel(regionZoomLevel);
         }
         canvas.repaint();
-
     }
-
-
-
 
     public void zoomIn() {
         canvas.centerZoom(1.25);

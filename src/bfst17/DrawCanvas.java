@@ -20,20 +20,44 @@ public class DrawCanvas extends JComponent implements Observer {
     Shape regionShape = null;
     boolean regionSearch = false;
 	boolean antiAlias;
-	GUIMode GUITheme = GUIMode.NORMAL;
-	boolean shouldFancyPan = true;
+    GUIMode GUITheme = GUIMode.NORMAL;
+	boolean fancyPanEnabled = true;
 	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
 	Point2D pin;
 	Integer FrameCounter=0;
 	double timeTracker;
 	Integer FPS=0;
 	Rectangle2D screenRectangle;
+	HashMap<String, BufferedImage> PinAndPOIImageMap;
 
     public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
 		fillNameToBoolean();
+		loadImages();
 	}
+
+	private void loadImages() {
+        PinAndPOIImageMap=new HashMap<>();
+        try{
+            BufferedImage img = ImageIO.read(getClass().getResource("/PinImage.png"));
+            PinAndPOIImageMap.put("pin",img);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        try{
+            for (PointsOfInterest POI : PointsOfInterest.values()){
+                BufferedImage img = ImageIO.read(getClass().getResource("/POI/" + POI.name() + ".png"));
+                PinAndPOIImageMap.put(POI.name(),img);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+	public GUIMode getGUITheme() {
+        return GUITheme;
+    }
 
 	public void fillNameToBoolean() {
 		for(POIclasification name: POIclasification.values()) {
@@ -47,8 +71,12 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
     }
 
+    public boolean isFancyPanEnabled() {
+        return fancyPanEnabled;
+    }
+
     public void toggleFancyPan() {
-        shouldFancyPan = !shouldFancyPan;
+        fancyPanEnabled = !fancyPanEnabled;
     }
 
     public void setPointsOfInterest(POIclasification name) {
@@ -122,9 +150,10 @@ public class DrawCanvas extends JComponent implements Observer {
         //Tegn kortet
         drawMap(g);
 
-        //Tegn overlay (Pin, POI, Målebånd)
+        //Tegn overlay (Pin, POI, Målebånd, FPS)
         drawOverlay(g);
 
+        //Opdater FPS
         checkFPS();
 	}
 
@@ -146,7 +175,7 @@ public class DrawCanvas extends JComponent implements Observer {
         if (pin == null) {
             return; //Lad være at tegne, hvis der ikke er en pin
         }
-        drawImageAtLocation(g,"/temppin.png",pin.getX(),pin.getY());
+        drawImageAtLocation(g,"pin",pin.getX(),pin.getY());
     }
 
     public void drawPointsOfInteres(Graphics2D g) {
@@ -155,30 +184,22 @@ public class DrawCanvas extends JComponent implements Observer {
             for (POIKDTree.TreeNode PoiNodes : POITree.getInRange(screenRectangle)) {
                 PointsOfInterest POIType = PoiNodes.getPOIType();
                 if (nameToBoolean.get(POIType.getClassification())) {
-                    drawPOIImage(g, POIType, PoiNodes.getX(), PoiNodes.getY());
+                    String imagePath = POIType.name();
+                    drawImageAtLocation(g, imagePath, -PoiNodes.getX(), -PoiNodes.getY());
                 }
             }
         }
     }
 
-    public void drawPOIImage(Graphics2D g, PointsOfInterest type, double x, double y) {
-        String imagePath = "/POI/" + type.name() + ".png";
-        drawImageAtLocation(g, imagePath, -x, -y);
-    }
-
     public void drawImageAtLocation(Graphics2D g, String imagePath, double x, double y) {
-        try {
-            BufferedImage image = ImageIO.read(getClass().getResource(imagePath));
-            Rectangle2D imageRect = new Rectangle2D.Double(-x,-y,image.getWidth()/getXZoomFactor(),image.getHeight()/getYZoomFactor());
+        BufferedImage image = PinAndPOIImageMap.get(imagePath);
+        Rectangle2D imageRect = new Rectangle2D.Double(-x,-y,image.getWidth()/getXZoomFactor(),image.getHeight()/getYZoomFactor());
 
-            if(!screenRectangle.intersects(imageRect)){
-                return; //Billedet er ikke inden for skærmen
-            }
-            Point2D drawLocation = lonLatToScreenCords(x, y);
-            g.drawImage(image, (int) drawLocation.getX() - image.getWidth() / 2, (int) drawLocation.getY() - image.getHeight(), this);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(!screenRectangle.intersects(imageRect)){
+            return; //Billedet er ikke inden for skærmen
         }
+        Point2D drawLocation = lonLatToScreenCords(x, y);
+        g.drawImage(image, (int) drawLocation.getX() - image.getWidth() / 2, (int) drawLocation.getY() - image.getHeight(), this);
     }
 
     final float lonToKM = 111.320f, KMToMiles = 0.621371192f;

@@ -1,9 +1,6 @@
 package bfst17;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
 import java.io.Serializable;
-import java.lang.instrument.Instrumentation;
 import java.util.*;
 
 /**
@@ -19,10 +16,13 @@ public class AddressModel extends Observable implements Serializable {
 
     public TST<TSTInterface> getTSTTree(){return tree;}
 
-    public void putAddress(String address, AddressNode point) {
-        if(!address.equals("")) {
-            tree.put(address, point);
+    public void putAddress(Address address, OSMNode node) {
+        if(address==null) {
+            return;
         }
+        String streetAndHouseNum = address.getStreetAndHouseNum();
+        AddressNode point = new AddressNode(node, address.getPostcodeAndCity());
+        tree.put(streetAndHouseNum, point);
     }
     public void putRegion(String region, Region shape){
         tree.put(region,shape);

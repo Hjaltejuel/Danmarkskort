@@ -1,9 +1,9 @@
 package bfst17;
 
+import bfst17.Controller.WindowController;
+
 import javax.swing.*;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Main {
 	public static void main(String[] args) {

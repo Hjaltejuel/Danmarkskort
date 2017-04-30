@@ -1,5 +1,8 @@
 package bfst17;
 
+import bfst17.GUI.AutocompleteJComboBox;
+import bfst17.GUI.ImageButton;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboPopup;
@@ -32,22 +35,20 @@ public class DrawWindow {
 	private JMenuItem AntiAliasinToggle;
 	private JMenuItem fancyPan;
 	JCheckBoxMenuItem directions;
-	private JButton searchButton;
-	private JButton menuButton;
-	private JButton zoomInButton;
-	private JButton zoomOutButton;
-	private JButton pointsOfInterestButton;
-	private JCheckBoxMenuItem[] pointsOfInterestMenues;
-	boolean isClicked1 = false;
-	boolean isClicked2 = false;
+	private ImageButton searchButton;
+	private ImageButton menuButton;
+	private ImageButton zoomInButton;
+	private ImageButton zoomOutButton;
+	private ImageButton pointsOfInterestButton;
+	private JCheckBoxMenuItem[] POICheckBoxArray;
+	boolean menu1IsShown = false;
+	boolean menu2IsShown = false;
 
 	private JPanel sidebarMenu = new JPanel(new GridLayout(0, 1));
-
 
 	public DrawWindow() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
@@ -57,15 +58,71 @@ public class DrawWindow {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
-		pointsOfInterestMenues = new JCheckBoxMenuItem[7];
+		POICheckBoxArray = new JCheckBoxMenuItem[7];
 		window = new JFrame("Danmarkskort gruppe A");
 		windowPane = new JLayeredPane();
 		window.setPreferredSize(new Dimension(750, 750));
-		setUpSideButtons();
 		window.pack();
-		setUpTopButtons();
+		setUpButtons();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
+	}
+
+	private void setUpButtons() {
+		searchButton = new ImageButton("/SearchButtonImage.png");
+		menuButton = new ImageButton("/MenuButtonImage.png");
+		zoomInButton = new ImageButton("/ZoomInButtonImage.png");
+		zoomOutButton = new ImageButton("/ZoomOutButtonImage.png");
+		pointsOfInterestButton = new ImageButton("/PointsOfInterestButtonImage.png");
+
+		//"/Search Bar.png"
+
+		sidebarMenu.setOpaque(false);
+
+		poiMenu = new JPopupMenu("Points of interest");
+		JCheckBoxMenuItem foodAndDrinks = new JCheckBoxMenuItem("Food and drinks");
+		JCheckBoxMenuItem attractions = new JCheckBoxMenuItem("Attractions");
+		JCheckBoxMenuItem nature = new JCheckBoxMenuItem("Nature");
+		JCheckBoxMenuItem healthCare = new JCheckBoxMenuItem("Healthcare");
+		JCheckBoxMenuItem utilities = new JCheckBoxMenuItem("Utilities");
+		JCheckBoxMenuItem emergency = new JCheckBoxMenuItem("Emergency");
+		JCheckBoxMenuItem shops = new JCheckBoxMenuItem("Shops");
+
+		int i = 0;
+		POICheckBoxArray[i++] = foodAndDrinks;
+		POICheckBoxArray[i++] = attractions;
+		POICheckBoxArray[i++] = nature;
+		POICheckBoxArray[i++] = healthCare;
+		POICheckBoxArray[i++] = utilities;
+		POICheckBoxArray[i++] = emergency;
+		POICheckBoxArray[i++] = shops;
+
+		for(JCheckBoxMenuItem item : POICheckBoxArray) {
+			item.setUI(new StayOpenCheckBoxMenuItemUI());
+			poiMenu.add(item);
+		}
+
+		sidebarMenu.add(zoomInButton);
+		sidebarMenu.add(zoomOutButton);
+		sidebarMenu.add(pointsOfInterestButton);
+
+		barImage = new JLabel();
+		barImage.setBounds(11, 31, 298, 40);
+
+		try {
+			BufferedImage bar = ImageIO.read(getClass().getResource("/Search Bar.png"));
+			barImage = new JLabel(new ImageIcon(bar));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		setUpMenu();
+		menuButton.setComponentPopupMenu(popUpMenu);
+		windowPane.add(menuButton);
+		windowPane.setComponentZOrder(menuButton, 0);
+
+
+		windowPane.add(barImage, 76);
 	}
 
 
@@ -75,6 +132,7 @@ public class DrawWindow {
 
 	public void setKeyListener(KeyListener controller) {
 		combo.getEditor().getEditorComponent().addKeyListener((controller));
+		secondCombo.getEditor().getEditorComponent().addKeyListener((controller));
 	}
 
 	public void setMouseListener(MouseListener controller) {
@@ -86,7 +144,7 @@ public class DrawWindow {
 	}
 
 	public void addActionListener(ActionListener controller) {
-		for (JCheckBoxMenuItem items : pointsOfInterestMenues) {
+		for (JCheckBoxMenuItem items : POICheckBoxArray) {
 			items.addActionListener(controller);
 		}
 		load.addActionListener(controller);
@@ -114,6 +172,7 @@ public class DrawWindow {
 	public void setComponentzZOrder(DrawCanvas canvas) {
 		windowPane.add(canvas, 100);
 		windowPane.add(combo, 50);
+		windowPane.add(secondCombo, 50);
 		windowPane.add(sidebarMenu, 50);
 		windowPane.add(searchButton);
 
@@ -121,11 +180,14 @@ public class DrawWindow {
 		windowPane.setComponentZOrder(searchButton, 0);
 		windowPane.setComponentZOrder(sidebarMenu, 0);
 		windowPane.setComponentZOrder(combo, 0);
+		windowPane.setComponentZOrder(barImage, 0);
 
-		searchButton.setBounds(313, 10, 40, 40);
+		menuButton.setLocation(357, 10);
+		searchButton.setLocation(313, 10);
+
 		combo.setBounds(10, 10, 300, 40);
+		secondCombo.setBounds(10, 10, 300, 40);
 		window.add(windowPane, BorderLayout.CENTER);
-
 	}
 
 	/**
@@ -134,132 +196,9 @@ public class DrawWindow {
 	public void createAutocomplete(TST tree) {
 		combo = new AutocompleteJComboBox(tree);
 		combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-	}
 
-	public void setUpSideButtons() {
-		sidebarMenu.setOpaque(false);
-		int i = 0;
-
-		poiMenu = new JPopupMenu("Points of interest");
-		JCheckBoxMenuItem foodAndDrinks = new JCheckBoxMenuItem("Food and drinks");
-		JCheckBoxMenuItem attractions = new JCheckBoxMenuItem("Attractions");
-		JCheckBoxMenuItem nature = new JCheckBoxMenuItem("Nature");
-		JCheckBoxMenuItem healthCare = new JCheckBoxMenuItem("Healthcare");
-		JCheckBoxMenuItem utilities = new JCheckBoxMenuItem("Utilities");
-		JCheckBoxMenuItem emergency = new JCheckBoxMenuItem("Emergency");
-		JCheckBoxMenuItem shops = new JCheckBoxMenuItem("Shops");
-
-		pointsOfInterestMenues[i++] = foodAndDrinks;
-		pointsOfInterestMenues[i++] = attractions;
-		pointsOfInterestMenues[i++] = nature;
-		pointsOfInterestMenues[i++] = healthCare;
-		pointsOfInterestMenues[i++] = utilities;
-		pointsOfInterestMenues[i++] = emergency;
-		pointsOfInterestMenues[i++] = shops;
-
-		foodAndDrinks.setUI(new StayOpenCheckBoxMenuItemUI());
-		attractions.setUI(new StayOpenCheckBoxMenuItemUI());
-		nature.setUI(new StayOpenCheckBoxMenuItemUI());
-		healthCare.setUI(new StayOpenCheckBoxMenuItemUI());
-		utilities.setUI(new StayOpenCheckBoxMenuItemUI());
-		emergency.setUI(new StayOpenCheckBoxMenuItemUI());
-		shops.setUI(new StayOpenCheckBoxMenuItemUI());
-
-		poiMenu.add(foodAndDrinks);
-		poiMenu.add(attractions);
-		poiMenu.add(nature);
-		poiMenu.add(healthCare);
-		poiMenu.add(utilities);
-		poiMenu.add(emergency);
-		poiMenu.add(shops);
-
-		zoomInButton = new JButton();
-		zoomInButton.setBounds(window.getHeight() - 45, window.getWidth() - 67, 40, 40);
-		zoomInButton.setBorderPainted(false);
-		zoomInButton.setFocusPainted(false);
-		zoomInButton.setContentAreaFilled(false);
-
-		zoomOutButton = new JButton();
-		zoomOutButton.setBounds(window.getHeight() - 85, window.getWidth() - 67, 40, 40);
-		zoomOutButton.setBorderPainted(false);
-		zoomOutButton.setFocusPainted(false);
-		zoomOutButton.setContentAreaFilled(false);
-		zoomOutButton.setPreferredSize(new Dimension(30, 30));
-
-		pointsOfInterestButton = new JButton();
-		pointsOfInterestButton.setBounds(window.getHeight() - 85, window.getWidth() - 67, 40, 40);
-		pointsOfInterestButton.setBorderPainted(false);
-		pointsOfInterestButton.setFocusPainted(false);
-		pointsOfInterestButton.setContentAreaFilled(false);
-		pointsOfInterestButton.setPreferredSize(new Dimension(30, 30));
-
-		sidebarMenu.add(zoomInButton);
-		sidebarMenu.add(zoomOutButton);
-		sidebarMenu.add(pointsOfInterestButton);
-
-		giveSideButtonsIcons();
-
-
-	}
-
-	public void giveSideButtonsIcons() {
-		try {
-			Image img4 = ImageIO.read(getClass().getResource("/pointsOfInterest.png"));
-			pointsOfInterestButton.setIcon(new ImageIcon(img4.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
-
-		} catch (Exception ex) {
-			System.out.println(ex);
-		}
-		try {
-			Image img4 = ImageIO.read(getClass().getResource("/zoomout.png"));
-			zoomOutButton.setIcon(new ImageIcon(img4.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
-		} catch (Exception ex) {
-			System.out.println(ex);
-		}
-		try {
-			Image img3 = ImageIO.read(getClass().getResource("/zoomin.png"));
-			zoomInButton.setIcon(new ImageIcon(img3.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
-		} catch (Exception ex) {
-			System.out.println(ex);
-		}
-	}
-
-	public void setUpTopButtons() {
-		searchButton = new JButton();
-		searchButton.setBorderPainted(false);
-		searchButton.setFocusPainted(false);
-		searchButton.setContentAreaFilled(false);
-		searchButton.setBorder(BorderFactory.createEmptyBorder());
-		searchButton.setPreferredSize(new Dimension(30, 30));
-
-		menuButton = new JButton();
-		menuButton.setBounds(357, 10, 40, 40);
-		menuButton.setBorderPainted(false);
-		menuButton.setFocusPainted(false);
-		menuButton.setContentAreaFilled(false);
-		menuButton.setPreferredSize(new Dimension(30, 30));
-		setUpMenu();
-		menuButton.setComponentPopupMenu(popUpMenu);
-		windowPane.add(menuButton);
-		windowPane.setComponentZOrder(menuButton, 0);
-		setTopMenuIcons();
-	}
-
-	public void setTopMenuIcons() {
-		try {
-			Image img = ImageIO.read(getClass().getResource("/search.png"));
-			searchButton.setIcon(new ImageIcon(img.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
-
-		} catch (Exception ex) {
-			System.out.println(ex);
-		}
-		try {
-			Image img2 = ImageIO.read(getClass().getResource("/Untitled.png"));
-			menuButton.setIcon(new ImageIcon(img2.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
-
-		} catch (Exception ex) {
-			System.out.println(ex);
-		}
+		secondCombo = new AutocompleteJComboBox(tree);
+		secondCombo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 	}
 
 
@@ -340,29 +279,25 @@ public class DrawWindow {
 		tools.add(zoomOutMenu);
 
 		popUpMenu.add(tools);
-
-
 	}
 
 	public void showMenuTwo() {
-		if (!isClicked2) {
+		if (!menu2IsShown) {
 			popUpMenu.show(menuButton, 0, 40);
-			isClicked2 = true;
-		} else if (isClicked2) {
+		} else {
 			popUpMenu.setVisible(false);
-			isClicked2 = false;
 		}
+		menu2IsShown = !menu2IsShown;
 		window.repaint();
 	}
 
 	public void showMenuOne() {
-		if (!isClicked1) {
+		if (!menu1IsShown) {
 			poiMenu.show(sidebarMenu, 0, 130);
-			isClicked1 = true;
-		} else if (isClicked1) {
+		} else {
 			poiMenu.setVisible(false);
-			isClicked1 = false;
 		}
+		menu1IsShown=!menu1IsShown;
 		window.repaint();
 	}
 
@@ -371,59 +306,53 @@ public class DrawWindow {
 		sidebarMenu.setBounds(canvas.getWidth() - 60, 10, 40, 130);
 	}
 
-	public void SetSecondSearch(TST tree) {
-		secondCombo = new AutocompleteJComboBox(tree);
-		windowPane.add(secondCombo, 75);
-		windowPane.setComponentZOrder(secondCombo, 2);
+	boolean setUpDirectionsMenu = false;
+	public void toggleDirectionsBar() {
+		setUpDirectionsMenu = !setUpDirectionsMenu;
 
+		secondCombo.setVisible(setUpDirectionsMenu);
+		barImage.setVisible(setUpDirectionsMenu);
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
-
-			int i = 1;
 			int yStart = 10;
 
 			@Override
 			public void run() {
-				secondCombo.setBounds(10, yStart += 1, 300, 40);
+				yStart++;
+				secondCombo.setLocation(10, yStart);
 				window.repaint();
 
-				if (yStart == 50) {
+				if (yStart > 50) {
 					cancel();
-					try {
-						BufferedImage bar = ImageIO.read(getClass().getResource("/Search Bar.png"));
-						barImage = new JLabel(new ImageIcon(bar));
-						windowPane.add(barImage, 76);
-						windowPane.setComponentZOrder(barImage, 0);
-						barImage.setBounds(11, 31, 298, 40);
-
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
 				}
 			}
 		}, 0, 5);
-		secondCombo.setEditable(true);
+		secondCombo.setEditable(setUpDirectionsMenu);
 	}
 
+	public void SetSecondSearch(TST tree) {
+		System.out.println("SetSecondSearch");
+		secondCombo = new AutocompleteJComboBox(tree);
+		windowPane.add(secondCombo, 75);
+		windowPane.setComponentZOrder(secondCombo, 2);
+
+	}
 
 	public void tearSecondSearch() {
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
-			int i = 1;
-			int yStart = 51;
+			int yStart = 50;
 
 			@Override
 			public void run() {
 				secondCombo.setBounds(10, yStart -= 1, 300, 40);
-				window.repaint();
 
 				if (yStart == 10) {
 					cancel();
-					windowPane.remove(secondCombo);
-					windowPane.remove(barImage);
-					window.repaint();
+					barImage.setVisible(false);
+					secondCombo.setVisible(false);
 				}
+				window.repaint();
 			}
 		}, 0, 5);
 
@@ -438,8 +367,8 @@ public class DrawWindow {
 		return directions;
 	}
 
-	public JCheckBoxMenuItem[] getPointsOfInterestMenues() {
-		return pointsOfInterestMenues;
+	public JCheckBoxMenuItem[] getPOICheckBoxArray() {
+		return POICheckBoxArray;
 	}
 
 	public JButton getSearchButton() {
@@ -472,11 +401,5 @@ public class DrawWindow {
 
 	public JMenuItem getGreyScaleMenuItem() {
 		return greyScaleMenuItem;
-	}
-
-
-	public void loadProgress(){
-		JLabel progess = new JLabel("goddav");
-		window.add(progess);
 	}
 }

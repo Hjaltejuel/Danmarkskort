@@ -16,7 +16,8 @@ import java.util.zip.ZipInputStream;
  * Created by trold on 2/1/17.
  */
 public class Model extends Observable implements Serializable {
-    private String[] addressBuilder = new String[4];
+    private Address.Builder addressBuilder = new Address.Builder();
+
     String name= "";
     OSMNode regionCenter = null;
     boolean adminRelation = false;
@@ -75,7 +76,6 @@ public class Model extends Observable implements Serializable {
         } catch (Exception e){
 
         }
-
         //til bin
         //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
         loadAllCoastlines();
@@ -177,7 +177,6 @@ public class Model extends Observable implements Serializable {
         progressPrinter.cancel();
         int loadTime = (int)Math.round(currentTimeInSeconds() - startTime);
         System.out.printf("\nLoad time: %d:%02d\n", loadTime / 60, loadTime % 60);
-
     }
 
     private void fillTrees() {
@@ -208,16 +207,13 @@ public class Model extends Observable implements Serializable {
             reader.setContentHandler(new OSMHandler());
             reader.parse(source);
         } catch (SAXException e) {
-            System.out.println("A");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("A");
             e.printStackTrace();
         }
-
     }
 
-    public void loadAllCoastlines(){
+    public void loadAllCoastlines() {
         String path = System.getProperty("user.dir") + "/resources/dkcoast.bin";
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
@@ -296,16 +292,14 @@ public class Model extends Observable implements Serializable {
 
         @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-            switch(qName) {
+            switch (qName) {
                 case "bounds":
                     minlat = Float.parseFloat(atts.getValue("minlat"));
                     minlon = Float.parseFloat(atts.getValue("minlon"));
                     maxlat = Float.parseFloat(atts.getValue("maxlat"));
                     maxlon = Float.parseFloat(atts.getValue("maxlon"));
-
                     minlon *= lonfactor;
                     maxlon *= lonfactor;
-
                     break;
                 case "node":
                     nodeID = Long.parseLong(atts.getValue("id"));
@@ -332,30 +326,30 @@ public class Model extends Observable implements Serializable {
                     String v = atts.getValue("v");
 
                     WayType typeTest = namesToWayTypes.get(k.toUpperCase() + "_" + v.toUpperCase());
-                    if(typeTest!=null){
+                    if (typeTest != null) {
                         type = typeTest;
                     } else {
                         List<Point2D> typePointsOfInterest = pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase());
-                        if(typePointsOfInterest != null){
-                            pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase()).add(new Point2D.Double(lon*lonfactor, -lat));
+                        if (typePointsOfInterest != null) {
+                            pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase()).add(new Point2D.Double(lon * lonfactor, -lat));
                         }
                     }
 
                     switch (k) {
                         case "addr:street":
-                            addressBuilder[0] = v;
+                            addressBuilder.street(v);
                             isAddressNode = true;
                             break;
                         case "addr:housenumber":
-                            addressBuilder[1] = v;
+                            addressBuilder.house(v);
                             isAddressNode = true;
                             break;
                         case "addr:postcode":
-                            addressBuilder[2] = v;
+                            addressBuilder.postcode(v);
                             isAddressNode = true;
                             break;
                         case "addr:city":
-                            addressBuilder[3] = v;
+                            addressBuilder.city(v);
                             isAddressNode = true;
                             break;
                         case "building":
@@ -365,23 +359,23 @@ public class Model extends Observable implements Serializable {
                             name = v;
                             break;
                         case "place":
-                            if(v.equals("village") || v.equals("town") || v.equals("city")){
-                                addressModel.putCity(name,idToNode.get(nodeID));
+                            if (v.equals("village") || v.equals("town") || v.equals("city")) {
+                                addressModel.putCity(name, idToNode.get(nodeID));
                             }
                     }
                     break;
                 case "member":
                     String role = atts.getValue("role");
                     ref = Long.parseLong(atts.getValue("ref"));
-                    if(role.equals("admin_centre")) {
+                    if (role.equals("admin_centre")) {
                         regionCenter = idToNode.get(ref);
-                        if(regionCenter ==null){
-                            regionCenter = new OSMNode((maxlon+minlon)/2,-(maxlat+minlat)/2);
+                        if (regionCenter == null) {
+                            regionCenter = new OSMNode((maxlon + minlon) / 2, -(maxlat + minlat) / 2);
                         }
                         adminRelation = true;
                     }
                     OSMWay way = idToWay.get(ref);
-                    if(way!=null) {
+                    if (way != null) {
                         relation.add(idToWay.get(ref));
                     }
                     break;
@@ -393,16 +387,8 @@ public class Model extends Observable implements Serializable {
             switch (qName) {
                 case "node":
                     if (isAddressNode == true) {
-                        for (int i = 0; i < addressBuilder.length; i++) {
-                            if (addressBuilder[i] == null) {
-                                addressBuilder[i] = "";
-                            }
-                        }
-                        String address = addressBuilder[0] + " " + addressBuilder[1];
-                        String cityAndPostcode = addressBuilder[2] + " " + addressBuilder[3];
-                        //LongToPointMap.Node m = (LongToPointMap.Node) idToNode.get(nodeID);
-                        //LongToPointMap.Node k = new LongToPointMap.Node(m.key, (float) m.getX(), (float) m.getY(), null);
-                        addressModel.putAddress(Address.parse(address).toString(), new AddressNode(idToNode.get(nodeID),cityAndPostcode));
+                        Address address = addressBuilder.build();
+                        addressModel.putAddress(address, idToNode.get(nodeID));
                         isAddressNode = false;
                     }
                     break;
@@ -414,7 +400,7 @@ public class Model extends Observable implements Serializable {
                     }
                     break;
                 case "relation":
-                    if(relation.size()!= 0) {
+                    if (relation.size() != 0) {
                         MultiPolygonApprox path = new MultiPolygonApprox(relation);
                         if (adminRelation == true) {
                             addressModel.putRegion(name, new Region(path, regionCenter));
@@ -427,7 +413,7 @@ public class Model extends Observable implements Serializable {
                 case "osm":
                     coastlines.forEach((key, way) -> {
                         if (key == way.getFromNode()) {
-                            add(WayType.NATURAL_COASTLINE,new PolygonApprox(way));
+                            add(WayType.NATURAL_COASTLINE, new PolygonApprox(way));
                         }
                     });
                     break;
