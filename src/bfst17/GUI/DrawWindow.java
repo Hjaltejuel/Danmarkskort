@@ -106,12 +106,13 @@ public class DrawWindow {
 		sidebarMenu.add(zoomOutButton);
 		sidebarMenu.add(pointsOfInterestButton);
 
-		barImage = new JLabel();
-		barImage.setBounds(11, 31, 298, 40);
-
 		try {
 			BufferedImage bar = ImageIO.read(getClass().getResource("/Search Bar.png"));
 			barImage = new JLabel(new ImageIcon(bar));
+			windowPane.add(barImage, 76);
+			windowPane.setComponentZOrder(barImage, 0);
+			barImage.setBounds(11, 31, 298, 40);
+			barImage.setVisible(false);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -119,8 +120,7 @@ public class DrawWindow {
 		setUpMenu();
 		menuButton.setComponentPopupMenu(popUpMenu);
 		windowPane.add(menuButton);
-		windowPane.setComponentZOrder(menuButton, 0);
-		windowPane.add(barImage, 76);
+		windowPane.setComponentZOrder(menuButton, 1);
 	}
 
 
@@ -174,12 +174,11 @@ public class DrawWindow {
 		windowPane.add(sidebarMenu, 50);
 		windowPane.add(searchButton);
 
-		windowPane.setComponentZOrder(canvas, 1);
-		windowPane.setComponentZOrder(searchButton, 0);
-		windowPane.setComponentZOrder(sidebarMenu, 0);
-		windowPane.setComponentZOrder(combo, 0);
-		windowPane.setComponentZOrder(secondCombo, 2);
-		windowPane.setComponentZOrder(barImage, 0);
+		windowPane.setComponentZOrder(canvas, 2);
+		windowPane.setComponentZOrder(searchButton, 1);
+		windowPane.setComponentZOrder(sidebarMenu, 1);
+		windowPane.setComponentZOrder(combo, 1);
+		windowPane.setComponentZOrder(secondCombo, 3);
 
 		menuButton.setLocation(357, 10);
 		searchButton.setLocation(313, 10);
@@ -309,25 +308,29 @@ public class DrawWindow {
 	public void toggleDirectionsBar() {
 		showDirectionsComboBox = !showDirectionsComboBox;
 
+		if(showDirectionsComboBox) {
+			secondCombo.setVisible(true);
+			barImage.setVisible(true);
+		}
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			int runCounter=0;
 			int direction = showDirectionsComboBox ? 1 : -1; //Skal den foldes ud eller ind?
 			@Override
 			public void run() {
-				if(secondCombo.getY()==10) { //Skift synlighed når secondCombo er bagved combo
-					secondCombo.setVisible(showDirectionsComboBox);
-					barImage.setVisible(showDirectionsComboBox);
-				}
-
 				int newY = secondCombo.getY()+direction;
 				secondCombo.setLocation(10, newY);
 				window.repaint();
 
 				runCounter++;
 				if(runCounter==40) {
+					if(!showDirectionsComboBox){
+						secondCombo.setVisible(false);
+						barImage.setVisible(false);
+					}
 					cancel();
 				}
+
 			}
 		}, 0, 5);
 		secondCombo.setEditable(showDirectionsComboBox);
