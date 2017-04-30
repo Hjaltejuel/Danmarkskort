@@ -1,7 +1,6 @@
-package bfst17;
+package bfst17.GUI;
 
-import bfst17.GUI.AutocompleteJComboBox;
-import bfst17.GUI.ImageButton;
+import bfst17.TST;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -28,11 +27,11 @@ public class DrawWindow {
 	private JMenuItem save;
 	private JMenuItem load;
 	private JMenuItem exit;
-	private JMenuItem zoomInMenu;
-	private JMenuItem zoomOutMenu;
+	private JMenuItem zoomInMenuItem;
+	private JMenuItem zoomOutMenuItem;
 	private JMenuItem greyScaleMenuItem;
 	private JMenuItem nightModeMenuItem;
-	private JMenuItem AntiAliasinToggle;
+	private JMenuItem AntiAliasingToggle;
 	private JMenuItem fancyPan;
 	JCheckBoxMenuItem directions;
 	private ImageButton searchButton;
@@ -64,21 +63,12 @@ public class DrawWindow {
 		window.setPreferredSize(new Dimension(750, 750));
 		window.pack();
 		setUpButtons();
+		setUpPOIItems();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
 	}
 
-	private void setUpButtons() {
-		searchButton = new ImageButton("/SearchButtonImage.png");
-		menuButton = new ImageButton("/MenuButtonImage.png");
-		zoomInButton = new ImageButton("/ZoomInButtonImage.png");
-		zoomOutButton = new ImageButton("/ZoomOutButtonImage.png");
-		pointsOfInterestButton = new ImageButton("/PointsOfInterestButtonImage.png");
-
-		//"/Search Bar.png"
-
-		sidebarMenu.setOpaque(false);
-
+	private void setUpPOIItems() {
 		poiMenu = new JPopupMenu("Points of interest");
 		JCheckBoxMenuItem foodAndDrinks = new JCheckBoxMenuItem("Food and drinks");
 		JCheckBoxMenuItem attractions = new JCheckBoxMenuItem("Attractions");
@@ -101,6 +91,16 @@ public class DrawWindow {
 			item.setUI(new StayOpenCheckBoxMenuItemUI());
 			poiMenu.add(item);
 		}
+	}
+
+	private void setUpButtons() {
+		searchButton = new ImageButton("/SearchButtonImage.png");
+		menuButton = new ImageButton("/MenuButtonImage.png");
+		zoomInButton = new ImageButton("/ZoomInButtonImage.png");
+		zoomOutButton = new ImageButton("/ZoomOutButtonImage.png");
+		pointsOfInterestButton = new ImageButton("/PointsOfInterestButtonImage.png");
+
+		sidebarMenu.setOpaque(false);
 
 		sidebarMenu.add(zoomInButton);
 		sidebarMenu.add(zoomOutButton);
@@ -120,8 +120,6 @@ public class DrawWindow {
 		menuButton.setComponentPopupMenu(popUpMenu);
 		windowPane.add(menuButton);
 		windowPane.setComponentZOrder(menuButton, 0);
-
-
 		windowPane.add(barImage, 76);
 	}
 
@@ -155,16 +153,16 @@ public class DrawWindow {
 		exit.setActionCommand("Exit");
 		directions.addActionListener(controller);
 		directions.setActionCommand("Directions");
-		zoomInMenu.addActionListener(controller);
-		zoomInMenu.setActionCommand("ZoomIn");
-		zoomOutMenu.addActionListener(controller);
-		zoomOutMenu.setActionCommand("ZoomOut");
+		zoomInMenuItem.addActionListener(controller);
+		zoomInMenuItem.setActionCommand("ZoomIn");
+		zoomOutMenuItem.addActionListener(controller);
+		zoomOutMenuItem.setActionCommand("ZoomOut");
 		greyScaleMenuItem.addActionListener(controller);
 		greyScaleMenuItem.setActionCommand("Greyscale");
 		nightModeMenuItem.addActionListener(controller);
 		nightModeMenuItem.setActionCommand("Nightmode");
-		AntiAliasinToggle.addActionListener(controller);
-		AntiAliasinToggle.setActionCommand("Aa");
+		AntiAliasingToggle.addActionListener(controller);
+		AntiAliasingToggle.setActionCommand("Aa");
 		fancyPan.addActionListener(controller);
 		fancyPan.setActionCommand("Fancypan");
 	}
@@ -180,6 +178,7 @@ public class DrawWindow {
 		windowPane.setComponentZOrder(searchButton, 0);
 		windowPane.setComponentZOrder(sidebarMenu, 0);
 		windowPane.setComponentZOrder(combo, 0);
+		windowPane.setComponentZOrder(secondCombo, 2);
 		windowPane.setComponentZOrder(barImage, 0);
 
 		menuButton.setLocation(357, 10);
@@ -246,12 +245,12 @@ public class DrawWindow {
 		save = new JMenuItem("Save", KeyEvent.VK_S);
 		load = new JMenuItem("Load", KeyEvent.VK_L);
 		exit = new JMenuItem("Exit", KeyEvent.VK_Q);
-		zoomInMenu = new JMenuItem("Zoom In (CTRL-MINUS)", KeyEvent.VK_PLUS);
-		zoomOutMenu = new JMenuItem("Zoom Out (CTRL-PLUS)", KeyEvent.VK_MINUS);
+		zoomInMenuItem = new JMenuItem("Zoom In (CTRL-MINUS)", KeyEvent.VK_PLUS);
+		zoomOutMenuItem = new JMenuItem("Zoom Out (CTRL-PLUS)", KeyEvent.VK_MINUS);
 		greyScaleMenuItem = new JMenuItem("GreyScale (CTRL-G)", KeyEvent.VK_G);
 		nightModeMenuItem = new JMenuItem("NightMode (CTRL-N)", KeyEvent.VK_N);
 		fancyPan = new JMenuItem("FancyPan (CTRL-F)", KeyEvent.VK_F);
-		AntiAliasinToggle = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
+		AntiAliasingToggle = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
 		directions = new JCheckBoxMenuItem("Directions");
 
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK), "action5", save);
@@ -264,19 +263,19 @@ public class DrawWindow {
 		popUpMenu.addSeparator();
 
 		JMenu tools = new JMenu("Tools");
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Event.CTRL_MASK), "action1", zoomInMenu);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK), "action2", zoomOutMenu);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Event.CTRL_MASK), "action1", zoomInMenuItem);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Event.CTRL_MASK), "action2", zoomOutMenuItem);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK), "action3", greyScaleMenuItem);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK), "action4", nightModeMenuItem);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK), "action9", fancyPan);
-		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_T, Event.CTRL_MASK), "action11", AntiAliasinToggle);
+		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_T, Event.CTRL_MASK), "action11", AntiAliasingToggle);
 
 		tools.add(nightModeMenuItem);
 		tools.add(greyScaleMenuItem);
 		tools.add(fancyPan);
-		tools.add(AntiAliasinToggle);
-		tools.add(zoomInMenu);
-		tools.add(zoomOutMenu);
+		tools.add(AntiAliasingToggle);
+		tools.add(zoomInMenuItem);
+		tools.add(zoomOutMenuItem);
 
 		popUpMenu.add(tools);
 	}
@@ -297,7 +296,7 @@ public class DrawWindow {
 		} else {
 			poiMenu.setVisible(false);
 		}
-		menu1IsShown=!menu1IsShown;
+		menu1IsShown = !menu1IsShown;
 		window.repaint();
 	}
 
@@ -306,58 +305,33 @@ public class DrawWindow {
 		sidebarMenu.setBounds(canvas.getWidth() - 60, 10, 40, 130);
 	}
 
-	boolean setUpDirectionsMenu = false;
+	boolean showDirectionsComboBox = false;
 	public void toggleDirectionsBar() {
-		setUpDirectionsMenu = !setUpDirectionsMenu;
+		showDirectionsComboBox = !showDirectionsComboBox;
 
-		secondCombo.setVisible(setUpDirectionsMenu);
-		barImage.setVisible(setUpDirectionsMenu);
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
-			int yStart = 10;
-
+			int runCounter=0;
+			int direction = showDirectionsComboBox ? 1 : -1; //Skal den foldes ud eller ind?
 			@Override
 			public void run() {
-				yStart++;
-				secondCombo.setLocation(10, yStart);
+				if(secondCombo.getY()==10) { //Skift synlighed når secondCombo er bagved combo
+					secondCombo.setVisible(showDirectionsComboBox);
+					barImage.setVisible(showDirectionsComboBox);
+				}
+
+				int newY = secondCombo.getY()+direction;
+				secondCombo.setLocation(10, newY);
 				window.repaint();
 
-				if (yStart > 50) {
+				runCounter++;
+				if(runCounter==40) {
 					cancel();
 				}
 			}
 		}, 0, 5);
-		secondCombo.setEditable(setUpDirectionsMenu);
+		secondCombo.setEditable(showDirectionsComboBox);
 	}
-
-	public void SetSecondSearch(TST tree) {
-		System.out.println("SetSecondSearch");
-		secondCombo = new AutocompleteJComboBox(tree);
-		windowPane.add(secondCombo, 75);
-		windowPane.setComponentZOrder(secondCombo, 2);
-
-	}
-
-	public void tearSecondSearch() {
-		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(new TimerTask() {
-			int yStart = 50;
-
-			@Override
-			public void run() {
-				secondCombo.setBounds(10, yStart -= 1, 300, 40);
-
-				if (yStart == 10) {
-					cancel();
-					barImage.setVisible(false);
-					secondCombo.setVisible(false);
-				}
-				window.repaint();
-			}
-		}, 0, 5);
-
-	}
-
 
 	public AutocompleteJComboBox getCombo() {
 		return combo;

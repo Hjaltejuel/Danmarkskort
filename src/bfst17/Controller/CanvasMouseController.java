@@ -1,6 +1,6 @@
 package bfst17.Controller;
 
-import bfst17.DrawCanvas;
+import bfst17.GUI.DrawCanvas;
 import bfst17.Model;
 
 import java.awt.event.MouseAdapter;

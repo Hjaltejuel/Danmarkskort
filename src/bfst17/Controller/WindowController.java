@@ -3,6 +3,8 @@ package bfst17.Controller;
 import bfst17.*;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
+import bfst17.GUI.DrawCanvas;
+import bfst17.GUI.DrawWindow;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -206,9 +208,8 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         double lat = -address.getY();
         double lon = -address.getX();
 
-        boolean isRegion = (address instanceof Region);
-        canvas.setPin(address, isRegion);
-
+        canvas.setPin(address);
+        boolean isRegion = address.getShape() != null;
         if (!isRegion) {
             if (canvas.isFancyPanEnabled()) {
                 canvas.fancyPan(lon, lat);

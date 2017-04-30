@@ -1,8 +1,10 @@
-package bfst17;
+package bfst17.GUI;
 
 import bfst17.Enums.*;
 import bfst17.KDTrees.KDTree;
 import bfst17.KDTrees.POIKDTree;
+import bfst17.Model;
+import bfst17.TSTInterface;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -19,7 +21,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	Model model;
 	AffineTransform transform = new AffineTransform();
     Shape regionShape = null;
-    boolean regionSearch = false;
 	boolean antiAlias;
     GUIMode GUITheme = GUIMode.NORMAL;
 	boolean fancyPanEnabled = true;
@@ -39,17 +40,17 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
 	private void loadImages() {
-        PinAndPOIImageMap=new HashMap<>();
+        PinAndPOIImageMap = new HashMap<>();
         try{
             BufferedImage img = ImageIO.read(getClass().getResource("/PinImage.png"));
-            PinAndPOIImageMap.put("pin",img);
+            PinAndPOIImageMap.put("pin", img);
         } catch (Exception e){
             e.printStackTrace();
         }
         try{
             for (PointsOfInterest POI : PointsOfInterest.values()){
                 BufferedImage img = ImageIO.read(getClass().getResource("/POI/" + POI.name() + ".png"));
-                PinAndPOIImageMap.put(POI.name(),img);
+                PinAndPOIImageMap.put(POI.name(), img);
             }
         } catch (Exception e){
             e.printStackTrace();
@@ -82,28 +83,26 @@ public class DrawCanvas extends JComponent implements Observer {
 
     public void setPointsOfInterest(POIclasification name) {
         boolean nameToBooleanCopy = nameToBoolean.get(name);
-        nameToBoolean.put(name,!nameToBooleanCopy);
+        nameToBoolean.put(name, !nameToBooleanCopy);
         repaint();
     }
 
     /**
      * Placér den blå pin på den givne adresse / region
-     * @param address   Den adresse pinnen skal placeres på
-     * @param isRegion Hvorvidt 'address' er en region
+     * @param address  Den adresse pinnen skal placeres på
      */
-    public void setPin(TSTInterface address, boolean isRegion) {
-        regionSearch = isRegion;
+    public void setPin(TSTInterface address) {
         regionShape = address.getShape();
-        pin = new Point2D.Double(-address.getX(),-address.getY());
+        pin = new Point2D.Double(-address.getX(), -address.getY());
     }
 
     public void setGUITheme(GUIMode newTheme) {
 	    GUITheme = newTheme;
     }
 
-    public void checkFPS(){
+    public void checkFPS() {
         FrameCounter++;
-        if(System.nanoTime()-timeTracker>=1_000_000_000) {
+        if(System.nanoTime()-timeTracker >= 1_000_000_000) {
             FPS = FrameCounter;
             timeTracker = System.nanoTime();
             FrameCounter = 0;
@@ -218,8 +217,9 @@ public class DrawCanvas extends JComponent implements Observer {
         String mål = " KM";
         if(distance<1) { //Konvertér til meter
             distance *= 1000;
-            mål=" M";
+            mål = " M";
         }
+
         Integer roundedDistance = (int)Math.round(distance);
 
         Line2D line = new Line2D.Double(X1,Y,X2,Y);
@@ -235,9 +235,6 @@ public class DrawCanvas extends JComponent implements Observer {
 
     private void drawFPSCounter(Graphics2D g) {
         g.drawString("FPS: "+FPS ,5,getHeight()-55);
-        g.drawString("Coastlines: "+numOfCoastlineShapes,5,getHeight()-70);
-        //g.drawString("ZoomLevel: "+getXZoomFactor(),5,getHeight()-55);
-        g.drawString("Center coordinate: "+getCenterCordinateX()+", "+getCenterCordinateY(),5,getHeight()-85);
     }
 
     private void drawMap(Graphics2D g) {
@@ -257,7 +254,7 @@ public class DrawCanvas extends JComponent implements Observer {
         drawShapes(g);
 
         //Tegn regionen, hvis der er søgt efter den
-        if(regionSearch){
+        if(regionShape != null){
             Color color = g.getColor();
             g.setColor(new Color(255,0,0,127));
             g.draw(regionShape);
@@ -280,12 +277,13 @@ public class DrawCanvas extends JComponent implements Observer {
         return drawColor;
     }
 
-    Integer numOfCoastlineShapes;
+    /**
+     * Tegner alle de coastlines der er indenfor skærmbillede
+     * @param g Det givne graphicsobjekt givet fra paintComponent overriden
+     */
     private void drawCoastlines(Graphics2D g) {
-        numOfCoastlineShapes=0;
         for(Shape s: model.getCoastlines()) {
             if(!screenRectangle.intersects(s.getBounds2D())) { continue; } //Tegn kun dem indenfor skærmen
-            numOfCoastlineShapes++;
             g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
             g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
             g.fill(s);

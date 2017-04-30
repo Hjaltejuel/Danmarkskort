@@ -1,4 +1,4 @@
-package bfst17;
+package bfst17.GUI;
 
 import javax.swing.*;
 import javax.swing.plaf.ComponentUI;

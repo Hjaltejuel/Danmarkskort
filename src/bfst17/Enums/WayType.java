@@ -241,6 +241,12 @@ public enum WayType {
 					35000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
+	AMENITY_HOSPITAL
+			(new Color(240, 241, 215),
+					null,
+					30000,
+					FillType.SOLID,
+					new Color(36, 47, 62)),
 	AMENITY_PARKING
 			(new Color(246, 238, 182),
 					null,
@@ -404,12 +410,6 @@ public enum WayType {
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	AMENITY_UNIVERSITY
-			(new Color(240, 241, 215),
-					null,
-					30000,
-					FillType.SOLID,
-					new Color(36, 47, 62)),
-	AMENITY_HOSPITAL
 			(new Color(240, 241, 215),
 					null,
 					30000,
