@@ -1,4 +1,4 @@
-package bfst17;
+package bfst17.KDTrees;
 
 import bfst17.Enums.WayType;
 
@@ -20,6 +20,10 @@ public class KDTree implements Serializable {
         size = 0;
         root = null;
         this.type = type;
+    }
+
+    public WayType getType() {
+        return type;
     }
 
     public TreeNode getRoot() {

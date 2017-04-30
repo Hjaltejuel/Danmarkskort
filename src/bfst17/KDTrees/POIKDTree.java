@@ -1,4 +1,4 @@
-package bfst17;
+package bfst17.KDTrees;
 
 import bfst17.Enums.PointsOfInterest;
 

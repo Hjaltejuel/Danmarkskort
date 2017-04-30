@@ -1,6 +1,8 @@
 package bfst17;
 
 import bfst17.Enums.*;
+import bfst17.KDTrees.KDTree;
+import bfst17.KDTrees.POIKDTree;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -8,7 +10,6 @@ import java.awt.*;
 
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -233,7 +234,10 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     private void drawFPSCounter(Graphics2D g) {
-        g.drawString("FPS: "+FPS,5,getHeight()-55);
+        g.drawString("FPS: "+FPS ,5,getHeight()-55);
+        g.drawString("Coastlines: "+numOfCoastlineShapes,5,getHeight()-70);
+        //g.drawString("ZoomLevel: "+getXZoomFactor(),5,getHeight()-55);
+        g.drawString("Center coordinate: "+getCenterCordinateX()+", "+getCenterCordinateY(),5,getHeight()-85);
     }
 
     private void drawMap(Graphics2D g) {
@@ -276,8 +280,12 @@ public class DrawCanvas extends JComponent implements Observer {
         return drawColor;
     }
 
+    Integer numOfCoastlineShapes;
     private void drawCoastlines(Graphics2D g) {
+        numOfCoastlineShapes=0;
         for(Shape s: model.getCoastlines()) {
+            if(!screenRectangle.intersects(s.getBounds2D())) { continue; } //Tegn kun dem indenfor skærmen
+            numOfCoastlineShapes++;
             g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
             g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
             g.fill(s);
@@ -286,7 +294,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
 	public void drawShapes(Graphics2D g) {
         for (KDTree tree : model.getTrees()) {
-            WayType type = tree.type;
+            WayType type = tree.getType();
             if (type.getZoomFactor() > getXZoomFactor()) {
                 continue;
             }
@@ -427,6 +435,11 @@ public class DrawCanvas extends JComponent implements Observer {
                 }
             }
         }, 0 , 20);
+    }
+
+    public void resetCamera() {
+        panToPoint(-(model.getMinLon() + model.getMaxLon()) / 2, (model.getMinLat() + model.getMaxLat()) / 2);
+        centerZoomToZoomLevel(getWidth() / (model.getMaxLon() - model.getMinLon()));
     }
 
     //Zoom ting

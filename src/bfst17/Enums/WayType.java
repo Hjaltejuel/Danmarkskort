@@ -525,13 +525,13 @@ public enum WayType {
 					new Color(56, 65, 78)),
 	HIGHWAY_CYCLEWAY
 			(new Color(172, 171, 245),
-					new BasicStroke(0.000008f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10f, new float[]{0.00003f}, 0),
+					new BasicStroke(0.000008f),
 					55000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_FOOTWAY
 			(new Color(246, 222, 216),
-					new BasicStroke(0.000008f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10f, new float[]{0.00003f}, 0),
+					new BasicStroke(0.000008f),
 					40000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
@@ -543,7 +543,7 @@ public enum WayType {
 					new Color(56, 65, 78)),
 	HIGHWAY_STEPS
 			(new Color(249, 104, 92),
-					new BasicStroke(0.000008f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10f, new float[]{0.00003f}, 0),
+					new BasicStroke(0.000008f),
 					55000,
 					FillType.LINE,
 					new Color(56, 65, 78)),

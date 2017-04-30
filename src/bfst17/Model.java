@@ -2,6 +2,8 @@ package bfst17;
 
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
+import bfst17.KDTrees.KDTree;
+import bfst17.KDTrees.POIKDTree;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -72,8 +74,9 @@ public class Model extends Observable implements Serializable {
         //Til osm
         try{
             //load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
+            //load("C:\\Users\\Jens\\Downloads\\map (2).osm");
             load(this.getClass().getResource("/bornholm.osm").getPath());
-        } catch (Exception e){
+        } catch (Exception e) {
 
         }
         //til bin
@@ -103,6 +106,7 @@ public class Model extends Observable implements Serializable {
             out.writeFloat(maxlon);
             out.writeFloat(maxlat);
             out.flush();
+            System.out.println("Saved successfully!");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -234,6 +238,10 @@ public class Model extends Observable implements Serializable {
 
     public float getMinLon() {
         return minlon;
+    }
+
+    public float getMinLat() {
+        return minlat;
     }
 
     public float getMaxLat() {

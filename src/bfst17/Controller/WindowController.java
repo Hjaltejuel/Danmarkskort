@@ -27,8 +27,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         this.addressModel = model.getAddressModel();
         this.canvas = new DrawCanvas(model);
         canvas.setBounds(0, 0, window.getWindow().getWidth(), window.getWindow().getHeight());
-        canvas.pan(-model.getMinLon(), model.getMaxLat());
-        canvas.zoom(canvas.getWidth() / (model.getMaxLon() - model.getMinLon()));
+        canvas.resetCamera();
         new CanvasMouseController(canvas, model);
         initiate();
 
@@ -137,6 +136,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     public void loadFile() throws IOException {
         File startingDirectory = new File(System.getProperty("user.dir"));
         loadFile(startingDirectory);
+        canvas.resetCamera();
     }
 
     public void loadFile(File startingDirectory) throws IOException {
@@ -163,7 +163,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             File fileToLoad = fileChooser.getSelectedFile();
             if (fileChooser.accept(fileToLoad) && fileToLoad.exists()) { //Filen er fundet! Indlæs:
                 model.load(fileToLoad.getAbsolutePath());
-                window.getWindow().dispose();
+                //window.getWindow().dispose();
             } else { //Filen blev ikke fundet - giv fejlmeddelelse
                 if (!fileChooser.accept(fileToLoad)) {
                     JOptionPane.showMessageDialog(window.getWindow(), "You must choose a correct filetype to loadFile");
@@ -179,6 +179,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     public void save() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Choose save location");
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
         int userSelection = fileChooser.showSaveDialog(window.getWindow());
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
