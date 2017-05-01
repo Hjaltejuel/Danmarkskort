@@ -32,7 +32,6 @@ public class KDTree implements Serializable {
     }
 
     public class TreeNode implements Comparable<TreeNode>, Serializable {
-        //private Point2D point;
         private double x, y;
         private Shape shape;
         private TreeNode low;
