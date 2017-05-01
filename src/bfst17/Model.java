@@ -2,6 +2,7 @@ package bfst17;
 
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
+import bfst17.KDTrees.CityNamesKDTree;
 import bfst17.KDTrees.KDTree;
 import bfst17.KDTrees.POIKDTree;
 import bfst17.AddressHandling.Address;
@@ -46,6 +47,9 @@ public class Model extends Observable implements Serializable {
         }
     }
 
+    private HashMap<String, Point2D> cityNames = new HashMap<>();
+    private HashMap<String, Point2D> townNames = new HashMap<>();
+
     private float minlat, minlon, maxlat, maxlon;
     private float clminlat, clminlon, clmaxlat, clmaxlon;
     private long nodeID;
@@ -65,6 +69,12 @@ public class Model extends Observable implements Serializable {
     public POIKDTree getPOITree() {
         return POITree;
     }
+
+    private CityNamesKDTree cityTree = new CityNamesKDTree();
+    public CityNamesKDTree getCityTree() { return cityTree; }
+
+    private CityNamesKDTree townTree = new CityNamesKDTree();
+    public CityNamesKDTree getTownTreeTree() { return townTree;}
 
     public AddressModel getAddressModel() { return addressModel; }
 
@@ -212,7 +222,13 @@ public class Model extends Observable implements Serializable {
         }
         shapes.clear();;
         shapes=null;
-    }
+        if(cityTree != null) {
+            cityTree.fillTree(cityNames);
+        }
+
+        if(townTree != null) {
+            townTree.fillTree(townNames);
+        }    }
 
     private void loadOSM(InputSource source) {
         try {
@@ -380,6 +396,13 @@ public class Model extends Observable implements Serializable {
                             if (v.equals("village") || v.equals("town") || v.equals("city")) {
                                 addressModel.putCity(name, idToNode.get(nodeID));
                             }
+                            if (v.equals("town")) {
+                                townNames.put(name, new Point2D.Double(lon * lonfactor, -lat));
+                            }
+                            if (v.equals("city")) {
+                                cityNames.put(name, new Point2D.Double(lon * lonfactor, -lat));
+                            }
+
                     }
                     break;
                 case "member":

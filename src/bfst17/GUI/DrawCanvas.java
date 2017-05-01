@@ -1,6 +1,7 @@
 package bfst17.GUI;
 
 import bfst17.Enums.*;
+import bfst17.KDTrees.CityNamesKDTree;
 import bfst17.KDTrees.KDTree;
 import bfst17.KDTrees.POIKDTree;
 import bfst17.Model;
@@ -169,6 +170,8 @@ public class DrawCanvas extends JComponent implements Observer {
         drawMeasureBand(g);
 
         drawFPSCounter(g);
+
+        drawCityAndTownNames(g);
     }
 
     public void drawPin(Graphics2D g) {
@@ -190,6 +193,35 @@ public class DrawCanvas extends JComponent implements Observer {
             }
         }
     }
+
+    public void drawCityAndTownNames(Graphics2D g) {
+        CityNamesKDTree townTree = model.getTownTreeTree();
+
+        if (getXZoomFactor() > 900 && getXZoomFactor() < 9000) {
+            for(CityNamesKDTree.TreeNode cityNodes : townTree.getInRange(screenRectangle)) {
+                String cityName = cityNodes.getCityName();
+                Point2D drawLocation = lonLatToScreenCords(-cityNodes.getX(), -cityNodes.getY());
+                g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+                int stringWidth = g.getFontMetrics().stringWidth(cityName);
+                g.drawString(cityName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
+            }
+
+        }
+
+        CityNamesKDTree cityTree = model.getCityTree();
+        if (getXZoomFactor() < 400 && getXZoomFactor() > 80){
+            for(CityNamesKDTree.TreeNode cityNodes : cityTree.getInRange(screenRectangle)) {
+                String cityName = cityNodes.getCityName();
+                Point2D drawLocation = lonLatToScreenCords(-cityNodes.getX(), -cityNodes.getY());
+                g.setFont(new Font("TimesRoman", Font.PLAIN, 30));
+                int stringWidth = g.getFontMetrics().stringWidth(cityName);
+                g.drawString(cityName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
+            }
+
+
+        }
+    }
+
 
     public void drawImageAtLocation(Graphics2D g, String imagePath, double x, double y) {
         BufferedImage image = PinAndPOIImageMap.get(imagePath);
