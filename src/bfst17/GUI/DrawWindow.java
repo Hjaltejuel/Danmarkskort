@@ -1,6 +1,6 @@
 package bfst17.GUI;
 
-import bfst17.TST;
+import bfst17.AddressHandling.TST;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

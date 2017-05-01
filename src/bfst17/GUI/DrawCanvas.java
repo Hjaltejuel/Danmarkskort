@@ -4,7 +4,7 @@ import bfst17.Enums.*;
 import bfst17.KDTrees.KDTree;
 import bfst17.KDTrees.POIKDTree;
 import bfst17.Model;
-import bfst17.TSTInterface;
+import bfst17.AddressHandling.TSTInterface;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

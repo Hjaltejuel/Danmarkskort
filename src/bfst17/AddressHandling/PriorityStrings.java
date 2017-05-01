@@ -1,4 +1,4 @@
-package bfst17;
+package bfst17.AddressHandling;
 
 /**
  * Created by Jakob Roos on 08/03/2017.

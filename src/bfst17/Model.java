@@ -4,6 +4,14 @@ import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
 import bfst17.KDTrees.KDTree;
 import bfst17.KDTrees.POIKDTree;
+import bfst17.AddressHandling.Address;
+import bfst17.AddressHandling.AddressModel;
+import bfst17.AddressHandling.Region;
+import bfst17.OSMData.OSMNode;
+import bfst17.OSMData.OSMRelation;
+import bfst17.OSMData.OSMWay;
+import bfst17.ShapeStructure.MultiPolygonApprox;
+import bfst17.ShapeStructure.PolygonApprox;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -202,6 +210,8 @@ public class Model extends Observable implements Serializable {
         if(pointsOfInterest != null) {
             POITree.fillTree(pointsOfInterest);
         }
+        shapes.clear();;
+        shapes=null;
     }
 
     private void loadOSM(InputSource source) {

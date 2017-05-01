@@ -1,8 +1,9 @@
-package bfst17;
+package bfst17.AddressHandling;
+
+import bfst17.AddressHandling.TSTInterface;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Michelle on 4/28/2017.

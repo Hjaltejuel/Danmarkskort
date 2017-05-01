@@ -1,4 +1,4 @@
-package bfst17;
+package bfst17.OSMData;
 
 import java.awt.geom.Point2D;
 import java.io.Serializable;

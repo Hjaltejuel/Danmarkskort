@@ -1,6 +1,7 @@
 package bfst17.KDTrees;
 
 import bfst17.Enums.WayType;
+import com.sun.deploy.net.proxy.RemoveCommentReader;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -38,13 +39,11 @@ public class KDTree implements Serializable {
         private TreeNode high;
         private double highSplit;
         private double lowSplit;
-        private Rectangle2D bounds;
 
         public TreeNode(Shape s, double x , double y) {
             this.x = x;
             this.y = y;
             this.shape = s;
-            bounds = s.getBounds2D();
         }
 
         @Override
@@ -81,7 +80,8 @@ public class KDTree implements Serializable {
     }
 
     public double distance(Point2D p1, TreeNode node) {
-        Point2D p2 = new Point2D.Double(node.bounds.getCenterX(), node.bounds.getCenterY());
+        Rectangle2D bounds = node.shape.getBounds2D();
+        Point2D p2 = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
         return Math.sqrt(Math.pow(p1.getX()-p2.getX(),2)+Math.pow(p1.getY()-p2.getY(),2));
     }
     public TreeNode neighbourRecursion(Point2D point, TreeNode node, boolean vertical, TreeNode champion, double bestDistance) {
@@ -174,9 +174,9 @@ public class KDTree implements Serializable {
         if (startNode == null) {
             return;
         }
-
+        Rectangle2D bounds = startNode.shape.getBounds2D();
         //Kun tegn det der er inde for skærmen
-        if (rect.intersects(startNode.bounds)) {
+        if (rect.intersects(bounds)) {
             add(startNode);
         }
 
@@ -213,13 +213,16 @@ public class KDTree implements Serializable {
     Integer maxDepth = 0;
     Integer tmpDepth=0;
     public TreeNode insert(TreeNode insertNode, TreeNode compareNode, boolean vertical) {
+        Rectangle2D bounds;
         if (compareNode == null) {
-            insertNode.highSplit = insertNode.bounds.getMaxX();
-            insertNode.lowSplit = insertNode.bounds.getMinX();
+            bounds = insertNode.shape.getBounds2D();
+            insertNode.highSplit = bounds.getMaxX();
+            insertNode.lowSplit = bounds.getMinX();
             root = insertNode;
             count++;
             return insertNode;
         }
+        bounds = insertNode.shape.getBounds2D();
         tmpDepth++;
         boolean isSmaller = vertical ? insertNode.getX() < compareNode.getX() : insertNode.getY() < compareNode.getY();
         TreeNode nextNode = isSmaller ? compareNode.low : compareNode.high;
@@ -227,8 +230,8 @@ public class KDTree implements Serializable {
             insert(insertNode, nextNode, !vertical);
         }
         else {
-            insertNode.highSplit = !vertical ? insertNode.bounds.getMaxX() : insertNode.bounds.getMaxY();
-            insertNode.lowSplit = !vertical ? insertNode.bounds.getMinX() : insertNode.bounds.getMinY();
+            insertNode.highSplit = !vertical ? bounds.getMaxX() : bounds.getMaxY();
+            insertNode.lowSplit = !vertical ? bounds.getMinX() : bounds.getMinY();
 
             if (isSmaller) {
                 compareNode.low = insertNode;

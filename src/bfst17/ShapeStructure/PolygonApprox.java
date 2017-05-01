@@ -1,4 +1,4 @@
-package bfst17;
+package bfst17.ShapeStructure;
 
 import java.awt.Shape;
 import java.awt.Rectangle;

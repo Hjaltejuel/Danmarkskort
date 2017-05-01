@@ -1,11 +1,7 @@
-package bfst17;
+package bfst17.AddressHandling;
 
-import sun.awt.image.ImageWatched;
-
-import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,7 +60,7 @@ public class TST<TSTInterface> implements Serializable {
         //Check if the there are duplicates of the given address in other city's
         if(x.val instanceof DuplicateAddressNode){
             //run trough the duplicates and find the one that matches the given keys suffix and then return it
-            for(bfst17.TSTInterface node: (DuplicateAddressNode)(x.val)){
+            for(bfst17.AddressHandling.TSTInterface node: (DuplicateAddressNode)(x.val)){
                 if(node.getAddress().equals(suffix)){
                     return (TSTInterface) node;
                 }
@@ -138,12 +134,12 @@ public class TST<TSTInterface> implements Serializable {
         else  if(x.val != null){
             //if there is multiple instances of the node, then add the val to the list
             if(x.val instanceof DuplicateAddressNode){
-                ((DuplicateAddressNode) x.val).add((bfst17.TSTInterface)val);
+                ((DuplicateAddressNode) x.val).add((bfst17.AddressHandling.TSTInterface)val);
             } else {
                 //if there is only one addressNode, make a new list and add them both
                 DuplicateAddressNode addresArray = new DuplicateAddressNode();
-                addresArray.add((bfst17.TSTInterface) x.val);
-                addresArray.add((bfst17.TSTInterface) val);
+                addresArray.add((bfst17.AddressHandling.TSTInterface) x.val);
+                addresArray.add((bfst17.AddressHandling.TSTInterface) val);
                 x.val = (TSTInterface) addresArray;
             }
             //else make the value of the new node the value of the key
@@ -196,7 +192,7 @@ public class TST<TSTInterface> implements Serializable {
             if (x.val != null ){
                 //if there are duplicates, add them all
                 if(x.val instanceof DuplicateAddressNode){
-                    for(bfst17.TSTInterface node: ((DuplicateAddressNode)x.val)){
+                    for(bfst17.AddressHandling.TSTInterface node: ((DuplicateAddressNode)x.val)){
                         addAddressNodeToQueue(queue,(AddressNode)node,prefix);
                     }
                 } else
@@ -237,7 +233,7 @@ public class TST<TSTInterface> implements Serializable {
         if (x.val != null ) {
             String found = prefix.toString() + x.c;
             if(x.val instanceof  DuplicateAddressNode){
-                for(bfst17.TSTInterface node: ((DuplicateAddressNode)x.val)){
+                for(bfst17.AddressHandling.TSTInterface node: ((DuplicateAddressNode)x.val)){
                     addAddressNodeToQueue(queue,(AddressNode) node,found);
                 }
             }

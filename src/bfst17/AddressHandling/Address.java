@@ -1,8 +1,6 @@
-package bfst17;
+package bfst17.AddressHandling;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

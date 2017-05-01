@@ -1,4 +1,6 @@
-package bfst17;
+package bfst17.AddressHandling;
+
+import bfst17.OSMData.OSMNode;
 
 import java.awt.*;
 import java.io.Serializable;

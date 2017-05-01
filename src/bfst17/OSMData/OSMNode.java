@@ -1,8 +1,9 @@
-package bfst17;
+package bfst17.OSMData;
+
+import bfst17.AddressHandling.TSTInterface;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.io.Serializable;
 
 /**
  * Created by trold on 2/15/17.

@@ -1,7 +1,6 @@
-package bfst17;
+package bfst17.AddressHandling;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 
 /**
  * Created by Hjalte on 26-04-2017.

@@ -1,13 +1,9 @@
-package bfst17;
-
-import bfst17.PolygonApprox;
+package bfst17.ShapeStructure;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
