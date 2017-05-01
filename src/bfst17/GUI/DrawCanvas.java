@@ -222,16 +222,28 @@ public class DrawCanvas extends JComponent implements Observer {
 
         Integer roundedDistance = (int)Math.round(distance);
 
+        Rectangle2D rect = new Rectangle2D.Double(X1,Y-13,X2-X1,13);
         Line2D line = new Line2D.Double(X1,Y,X2,Y);
-        Line2D rightVertLine = new Line2D.Double(X2,Y-5,X2,Y);
-        Line2D leftVertLine = new Line2D.Double(X1,Y-5,X1,Y);
+        Line2D rightVertLine = new Line2D.Double(X2,Y-13,X2,Y);
+        Line2D leftVertLine = new Line2D.Double(X1,Y-13,X1,Y);
 
         String showString = roundedDistance+mål;
+
+        g.setColor(new Color(255,255,255,100));
+        g.fill(rect);
+        g.setColor(Color.black);
         g.drawString(showString,X1+(32-showString.length()*4),Y-2);
         g.draw(line);
         g.draw(rightVertLine);
         g.draw(leftVertLine);
     }
+
+    private Integer getRoundedDistance() {
+        //y= 0.4607*e^(0.7682*x)
+
+        return 0;
+    }
+
 
     private void drawFPSCounter(Graphics2D g) {
         g.drawString("FPS: "+FPS ,5,getHeight()-55);
