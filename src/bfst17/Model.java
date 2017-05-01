@@ -8,6 +8,7 @@ import bfst17.KDTrees.POIKDTree;
 import bfst17.AddressHandling.Address;
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.Region;
+import bfst17.KDTrees.RoadKDTree;
 import bfst17.OSMData.OSMNode;
 import bfst17.OSMData.OSMRelation;
 import bfst17.OSMData.OSMWay;
@@ -50,6 +51,7 @@ public class Model extends Observable implements Serializable {
 
     private HashMap<String, Point2D> cityNames = new HashMap<>();
     private HashMap<String, Point2D> townNames = new HashMap<>();
+    private HashMap<String, Shape> roadNames = new HashMap<>();
 
     private float minlat, minlon, maxlat, maxlon;
     private float clminlat, clminlon, clmaxlat, clmaxlon;
@@ -76,6 +78,9 @@ public class Model extends Observable implements Serializable {
 
     private CityNamesKDTree townTree = new CityNamesKDTree();
     public CityNamesKDTree getTownTreeTree() { return townTree;}
+
+    private RoadKDTree roadTree = new RoadKDTree();
+    public RoadKDTree getRoadTree() {return roadTree;}
 
     public AddressModel getAddressModel() { return addressModel; }
 
@@ -215,6 +220,7 @@ public class Model extends Observable implements Serializable {
             if (list.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
                 continue;
             }
+
             KDTree treeWithType = new KDTree(type);
             treeWithType.fillTreeWithShapes(list);
             treeList.add(treeWithType);
@@ -231,6 +237,10 @@ public class Model extends Observable implements Serializable {
 
         if (townTree != null) {
             townTree.fillTree(townNames);
+        }
+
+        if (roadTree != null) {
+            roadTree.fillTreeWithShapes(roadNames);
         }
 
         //Ryd op!
@@ -300,6 +310,8 @@ public class Model extends Observable implements Serializable {
         OSMWay way;
         OSMRelation relation;
         WayType type;
+        String roadName;
+        boolean isHighway = false;
 
         @Override
         public void setDocumentLocator(Locator locator) {
@@ -378,6 +390,8 @@ public class Model extends Observable implements Serializable {
                     }
 
                     switch (k) {
+                        case "highway":
+                            isHighway = true;
                         case "addr:street":
                             addressBuilder.street(v);
                             isAddressNode = true;
@@ -399,6 +413,10 @@ public class Model extends Observable implements Serializable {
                             break;
                         case "name":
                             name = v;
+                            if(isHighway){
+                                roadName = v;
+                                isHighway = false;
+                            }
                             break;
                         case "place":
                             if (v.equals("village") || v.equals("town") || v.equals("city")) {
@@ -442,11 +460,14 @@ public class Model extends Observable implements Serializable {
                     }
                     break;
                 case "way":
+                    Shape temp = new PolygonApprox(way);
                     if (type == WayType.NATURAL_COASTLINE) {
                         //DO NOTHING
-                    } else {
-                        add(type, new PolygonApprox(way));
+                    }else if(type.toString().split("_")[0].equals("HIGHWAY")){
+                        roadNames.put(roadName, temp);
                     }
+                        add(type, temp);
+
                     break;
                 case "relation":
                     if (relation.size() != 0) {

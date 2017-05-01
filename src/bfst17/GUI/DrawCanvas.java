@@ -4,6 +4,7 @@ import bfst17.Enums.*;
 import bfst17.KDTrees.CityNamesKDTree;
 import bfst17.KDTrees.KDTree;
 import bfst17.KDTrees.POIKDTree;
+import bfst17.KDTrees.RoadKDTree;
 import bfst17.Model;
 import bfst17.AddressHandling.TSTInterface;
 
@@ -176,6 +177,8 @@ public class DrawCanvas extends JComponent implements Observer {
         if(drawCityNames) {
             drawCityAndTownNames(g);
         }
+
+        drawStreetNames(g);
     }
 
     public void drawPin(Graphics2D g) {
@@ -222,6 +225,18 @@ public class DrawCanvas extends JComponent implements Observer {
                 g.drawString(cityName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
             }
         }
+    }
+
+    public void drawStreetNames(Graphics2D g){
+        RoadKDTree roadTree = model.getRoadTree();
+
+        for (RoadKDTree.TreeNode roadNode : roadTree.getInRange(screenRectangle)){
+            String roadName = roadNode.getStreetName();
+            Point2D drawLocation = lonLatToScreenCords(-roadNode.getX(), -roadNode.getY());
+
+            g.drawString(roadName, (int) drawLocation.getX(), (int) drawLocation.getY());
+        }
+
     }
 
 
