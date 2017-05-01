@@ -32,6 +32,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	Integer FPS=0;
 	Rectangle2D screenRectangle;
 	HashMap<String, BufferedImage> PinAndPOIImageMap;
+	boolean drawCityNames = true;
 
     public DrawCanvas(Model model) {
 		this.model = model;
@@ -171,7 +172,9 @@ public class DrawCanvas extends JComponent implements Observer {
 
         drawFPSCounter(g);
 
-        drawCityAndTownNames(g);
+        if(drawCityNames) {
+            drawCityAndTownNames(g);
+        }
     }
 
     public void drawPin(Graphics2D g) {
@@ -538,4 +541,10 @@ public class DrawCanvas extends JComponent implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 	}
+
+    public void toggleCityNames() {
+        drawCityNames = !drawCityNames;
+        repaint();
+        revalidate();
+    }
 }

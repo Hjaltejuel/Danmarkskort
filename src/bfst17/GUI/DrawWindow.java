@@ -26,6 +26,7 @@ public class DrawWindow {
 	private JLabel barImage;
 	private JMenuItem save;
 	private JMenuItem load;
+	private JMenuItem showCityNames;
 	private JMenuItem exit;
 	private JMenuItem zoomInMenuItem;
 	private JMenuItem zoomOutMenuItem;
@@ -147,6 +148,8 @@ public class DrawWindow {
 		}
 		load.addActionListener(controller);
 		load.setActionCommand("Load");
+		showCityNames.addActionListener(controller);
+		showCityNames.setActionCommand("ShowCityNames");
 		save.addActionListener(controller);
 		save.setActionCommand("Save");
 		exit.addActionListener(controller);
@@ -251,6 +254,8 @@ public class DrawWindow {
 		fancyPan = new JMenuItem("FancyPan (CTRL-F)", KeyEvent.VK_F);
 		AntiAliasingToggle = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
 		directions = new JCheckBoxMenuItem("Directions");
+		showCityNames = new JCheckBoxMenuItem("Show city names");
+
 
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK), "action5", save);
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK), "action6", load);
@@ -258,7 +263,9 @@ public class DrawWindow {
 
 		popUpMenu.add(save);
 		popUpMenu.add(load);
+		popUpMenu.addSeparator();
 		popUpMenu.add(directions);
+		popUpMenu.add(showCityNames);
 		popUpMenu.addSeparator();
 
 		JMenu tools = new JMenu("Tools");
