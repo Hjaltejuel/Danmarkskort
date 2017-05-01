@@ -439,7 +439,7 @@ public class Model extends Observable implements Serializable {
 					}
 
 					switch (k) {
-						/**
+
 						case "addr:street":
 							addressBuilder[0] = v;
 							isAddressNode = true;
@@ -456,7 +456,7 @@ public class Model extends Observable implements Serializable {
 							addressBuilder[3] = v;
 							isAddressNode = true;
 							break;
-						 */
+
 						case "building":
 							type = WayType.BUILDING;
 							break;
