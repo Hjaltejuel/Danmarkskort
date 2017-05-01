@@ -10,7 +10,7 @@ public class OSMNode implements Comparable{
 	private OSMNode nodeFrom;
 	float lon, lat;
 	private boolean isSettled;
-	private boolean bicycle, foot, oneway;
+	private boolean shortest, oneway;
 	private int maxspeed;
 	private boolean relevantForRouting = false;
 	private ArrayList<Edge> edgeList;
@@ -31,8 +31,9 @@ public class OSMNode implements Comparable{
 	}
 
 	public void setNodeTags(boolean bicycle, boolean foot, int maxspeed, boolean oneway) {
-		this.bicycle = bicycle;
-		this.foot = foot;
+		if(bicycle || foot) {
+			this.shortest = true;
+		}
 		this.oneway = oneway;
 		this.maxspeed = maxspeed;
 	}
@@ -49,12 +50,8 @@ public class OSMNode implements Comparable{
 		return relevantForRouting;
 	}
 
-	public boolean isBicycle() {
-		return bicycle;
-	}
-
-	public boolean isFoot() {
-		return foot;
+	public boolean isShortest() {
+		return shortest;
 	}
 
 	public boolean isOneway() {

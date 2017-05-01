@@ -9,7 +9,7 @@ public class Edge {
 
         private double weightCar;
         private double weightFoot;
-        private double weightBicycle;
+        private double weightShortest;
 
         double weightedX;
         double weightedY;
@@ -25,11 +25,9 @@ public class Edge {
        //     System.out.println(weightCar + " " + weightFoot + " " + weightBicycle);
         }
         private void Weigh(){
-            if(source.isBicycle() && destination.isBicycle()){
-                weightBicycle = calcWeightForShortest();
-            }
-            if(source.isFoot() && destination.isFoot()){
-                weightFoot = calcWeightForShortest();
+
+            if(source.isShortest() && destination.isShortest()){
+                weightShortest = calcWeightForShortest();
             }
             if(source.getMaxspeed() > 0 && destination.getMaxspeed() > 0){
                 weightCar = calcWeightForFastest();
@@ -58,11 +56,9 @@ public class Edge {
         public double getWeightCar(){
             return weightCar;
         }
-        public double getWeightFoot(){
+        public double getWeightShortest(){
             return weightFoot;
         }
-        public double getWeightBicycle(){
-            return weightBicycle;
-        }
+
 
 }
