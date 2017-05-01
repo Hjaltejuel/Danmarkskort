@@ -189,7 +189,7 @@ public class Model extends Observable implements Serializable {
                 maxlon = in.readFloat();
                 maxlat = in.readFloat();
                 double elapsedTime = currentTimeInSeconds() - startTime;
-                System.out.printf("Object deserialization: %f s\n", elapsedTime);
+                System.out.printf("WE HAVE ACHIEVED: [Object deserialization: %f s]\n", elapsedTime);
                 dirty();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
