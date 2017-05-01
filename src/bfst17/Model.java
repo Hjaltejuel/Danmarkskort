@@ -118,6 +118,8 @@ public class Model extends Observable implements Serializable {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             out.writeObject(treeList);
             out.writeObject(POITree);
+            out.writeObject(cityTree);
+            out.writeObject(townTree);
             out.writeObject(addressModel);
             out.writeFloat(minlon);
             out.writeFloat(minlat);
@@ -178,6 +180,8 @@ public class Model extends Observable implements Serializable {
                 //Ryk rundt på dem her og få med Jens' knytnæve at bestille
                 treeList = (ArrayList<KDTree>) in.readObject();
                 POITree = (POIKDTree) in.readObject();
+                cityTree = (CityNamesKDTree) in.readObject();
+                townTree = (CityNamesKDTree) in.readObject();
                 addressModel = (AddressModel) in.readObject();
                 minlon = in.readFloat();
                 minlat = in.readFloat();
