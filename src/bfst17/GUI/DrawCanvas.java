@@ -13,6 +13,7 @@ import java.awt.*;
 
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -185,11 +186,12 @@ public class DrawCanvas extends JComponent implements Observer {
         if (getXZoomFactor() > 40000) {
             POIKDTree POITree = model.getPOITree();
             for (POIKDTree.TreeNode PoiNodes : POITree.getInRange(screenRectangle)) {
-                PointsOfInterest POIType = PoiNodes.getPOIType();
-                if (nameToBoolean.get(POIType.getClassification())) {
-                    String imagePath = POIType.name();
-                    drawImageAtLocation(g, imagePath, -PoiNodes.getX(), -PoiNodes.getY());
-                }
+                //POIclasification POIClass = PoiNodes.getPOIClass();
+                //if (nameToBoolean.get(POIClass)) {
+                    //PointsOfInterest POIType = PoiNodes.getPOIType();
+                    //String imagePath = POIType.name();
+                    drawImageAtLocation(g, PointsOfInterest.AMENITY_BANK.name(), -PoiNodes.getX(), -PoiNodes.getY());
+                //}
             }
         }
     }
@@ -217,8 +219,6 @@ public class DrawCanvas extends JComponent implements Observer {
                 int stringWidth = g.getFontMetrics().stringWidth(cityName);
                 g.drawString(cityName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
             }
-
-
         }
     }
 
@@ -227,7 +227,7 @@ public class DrawCanvas extends JComponent implements Observer {
         BufferedImage image = PinAndPOIImageMap.get(imagePath);
         Rectangle2D imageRect = new Rectangle2D.Double(-x,-y,image.getWidth()/getXZoomFactor(),image.getHeight()/getYZoomFactor());
 
-        if(!screenRectangle.intersects(imageRect)){
+        if(!screenRectangle.intersects(imageRect)) {
             return; //Billedet er ikke inden for skærmen
         }
         Point2D drawLocation = lonLatToScreenCords(x, y);
@@ -278,6 +278,14 @@ public class DrawCanvas extends JComponent implements Observer {
 
 
     private void drawFPSCounter(Graphics2D g) {
+        try {
+            InputStream is = this.getClass().getResourceAsStream("/HelveticaNeueLT.otf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(15f);
+            g.setFont(font);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         g.drawString("FPS: "+FPS ,5,getHeight()-55);
     }
 

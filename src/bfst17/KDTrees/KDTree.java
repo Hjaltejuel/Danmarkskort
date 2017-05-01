@@ -1,6 +1,7 @@
 package bfst17.KDTrees;
 
 import bfst17.Enums.WayType;
+import bfst17.ShapeStructure.PolygonApprox;
 import com.sun.deploy.net.proxy.RemoveCommentReader;
 
 import java.awt.*;
@@ -34,13 +35,13 @@ public class KDTree implements Serializable {
     public class TreeNode implements Comparable<TreeNode>, Serializable {
         //private Point2D point;
         private double x, y;
-        private Shape shape;
+        private PolygonApprox shape;
         private TreeNode low;
         private TreeNode high;
         private double highSplit;
         private double lowSplit;
 
-        public TreeNode(Shape s, double x , double y) {
+        public TreeNode(PolygonApprox s, double x , double y) {
             this.x = x;
             this.y = y;
             this.shape = s;
@@ -113,7 +114,7 @@ public class KDTree implements Serializable {
 
         ArrayList<TreeNode> allShapesList = new ArrayList<>();
         for(int i=0;i<shapes.size();i++) {
-            Shape shape = shapes.get(i);
+            PolygonApprox shape = (PolygonApprox)shapes.get(i);
             Rectangle2D bounds = shape.getBounds2D();
             //System.out.println(bounds.getWidth()+bounds.getHeight());
 
