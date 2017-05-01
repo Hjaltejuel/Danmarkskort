@@ -4,8 +4,8 @@ package bfst17;
  * Created by Jakob Roos on 24/04/2017.
  */
 public class Edge {
-        private OSMNode source;
-        private OSMNode destination;
+        private GraphNode source;
+        private GraphNode destination;
 
         private double weightCar;
         private double weightFoot;
@@ -15,7 +15,7 @@ public class Edge {
         double weightedY;
 
 
-        public Edge(OSMNode source, OSMNode destination){
+        public Edge(GraphNode source, GraphNode destination){
             this.source = source;
             this.destination = destination;
             weightedX = destination.getPoint2D().getX() - source.getPoint2D().getX();
@@ -47,10 +47,10 @@ public class Edge {
 
             return Math.sqrt(Math.pow(weightedX,2) + Math.pow(weightedY,2));
         }
-        public OSMNode getSource(){
+        public GraphNode getSource(){
             return source;
         }
-        public OSMNode getDestination(){
+        public GraphNode getDestination(){
             return destination;
         }
         public double getWeightCar(){
