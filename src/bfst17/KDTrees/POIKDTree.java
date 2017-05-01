@@ -1,5 +1,6 @@
 package bfst17.KDTrees;
 
+import bfst17.Enums.POIclasification;
 import bfst17.Enums.PointsOfInterest;
 
 import java.awt.geom.Point2D;
@@ -23,24 +24,21 @@ public class POIKDTree implements Serializable {
     }
 
     public class TreeNode implements Comparable<TreeNode>, Serializable {
-        private Point2D point;
+        private double x;
+        private double y;
         private TreeNode low;
         private TreeNode high;
         private double split;
-
-        public PointsOfInterest getPOIType() {
-            return POIType;
-        }
-
         private PointsOfInterest POIType;
 
         public TreeNode(PointsOfInterest POIType, Point2D point) {
             this.POIType = POIType;
-            this.point = point;
+            this.x = point.getX();
+            this.y = point.getY();
         }
 
         public int compareTo(TreeNode other) {
-            double cmp = isVertical ? point.getX() - other.getX() : point.getY() - other.getY();
+            double cmp = isVertical ? x - other.getX() : y - other.getY();
             if (cmp > 0) {
                 return 1;
             } else if (cmp < 0) {
@@ -50,22 +48,22 @@ public class POIKDTree implements Serializable {
         }
 
         public double getX() {
-            return point.getX();
+            return x;
         }
 
         public double getY() {
-            return point.getY();
+            return y;
         }
     }
 
-    public void fillTree(HashMap<String,List<Point2D>> POIS) {
+    public void fillTree(HashMap<String,HashSet<Point2D>> POIS) {
         if (POIS.size() == 0) {
             return;
         }
         ArrayList<TreeNode> allPOISList = new ArrayList<>();
         for(String value : POIS.keySet()) {
             PointsOfInterest POIType = PointsOfInterest.valueOf(value);
-            List<Point2D> POILocations = POIS.get(value);
+            HashSet<Point2D> POILocations = POIS.get(value);
             for(Point2D point : POILocations) {
                 allPOISList.add(new TreeNode(POIType, point));
             }
@@ -111,7 +109,8 @@ public class POIKDTree implements Serializable {
         }
 
         //Kun tegn det der er inde for skærmen
-        if (rect.contains(startNode.point)) {
+        Point2D point = new Point2D.Double(startNode.getX(),startNode.getY());
+        if (rect.contains(point)) {
             add(startNode);
         }
 

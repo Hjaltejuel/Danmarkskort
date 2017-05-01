@@ -37,13 +37,14 @@ public class Model extends Observable implements Serializable {
     private AddressModel addressModel = new AddressModel();
 
     private HashMap<String, WayType> namesToWayTypes = new HashMap<>(); {
-        for(WayType type : WayType.values()){
+        for(WayType type : WayType.values()) {
             namesToWayTypes.put(type.name(),type);
         }
     }
-    private HashMap<String,List<Point2D>> pointsOfInterest = new HashMap<>();{
-        for(PointsOfInterest type: PointsOfInterest.values()){
-            pointsOfInterest.put(type.name(),new ArrayList<>());
+
+    private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>(); {
+        for(PointsOfInterest type: PointsOfInterest.values()) {
+            pointsOfInterest.put(type.name(),new HashSet<>());
         }
     }
 
@@ -90,10 +91,10 @@ public class Model extends Observable implements Serializable {
 
     public Model() {
         //Til osm
-        try{
-            //load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
+        try {
+            load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
             //load("C:\\Users\\Jens\\Downloads\\map (2).osm");
-            load(this.getClass().getResource("/bornholm.osm").getPath());
+            //load(this.getClass().getResource("/bornholm.osm").getPath());
         } catch (Exception e) {
 
         }
@@ -367,7 +368,7 @@ public class Model extends Observable implements Serializable {
                     if (typeTest != null) {
                         type = typeTest;
                     } else {
-                        List<Point2D> typePointsOfInterest = pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase());
+                        HashSet<Point2D> typePointsOfInterest = pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase());
                         if (typePointsOfInterest != null) {
                             pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase()).add(new Point2D.Double(lon * lonfactor, -lat));
                         }
