@@ -50,7 +50,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         String command = e.getActionCommand();
-        if (source instanceof JCheckBoxMenuItem && source != window.getDirections()) {
+        if (source instanceof JCheckBoxMenuItem && source != window.getDirections() && !command.equals("ShowCityNames")) {
             JCheckBoxMenuItem[] menu = window.getPOICheckBoxArray();
             for (int i = 0; i < menu.length; i++) {
                 if (e.getSource() == menu[i]) {
@@ -92,6 +92,9 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     break;
                 case "ZoomOut":
                     zoomOut();
+                    break;
+                case "ShowCityNames":
+                    canvas.toggleCityNames();
                     break;
             }
         }
