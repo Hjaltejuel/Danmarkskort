@@ -189,12 +189,11 @@ public class DrawCanvas extends JComponent implements Observer {
         if (getXZoomFactor() > 40000) {
             POIKDTree POITree = model.getPOITree();
             for (POIKDTree.TreeNode PoiNodes : POITree.getInRange(screenRectangle)) {
-                //POIclasification POIClass = PoiNodes.getPOIClass();
-                //if (nameToBoolean.get(POIClass)) {
-                    //PointsOfInterest POIType = PoiNodes.getPOIType();
-                    //String imagePath = POIType.name();
-                    drawImageAtLocation(g, PointsOfInterest.AMENITY_BANK.name(), -PoiNodes.getX(), -PoiNodes.getY());
-                //}
+                PointsOfInterest POIType = PoiNodes.getPOIType();
+                if (nameToBoolean.get(POIType.getClassification())) {
+                    String imagePath = POIType.name();
+                    drawImageAtLocation(g, imagePath, -PoiNodes.getX(), -PoiNodes.getY());
+                }
             }
         }
     }

@@ -29,6 +29,11 @@ public class POIKDTree implements Serializable {
         private TreeNode low;
         private TreeNode high;
         private double split;
+
+        public PointsOfInterest getPOIType() {
+            return POIType;
+        }
+
         private PointsOfInterest POIType;
 
         public TreeNode(PointsOfInterest POIType, Point2D point) {

@@ -212,7 +212,7 @@ public class Model extends Observable implements Serializable {
 
         for (WayType type : WayType.values()) {
             List<Shape> list = shapes.get(type);
-            if (list.size() == 0 || type==WayType.UNKNOWN || type==WayType.NATURAL_COASTLINE) {
+            if (list.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
                 continue;
             }
             KDTree treeWithType = new KDTree(type);
@@ -222,18 +222,21 @@ public class Model extends Observable implements Serializable {
         }
         //System.out.println("Number of trees: "+treeList.size());
 
-        if(pointsOfInterest != null) {
+        if (pointsOfInterest != null) {
             POITree.fillTree(pointsOfInterest);
         }
-        shapes.clear();;
-        shapes=null;
-        if(cityTree != null) {
+        if (cityTree != null) {
             cityTree.fillTree(cityNames);
         }
 
-        if(townTree != null) {
+        if (townTree != null) {
             townTree.fillTree(townNames);
-        }    }
+        }
+
+        //Ryd op!
+        shapes.clear();
+        shapes=null;
+    }
 
     private void loadOSM(InputSource source) {
         try {
