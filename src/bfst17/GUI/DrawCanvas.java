@@ -178,6 +178,8 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
+
+
     public void drawPin(Graphics2D g) {
         if (pin == null) {
             return; //Lad være at tegne, hvis der ikke er en pin
@@ -365,6 +367,26 @@ public class DrawCanvas extends JComponent implements Observer {
                     g.fill(shape);
                 }
             }
+
+        }
+        g.setColor(Color.PINK);
+
+        g.setStroke(new BasicStroke(0.000008f));
+        Graph graph = model.getGraph();
+        GraphNode source = graph.getSourceTest();
+        GraphNode target = graph.getTargetTest();
+
+       // ArrayList<GraphNode> alist = graph.getPath(source, target);
+        ArrayList<Edge> alist = graph.getEdges();
+        for(int i = 0; i < alist.size()-1; i++){
+            source = alist.get(i).getSource();
+            for(int j = 0; j < source.getEdgeList().size()-1; j++){
+                GraphNode dest = source.getEdgeList().get(j).getDestination();
+                System.out.println(dest);
+                g.draw(new Line2D.Double(source.getPoint2D().getX(), source.getPoint2D().getY(),dest.getPoint2D().getX(), dest.getPoint2D().getY()));
+
+            }
+            g.draw(new Line2D.Double(alist.get(i).getSource().getPoint2D().getX(), alist.get(i).getSource().getPoint2D().getY(),alist.get(i).getDestination().getPoint2D().getX(), alist.get(i).getDestination().getPoint2D().getY()));
         }
     }
     //</editor-fold>
