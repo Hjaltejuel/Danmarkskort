@@ -1,7 +1,13 @@
 package bfst17.AddressHandling;
+import bfst17.OSMData.OSMNode;
 
+
+import sun.awt.image.ImageWatched;
+
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -234,7 +240,11 @@ public class TST<TSTInterface> implements Serializable {
             String found = prefix.toString() + x.c;
             if(x.val instanceof  DuplicateAddressNode){
                 for(bfst17.AddressHandling.TSTInterface node: ((DuplicateAddressNode)x.val)){
-                    addAddressNodeToQueue(queue,(AddressNode) node,found);
+                    if(node instanceof AddressNode) {
+                        addAddressNodeToQueue(queue, (AddressNode) node, found);
+                    } else if(node instanceof OSMNode){
+                        addOtherNodeToQueue(queue,found);
+                    }
                 }
             }
              else if(x.val instanceof AddressNode)

@@ -2,10 +2,12 @@ package bfst17.Enums;
 
 import bfst17.Enums.POIclasification;
 
+import java.io.Serializable;
+
 /**
  * Created by Michelle on 4/3/2017.
  */
-public enum PointsOfInterest {
+public enum PointsOfInterest implements Serializable {
     AMENITY_BAR(POIclasification.FOOD_AND_DRINKS),
     AMENITY_CAFE(POIclasification.FOOD_AND_DRINKS),
     AMENITY_ICE_CREAM(POIclasification.FOOD_AND_DRINKS),
