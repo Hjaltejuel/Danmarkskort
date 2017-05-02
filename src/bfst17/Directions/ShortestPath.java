@@ -1,4 +1,4 @@
-package bfst17;
+package bfst17.Directions;
 
 import java.util.*;
 

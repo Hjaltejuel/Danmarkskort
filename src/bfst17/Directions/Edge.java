@@ -1,4 +1,4 @@
-package bfst17;
+package bfst17.Directions;
 
 /**
  * Created by Jakob Roos on 24/04/2017.

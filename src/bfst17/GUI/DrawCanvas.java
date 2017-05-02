@@ -2,8 +2,8 @@ package bfst17.GUI;
 
 import bfst17.AddressHandling.TSTInterface;
 import bfst17.Enums.*;
-import bfst17.Graph;
-import bfst17.GraphNode;
+import bfst17.Directions.Graph;
+import bfst17.Directions.GraphNode;
 import bfst17.KDTrees.CityNamesKDTree;
 import bfst17.KDTrees.KDTree;
 import bfst17.KDTrees.POIKDTree;
@@ -324,6 +324,8 @@ public class DrawCanvas extends JComponent implements Observer {
         //Hent og tegn shapes fra diverse KDTræer
         drawShapes(g);
 
+        drawGraph(g);
+
         //Tegn regionen, hvis der er søgt efter den
         if(regionShape != null){
             Color color = g.getColor();
@@ -578,19 +580,19 @@ public class DrawCanvas extends JComponent implements Observer {
         }
         else {
             GraphNode source;
-/*
-            //ArrayList<GraphNode> alist = graph.getPath(source, target);
-            ArrayList<Edge> alist = graph.getEdges();
+            ArrayList<GraphNode> alist = graph.getRandomPath();
             for (int i = 0; i < alist.size() - 1; i++) {
-                source = alist.get(i).getSource();
+                source = alist.get(i);
                 for (int j = 0; j < source.getEdgeList().size() - 1; j++) {
                     GraphNode dest = source.getEdgeList().get(j).getDestination();
                     System.out.println(dest);
-                    g.draw(new Line2D.Double(source.getPoint2D().getX(), source.getPoint2D().getY(), dest.getPoint2D().getX(), dest.getPoint2D().getY()));
+                    g.draw(new Line2D.Double(source.getPoint2D().getX(), source.getPoint2D().getY(),
+                            dest.getPoint2D().getX(), dest.getPoint2D().getY()));
 
                 }
-                g.draw(new Line2D.Double(alist.get(i).getSource().getPoint2D().getX(), alist.get(i).getSource().getPoint2D().getY(), alist.get(i).getDestination().getPoint2D().getX(), alist.get(i).getDestination().getPoint2D().getY()));
-            } */
+                g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),
+                        alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY()));
+            }
         }
 
     }

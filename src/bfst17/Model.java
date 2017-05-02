@@ -1,5 +1,7 @@
 package bfst17;
 
+import bfst17.Directions.Graph;
+import bfst17.Directions.GraphNode;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
 import bfst17.KDTrees.CityNamesKDTree;
@@ -336,8 +338,6 @@ public class Model extends Observable implements Serializable {
 		public void endDocument() throws SAXException {
 			fillTrees();
             System.out.println("OSMNodes: "+idToNode.size());
-            System.out.println("så går det løs");
-			System.out.println("FUUUCK!");
         }
 
 		@Override
@@ -544,19 +544,28 @@ public class Model extends Observable implements Serializable {
                                 GraphNode previousGraphNode = idToGraphNode.get(tmpNodeIDs.get(i - 1));
                                 GraphNode currentGraphNode = idToGraphNode.get(tmpNodeIDs.get(i));
 
-                                previousGraphNode.setNodeTags(bicycle,foot,maxspeed,oneway);
-                                currentGraphNode.setNodeTags(bicycle,foot,maxspeed,oneway);
+                                previousGraphNode.setNodeTags(bicycle, foot, maxspeed, oneway);
+                                currentGraphNode.setNodeTags(bicycle, foot, maxspeed, oneway);
 
                                 if (i == 1) {
                                     previousGraphNode.setStart(true);
                                 } else if(i==tmpNodeIDs.size()){
                                     currentGraphNode.setEnd(true);
-                                }
+                                } else {
+									previousGraphNode.setStart(false);
+									previousGraphNode.setEnd(false);
+									currentGraphNode.setStart(false);
+									currentGraphNode.setEnd(false);
+								}
+
+								graph.addGraphNode(currentGraphNode);
+								graph.addGraphNode(previousGraphNode);
 
                                 graph.addEdge(currentGraphNode, previousGraphNode);
                                 graph.addEdge(previousGraphNode, currentGraphNode);
                             }
-                            tmpNodeIDs.clear();
+							System.out.println(tmpNodeIDs.size());
+							tmpNodeIDs.clear();
                         }
                     }
                     bicycle = false;

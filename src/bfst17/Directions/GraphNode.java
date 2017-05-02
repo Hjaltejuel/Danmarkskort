@@ -1,4 +1,4 @@
-package bfst17;
+package bfst17.Directions;
 
 import bfst17.OSMData.OSMNode;
 
@@ -18,12 +18,10 @@ public class GraphNode implements Comparable {
     private ArrayList<Edge> edgeList;
     private double dist = Double.POSITIVE_INFINITY;
 
-
     public GraphNode(OSMNode originOSMNode) {
         this.originOSMNode = originOSMNode;
         edgeList = new ArrayList<>();
     }
-
 
     public void setNodeTags(boolean bicycle, boolean foot, int maxspeed, boolean oneway) {
         if(bicycle || foot) {
@@ -64,7 +62,6 @@ public class GraphNode implements Comparable {
 
     public void insertNeighbor(Edge e) {
         edgeList.add(e);
-        //System.out.println(edgeList.size());
     }
     public double getDistTo()
     {
@@ -73,8 +70,6 @@ public class GraphNode implements Comparable {
     public void setDistTo(double dist){
         this.dist = dist;
     }
-
-
 
     @Override
     public int compareTo(Object o) {
