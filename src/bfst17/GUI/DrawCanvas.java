@@ -514,6 +514,7 @@ public class DrawCanvas extends JComponent implements Observer {
         //Zoom begrænsning
         if(getXZoomFactor()*factor>800000) {
             return;
+            //max zoom out
         } else if(getXZoomFactor()*factor<120){
             return;
         }
