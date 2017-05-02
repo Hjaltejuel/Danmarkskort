@@ -94,9 +94,9 @@ public class Model extends Observable implements Serializable {
         try {
             //load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
             //load("C:\\Users\\Jens\\Downloads\\map (2).osm");
-            load(this.getClass().getResource("/denmark-latest.osm").getPath());
+            load(this.getClass().getResource("/bornholm.osm").getPath());
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         //til bin
         //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
@@ -215,8 +215,10 @@ public class Model extends Observable implements Serializable {
             if (list.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
                 continue;
             }
+            if(type!=WayType.HIGHWAY_RESIDENTIAL){continue;}
             ShapeKDTree treeWithType = new ShapeKDTree(type);
             treeWithType.fillTreeWithShapes(list);
+            System.out.println(treeWithType.getSize() + " " + treeWithType.getMaxDepth());
             treeList.add(treeWithType);
             //System.out.println("MaxDepth: " + treeWithType.maxDepth + "\t\t\tElement Count:" + treeWithType.count + "\t\t\tType: " + type);
         }

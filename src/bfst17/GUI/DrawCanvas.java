@@ -145,8 +145,11 @@ public class DrawCanvas extends JComponent implements Observer {
         Graphics2D g = (Graphics2D) _g;
 
         //Definér skærmbilledet
-        Point2D topLeft = screenCordsToLonLat(0, 0);
-        Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
+        //Point2D topLeft = screenCordsToLonLat(0, 0);
+        //Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
+
+        Point2D topLeft = screenCordsToLonLat(150, 150);
+        Point2D topRight = screenCordsToLonLat(550, 550);
         screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
                 topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
 
@@ -289,6 +292,7 @@ public class DrawCanvas extends JComponent implements Observer {
             e.printStackTrace();
         }
         g.drawString("FPS: "+FPS ,5,getHeight()-55);
+        g.drawString("Shapes: "+numOfShapes,5,getHeight()-70);
     }
 
     private void drawMap(Graphics2D g) {
@@ -344,13 +348,26 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
+    Integer numOfShapes=0;
 	public void drawShapes(Graphics2D g) {
         for (ShapeKDTree tree : model.getTrees()) {
             WayType type = tree.getType();
             if (type.getZoomFactor() > getXZoomFactor()) {
-                continue;
+                //continue;
+            }
+
+            if(type == WayType.HIGHWAY_RESIDENTIAL) {
+                Point2D centerPoint = new Point2D.Double(-getCenterCordinateX(), -getCenterCordinateY());
+                Shape nearestNeighbour = tree.getNearestNeighbour(centerPoint);
+                if (nearestNeighbour != null) {
+                    Rectangle2D r = nearestNeighbour.getBounds2D();
+                    Line2D l = new Line2D.Double(new Point2D.Double(r.getCenterX(), r.getCenterY()), centerPoint);
+                    g.setColor(Color.black);
+                    g.draw(l);
+                }
             }
             HashSet<Shape> shapes = tree.getInRange(screenRectangle);
+            numOfShapes=shapes.size();
             g.setColor(getDrawColor(type));
 
             g.setStroke(type.getDrawStroke());

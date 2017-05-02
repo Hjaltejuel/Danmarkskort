@@ -495,7 +495,7 @@ public enum WayType implements Serializable {
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_RESIDENTIAL
-			(new Color(246, 239, 239),
+			(new Color(246, 31, 0),
 					new BasicStroke(0.00004f),
 					10000,
 					FillType.LINE,
