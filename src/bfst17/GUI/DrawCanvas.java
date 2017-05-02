@@ -316,7 +316,7 @@ public class DrawCanvas extends JComponent implements Observer {
         g.setTransform(transform);
         g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
-        if (antiAliasFromMenu || antiAliasFromPanning) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        if (antiAliasFromMenu && antiAliasFromPanning) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         //Tegn coastlines
         drawCoastlines(g);
