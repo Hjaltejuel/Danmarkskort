@@ -103,7 +103,7 @@ public class Model extends Observable implements Serializable {
 		try {
 			//load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
 			//load("C:\\Users\\Jens\\Downloads\\map (2).osm");
-			load(this.getClass().getResource("/denmark-latest.osm").getPath());
+			load(this.getClass().getResource("/bornholm.osm").getPath());
 		} catch (Exception e) {
 
 		}
@@ -308,6 +308,8 @@ public class Model extends Observable implements Serializable {
 		Map<Long,OSMWay> idToWay = new HashMap<>();
 		HashMap<Long, OSMNode> idToNode = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
+		HashMap<Long, GraphNode> idToGraphNode = new HashMap<>();
+		ArrayList<Long> tmpNodeIDs = new ArrayList<>();
 		float lat;
 		float lon;
 		OSMWay way;
@@ -327,16 +329,16 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void startDocument() throws SAXException {
-
+            graph = new Graph();
 		}
 
 		@Override
 		public void endDocument() throws SAXException {
 			fillTrees();
-			System.out.println("så går det løs");
-		graph = new Graph(graphNodeList);
+            System.out.println("OSMNodes: "+idToNode.size());
+            System.out.println("så går det løs");
 			System.out.println("FUUUCK!");
-		}
+        }
 
 		@Override
 		public void startPrefixMapping(String prefix, String uri) throws SAXException {
@@ -363,7 +365,9 @@ public class Model extends Observable implements Serializable {
 					nodeID = Long.parseLong(atts.getValue("id"));
 					lat = Float.parseFloat(atts.getValue("lat"));
 					lon = Float.parseFloat(atts.getValue("lon"));
-					idToNode.put(nodeID, new OSMNode(lonfactor * lon, -lat));
+					OSMNode _OSMNode = new OSMNode(lonfactor * lon, -lat);
+					idToGraphNode.put(nodeID, new GraphNode(_OSMNode));
+					idToNode.put(nodeID, _OSMNode);
 					break;
 				case "way":
 					isWay = true;
@@ -379,6 +383,7 @@ public class Model extends Observable implements Serializable {
 				case "nd":
 					long ref = Long.parseLong(atts.getValue("ref"));
 					way.add(idToNode.get(ref));
+					tmpNodeIDs.add(ref);
 					break;
 				case "tag":
 					String k = atts.getValue("k");
@@ -532,25 +537,32 @@ public class Model extends Observable implements Serializable {
 					if (type == WayType.NATURAL_COASTLINE) {
 						//DO NOTHING
 					} else {
-						add(type, new PolygonApprox(way));
-						for (int i = 0; i < way.size(); i++) {
-							GraphNode gn = new GraphNode(way.get(i));
-							if (i == 0) gn.setStart(true);
-							if (i == way.size() - 1) gn.setEnd(true);
+                        add(type, new PolygonApprox(way));
 
+                        if (bicycle == true || foot == true || maxspeed > 0) {
+                            for (int i = 1; i < tmpNodeIDs.size(); i++) {
+                                GraphNode previousGraphNode = idToGraphNode.get(tmpNodeIDs.get(i - 1));
+                                GraphNode currentGraphNode = idToGraphNode.get(tmpNodeIDs.get(i));
 
-							gn.setNodeTags(bicycle, foot, maxspeed, oneway);
-							if (bicycle == true || foot == true || oneway == true || maxspeed > 0) {
-								gn.setRelevantForRouting(true);
-								graphNodeList.add(gn);
-							}
-						}
-						bicycle = false;
-						foot = false;
-						oneway = false;
-						maxspeed = 0;
-						isWay = false;
-					}
+                                previousGraphNode.setNodeTags(bicycle,foot,maxspeed,oneway);
+                                currentGraphNode.setNodeTags(bicycle,foot,maxspeed,oneway);
+
+                                if (i == 1) {
+                                    previousGraphNode.setStart(true);
+                                } else if(i==tmpNodeIDs.size()){
+                                    currentGraphNode.setEnd(true);
+                                }
+
+                                graph.addEdge(currentGraphNode, previousGraphNode);
+                                graph.addEdge(previousGraphNode, currentGraphNode);
+                            }
+                        }
+                    }
+                    bicycle = false;
+                    foot = false;
+                    oneway = false;
+                    maxspeed = 0;
+                    isWay = false;
 					break;
 				case "relation":
 					if (relation.size() != 0) {

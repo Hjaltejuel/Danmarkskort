@@ -28,7 +28,7 @@ public class ShortestPath {
             GraphNode node = unSettledNodes.poll();
             node.setSettled(true);
             unSettledNodes.remove(node);
-            System.out.println(unSettledNodes.size());
+            //System.out.println(unSettledNodes.size());
             relaxEdges(node);
         }
         if(unSettledNodes.size() == 0){

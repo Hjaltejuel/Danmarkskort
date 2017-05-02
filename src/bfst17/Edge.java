@@ -25,7 +25,6 @@ public class Edge {
        //     System.out.println(weightCar + " " + weightFoot + " " + weightBicycle);
         }
         private void Weigh(){
-
             if(source.isShortest() && destination.isShortest()){
                 weightShortest = calcWeightForShortest();
             }

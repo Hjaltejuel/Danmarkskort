@@ -24,6 +24,7 @@ public class GraphNode implements Comparable {
         edgeList = new ArrayList<>();
     }
 
+
     public void setNodeTags(boolean bicycle, boolean foot, int maxspeed, boolean oneway) {
         if(bicycle || foot) {
             this.shortest = true;
@@ -57,11 +58,16 @@ public class GraphNode implements Comparable {
     }
 
     public ArrayList<Edge> getEdgeList(){
+
         return edgeList;
     }
-    public void insertNeighbor(Edge e){
+
+    int c=0;
+    public void insertNeighbor(Edge e) {
+        c++;
+        if(c>2){System.out.println("A");}
         edgeList.add(e);
-        System.out.println(edgeList.size());
+        //System.out.println(edgeList.size());
     }
     public double getDistTo()
     {

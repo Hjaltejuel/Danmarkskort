@@ -18,10 +18,14 @@ public class Graph {
     private ShortestPath sp;
 
 
-    public Graph(ArrayList<GraphNode> graphNodeList) {
+    public Graph() {
+
+    }
+    /*ArrayList<GraphNode> graphNodeList
+    }) {
         
         int j = 0;
-
+        System.out.println("A" + graphNodeList.size());
         for (int i = 0; i < graphNodeList.size(); i++) {
 
 
@@ -57,6 +61,7 @@ public class Graph {
         sp.execute(source, target);
 
     }
+    */
 
 
     public void addEdge(GraphNode node, GraphNode neighbour)
