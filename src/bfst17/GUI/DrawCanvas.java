@@ -1,16 +1,18 @@
 package bfst17.GUI;
 
+import bfst17.AddressHandling.TSTInterface;
+import bfst17.Edge;
 import bfst17.Enums.*;
+import bfst17.Graph;
+import bfst17.GraphNode;
 import bfst17.KDTrees.CityNamesKDTree;
 import bfst17.KDTrees.KDTree;
 import bfst17.KDTrees.POIKDTree;
 import bfst17.Model;
-import bfst17.AddressHandling.TSTInterface;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -383,25 +385,7 @@ public class DrawCanvas extends JComponent implements Observer {
             }
 
         }
-        g.setColor(Color.PINK);
-
-        g.setStroke(new BasicStroke(0.000008f));
-        Graph graph = model.getGraph();
-        GraphNode source = graph.getSourceTest();
-        GraphNode target = graph.getTargetTest();
-
-       // ArrayList<GraphNode> alist = graph.getPath(source, target);
-        ArrayList<Edge> alist = graph.getEdges();
-        for(int i = 0; i < alist.size()-1; i++){
-            source = alist.get(i).getSource();
-            for(int j = 0; j < source.getEdgeList().size()-1; j++){
-                GraphNode dest = source.getEdgeList().get(j).getDestination();
-                System.out.println(dest);
-                g.draw(new Line2D.Double(source.getPoint2D().getX(), source.getPoint2D().getY(),dest.getPoint2D().getX(), dest.getPoint2D().getY()));
-
-            }
-            g.draw(new Line2D.Double(alist.get(i).getSource().getPoint2D().getX(), alist.get(i).getSource().getPoint2D().getY(),alist.get(i).getDestination().getPoint2D().getX(), alist.get(i).getDestination().getPoint2D().getY()));
-        }
+//        drawGraph(g);
     }
     //</editor-fold>
 
@@ -584,6 +568,33 @@ public class DrawCanvas extends JComponent implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 	}
+	public void drawGraph(Graphics2D g){
+
+        g.setColor(Color.PINK);
+
+        g.setStroke(new BasicStroke(0.000008f));
+        Graph graph = model.getGraph();
+        if(graph == null){
+            return;
+        }
+        else {
+            GraphNode source;
+
+            //ArrayList<GraphNode> alist = graph.getPath(source, target);
+            ArrayList<Edge> alist = graph.getEdges();
+            for (int i = 0; i < alist.size() - 1; i++) {
+                source = alist.get(i).getSource();
+                for (int j = 0; j < source.getEdgeList().size() - 1; j++) {
+                    GraphNode dest = source.getEdgeList().get(j).getDestination();
+                    System.out.println(dest);
+                    g.draw(new Line2D.Double(source.getPoint2D().getX(), source.getPoint2D().getY(), dest.getPoint2D().getX(), dest.getPoint2D().getY()));
+
+                }
+                g.draw(new Line2D.Double(alist.get(i).getSource().getPoint2D().getX(), alist.get(i).getSource().getPoint2D().getY(), alist.get(i).getDestination().getPoint2D().getX(), alist.get(i).getDestination().getPoint2D().getY()));
+            }
+        }
+
+    }
 
     public void toggleCityNames() {
         drawCityNames = !drawCityNames;
