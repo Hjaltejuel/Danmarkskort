@@ -38,7 +38,7 @@ public class ShortestPath {
     }
 
     private void relaxEdges(GraphNode node) {
-        HashSet<Edge> edgelist = node.getEdgeList();
+        ArrayList<Edge> edgelist = node.getEdgeList();
         for (Edge e: edgelist) {
             if(!e.getDestination().isSettled()) {
                 double tempDistTo = node.getDistTo() + e.getWeightShortest();

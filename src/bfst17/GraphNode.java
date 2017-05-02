@@ -3,7 +3,7 @@ package bfst17;
 import bfst17.OSMData.OSMNode;
 
 import java.awt.geom.Point2D;
-import java.util.HashSet;
+import java.util.ArrayList;
 
 /**
  * Created by trold on 2/15/17.
@@ -15,13 +15,13 @@ public class GraphNode implements Comparable {
     private boolean shortest, oneway;
     private int maxspeed;
     private boolean relevantForRouting, isStart, isEnd = false;
-    private HashSet<Edge> edgeList;
+    private ArrayList<Edge> edgeList;
     private double dist = Double.POSITIVE_INFINITY;
 
 
     public GraphNode(OSMNode originOSMNode) {
         this.originOSMNode = originOSMNode;
-        edgeList = new HashSet<>();
+        edgeList = new ArrayList<>();
     }
 
     public void setNodeTags(boolean bicycle, boolean foot, int maxspeed, boolean oneway) {
@@ -56,11 +56,12 @@ public class GraphNode implements Comparable {
         return maxspeed;
     }
 
-    public HashSet<Edge> getEdgeList(){
+    public ArrayList<Edge> getEdgeList(){
         return edgeList;
     }
     public void insertNeighbor(Edge e){
         edgeList.add(e);
+        System.out.println(edgeList.size());
     }
     public double getDistTo()
     {
