@@ -36,6 +36,7 @@ public class CanvasMouseController extends MouseAdapter {
 	@Override
 	public void mousePressed(MouseEvent e) {
 		lastMousePosition = e.getPoint();
+		canvas.AAOff();
 	}
 
 	/**
@@ -45,6 +46,7 @@ public class CanvasMouseController extends MouseAdapter {
 	 */
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		canvas.AAOn();
 
 	}
 
