@@ -51,7 +51,7 @@ public class Model extends Observable implements Serializable {
 
     private HashMap<String, Point2D> cityNames = new HashMap<>();
     private HashMap<String, Point2D> townNames = new HashMap<>();
-    private HashMap<String, Shape> roadNames = new HashMap<>();
+    private HashMap<WayType, ArrayList<RoadNode>> roads = new HashMap<>();
 
     private float minlat, minlon, maxlat, maxlon;
     private float clminlat, clminlon, clmaxlat, clmaxlon;
@@ -65,9 +65,12 @@ public class Model extends Observable implements Serializable {
     }
 
     private ArrayList<KDTree> treeList = new ArrayList<>();
+    private ArrayList<RoadKDTree> roadTreeList = new ArrayList<>();
+
     public ArrayList<KDTree> getTrees() {
         return treeList;
     }
+    public ArrayList<RoadKDTree> getRoadTreeList(){return roadTreeList;}
     private POIKDTree POITree = new POIKDTree();
     public POIKDTree getPOITree() {
         return POITree;
@@ -79,9 +82,6 @@ public class Model extends Observable implements Serializable {
     private CityNamesKDTree townTree = new CityNamesKDTree();
     public CityNamesKDTree getTownTreeTree() { return townTree;}
 
-    private RoadKDTree roadTree = new RoadKDTree();
-    public RoadKDTree getRoadTree() {return roadTree;}
-
     public AddressModel getAddressModel() { return addressModel; }
 
     public Iterable<Shape> get(WayType type) {
@@ -90,6 +90,9 @@ public class Model extends Observable implements Serializable {
 
     private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
         for (WayType type : WayType.values()) {
+            if(type.toString().split("_")[0].equals("HIGHWAY")){
+                roads.put(type,new ArrayList<>());
+            }
             shapes.put(type, new ArrayList<>());
         }
     }
@@ -99,7 +102,7 @@ public class Model extends Observable implements Serializable {
         try {
             //load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
             //load("C:\\Users\\Jens\\Downloads\\map (2).osm");
-            load(this.getClass().getResource("/denmark-latest.osm").getPath());
+            load(this.getClass().getResource("/map (4).osm").getPath());
         } catch (Exception e) {
 
         }
@@ -217,13 +220,21 @@ public class Model extends Observable implements Serializable {
 
         for (WayType type : WayType.values()) {
             List<Shape> list = shapes.get(type);
-            if (list.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
+            if (type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE ) {
                 continue;
+            } else if(type.toString().split("_")[0].equals("HIGHWAY")){
+                RoadKDTree treeWithType = new RoadKDTree(type);
+                treeWithType.fillTreeWithShapes(roads.get(type));
+                roadTreeList.add(treeWithType);
+            } else {
+                if(list.size() == 0){
+                    continue;
+                } else {
+                    KDTree treeWithType = new KDTree(type);
+                    treeWithType.fillTreeWithShapes(list);
+                    treeList.add(treeWithType);
+                }
             }
-
-            KDTree treeWithType = new KDTree(type);
-            treeWithType.fillTreeWithShapes(list);
-            treeList.add(treeWithType);
             //System.out.println("MaxDepth: " + treeWithType.maxDepth + "\t\t\tElement Count:" + treeWithType.count + "\t\t\tType: " + type);
         }
         //System.out.println("Number of trees: "+treeList.size());
@@ -239,9 +250,6 @@ public class Model extends Observable implements Serializable {
             townTree.fillTree(townNames);
         }
 
-        if (roadTree != null) {
-            roadTree.fillTreeWithShapes(roadNames);
-        }
 
         //Ryd op!
         shapes.clear();
@@ -460,12 +468,12 @@ public class Model extends Observable implements Serializable {
                     }
                     break;
                 case "way":
-                    Shape temp = new PolygonApprox(way);
+                    PolygonApprox temp = new PolygonApprox(way);
                     if (type == WayType.NATURAL_COASTLINE) {
                         //DO NOTHING
                     }else if(type.toString().split("_")[0].equals("HIGHWAY")){
-                        roadNames.put(roadName, temp);
-                    }
+                        roads.get(type).add(new RoadNode(temp,roadName));
+                    } else
                         add(type, temp);
 
                     break;

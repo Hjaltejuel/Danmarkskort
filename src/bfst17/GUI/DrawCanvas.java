@@ -7,6 +7,9 @@ import bfst17.KDTrees.POIKDTree;
 import bfst17.KDTrees.RoadKDTree;
 import bfst17.Model;
 import bfst17.AddressHandling.TSTInterface;
+import bfst17.RoadNode;
+import bfst17.ShapeStructure.PolygonApprox;
+import com.sun.org.apache.xpath.internal.SourceTree;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -174,11 +177,12 @@ public class DrawCanvas extends JComponent implements Observer {
 
         drawFPSCounter(g);
 
+
         if(drawCityNames) {
+            drawRoadNames(g);
             drawCityAndTownNames(g);
         }
 
-        drawStreetNames(g);
     }
 
     public void drawPin(Graphics2D g) {
@@ -225,18 +229,6 @@ public class DrawCanvas extends JComponent implements Observer {
                 g.drawString(cityName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
             }
         }
-    }
-
-    public void drawStreetNames(Graphics2D g){
-        RoadKDTree roadTree = model.getRoadTree();
-
-        for (RoadKDTree.TreeNode roadNode : roadTree.getInRange(screenRectangle)){
-            String roadName = roadNode.getStreetName();
-            Point2D drawLocation = lonLatToScreenCords(-roadNode.getX(), -roadNode.getY());
-
-            g.drawString(roadName, (int) drawLocation.getX(), (int) drawLocation.getY());
-        }
-
     }
 
 
@@ -321,6 +313,9 @@ public class DrawCanvas extends JComponent implements Observer {
 
         //Hent og tegn shapes fra diverse KDTræer
         drawShapes(g);
+        drawRoads(g);
+
+        //Tegn vejene og evt vejnavne
 
         //Tegn regionen, hvis der er søgt efter den
         if(regionShape != null){
@@ -329,6 +324,7 @@ public class DrawCanvas extends JComponent implements Observer {
             g.draw(regionShape);
             g.setColor(color);
         }
+
     }
 
     private Color getDrawColor(WayType type) {
@@ -356,6 +352,46 @@ public class DrawCanvas extends JComponent implements Observer {
             g.setStroke(WayType.NATURAL_COASTLINE.getDrawStroke());
             g.setColor(getDrawColor(WayType.NATURAL_COASTLINE));
             g.fill(s);
+        }
+    }
+
+    public void drawRoadNames(Graphics2D g){
+        for(RoadKDTree tree: model.getRoadTreeList()){
+            HashSet<RoadNode> roadNodes = tree.getInRange(screenRectangle);
+            float[] coords = new float[2];
+            for(RoadNode roadNode : roadNodes){
+                    String roadName = roadNode.getRoadName();
+                    PolygonApprox shape = roadNode.getShape();
+                    PathIterator iterator = shape.getPathIterator(g.getTransform(),1000/transform.getScaleX());
+                    int k = 0;
+                    while(!iterator.isDone()) {
+                        k++;
+                        iterator.currentSegment(coords);
+                        Point2D drawLocation = lonLatToScreenCords(-coords[0], -coords[1]);
+                        System.out.println(drawLocation.getX() + " " + drawLocation.getY() + " " +k);
+                        g.drawString(roadName, (int) drawLocation.getX(), (int) drawLocation.getY());
+                        iterator.next();
+                    }
+            }
+    }
+}
+    public void drawRoads(Graphics2D g){
+        for(RoadKDTree tree: model.getRoadTreeList()){
+            WayType type = tree.getType();
+            if(type.getZoomFactor()>getXZoomFactor()){
+                continue;
+            }
+
+            g.setColor(getDrawColor(type));
+            g.setStroke(type.getDrawStroke());
+            HashSet<RoadNode> roadNodes = tree.getInRange(screenRectangle);
+            for (RoadNode roadNode : roadNodes) {
+                if(type.getFillType() == FillType.LINE){
+                    g.draw(roadNode.getShape());
+                }else if (type.getFillType() == FillType.SOLID) {
+                    g.fill(roadNode.getShape());
+                }
+            }
         }
     }
 
