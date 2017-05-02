@@ -38,6 +38,13 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     }
 
+    public void dispose(){
+        window.getWindow().dispose();
+        model = null;
+        addressModel = null;
+        canvas = null;
+    }
+
     public void initiate() {
         window.createAutocomplete(addressModel.getTSTTree());
         window.setComponentzZOrder(canvas);
@@ -171,6 +178,8 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             File fileToLoad = fileChooser.getSelectedFile();
             if (fileChooser.accept(fileToLoad) && fileToLoad.exists()) { //Filen er fundet! Indlæs:
                 model.load(fileToLoad.getAbsolutePath());
+                window.getWindow().dispose();
+                WindowController controller = new WindowController(model);
                 //window.getWindow().dispose();
             } else { //Filen blev ikke fundet - giv fejlmeddelelse
                 if (!fileChooser.accept(fileToLoad)) {

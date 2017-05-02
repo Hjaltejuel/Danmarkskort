@@ -1,5 +1,6 @@
 package bfst17;
 
+import bfst17.Controller.WindowController;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
 import bfst17.KDTrees.CityNamesKDTree;
@@ -94,7 +95,7 @@ public class Model extends Observable implements Serializable {
         try {
             //load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
             //load("C:\\Users\\Jens\\Downloads\\map (2).osm");
-            load(this.getClass().getResource("/denmark-latest.osm").getPath());
+            load(this.getClass().getResource("/bornholm.osm").getPath());
         } catch (Exception e) {
 
         }
@@ -188,6 +189,7 @@ public class Model extends Observable implements Serializable {
                 minlat = in.readFloat();
                 maxlon = in.readFloat();
                 maxlat = in.readFloat();
+
                 double elapsedTime = currentTimeInSeconds() - startTime;
                 System.out.printf("WE HAVE ACHIEVED: [Object deserialization: %f s]\n", elapsedTime);
                 dirty();
@@ -204,6 +206,7 @@ public class Model extends Observable implements Serializable {
         progressPrinter.cancel();
         int loadTime = (int)Math.round(currentTimeInSeconds() - startTime);
         System.out.printf("\nLoad time: %d:%02d\n", loadTime / 60, loadTime % 60);
+
     }
 
     private void fillTrees() {

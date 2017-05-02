@@ -324,7 +324,8 @@ public class DrawCanvas extends JComponent implements Observer {
         //Tegn regionen, hvis der er søgt efter den
         if(regionShape != null){
             Color color = g.getColor();
-            g.setColor(new Color(255,0,0,127));
+            g.setStroke(new BasicStroke((float)0.001f));
+            g.setColor(new Color(255,0,0));
             g.draw(regionShape);
             g.setColor(color);
         }

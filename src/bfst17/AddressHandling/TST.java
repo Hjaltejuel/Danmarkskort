@@ -67,9 +67,11 @@ public class TST<TSTInterface> implements Serializable {
         if(x.val instanceof DuplicateAddressNode){
             //run trough the duplicates and find the one that matches the given keys suffix and then return it
             for(bfst17.AddressHandling.TSTInterface node: (DuplicateAddressNode)(x.val)){
-                if(node.getAddress().equals(suffix)){
+                if(node instanceof AddressNode){
+                if(node.getAddress().equals(suffix)) {
                     return (TSTInterface) node;
-                }
+                 }
+                } else return (TSTInterface) ((DuplicateAddressNode)x.val).get(0);
             }
         }
         //if it isnt a duplicate return the node, this makes it so you can also search on addresses without suffix
@@ -199,7 +201,11 @@ public class TST<TSTInterface> implements Serializable {
                 //if there are duplicates, add them all
                 if(x.val instanceof DuplicateAddressNode){
                     for(bfst17.AddressHandling.TSTInterface node: ((DuplicateAddressNode)x.val)){
-                        addAddressNodeToQueue(queue,(AddressNode)node,prefix);
+                        if(node instanceof AddressNode) {
+                            addAddressNodeToQueue(queue, (AddressNode) node, prefix);
+                        } else {
+                            addOtherNodeToQueue(queue,prefix);
+                        }
                     }
                 } else
                     //if there only is one match and its an address
