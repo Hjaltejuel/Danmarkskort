@@ -489,13 +489,20 @@ public class DrawCanvas extends JComponent implements Observer {
 
     //Zoom ting
     public void zoom(double factor) {
+        System.out.println(getXZoomFactor()*factor);
         //Zoom begrænsning
         if(getXZoomFactor()*factor>800000) {
             return;
+        } else if(getXZoomFactor()*factor<120){
+            return;
         }
-        transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
-        repaint();
-        revalidate();
+
+        else {
+            transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
+
+            repaint();
+            revalidate();
+        }
     }
 
     public void centerZoomToZoomLevel(double zoomLevel){
