@@ -1,7 +1,6 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.Edge;
 import bfst17.Enums.*;
 import bfst17.Graph;
 import bfst17.GraphNode;
@@ -579,7 +578,7 @@ public class DrawCanvas extends JComponent implements Observer {
         }
         else {
             GraphNode source;
-
+/*
             //ArrayList<GraphNode> alist = graph.getPath(source, target);
             ArrayList<Edge> alist = graph.getEdges();
             for (int i = 0; i < alist.size() - 1; i++) {
@@ -591,7 +590,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
                 }
                 g.draw(new Line2D.Double(alist.get(i).getSource().getPoint2D().getX(), alist.get(i).getSource().getPoint2D().getY(), alist.get(i).getDestination().getPoint2D().getX(), alist.get(i).getDestination().getPoint2D().getY()));
-            }
+            } */
         }
 
     }

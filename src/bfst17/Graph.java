@@ -19,7 +19,7 @@ public class Graph {
 
 
     public Graph(ArrayList<GraphNode> graphNodeList) {
-        edges = new ArrayList<>();
+        
         int j = 0;
 
         for (int i = 0; i < graphNodeList.size(); i++) {
@@ -64,13 +64,10 @@ public class Graph {
         Edge e = new Edge(node, neighbour);
 
 //        if(!edges.contains(e)){
-        edges.add(e);
+
 //    }
     }
 
-    public ArrayList<Edge> getEdges() {
-        return edges;
-    }
 
 
     public ArrayList<GraphNode> getPath(GraphNode source, GraphNode destination){

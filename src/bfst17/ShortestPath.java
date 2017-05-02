@@ -8,7 +8,6 @@ import java.util.*;
 public class ShortestPath {
     //FIXME lav enum til vægte.
 
-    private final List<Edge> edges;
     private Set<GraphNode> settledNodes;
     private PriorityQueue<GraphNode> unSettledNodes;
     private Map<GraphNode, GraphNode> predecessors;
@@ -16,7 +15,6 @@ public class ShortestPath {
 
     public ShortestPath(Graph graph) {
 
-        this.edges = new ArrayList<>(graph.getEdges());
         this.graph = graph;
     }
 
@@ -40,7 +38,7 @@ public class ShortestPath {
     }
 
     private void relaxEdges(GraphNode node) {
-        ArrayList<Edge> edgelist = node.getEdgeList();
+        HashSet<Edge> edgelist = node.getEdgeList();
         for (Edge e: edgelist) {
             if(!e.getDestination().isSettled()) {
                 double tempDistTo = node.getDistTo() + e.getWeightShortest();
