@@ -76,6 +76,20 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
     }
 
+    //De næste metoder er til at slå aa fra hvis der pannes på og fra når der stoppes.
+    //Den før kan ikke bruges da det giver den modsatte værdi. Hvis AA nu er false bliver den sat til true når der pannes og det skal den ikke.
+    public void AAOff(){
+        antiAlias = false;
+        repaint();
+        revalidate();
+    }
+
+    public void AAOn(){
+        antiAlias = true;
+        repaint();
+        revalidate();
+    }
+
     public boolean isFancyPanEnabled() {
         return fancyPanEnabled;
     }
