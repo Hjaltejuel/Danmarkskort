@@ -62,10 +62,7 @@ public class GraphNode implements Comparable {
         return edgeList;
     }
 
-    int c=0;
     public void insertNeighbor(Edge e) {
-        c++;
-        if(c>2){System.out.println("A");}
         edgeList.add(e);
         //System.out.println(edgeList.size());
     }

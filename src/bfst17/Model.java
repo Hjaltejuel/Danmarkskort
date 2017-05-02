@@ -556,6 +556,7 @@ public class Model extends Observable implements Serializable {
                                 graph.addEdge(currentGraphNode, previousGraphNode);
                                 graph.addEdge(previousGraphNode, currentGraphNode);
                             }
+                            tmpNodeIDs.clear();
                         }
                     }
                     bicycle = false;
