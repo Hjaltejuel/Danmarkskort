@@ -14,7 +14,7 @@ public abstract class KDTree implements Serializable {
     protected Integer Size=0;
     protected Integer tmpDepth=0;
     protected Integer maxDepth=0;
-    boolean isVertical;
+    protected boolean isVertical;
     protected TreeNode root = null;
 
     public Integer getSize() {
@@ -28,56 +28,15 @@ public abstract class KDTree implements Serializable {
     public abstract TreeNode insert(TreeNode t1);
     public abstract void fillTreeWithShapes(java.util.List<Shape> shapes);
 
-    public void getMedian(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
-        isVertical = vertical;
-
-        int med = partion(allShapes, lo, hi);
-        Arrays.sort(allShapes, lo, hi + 1);
-        Integer medianIndex = (lo + hi) / 2;
-        /*
-        System.out.print("[");
-        for(int i=lo;i<=hi;i++) {
-            System.out.print(allShapes[i].toString());
-            if(i==medianIndex) {
-                System.out.println();
-            }
-        }
-        System.out.println("]");
-
-        System.out.println(medianIndex + " " + med + " " + (hi + lo));
-        */
-        if(allShapes[med]!=allShapes[medianIndex]){
-            System.out.println(allShapes[med] + " " + allShapes[medianIndex]);
-        }
-    }
-
-    private int partion(TreeNode[] nodes, int start, int end) {
-        int pivot = start;
-        TreeNode temp;
-        while (start <= end) {
-            while (start <= end && nodes[start].getComparePoint() <= nodes[pivot].getComparePoint()) start++;
-            while (start <= end && nodes[end].getComparePoint() > nodes[pivot].getComparePoint()) end--;
-            if (start > end) break;
-            temp = nodes[start];
-            nodes[start] = nodes[end];
-            nodes[end] = temp;
-        }
-        temp = nodes[end];
-        nodes[end] = nodes[pivot];
-        nodes[pivot] = temp;
-        return end;
-    }
-
     public void insertArray(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
         if (hi - lo == 0) {
             insert(allShapes[lo]);
             return;
         }
-        getMedian(allShapes,lo,hi,vertical);
         isVertical = vertical;
-        Arrays.sort(allShapes, lo, hi + 1);
         Integer medianIndex = (lo + hi) / 2;
-        insert(allShapes[medianIndex]);
+        TreeNode insertNode = QuickSelect.select(allShapes, medianIndex, lo, hi);
+        insert(insertNode);
         //Indsæt medianerne fra de to subarrays (Uden at inkludere medianIndex)
         if (hi > medianIndex) {
             insertArray(allShapes, medianIndex + 1, hi, !vertical);
@@ -108,7 +67,6 @@ public abstract class KDTree implements Serializable {
         }
     }
     private HashSet<Shape> shapes;
-    public HashSet<Line2D> lines;
     public HashSet<Shape> getInRange(Rectangle2D rect) {
         if(shapes==null) {
             shapes = new HashSet<>();
@@ -123,7 +81,6 @@ public abstract class KDTree implements Serializable {
             //System.out.println(shapes.size());
         }
         shapes = new HashSet<>();
-        lines = new HashSet<>();
         getShapesBelowNodeInsideBounds(root, rect);
         return shapes;
     }

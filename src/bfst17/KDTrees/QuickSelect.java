@@ -1,34 +1,48 @@
 package bfst17.KDTrees;
 
-/**
- * Created by Jens on 02-05-2017.
- */
+import sun.reflect.generics.tree.Tree;
+
+import java.util.Random;
+
 public class QuickSelect {
-    public static int getMedian(int[] nums, boolean vertical) {
-        int k = nums.length/2;
-        int start = 0, end = nums.length - 1, index = nums.length - k;
-        while (start < end) {
-            int pivot = partion(nums, start, end);
-            if (pivot < index) start = pivot + 1;
-            else if (pivot > index) end = pivot - 1;
-            else return nums[pivot];
+
+    private static int partition(TreeNode[] arr, int left, int right, int pivot) {
+        TreeNode pivotVal = arr[pivot];
+        swap(arr, pivot, right);
+        int storeIndex = left;
+        for (int i = left; i < right; i++) {
+            if (arr[i].compareTo(pivotVal) < 0) {
+                swap(arr, i, storeIndex);
+                storeIndex++;
+            }
         }
-        return nums[start];
+        swap(arr, right, storeIndex);
+        return storeIndex;
     }
 
-    private static int partion(int[] nums, int start, int end) {
-        int pivot = start, temp;
-        while (start <= end) {
-            while (start <= end && nums[start] <= nums[pivot]) start++;
-            while (start <= end && nums[end] > nums[pivot]) end--;
-            if (start > end) break;
-            temp = nums[start];
-            nums[start] = nums[end];
-            nums[end] = temp;
+    public static TreeNode select(TreeNode[] arr, int n, int lo, int hi) {
+        int left = lo;
+        int right = hi;
+        Random rand = new Random();
+        while (right >= left) {
+            int pivotIndex = partition(arr, left, right, rand.nextInt(right - left + 1) + left);
+            if (pivotIndex == n) {
+                return arr[pivotIndex];
+            } else if (pivotIndex < n) {
+                left = pivotIndex + 1;
+            } else {
+                right = pivotIndex - 1;
+            }
         }
-        temp = nums[end];
-        nums[end] = nums[pivot];
-        nums[pivot] = temp;
-        return end;
+        return null;
     }
+
+    private static void swap(TreeNode[] arr, int i1, int i2) {
+        if (i1 != i2) {
+            TreeNode temp = arr[i1];
+            arr[i1] = arr[i2];
+            arr[i2] = temp;
+        }
+    }
+
 }

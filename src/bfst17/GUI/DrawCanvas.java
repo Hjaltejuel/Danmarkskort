@@ -145,18 +145,13 @@ public class DrawCanvas extends JComponent implements Observer {
         Graphics2D g = (Graphics2D) _g;
 
         //Definér skærmbilledet
-        //Point2D topLeft = screenCordsToLonLat(0, 0);
-        //Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
-
-        Point2D topLeft = screenCordsToLonLat(150, 150);
-        Point2D topRight = screenCordsToLonLat(550, 550);
+        Point2D topLeft = screenCordsToLonLat(0, 0);
+        Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
         screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
                 topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
 
         //Tegn kortet
         drawMap(g);
-
-        g.draw(screenRectangle);
 
         //Tegn overlay (Pin, POI, Målebånd, FPS)
         drawOverlay(g);
@@ -354,7 +349,7 @@ public class DrawCanvas extends JComponent implements Observer {
         for (ShapeKDTree tree : model.getTrees()) {
             WayType type = tree.getType();
             if (type.getZoomFactor() > getXZoomFactor()) {
-                //continue;
+                continue;
             }
 
             if(type == WayType.HIGHWAY_RESIDENTIAL) {

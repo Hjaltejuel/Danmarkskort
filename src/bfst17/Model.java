@@ -2,9 +2,7 @@ package bfst17;
 
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
-import bfst17.KDTrees.CityNamesKDTree;
-import bfst17.KDTrees.ShapeKDTree;
-import bfst17.KDTrees.POIKDTree;
+import bfst17.KDTrees.*;
 import bfst17.AddressHandling.Address;
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.Region;
@@ -207,22 +205,18 @@ public class Model extends Observable implements Serializable {
     }
 
     private void fillTrees() {
-        long StartTime = System.nanoTime();
         treeList = new ArrayList<>();
         POITree = new POIKDTree();
-
         for (WayType type : WayType.values()) {
-            List<Shape> list = shapes.get(type);
-            if (list.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
+            List<Shape> shapeList = shapes.get(type);
+            if (shapeList.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
                 continue;
             }
-            //if(type!=WayType.BARRIER_RETAINING_WALL){continue;}
-            ShapeKDTree treeWithType = new ShapeKDTree(type);
-            treeWithType.fillTreeWithShapes(list);
-            //System.out.println(type + " Elements: " + treeWithType.getSize() + " MaxDepth: " + treeWithType.getMaxDepth() + " Should be: " + (int)Math.ceil(Math.log(treeWithType.getSize())/Math.log(2)));
-            treeList.add(treeWithType);
+			//if(type!=WayType.BARRIER_RETAINING_WALL){continue;}
+			ShapeKDTree treeWithType = new ShapeKDTree(type);
+			treeWithType.fillTreeWithShapes(shapeList);
+			treeList.add(treeWithType);
         }
-        //System.out.println("Number of trees: "+treeList.size());
 
         if (pointsOfInterest != null) {
             POITree.fillTree(pointsOfInterest);
@@ -238,7 +232,6 @@ public class Model extends Observable implements Serializable {
         //Ryd op!
         shapes.clear();
         shapes=null;
-        System.out.println((System.nanoTime()-StartTime)/1_000_000+" ms");
     }
 
     private void loadOSM(InputSource source) {
@@ -322,7 +315,9 @@ public class Model extends Observable implements Serializable {
 
         @Override
         public void endDocument() throws SAXException {
-            fillTrees();
+			long StartTime = System.nanoTime();
+			fillTrees();
+			System.out.println((System.nanoTime()-StartTime)/1_000_000+" ms");
         }
 
         @Override
@@ -445,9 +440,7 @@ public class Model extends Observable implements Serializable {
                     }
                     break;
                 case "way":
-                    if (type == WayType.NATURAL_COASTLINE) {
-                        //DO NOTHING
-                    } else {
+                    if (type != WayType.NATURAL_COASTLINE) {
                         add(type, new PolygonApprox(way));
                     }
                     break;
