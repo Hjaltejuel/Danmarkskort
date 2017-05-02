@@ -24,7 +24,7 @@ public class ShapeKDTree extends KDTree implements Serializable {
         private double highSplit;
         private double lowSplit;
 
-        boolean isVertical() {
+        boolean sortVertically() {
             return isVertical;
         }
 
@@ -76,6 +76,7 @@ public class ShapeKDTree extends KDTree implements Serializable {
         getShapesBelowNodeInsideBounds((ShapeTreeNode)startNode.low, rect, !vertical);
     }
     /**/
+
     public void fillTreeWithShapes(List<Shape> shapes) {
         if (shapes.size() == 0) {
             return;
@@ -102,12 +103,13 @@ public class ShapeKDTree extends KDTree implements Serializable {
     public ShapeTreeNode insert(TreeNode insertNode) {
         if(root==null) {
             root=insertNode;
+            root.vertical=true;
             Size++;
         } else {
-            tmpDepth=0;
-            ShapeTreeNode newNode = (ShapeTreeNode) insertNode(insertNode, root, true);
+            tmpDepth=1;
+            ShapeTreeNode newNode = (ShapeTreeNode) insertNode(insertNode, root);
         }
-        ShapeTreeNode _insertNode = (ShapeTreeNode)insertNode;
+        ShapeTreeNode _insertNode = (ShapeTreeNode) insertNode;
         Rectangle2D bounds = _insertNode.shape.getBounds2D();
 
         //_insertNode.highSplit = !vertical ? bounds.getMaxX() : bounds.getMaxY();

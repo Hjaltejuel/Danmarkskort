@@ -16,13 +16,17 @@ public abstract class TreeNode implements Comparable<TreeNode>, Serializable {
     public double getY() { return Y; };
     public Shape getShape() { return shape; }
 
-    abstract boolean isVertical();
+    abstract boolean sortVertically();
     protected double getSplit() {
         return vertical ? X : Y;
     }
 
+    double getComparePoint() {
+        return sortVertically() ? X : Y;
+    }
+
     public int compareTo(TreeNode other) {
-        double cmp = isVertical() ? getX() - other.getX() : getY() - other.getY();
+        double cmp = sortVertically() ? getX() - other.getX() : getY() - other.getY();
         if (cmp > 0) {
             return 1;
         } else if (cmp < 0) {

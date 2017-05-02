@@ -10,45 +10,73 @@ import java.util.*;
 /**
  * Created by Jens on 02-05-2017.
  */
-    public abstract class KDTree implements Serializable {
+public abstract class KDTree implements Serializable {
+    protected Integer Size=0;
+    protected Integer tmpDepth=0;
+    protected Integer maxDepth=0;
+    boolean isVertical;
+    protected TreeNode root = null;
+
     public Integer getSize() {
         return Size;
     }
-
-    protected Integer Size=0;
-    protected Integer tmpDepth=0;
 
     public Integer getMaxDepth() {
         return maxDepth;
     }
 
-    protected Integer maxDepth=0;
-    boolean isVertical;
-    protected TreeNode root = null;
-
     public abstract TreeNode insert(TreeNode t1);
     public abstract void fillTreeWithShapes(java.util.List<Shape> shapes);
 
-    public TreeNode getMedian(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
-        if (hi - lo == 0) {
-            return allShapes[lo];
-        }
+    public void getMedian(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
         isVertical = vertical;
+
+        int med = partion(allShapes, lo, hi);
         Arrays.sort(allShapes, lo, hi + 1);
         Integer medianIndex = (lo + hi) / 2;
-        return allShapes[lo];
+        /*
+        System.out.print("[");
+        for(int i=lo;i<=hi;i++) {
+            System.out.print(allShapes[i].toString());
+            if(i==medianIndex) {
+                System.out.println();
+            }
+        }
+        System.out.println("]");
+
+        System.out.println(medianIndex + " " + med + " " + (hi + lo));
+        */
+        if(allShapes[med]!=allShapes[medianIndex]){
+            System.out.println(allShapes[med] + " " + allShapes[medianIndex]);
+        }
+    }
+
+    private int partion(TreeNode[] nodes, int start, int end) {
+        int pivot = start;
+        TreeNode temp;
+        while (start <= end) {
+            while (start <= end && nodes[start].getComparePoint() <= nodes[pivot].getComparePoint()) start++;
+            while (start <= end && nodes[end].getComparePoint() > nodes[pivot].getComparePoint()) end--;
+            if (start > end) break;
+            temp = nodes[start];
+            nodes[start] = nodes[end];
+            nodes[end] = temp;
+        }
+        temp = nodes[end];
+        nodes[end] = nodes[pivot];
+        nodes[pivot] = temp;
+        return end;
     }
 
     public void insertArray(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
         if (hi - lo == 0) {
-            tmpDepth=0;
             insert(allShapes[lo]);
             return;
         }
+        getMedian(allShapes,lo,hi,vertical);
         isVertical = vertical;
         Arrays.sort(allShapes, lo, hi + 1);
         Integer medianIndex = (lo + hi) / 2;
-        tmpDepth=0;
         insert(allShapes[medianIndex]);
         //Indsæt medianerne fra de to subarrays (Uden at inkludere medianIndex)
         if (hi > medianIndex) {
@@ -59,15 +87,18 @@ import java.util.*;
         }
     }
 
-    public TreeNode insertNode(TreeNode nodeToInsert, TreeNode nodeToCompare, boolean vertical) {
+    public TreeNode insertNode(TreeNode nodeToInsert, TreeNode nodeToCompare) {
         tmpDepth++;
+        boolean vertical = nodeToCompare.vertical;
+
         boolean isSmaller = vertical ? nodeToInsert.getX() < nodeToCompare.getX() : nodeToInsert.getY() < nodeToCompare.getY();
         TreeNode nextNode = isSmaller ? nodeToCompare.low : nodeToCompare.high;
         if (nextNode != null) {
-            return insertNode(nodeToInsert, nextNode, !vertical);
+            return insertNode(nodeToInsert, nextNode);
         } else {
             Size++;
             maxDepth = Math.max(tmpDepth, maxDepth);
+            nodeToInsert.vertical = !vertical;
             if (isSmaller) {
                 nodeToCompare.low = nodeToInsert;
             } else {
@@ -84,18 +115,36 @@ import java.util.*;
         } else {
             Iterator<Shape> iter = shapes.iterator();
             while (iter.hasNext()) {
-                Shape s = iter.next();
-                if(!s.getBounds2D().intersects(rect)) {
+                Rectangle2D bounds = iter.next().getBounds2D();
+                if(!bounds.intersects(rect) || !rect.contains(bounds)) {
                     iter.remove();
                 }
             }
+            //System.out.println(shapes.size());
         }
+        shapes = new HashSet<>();
         lines = new HashSet<>();
-        getShapesBelowNodeInsideBounds(root, rect, true);
+        getShapesBelowNodeInsideBounds(root, rect);
         return shapes;
     }
 
-    public void getShapesBelowNodeInsideBounds(TreeNode startNode, Rectangle2D rect, boolean vertical) {
+    public void drawTree(Graphics2D g) {
+        c=0;
+        g.setColor(Color.blue);
+        drawTreeNode(g, root, 0 ,0);
+        System.out.println(c);
+    }
+    int c;
+    public void drawTreeNode(Graphics2D g, TreeNode node, Integer X, Integer Y) {
+        if(node==null){return;}
+        c++;
+        Integer reverseDepth = maxDepth-Y;
+        g.fill(new Rectangle2D.Double(X*reverseDepth+300,Y*6+100,5,5));
+        drawTreeNode(g, node.low, X-1, Y+1);
+        drawTreeNode(g, node.high, X+1, Y+1);
+    }
+
+    public void getShapesBelowNodeInsideBounds(TreeNode startNode, Rectangle2D rect) {
         if (startNode == null) {
             return;
         }
@@ -104,40 +153,21 @@ import java.util.*;
         //Kun tegn det der er inde for skærmen
         shapes.add(startNode.getShape());
 
-        if(startNode.getSplit() <= rect.getMaxX()) {
-            getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
-        }
-        if (rect.intersects(bounds)) {
-            //shapes.add(startNode.getShape());
-        }
-/*
-        boolean goLow = false, goHigh = false;
-        if (vertical) {
-            if (startNode.split <= rect.getMaxX()) {
-                goHigh = true;
-            }
-            if (startNode.split >= rect.getMinX()) {
-                goLow = true;
-            }
-        } else {
-            if (startNode.split <= rect.getMaxY()) {
-                goHigh = true;
-            }
-            if (startNode.split >= rect.getMinY()) {
-                goLow = true;
-            }
-        }
-        if (goLow || goHigh) {
-            if (goHigh) {
-                getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
-            }
+        boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMaxX() : startNode.getSplit() > rect.getMaxY();
+        boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMinX() : startNode.getSplit() < rect.getMinY();
+
+
+        if(goLow||goHigh) {
             if (goLow) {
-                getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
+                getShapesBelowNodeInsideBounds(startNode.low, rect);
+            }
+            if (goHigh) {
+                getShapesBelowNodeInsideBounds(startNode.high, rect);
             }
             return;
-        }*/
-        //getShapesBelowNodeInsideBounds(startNode.high, rect, !vertical);
-        //getShapesBelowNodeInsideBounds(startNode.low, rect, !vertical);
+        }
+        getShapesBelowNodeInsideBounds(startNode.low, rect);
+        getShapesBelowNodeInsideBounds(startNode.high, rect);
     }
 
     public Shape getNearestNeighbour(Point2D point) {

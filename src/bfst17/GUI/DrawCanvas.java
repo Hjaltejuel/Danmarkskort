@@ -156,6 +156,8 @@ public class DrawCanvas extends JComponent implements Observer {
         //Tegn kortet
         drawMap(g);
 
+        g.draw(screenRectangle);
+
         //Tegn overlay (Pin, POI, Målebånd, FPS)
         drawOverlay(g);
 
@@ -277,7 +279,6 @@ public class DrawCanvas extends JComponent implements Observer {
 
     private Integer getRoundedDistance() {
         //y= 0.4607*e^(0.7682*x)
-
         return 0;
     }
 

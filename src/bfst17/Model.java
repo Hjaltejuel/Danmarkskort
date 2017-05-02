@@ -207,6 +207,7 @@ public class Model extends Observable implements Serializable {
     }
 
     private void fillTrees() {
+        long StartTime = System.nanoTime();
         treeList = new ArrayList<>();
         POITree = new POIKDTree();
 
@@ -215,12 +216,11 @@ public class Model extends Observable implements Serializable {
             if (list.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
                 continue;
             }
-            if(type!=WayType.HIGHWAY_RESIDENTIAL){continue;}
+            //if(type!=WayType.BARRIER_RETAINING_WALL){continue;}
             ShapeKDTree treeWithType = new ShapeKDTree(type);
             treeWithType.fillTreeWithShapes(list);
-            System.out.println(treeWithType.getSize() + " " + treeWithType.getMaxDepth());
+            //System.out.println(type + " Elements: " + treeWithType.getSize() + " MaxDepth: " + treeWithType.getMaxDepth() + " Should be: " + (int)Math.ceil(Math.log(treeWithType.getSize())/Math.log(2)));
             treeList.add(treeWithType);
-            //System.out.println("MaxDepth: " + treeWithType.maxDepth + "\t\t\tElement Count:" + treeWithType.count + "\t\t\tType: " + type);
         }
         //System.out.println("Number of trees: "+treeList.size());
 
@@ -238,6 +238,7 @@ public class Model extends Observable implements Serializable {
         //Ryd op!
         shapes.clear();
         shapes=null;
+        System.out.println((System.nanoTime()-StartTime)/1_000_000+" ms");
     }
 
     private void loadOSM(InputSource source) {
