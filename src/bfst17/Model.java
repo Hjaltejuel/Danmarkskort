@@ -3,7 +3,7 @@ package bfst17;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
 import bfst17.KDTrees.CityNamesKDTree;
-import bfst17.KDTrees.KDTree;
+import bfst17.KDTrees.ShapeKDTree;
 import bfst17.KDTrees.POIKDTree;
 import bfst17.AddressHandling.Address;
 import bfst17.AddressHandling.AddressModel;
@@ -62,8 +62,8 @@ public class Model extends Observable implements Serializable {
         load(filename);
     }
 
-    private ArrayList<KDTree> treeList = new ArrayList<>();
-    public ArrayList<KDTree> getTrees() {
+    private ArrayList<ShapeKDTree> treeList = new ArrayList<>();
+    public ArrayList<ShapeKDTree> getTrees() {
         return treeList;
     }
     private POIKDTree POITree = new POIKDTree();
@@ -179,7 +179,7 @@ public class Model extends Observable implements Serializable {
         } else {
             try (ObjectInputStream in = new ObjectInputStream(input)) {
                 //Ryk rundt på dem her og få med Jens' knytnæve at bestille
-                treeList = (ArrayList<KDTree>) in.readObject();
+                treeList = (ArrayList<ShapeKDTree>) in.readObject();
                 POITree = (POIKDTree) in.readObject();
                 cityTree = (CityNamesKDTree) in.readObject();
                 townTree = (CityNamesKDTree) in.readObject();
@@ -215,7 +215,7 @@ public class Model extends Observable implements Serializable {
             if (list.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
                 continue;
             }
-            KDTree treeWithType = new KDTree(type);
+            ShapeKDTree treeWithType = new ShapeKDTree(type);
             treeWithType.fillTreeWithShapes(list);
             treeList.add(treeWithType);
             //System.out.println("MaxDepth: " + treeWithType.maxDepth + "\t\t\tElement Count:" + treeWithType.count + "\t\t\tType: " + type);

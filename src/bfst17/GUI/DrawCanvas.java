@@ -2,7 +2,7 @@ package bfst17.GUI;
 
 import bfst17.Enums.*;
 import bfst17.KDTrees.CityNamesKDTree;
-import bfst17.KDTrees.KDTree;
+import bfst17.KDTrees.ShapeKDTree;
 import bfst17.KDTrees.POIKDTree;
 import bfst17.Model;
 import bfst17.AddressHandling.TSTInterface;
@@ -345,7 +345,7 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
 	public void drawShapes(Graphics2D g) {
-        for (KDTree tree : model.getTrees()) {
+        for (ShapeKDTree tree : model.getTrees()) {
             WayType type = tree.getType();
             if (type.getZoomFactor() > getXZoomFactor()) {
                 continue;
