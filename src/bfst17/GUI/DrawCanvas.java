@@ -13,6 +13,7 @@ import java.awt.*;
 
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -71,6 +72,20 @@ public class DrawCanvas extends JComponent implements Observer {
 
     public void toggleAA() {
         antiAlias = !antiAlias;
+        repaint();
+        revalidate();
+    }
+
+    //De næste metoder er til at slå aa fra hvis der pannes på og fra når der stoppes.
+    //Den før kan ikke bruges da det giver den modsatte værdi. Hvis AA nu er false bliver den sat til true når der pannes og det skal den ikke.
+    public void AAOff(){
+        antiAlias = false;
+        repaint();
+        revalidate();
+    }
+
+    public void AAOn(){
+        antiAlias = true;
         repaint();
         revalidate();
     }
@@ -220,8 +235,6 @@ public class DrawCanvas extends JComponent implements Observer {
                 int stringWidth = g.getFontMetrics().stringWidth(cityName);
                 g.drawString(cityName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
             }
-
-
         }
     }
 
@@ -230,7 +243,7 @@ public class DrawCanvas extends JComponent implements Observer {
         BufferedImage image = PinAndPOIImageMap.get(imagePath);
         Rectangle2D imageRect = new Rectangle2D.Double(-x,-y,image.getWidth()/getXZoomFactor(),image.getHeight()/getYZoomFactor());
 
-        if(!screenRectangle.intersects(imageRect)){
+        if(!screenRectangle.intersects(imageRect)) {
             return; //Billedet er ikke inden for skærmen
         }
         Point2D drawLocation = lonLatToScreenCords(x, y);
@@ -281,6 +294,14 @@ public class DrawCanvas extends JComponent implements Observer {
 
 
     private void drawFPSCounter(Graphics2D g) {
+        try {
+            InputStream is = this.getClass().getResourceAsStream("/HelveticaNeueLT.otf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(15f);
+            g.setFont(font);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         g.drawString("FPS: "+FPS ,5,getHeight()-55);
     }
 

@@ -37,13 +37,14 @@ public class Model extends Observable implements Serializable {
     private AddressModel addressModel = new AddressModel();
 
     private HashMap<String, WayType> namesToWayTypes = new HashMap<>(); {
-        for(WayType type : WayType.values()){
+        for(WayType type : WayType.values()) {
             namesToWayTypes.put(type.name(),type);
         }
     }
-    private HashMap<String,List<Point2D>> pointsOfInterest = new HashMap<>();{
-        for(PointsOfInterest type: PointsOfInterest.values()){
-            pointsOfInterest.put(type.name(),new ArrayList<>());
+
+    private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>(); {
+        for(PointsOfInterest type: PointsOfInterest.values()) {
+            pointsOfInterest.put(type.name(),new HashSet<>());
         }
     }
 
@@ -90,10 +91,10 @@ public class Model extends Observable implements Serializable {
 
     public Model() {
         //Til osm
-        try{
+        try {
             //load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
             //load("C:\\Users\\Jens\\Downloads\\map (2).osm");
-            load(this.getClass().getResource("/bornholm.osm").getPath());
+            load(this.getClass().getResource("/denmark-latest.osm").getPath());
         } catch (Exception e) {
 
         }
@@ -188,7 +189,7 @@ public class Model extends Observable implements Serializable {
                 maxlon = in.readFloat();
                 maxlat = in.readFloat();
                 double elapsedTime = currentTimeInSeconds() - startTime;
-                System.out.printf("Object deserialization: %f s\n", elapsedTime);
+                System.out.printf("WE HAVE ACHIEVED: [Object deserialization: %f s]\n", elapsedTime);
                 dirty();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -211,7 +212,7 @@ public class Model extends Observable implements Serializable {
 
         for (WayType type : WayType.values()) {
             List<Shape> list = shapes.get(type);
-            if (list.size() == 0 || type==WayType.UNKNOWN || type==WayType.NATURAL_COASTLINE) {
+            if (list.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
                 continue;
             }
             KDTree treeWithType = new KDTree(type);
@@ -221,18 +222,21 @@ public class Model extends Observable implements Serializable {
         }
         //System.out.println("Number of trees: "+treeList.size());
 
-        if(pointsOfInterest != null) {
+        if (pointsOfInterest != null) {
             POITree.fillTree(pointsOfInterest);
         }
-        shapes.clear();;
-        shapes=null;
-        if(cityTree != null) {
+        if (cityTree != null) {
             cityTree.fillTree(cityNames);
         }
 
-        if(townTree != null) {
+        if (townTree != null) {
             townTree.fillTree(townNames);
-        }    }
+        }
+
+        //Ryd op!
+        shapes.clear();
+        shapes=null;
+    }
 
     private void loadOSM(InputSource source) {
         try {
@@ -367,7 +371,7 @@ public class Model extends Observable implements Serializable {
                     if (typeTest != null) {
                         type = typeTest;
                     } else {
-                        List<Point2D> typePointsOfInterest = pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase());
+                        HashSet<Point2D> typePointsOfInterest = pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase());
                         if (typePointsOfInterest != null) {
                             pointsOfInterest.get(k.toUpperCase() + "_" + v.toUpperCase()).add(new Point2D.Double(lon * lonfactor, -lat));
                         }
