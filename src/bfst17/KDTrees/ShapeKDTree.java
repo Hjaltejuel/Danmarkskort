@@ -4,6 +4,8 @@ import bfst17.Enums.WayType;
 import bfst17.ShapeStructure.PolygonApprox;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.*;
@@ -20,25 +22,31 @@ public class ShapeKDTree extends KDTree implements Serializable {
         return type;
     }
 
-    public void fillTreeWithShapes(List<Shape> shapes) {
+    public <Shape> void fillTree(List<Shape> shapes) {
         if (shapes.size() == 0) {
             return;
         }
         ArrayList<ShapeTreeNode> allShapesList = new ArrayList<>();
-        for(int i=0;i<shapes.size();i++) {
-            PolygonApprox shape = (PolygonApprox)shapes.get(i);
+        for(Shape _shape : shapes) {
+            PolygonApprox shape = (PolygonApprox)_shape;
+            PathIterator PI = shape.getPathIterator(new AffineTransform());
+            int Counter=0;
+            while(!PI.isDone()){
+                PI.next();
+                Counter++;
+            }
+            //System.out.println(Counter);
             Rectangle2D bounds = shape.getBounds2D();
             //System.out.println(bounds.getWidth()+bounds.getHeight());
-
             allShapesList.add(new ShapeTreeNode(shape, bounds.getCenterX(), bounds.getCenterY()));
-            allShapesList.add(new ShapeTreeNode(shape, bounds.getMinX(), bounds.getMinY()));
+            /*allShapesList.add(new ShapeTreeNode(shape, bounds.getMinX(), bounds.getMinY()));
             allShapesList.add(new ShapeTreeNode(shape, bounds.getMinX(), bounds.getMaxY()));
             allShapesList.add(new ShapeTreeNode(shape, bounds.getMaxX(), bounds.getMinY()));
             allShapesList.add(new ShapeTreeNode(shape, bounds.getMaxX(), bounds.getMaxY()));
+            */
         }
         ShapeTreeNode[] allShapes = allShapesList.toArray(new ShapeTreeNode[allShapesList.size()]);
         insertArray(allShapes, 0, allShapes.length - 1, true);
-        allShapesList.clear();
     }
 
     public ShapeTreeNode insert(TreeNode insertNode) {
@@ -68,6 +76,9 @@ public class ShapeKDTree extends KDTree implements Serializable {
             return isVertical;
         }
 
+        protected boolean isInside(Rectangle2D rect) {
+            return rect.intersects(shape.getBounds2D());
+        }
         public ShapeTreeNode(PolygonApprox s, double x , double y) {
             this.X = x;
             this.Y = y;

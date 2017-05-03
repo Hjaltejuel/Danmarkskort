@@ -4,8 +4,10 @@ import bfst17.Enums.*;
 import bfst17.KDTrees.CityNamesKDTree;
 import bfst17.KDTrees.ShapeKDTree;
 import bfst17.KDTrees.POIKDTree;
+import bfst17.KDTrees.TreeNode;
 import bfst17.Model;
 import bfst17.AddressHandling.TSTInterface;
+import sun.reflect.generics.tree.Tree;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -52,6 +54,7 @@ public class DrawCanvas extends JComponent implements Observer {
         }
         try{
             for (PointsOfInterest POI : PointsOfInterest.values()){
+                if(POI==PointsOfInterest.UNKNOWN){continue;}
                 BufferedImage img = ImageIO.read(getClass().getResource("/POI/" + POI.name() + ".png"));
                 PinAndPOIImageMap.put(POI.name(), img);
             }
@@ -140,18 +143,29 @@ public class DrawCanvas extends JComponent implements Observer {
 	 *
 	 * @see #paint
 	 */
+
+
+	long MapDrawTime;
+	ArrayList<Long> times = new ArrayList<Long>();
 	@Override
 	protected void paintComponent(Graphics _g) {
         Graphics2D g = (Graphics2D) _g;
 
         //Definér skærmbilledet
+        //Point2D topLeft = screenCordsToLonLat(200, 200);
+        //Point2D topRight = screenCordsToLonLat(600,600);
         Point2D topLeft = screenCordsToLonLat(0, 0);
         Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
         screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
                 topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
 
+        MapDrawTime=System.nanoTime();
         //Tegn kortet
         drawMap(g);
+        MapDrawTime=System.nanoTime()-MapDrawTime;
+        times.add(MapDrawTime);
+
+        //g.draw(screenRectangle);
 
         //Tegn overlay (Pin, POI, Målebånd, FPS)
         drawOverlay(g);
@@ -188,11 +202,12 @@ public class DrawCanvas extends JComponent implements Observer {
     public void drawPointsOfInteres(Graphics2D g) {
         if (getXZoomFactor() > 40000) {
             POIKDTree POITree = model.getPOITree();
-            for (POIKDTree.TreeNode PoiNodes : POITree.getInRange(screenRectangle)) {
-                PointsOfInterest POIType = PoiNodes.getPOIType();
+            for (TreeNode node : POITree.getInRange(screenRectangle)) {
+                POIKDTree.POITreeNode POINode = (POIKDTree.POITreeNode)node;
+                PointsOfInterest POIType = POINode.getPOIType();
                 if (nameToBoolean.get(POIType.getClassification())) {
                     String imagePath = POIType.name();
-                    drawImageAtLocation(g, imagePath, -PoiNodes.getX(), -PoiNodes.getY());
+                    drawImageAtLocation(g, imagePath, -POINode.getX(), -POINode.getY());
                 }
             }
         }
@@ -279,16 +294,19 @@ public class DrawCanvas extends JComponent implements Observer {
 
 
     private void drawFPSCounter(Graphics2D g) {
-        try {
-            InputStream is = this.getClass().getResourceAsStream("/HelveticaNeueLT.otf");
-            Font font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(15f);
-            g.setFont(font);
+        g.drawString("FPS: " + FPS, 5, getHeight() - 55);
+        g.drawString("Shapes: " + numOfShapes, 5, getHeight() - 70);
+        if (FPS == 0) {
+            return;
         }
-        catch (Exception e) {
-            e.printStackTrace();
+        g.drawString("Shape/FPS: " + numOfShapes / FPS, 5, getHeight() - 85);
+
+        long avg = 0;
+        for (Long l : times) {
+            avg += l / times.size();
         }
-        g.drawString("FPS: "+FPS ,5,getHeight()-55);
-        g.drawString("Shapes: "+numOfShapes,5,getHeight()-70);
+        g.drawString("Curr time: " + MapDrawTime/1_000_000, 5, getHeight() - 100);
+        g.drawString("Avg  time: " + avg/1_000_000, 5, getHeight() - 115);
     }
 
     private void drawMap(Graphics2D g) {
@@ -346,12 +364,16 @@ public class DrawCanvas extends JComponent implements Observer {
 
     Integer numOfShapes=0;
 	public void drawShapes(Graphics2D g) {
+	    numOfShapes=0;
         for (ShapeKDTree tree : model.getTrees()) {
             WayType type = tree.getType();
             if (type.getZoomFactor() > getXZoomFactor()) {
                 continue;
             }
+            g.setColor(getDrawColor(type));
+            g.setStroke(type.getDrawStroke());
 
+            /*
             if(type == WayType.HIGHWAY_RESIDENTIAL) {
                 Point2D centerPoint = new Point2D.Double(-getCenterCordinateX(), -getCenterCordinateY());
                 Shape nearestNeighbour = tree.getNearestNeighbour(centerPoint);
@@ -361,21 +383,26 @@ public class DrawCanvas extends JComponent implements Observer {
                     g.setColor(Color.black);
                     g.draw(l);
                 }
-            }
-            HashSet<Shape> shapes = tree.getInRange(screenRectangle);
-            numOfShapes=shapes.size();
-            g.setColor(getDrawColor(type));
+            }*/
 
-            g.setStroke(type.getDrawStroke());
+            HashSet<TreeNode> nodes = tree.getInRange(screenRectangle);
+            numOfShapes+=nodes.size();
 
             //Her bestemmes om shapes skal fyldes eller ej
+
             if (type.getFillType() == FillType.LINE) {
-                for (Shape shape : shapes) {
-                    g.draw(shape);
+                for (TreeNode node : nodes) {
+                    /*double split=node.getSplit();
+                    if(node.issVertical()){
+                        g.draw(new Line2D.Double(node.getSplit(),-56,node.getSplit(),-55));
+                    } else {
+                        g.draw(new Line2D.Double(8, node.getSplit(), 8.5, node.getSplit()));
+                    }*/
+                    g.draw(node.getShape());
                 }
             } else if (type.getFillType() == FillType.SOLID) {
-                for (Shape shape : shapes) {
-                    g.fill(shape);
+                for (TreeNode node : nodes) {
+                    g.fill(node.getShape());
                 }
             }
         }

@@ -1,6 +1,7 @@
 package bfst17.Enums;
 
 import bfst17.Enums.POIclasification;
+import org.omg.CORBA.UNKNOWN;
 
 import java.io.Serializable;
 
@@ -100,7 +101,8 @@ public enum PointsOfInterest implements Serializable {
     SHOP_HAIRDRESSER(POIclasification.SHOPS),
     SHOP_BEAUTY(POIclasification.SHOPS),
     SHOP_COSMETICS(POIclasification.SHOPS),
-    SHOP_PERFUMERY(POIclasification.SHOPS);
+    SHOP_PERFUMERY(POIclasification.SHOPS),
+    UNKNOWN(POIclasification.SHOPS);
 
     private final POIclasification classification;
     PointsOfInterest(POIclasification classification){

@@ -1,11 +1,11 @@
 package bfst17.KDTrees;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by Jens on 02-05-2017.
@@ -26,7 +26,7 @@ public abstract class KDTree implements Serializable {
     }
 
     public abstract TreeNode insert(TreeNode t1);
-    public abstract void fillTreeWithShapes(java.util.List<Shape> shapes);
+    public abstract <E> void fillTree(List<E> objs);
 
     public void insertArray(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
         if (hi - lo == 0) {
@@ -66,23 +66,22 @@ public abstract class KDTree implements Serializable {
             return nodeToInsert;
         }
     }
-    private HashSet<Shape> shapes;
-    public HashSet<Shape> getInRange(Rectangle2D rect) {
-        if(shapes==null) {
-            shapes = new HashSet<>();
+    private HashSet<TreeNode> nodes;
+    public HashSet<TreeNode> getInRange(Rectangle2D rect) {
+        /*if(nodes ==null) {
+            nodes = new HashSet<>();
         } else {
-            Iterator<Shape> iter = shapes.iterator();
+            Iterator<TreeNode> iter = nodes.iterator();
             while (iter.hasNext()) {
-                Rectangle2D bounds = iter.next().getBounds2D();
-                if(!bounds.intersects(rect) || !rect.contains(bounds)) {
+                TreeNode currentNode = iter.next();
+                if(!currentNode.isInside(rect)) {
                     iter.remove();
                 }
             }
-            //System.out.println(shapes.size());
-        }
-        shapes = new HashSet<>();
+        }*/
+        nodes = new HashSet<>();
         getShapesBelowNodeInsideBounds(root, rect);
-        return shapes;
+        return nodes;
     }
 
     public void drawTree(Graphics2D g) {
@@ -91,6 +90,7 @@ public abstract class KDTree implements Serializable {
         drawTreeNode(g, root, 0 ,0);
         System.out.println(c);
     }
+
     int c;
     public void drawTreeNode(Graphics2D g, TreeNode node, Integer X, Integer Y) {
         if(node==null){return;}
@@ -106,13 +106,25 @@ public abstract class KDTree implements Serializable {
             return;
         }
 
-        Rectangle2D bounds = startNode.shape.getBounds2D();
         //Kun tegn det der er inde for skærmen
-        shapes.add(startNode.getShape());
+        if(startNode.isInside(rect)) {
+            nodes.add(startNode);
+        }
 
-        boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMaxX() : startNode.getSplit() > rect.getMaxY();
-        boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMinX() : startNode.getSplit() < rect.getMinY();
 
+        //boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMaxX() : startNode.getSplit() > rect.getMaxY();
+        //boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMinX() : startNode.getSplit() < rect.getMinY();
+
+        boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMinX() : startNode.getSplit() > rect.getMinY();
+        boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMaxX() : startNode.getSplit() < rect.getMaxY();
+
+        if(goLow) {
+            getShapesBelowNodeInsideBounds(startNode.low, rect);
+        }
+        if(goHigh) {
+            getShapesBelowNodeInsideBounds(startNode.high, rect);
+        }
+        /*
 
         if(goLow||goHigh) {
             if (goLow) {
@@ -122,9 +134,9 @@ public abstract class KDTree implements Serializable {
                 getShapesBelowNodeInsideBounds(startNode.high, rect);
             }
             return;
-        }
-        getShapesBelowNodeInsideBounds(startNode.low, rect);
-        getShapesBelowNodeInsideBounds(startNode.high, rect);
+        }*/
+        //getShapesBelowNodeInsideBounds(startNode.low, rect);
+        //getShapesBelowNodeInsideBounds(startNode.high, rect);
     }
 
     public Shape getNearestNeighbour(Point2D point) {
