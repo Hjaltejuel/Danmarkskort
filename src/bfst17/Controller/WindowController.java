@@ -171,7 +171,8 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             File fileToLoad = fileChooser.getSelectedFile();
             if (fileChooser.accept(fileToLoad) && fileToLoad.exists()) { //Filen er fundet! Indlæs:
                 model.load(fileToLoad.getAbsolutePath());
-                //window.getWindow().dispose();
+                addressModel = model.getAddressModel();
+                window.setTreeInAutocompleter(addressModel.getTSTTree());
             } else { //Filen blev ikke fundet - giv fejlmeddelelse
                 if (!fileChooser.accept(fileToLoad)) {
                     JOptionPane.showMessageDialog(window.getWindow(), "You must choose a correct filetype to loadFile");

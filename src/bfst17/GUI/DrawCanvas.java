@@ -80,6 +80,20 @@ public class DrawCanvas extends JComponent implements Observer {
         revalidate();
     }
 
+    //De næste metoder er til at slå aa fra hvis der pannes på og fra når der stoppes.
+    //Den før kan ikke bruges da det giver den modsatte værdi. Hvis AA nu er false bliver den sat til true når der pannes og det skal den ikke.
+    public void AAOff(){
+        antiAlias = false;
+        repaint();
+        revalidate();
+    }
+
+    public void AAOn(){
+        antiAlias = true;
+        repaint();
+        revalidate();
+    }
+
     public boolean isFancyPanEnabled() {
         return fancyPanEnabled;
     }
@@ -320,7 +334,8 @@ public class DrawCanvas extends JComponent implements Observer {
         //Tegn regionen, hvis der er søgt efter den
         if(regionShape != null){
             Color color = g.getColor();
-            g.setColor(new Color(255,0,0,127));
+            g.setStroke(new BasicStroke((float)0.001f));
+            g.setColor(new Color(255,0,0));
             g.draw(regionShape);
             g.setColor(color);
         }
@@ -547,13 +562,21 @@ public class DrawCanvas extends JComponent implements Observer {
 
     //Zoom ting
     public void zoom(double factor) {
+        System.out.println(getXZoomFactor()*factor);
         //Zoom begrænsning
         if(getXZoomFactor()*factor>800000) {
             return;
+            //max zoom out
+        } else if(getXZoomFactor()*factor<120){
+            return;
         }
-        transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
-        repaint();
-        revalidate();
+
+        else {
+            transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
+
+            repaint();
+            revalidate();
+        }
     }
 
     public void centerZoomToZoomLevel(double zoomLevel){
