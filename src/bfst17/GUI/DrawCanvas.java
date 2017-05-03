@@ -377,7 +377,6 @@ public class DrawCanvas extends JComponent implements Observer {
 
     public void drawRoadNames(Graphics2D g){
         g.setColor(new Color(144, 132, 140));
-        System.out.println(getXZoomFactor());
         for(RoadKDTree tree: model.getRoadTreeList()){
             switch(tree.getType()){
                 case HIGHWAY_PRIMARY:

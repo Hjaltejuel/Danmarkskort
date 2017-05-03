@@ -116,6 +116,7 @@ public class Model extends Observable implements Serializable {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             out.writeObject(treeList);
+            out.writeObject(roadTreeList);
             out.writeObject(POITree);
             out.writeObject(cityTree);
             out.writeObject(townTree);
@@ -180,6 +181,7 @@ public class Model extends Observable implements Serializable {
             try (ObjectInputStream in = new ObjectInputStream(input)) {
                 //Ryk rundt på dem her og få med Jens' knytnæve at bestille
                 treeList = (ArrayList<KDTree>) in.readObject();
+                roadTreeList = (ArrayList<RoadKDTree>) in.readObject();
                 POITree = (POIKDTree) in.readObject();
                 cityTree = (CityNamesKDTree) in.readObject();
                 townTree = (CityNamesKDTree) in.readObject();
@@ -228,6 +230,7 @@ public class Model extends Observable implements Serializable {
             }
             //System.out.println("MaxDepth: " + treeWithType.maxDepth + "\t\t\tElement Count:" + treeWithType.count + "\t\t\tType: " + type);
         }
+        roads.clear();
         //System.out.println("Number of trees: "+treeList.size());
 
         if (pointsOfInterest != null) {
