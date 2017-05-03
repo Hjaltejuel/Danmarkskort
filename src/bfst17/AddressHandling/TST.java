@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,9 +72,13 @@ public class TST<TSTInterface> implements Serializable {
                 if(node.getAddress().equals(suffix)) {
                     return (TSTInterface) node;
                  }
-                } else return (TSTInterface) ((DuplicateAddressNode)x.val).get(0);
+                }
+                else {
+                    int randomNum = ThreadLocalRandom.current().nextInt(0, 3 + 1);
+                    return (TSTInterface) ((DuplicateAddressNode) x.val).get(randomNum);
+                }
+                }
             }
-        }
         //if it isnt a duplicate return the node, this makes it so you can also search on addresses without suffix
         // if there arent duplicates
         return x.val;
