@@ -34,6 +34,7 @@ public class CanvasMouseController extends MouseAdapter {
 	@Override
 	public void mousePressed(MouseEvent e) {
 		lastMousePosition = e.getPoint();
+		System.out.println(e.getX() + " " + e.getY());
 		canvas.AAOff();
 	}
 

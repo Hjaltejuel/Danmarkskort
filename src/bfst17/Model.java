@@ -36,10 +36,12 @@ public class Model extends Observable implements Serializable {
     private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>();
     private HashMap<String, Point2D> cityNames = new HashMap<>();
     private HashMap<String, Point2D> townNames = new HashMap<>();
+    private HashMap<WayType, ArrayList<RoadNode>> roads = new HashMap<>();
 
     private ArrayList<Shape> coastlines = new ArrayList<>();
     private ArrayList<KDTree> treeList = new ArrayList<>();
 
+    private ArrayList<RoadKDTree> roadTreeList = new ArrayList<>();
     private POIKDTree POITree = new POIKDTree();
     private CityNamesKDTree cityTree = new CityNamesKDTree();
     private CityNamesKDTree townTree = new CityNamesKDTree();
@@ -54,26 +56,11 @@ public class Model extends Observable implements Serializable {
     private long nodeID;
     private float lonfactor;
 
+
+
     public ArrayList<KDTree> getTrees() {return treeList;}
     public POIKDTree getPOITree() {return POITree;}
-
-    public Model(String filename) throws IOException {
-        load(filename);
-    }
-
-    private ArrayList<KDTree> treeList = new ArrayList<>();
-    private ArrayList<RoadKDTree> roadTreeList = new ArrayList<>();
-
-    public ArrayList<KDTree> getTrees() {
-        return treeList;
-    }
     public ArrayList<RoadKDTree> getRoadTreeList(){return roadTreeList;}
-    private POIKDTree POITree = new POIKDTree();
-    public POIKDTree getPOITree() {
-        return POITree;
-    }
-
-    private CityNamesKDTree cityTree = new CityNamesKDTree();
     public CityNamesKDTree getCityTree() { return cityTree; }
     public CityNamesKDTree getTownTreeTree() { return townTree;}
     public AddressModel getAddressModel() { return addressModel; }
@@ -82,13 +69,6 @@ public class Model extends Observable implements Serializable {
 
     public Model(String filename) throws IOException {
         load(filename);
-    private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
-        for (WayType type : WayType.values()) {
-            if(type.toString().split("_")[0].equals("HIGHWAY")){
-                roads.put(type,new ArrayList<>());
-            }
-            shapes.put(type, new ArrayList<>());
-        }
     }
 
     public Model() {
@@ -96,7 +76,7 @@ public class Model extends Observable implements Serializable {
         try {
             //load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
             //load("C:\\Users\\Jens\\Downloads\\map (2).osm");
-            load(this.getClass().getResource("/denmark-latest.osm").getPath());
+            load(this.getClass().getResource("/map (4).osm").getPath());
         } catch (Exception e) {
 
         }
@@ -114,6 +94,9 @@ public class Model extends Observable implements Serializable {
             namesToWayTypes.put(type.name(),type);
         }
         for (WayType type : WayType.values()) {
+            if(type.toString().split("_")[0].equals("HIGHWAY")){
+                roads.put(type,new ArrayList<>());
+            }
             shapes.put(type, new ArrayList<>());
         }
 
@@ -226,9 +209,6 @@ public class Model extends Observable implements Serializable {
     }
 
     private void fillTrees() {
-        treeList = new ArrayList<>();
-        POITree = new POIKDTree();
-
         for (WayType type : WayType.values()) {
             List<Shape> list = shapes.get(type);
             if (type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE ) {
