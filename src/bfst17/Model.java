@@ -29,65 +29,41 @@ import java.util.zip.ZipInputStream;
  */
 public class Model extends Observable implements Serializable {
     private Address.Builder addressBuilder = new Address.Builder();
+    private AddressModel addressModel = new AddressModel();
+
+    private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class);
+    private HashMap<String, WayType> namesToWayTypes = new HashMap<>();
+    private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>();
+    private HashMap<String, Point2D> cityNames = new HashMap<>();
+    private HashMap<String, Point2D> townNames = new HashMap<>();
+
+    private ArrayList<Shape> coastlines = new ArrayList<>();
+    private ArrayList<KDTree> treeList = new ArrayList<>();
+
+    private POIKDTree POITree = new POIKDTree();
+    private CityNamesKDTree cityTree = new CityNamesKDTree();
+    private CityNamesKDTree townTree = new CityNamesKDTree();
 
     String name= "";
     OSMNode regionCenter = null;
     boolean adminRelation = false;
-
     private boolean isAddressNode = false;
-    private AddressModel addressModel = new AddressModel();
-
-    private HashMap<String, WayType> namesToWayTypes = new HashMap<>(); {
-        for(WayType type : WayType.values()) {
-            namesToWayTypes.put(type.name(),type);
-        }
-    }
-
-    private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>(); {
-        for(PointsOfInterest type: PointsOfInterest.values()) {
-            pointsOfInterest.put(type.name(),new HashSet<>());
-        }
-    }
-
-    private HashMap<String, Point2D> cityNames = new HashMap<>();
-    private HashMap<String, Point2D> townNames = new HashMap<>();
 
     private float minlat, minlon, maxlat, maxlon;
     private float clminlat, clminlon, clmaxlat, clmaxlon;
     private long nodeID;
-    private ArrayList<Shape> coastlines = new ArrayList<>();
     private float lonfactor;
+
+    public ArrayList<KDTree> getTrees() {return treeList;}
+    public POIKDTree getPOITree() {return POITree;}
+    public CityNamesKDTree getCityTree() { return cityTree; }
+    public CityNamesKDTree getTownTreeTree() { return townTree;}
+    public AddressModel getAddressModel() { return addressModel; }
+    public Iterable<Shape> get(WayType type) {return shapes.get(type);}
 
 
     public Model(String filename) throws IOException {
         load(filename);
-    }
-
-    private ArrayList<KDTree> treeList = new ArrayList<>();
-    public ArrayList<KDTree> getTrees() {
-        return treeList;
-    }
-    private POIKDTree POITree = new POIKDTree();
-    public POIKDTree getPOITree() {
-        return POITree;
-    }
-
-    private CityNamesKDTree cityTree = new CityNamesKDTree();
-    public CityNamesKDTree getCityTree() { return cityTree; }
-
-    private CityNamesKDTree townTree = new CityNamesKDTree();
-    public CityNamesKDTree getTownTreeTree() { return townTree;}
-
-    public AddressModel getAddressModel() { return addressModel; }
-
-    public Iterable<Shape> get(WayType type) {
-        return shapes.get(type);
-    }
-
-    private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
-        for (WayType type : WayType.values()) {
-            shapes.put(type, new ArrayList<>());
-        }
     }
 
     public Model() {
@@ -95,7 +71,7 @@ public class Model extends Observable implements Serializable {
         try {
             //load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
             //load("C:\\Users\\Jens\\Downloads\\map (2).osm");
-            load(this.getClass().getResource("/").getPath());
+            load(this.getClass().getResource("/denmark-latest.osm").getPath());
         } catch (Exception e) {
 
         }
@@ -103,6 +79,19 @@ public class Model extends Observable implements Serializable {
         //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
         loadAllCoastlines();
         //loadFile(path);
+    }
+
+    public void initializeHashmaps(){
+        for(PointsOfInterest type: PointsOfInterest.values()) {
+            pointsOfInterest.put(type.name(),new HashSet<>());
+        }
+        for(WayType type : WayType.values()) {
+            namesToWayTypes.put(type.name(),type);
+        }
+        for (WayType type : WayType.values()) {
+            shapes.put(type, new ArrayList<>());
+        }
+
     }
 
     public void add(WayType type, Shape shape) {
@@ -166,6 +155,8 @@ public class Model extends Observable implements Serializable {
                 }, 0, 1000);
 
         if (filename.endsWith(".osm")) {
+            initializeHashmaps();
+            this.addressModel = new AddressModel();
             loadOSM(new InputSource(input));
         } else if (filename.endsWith(".zip")) {
             try {
@@ -227,18 +218,21 @@ public class Model extends Observable implements Serializable {
 
         if (pointsOfInterest != null) {
             POITree.fillTree(pointsOfInterest);
+            pointsOfInterest.clear();
         }
         if (cityTree != null) {
             cityTree.fillTree(cityNames);
+            cityNames.clear();
         }
 
         if (townTree != null) {
             townTree.fillTree(townNames);
+            townNames.clear();
         }
 
         //Ryd op!
         shapes.clear();
-        shapes=null;
+
     }
 
     private void loadOSM(InputSource source) {
