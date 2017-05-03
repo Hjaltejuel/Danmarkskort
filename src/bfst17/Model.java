@@ -95,7 +95,7 @@ public class Model extends Observable implements Serializable {
         try {
             //load("C:\\Users\\Jens\\Downloads\\denmark-latest.osm");
             //load("C:\\Users\\Jens\\Downloads\\map (2).osm");
-            load(this.getClass().getResource("/bornholm.osm").getPath());
+            load(this.getClass().getResource("/").getPath());
         } catch (Exception e) {
 
         }
