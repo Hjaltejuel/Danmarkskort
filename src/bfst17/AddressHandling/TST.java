@@ -171,27 +171,17 @@ public class TST<TSTInterface> implements Serializable {
             //set the prefix
             this.prefix = prefixUser;
             //delete the commas
-            prefix = prefix.replace(",","");
-            String[] split = prefix.split(" ");
+            String[] split = prefix.split(",");
             //reset the values
             this.suffix = "";
             prefix = "";
             //run trough the split array and make the suffix
-            for(int i = 2; i<split.length; i++){
-                if(i!= 0){
-                    suffix += " " + split[i];
-                } else
-                suffix += split[i];
-            }
+            prefix = split[0];
             //run trough the split array and make the suffix
-            for(int i = 0; i<2 ; i++){
-                if(i<split.length){
-                    if(i!= 0) {
-                        prefix += " " +split[i];
-                    } else prefix += split[i];
-                }
-
+            if(split.length>1) {
+                suffix = split[1];
             }
+
             if (prefix == null) {
                 throw new IllegalArgumentException("calls keysWithPrefix() with null argument");
             }
@@ -273,8 +263,8 @@ public class TST<TSTInterface> implements Serializable {
     public void addAddressNodeToQueue(PriorityQueue<PriorityStrings> queue, AddressNode x, String found){
         String compare = x.toString();
         double similarity = similarity(compare,suffix);
-
-        double n = (((double) this.prefix.length()  / ((double) found.length()+ x.toString().length()+2))+similarity);
+        System.out.println(found+ x.toString());
+        double n = (((double) this.prefix.length()  / ((double) found.length()+ x.toString().length()))+similarity);
         //System.out.println(prefix + " " + n);
         queue.add(new PriorityStrings(n,found + ", " +x.toString()));
     }

@@ -462,6 +462,7 @@ public class Model extends Observable implements Serializable {
                         Address address = addressBuilder.build();
                         addressModel.putAddress(address, idToNode.get(nodeID));
                         isAddressNode = false;
+
                     }
                     break;
                 case "way":

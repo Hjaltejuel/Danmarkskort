@@ -7,11 +7,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 
 /**
  * Created by Michelle on 5/2/2017.
  */
-public class RoadNode {
+public class RoadNode implements Serializable {
     PolygonApprox s;
     String roadName;
 
