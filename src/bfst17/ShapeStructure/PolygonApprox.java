@@ -191,6 +191,10 @@ public class PolygonApprox implements Shape, Serializable {
 		return bh;
 	}
 
+	public int getLengthOfCoords(){
+		return coords.length;
+	}
+
 	public Rectangle getBounds() {
 		return getBounds2D().getBounds();
 	}

@@ -33,7 +33,12 @@ public class CanvasMouseController extends MouseAdapter {
 	 */
 	@Override
 	public void mousePressed(MouseEvent e) {
+		if(canvas.getTimer() != null) {
+			canvas.getTimer().cancel();
+		}
 		lastMousePosition = e.getPoint();
+		System.out.println(e.getX() + " " + e.getY());
+		canvas.AAOff();
 	}
 
 	/**
@@ -43,6 +48,10 @@ public class CanvasMouseController extends MouseAdapter {
 	 */
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		if(canvas.getTimer() != null) {
+			canvas.getTimer().cancel();
+		}
+		canvas.AAOn();
 
 	}
 

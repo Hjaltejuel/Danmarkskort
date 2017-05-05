@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,11 +68,17 @@ public class TST<TSTInterface> implements Serializable {
         if(x.val instanceof DuplicateAddressNode){
             //run trough the duplicates and find the one that matches the given keys suffix and then return it
             for(bfst17.AddressHandling.TSTInterface node: (DuplicateAddressNode)(x.val)){
-                if(node.getAddress().equals(suffix)){
+                if(node instanceof AddressNode){
+                if(node.getAddress().equals(suffix)) {
                     return (TSTInterface) node;
+                 }
+                }
+                else {
+                    int randomNum = ThreadLocalRandom.current().nextInt(0, ((DuplicateAddressNode) x.val).size());
+                    return (TSTInterface) ((DuplicateAddressNode) x.val).get(randomNum);
+                }
                 }
             }
-        }
         //if it isnt a duplicate return the node, this makes it so you can also search on addresses without suffix
         // if there arent duplicates
         return x.val;
@@ -164,27 +171,17 @@ public class TST<TSTInterface> implements Serializable {
             //set the prefix
             this.prefix = prefixUser;
             //delete the commas
-            prefix = prefix.replace(",","");
-            String[] split = prefix.split(" ");
+            String[] split = prefix.split(",");
             //reset the values
             this.suffix = "";
             prefix = "";
             //run trough the split array and make the suffix
-            for(int i = 2; i<split.length; i++){
-                if(i!= 0){
-                    suffix += " " + split[i];
-                } else
-                suffix += split[i];
-            }
+            prefix = split[0];
             //run trough the split array and make the suffix
-            for(int i = 0; i<2 ; i++){
-                if(i<split.length){
-                    if(i!= 0) {
-                        prefix += " " +split[i];
-                    } else prefix += split[i];
-                }
-
+            if(split.length>1) {
+                suffix = split[1];
             }
+
             if (prefix == null) {
                 throw new IllegalArgumentException("calls keysWithPrefix() with null argument");
             }
@@ -199,7 +196,11 @@ public class TST<TSTInterface> implements Serializable {
                 //if there are duplicates, add them all
                 if(x.val instanceof DuplicateAddressNode){
                     for(bfst17.AddressHandling.TSTInterface node: ((DuplicateAddressNode)x.val)){
-                        addAddressNodeToQueue(queue,(AddressNode)node,prefix);
+                        if(node instanceof AddressNode) {
+                            addAddressNodeToQueue(queue, (AddressNode) node, prefix);
+                        } else {
+                            addOtherNodeToQueue(queue,prefix);
+                        }
                     }
                 } else
                     //if there only is one match and its an address
@@ -262,8 +263,7 @@ public class TST<TSTInterface> implements Serializable {
     public void addAddressNodeToQueue(PriorityQueue<PriorityStrings> queue, AddressNode x, String found){
         String compare = x.toString();
         double similarity = similarity(compare,suffix);
-
-        double n = (((double) this.prefix.length()  / ((double) found.length()+ x.toString().length()+2))+similarity);
+        double n = (((double) this.prefix.length()  / ((double) found.length()+ x.toString().length()))+similarity);
         //System.out.println(prefix + " " + n);
         queue.add(new PriorityStrings(n,found + ", " +x.toString()));
     }

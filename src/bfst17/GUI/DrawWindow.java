@@ -202,6 +202,11 @@ public class DrawWindow {
 		secondCombo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 	}
 
+	public void setTreeInAutocompleter(TST tree){
+		combo.setTree(tree);
+		secondCombo.setTree(tree);
+	}
+
 
 	public void setUpNightMode() {
 		menuButton.setBackground(new Color(36, 47, 62));

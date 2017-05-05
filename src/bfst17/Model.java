@@ -6,6 +6,7 @@ import bfst17.KDTrees.*;
 import bfst17.AddressHandling.Address;
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.Region;
+import bfst17.KDTrees.RoadKDTree;
 import bfst17.OSMData.OSMNode;
 import bfst17.OSMData.OSMRelation;
 import bfst17.OSMData.OSMWay;
@@ -27,25 +28,41 @@ import java.util.zip.ZipInputStream;
  */
 public class Model extends Observable implements Serializable {
     private Address.Builder addressBuilder = new Address.Builder();
+    private AddressModel addressModel = new AddressModel();
+
+    private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class);
+    private HashMap<String, WayType> namesToWayTypes = new HashMap<>();
+    private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>();
+    private HashMap<String, Point2D> cityNames = new HashMap<>();
+    private HashMap<String, Point2D> townNames = new HashMap<>();
+    private HashMap<WayType, ArrayList<RoadNode>> roads = new HashMap<>();
+
+    private ArrayList<Shape> coastlines = new ArrayList<>();
+    private ArrayList<KDTree> treeList = new ArrayList<>();
+
+    private ArrayList<RoadKDTree> roadTreeList = new ArrayList<>();
+    private POIKDTree POITree = new POIKDTree();
+    private CityNamesKDTree cityTree = new CityNamesKDTree();
+    private CityNamesKDTree townTree = new CityNamesKDTree();
 
     String name= "";
     OSMNode regionCenter = null;
     boolean adminRelation = false;
-
     private boolean isAddressNode = false;
     private AddressModel addressModel = new AddressModel();
 
 	private float minlat, minlon, maxlat, maxlon;
+
+    private float minlat, minlon, maxlat, maxlon;
     private float clminlat, clminlon, clmaxlat, clmaxlon;
     private long nodeID;
-    private ArrayList<Shape> coastlines = new ArrayList<>();
     private float lonfactor;
 
 
-    public Model(String filename) throws IOException {
-        load(filename);
-    }
 
+    public ArrayList<KDTree> getTrees() {return treeList;}
+    public POIKDTree getPOITree() {return POITree;}
+    public ArrayList<RoadKDTree> getRoadTreeList(){return roadTreeList;}
     private ArrayList<ShapeKDTree> treeList = new ArrayList<>();
     public ArrayList<ShapeKDTree> getTrees() {
         return treeList;
@@ -57,11 +74,14 @@ public class Model extends Observable implements Serializable {
 
     private CityNamesKDTree cityTree = new CityNamesKDTree();
     public CityNamesKDTree getCityTree() { return cityTree; }
-
-    private CityNamesKDTree townTree = new CityNamesKDTree();
     public CityNamesKDTree getTownTreeTree() { return townTree;}
-
     public AddressModel getAddressModel() { return addressModel; }
+    public Iterable<Shape> get(WayType type) {return shapes.get(type);}
+
+
+    public Model(String filename) throws IOException {
+        load(filename);
+    }
 
     public Model() {
         //Til osm
@@ -70,6 +90,7 @@ public class Model extends Observable implements Serializable {
             //load("C:\\Users\\Jens\\Downloads\\map (2).osm");
 			//load("C:\\Users\\Jens\\IdeaProjects\\Danmarkskortet\\aa.bin");
             load(this.getClass().getResource("/bornholm.osm").getPath());
+            //load(this.getClass().getResource("/map (4).osm").getPath());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,6 +98,27 @@ public class Model extends Observable implements Serializable {
         //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
         loadAllCoastlines();
         //loadFile(path);
+    }
+
+    public void initializeHashmaps(){
+        for(PointsOfInterest type: PointsOfInterest.values()) {
+            pointsOfInterest.put(type.name(),new HashSet<>());
+        }
+        for(WayType type : WayType.values()) {
+            namesToWayTypes.put(type.name(),type);
+        }
+        for (WayType type : WayType.values()) {
+            if(type.toString().split("_")[0].equals("HIGHWAY")){
+                roads.put(type,new ArrayList<>());
+            }
+            shapes.put(type, new ArrayList<>());
+        }
+
+    }
+
+    public void add(WayType type, Shape shape) {
+        shapes.get(type).add(shape);
+        dirty();
     }
 
     private void dirty() {
@@ -89,15 +131,11 @@ public class Model extends Observable implements Serializable {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
 
             out.writeObject(treeList);
-			System.out.println("Tree");
-			out.writeObject(POITree);
-			System.out.println("Tree");
+            out.writeObject(roadTreeList);
+            out.writeObject(POITree);
             out.writeObject(cityTree);
-			System.out.println("Tree");
             out.writeObject(townTree);
-			System.out.println("Tree");
             out.writeObject(addressModel);
-			System.out.println("address");
             out.writeFloat(minlon);
             out.writeFloat(minlat);
             out.writeFloat(maxlon);
@@ -141,6 +179,8 @@ public class Model extends Observable implements Serializable {
                 }, 0, 1000);
 
         if (filename.endsWith(".osm")) {
+            initializeHashmaps();
+            this.addressModel = new AddressModel();
             loadOSM(new InputSource(input));
         } else if (filename.endsWith(".zip")) {
             try {
@@ -155,7 +195,8 @@ public class Model extends Observable implements Serializable {
         } else {
             try (ObjectInputStream in = new ObjectInputStream(input)) {
                 //Ryk rundt på dem her og få med Jens' knytnæve at bestille
-                treeList = (ArrayList<ShapeKDTree>) in.readObject();
+                treeList = (ArrayList<KDTree>) in.readObject();
+                roadTreeList = (ArrayList<RoadKDTree>) in.readObject();
                 POITree = (POIKDTree) in.readObject();
                 cityTree = (CityNamesKDTree) in.readObject();
                 townTree = (CityNamesKDTree) in.readObject();
@@ -164,6 +205,7 @@ public class Model extends Observable implements Serializable {
                 minlat = in.readFloat();
                 maxlon = in.readFloat();
                 maxlat = in.readFloat();
+
                 double elapsedTime = currentTimeInSeconds() - startTime;
                 System.out.printf("WE HAVE ACHIEVED: [Object deserialization: %f s]\n", elapsedTime);
                 dirty();
@@ -180,6 +222,50 @@ public class Model extends Observable implements Serializable {
         progressPrinter.cancel();
         int loadTime = (int)Math.round(currentTimeInSeconds() - startTime);
         System.out.printf("\nLoad time: %d:%02d\n", loadTime / 60, loadTime % 60);
+
+    }
+
+    private void fillTrees() {
+        for (WayType type : WayType.values()) {
+            List<Shape> list = shapes.get(type);
+            if (type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE ) {
+                continue;
+            } else if(type.toString().split("_")[0].equals("HIGHWAY")){
+                RoadKDTree treeWithType = new RoadKDTree(type);
+                treeWithType.fillTreeWithShapes(roads.get(type));
+                roadTreeList.add(treeWithType);
+            } else {
+                if(list.size() == 0){
+                    continue;
+                } else {
+                    KDTree treeWithType = new KDTree(type);
+                    treeWithType.fillTreeWithShapes(list);
+                    treeList.add(treeWithType);
+                }
+            }
+            //System.out.println("MaxDepth: " + treeWithType.maxDepth + "\t\t\tElement Count:" + treeWithType.count + "\t\t\tType: " + type);
+        }
+        roads.clear();
+        //System.out.println("Number of trees: "+treeList.size());
+
+        if (pointsOfInterest != null) {
+            POITree.fillTree(pointsOfInterest);
+            pointsOfInterest.clear();
+        }
+        if (cityTree != null) {
+            cityTree.fillTree(cityNames);
+            cityNames.clear();
+        }
+
+        if (townTree != null) {
+            townTree.fillTree(townNames);
+            townNames.clear();
+        }
+
+
+        //Ryd op!
+        shapes.clear();
+
     }
 
     private void loadOSM(InputSource source) {
@@ -272,6 +358,8 @@ public class Model extends Observable implements Serializable {
             shapes.get(type).add(shape);
             dirty();
         }
+        String roadName;
+        boolean isHighway = false;
 
 		@Override
         public void setDocumentLocator(Locator locator) {
@@ -385,6 +473,8 @@ public class Model extends Observable implements Serializable {
                     }
 
                     switch (k) {
+                        case "highway":
+                            isHighway = true;
                         case "addr:street":
                             addressBuilder.street(v);
                             isAddressNode = true;
@@ -406,6 +496,10 @@ public class Model extends Observable implements Serializable {
                             break;
                         case "name":
                             name = v;
+                            if(isHighway){
+                                roadName = v;
+                                isHighway = false;
+                            }
                             break;
                         case "place":
                             if (v.equals("village") || v.equals("town") || v.equals("city")) {
@@ -447,6 +541,7 @@ public class Model extends Observable implements Serializable {
                         Address address = addressBuilder.build();
                         addressModel.putAddress(address, idToNode.get(nodeID));
                         isAddressNode = false;
+
                     }
                     if(POIType!=PointsOfInterest.UNKNOWN) {
                         PointOfInterestObject POIObj = new PointOfInterestObject(POIType, lon * lonfactor, -lat);
@@ -454,6 +549,14 @@ public class Model extends Observable implements Serializable {
                     }
                     break;
                 case "way":
+                    PolygonApprox temp = new PolygonApprox(way);
+                    if (type == WayType.NATURAL_COASTLINE) {
+                        //DO NOTHING
+                    }else if(type.toString().split("_")[0].equals("HIGHWAY")){
+                        roads.get(type).add(new RoadNode(temp,roadName));
+                    } else
+                        add(type, temp);
+
                     if (type != WayType.NATURAL_COASTLINE) {
                         add(type, new PolygonApprox(way));
                     }

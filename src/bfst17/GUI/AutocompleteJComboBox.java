@@ -14,9 +14,14 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 public class AutocompleteJComboBox extends JComboBox {
-    private final TST searcher;
+    private static TST searcher;
     private boolean firstTime = true;
     private JTextComponent userInput;
+
+    public void setTree(TST tree){
+        searcher = tree;
+    }
+
 
     public AutocompleteJComboBox(TST tree) {
         //Makes the arrow invisible and set it so it does nothing
@@ -59,13 +64,15 @@ public class AutocompleteJComboBox extends JComboBox {
                         int i = 0;
                         String[] strArray = s.split(" ");
                         for (String str : strArray) {
-                            i++;
-                            char[] stringArray = str.trim().toCharArray();
-                            stringArray[0] = Character.toUpperCase(stringArray[0]);
-                            str = new String(stringArray);
-                            if (i != strArray.length) {
-                                res.append(str).append(" ");
-                            } else res.append(str);
+                            if(!str.equals("")) {
+                                i++;
+                                char[] stringArray = str.trim().toCharArray();
+                                stringArray[0] = Character.toUpperCase(stringArray[0]);
+                                str = new String(stringArray);
+                                if (i != strArray.length) {
+                                    res.append(str).append(" ");
+                                } else res.append(str);
+                            }
 
                         }
                         return res.toString();
@@ -75,7 +82,7 @@ public class AutocompleteJComboBox extends JComboBox {
 
                 public void update() {
                     SwingUtilities.invokeLater(() -> {
-                            ArrayList<String> founds = tree.keysWithPrefix(makeUpperCase(userInput.getText()));
+                            ArrayList<String> founds = AutocompleteJComboBox.searcher.keysWithPrefix(makeUpperCase(userInput.getText()));
                             if(founds!=null) {
                                 ArrayList<String> copyList = new ArrayList<String>();
                                 for (String s : founds) {

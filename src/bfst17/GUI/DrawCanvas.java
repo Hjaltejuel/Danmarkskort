@@ -5,9 +5,14 @@ import bfst17.KDTrees.CityNamesKDTree;
 import bfst17.KDTrees.ShapeKDTree;
 import bfst17.KDTrees.POIKDTree;
 import bfst17.KDTrees.TreeNode;
+import bfst17.KDTrees.RoadKDTree;
 import bfst17.Model;
 import bfst17.AddressHandling.TSTInterface;
 import sun.reflect.generics.tree.Tree;
+import bfst17.RoadNode;
+import bfst17.ShapeStructure.PolygonApprox;
+import com.sun.org.apache.xpath.internal.SourceTree;
+import javafx.scene.transform.Affine;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -17,6 +22,7 @@ import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.*;
+import java.util.Timer;
 
 /**
  * Created by trold on 2/8/17.
@@ -25,7 +31,8 @@ public class DrawCanvas extends JComponent implements Observer {
 	Model model;
 	AffineTransform transform = new AffineTransform();
     Shape regionShape = null;
-	boolean antiAlias;
+	private boolean antiAliasFromMenu; //Bestemmer over antiAliasFromPanning
+    private boolean antiAliasFromPanning;
     GUIMode GUITheme = GUIMode.NORMAL;
 	boolean fancyPanEnabled = true;
 	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
@@ -36,6 +43,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	Rectangle2D screenRectangle;
 	HashMap<String, BufferedImage> PinAndPOIImageMap;
 	boolean drawCityNames = true;
+    private Timer timer;
 
     public DrawCanvas(Model model) {
 		this.model = model;
@@ -77,9 +85,25 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
     public void toggleAA() {
-        antiAlias = !antiAlias;
+        antiAliasFromMenu = !antiAliasFromMenu;
         repaint();
         revalidate();
+    }
+
+    //De næste metoder er til at slå aa fra hvis der pannes på og fra når der stoppes.
+    //Den før kan ikke bruges da det giver den modsatte værdi. Hvis AA nu er false bliver den sat til true når der pannes og det skal den ikke.
+    public void AAOff(){
+        antiAliasFromPanning = false;
+        repaint();
+        revalidate();
+    }
+
+    public void AAOn(){
+        if(antiAliasFromMenu) {
+            antiAliasFromPanning = true;
+            repaint();
+            revalidate();
+        }
     }
 
     public boolean isFancyPanEnabled() {
@@ -190,9 +214,12 @@ public class DrawCanvas extends JComponent implements Observer {
 
         drawFPSCounter(g);
 
+
         if(drawCityNames) {
+            drawRoadNames(g);
             drawCityAndTownNames(g);
         }
+
     }
 
     public void drawPin(Graphics2D g) {
@@ -226,7 +253,7 @@ public class DrawCanvas extends JComponent implements Observer {
     public void drawCityAndTownNames(Graphics2D g) {
         CityNamesKDTree townTree = model.getTownTreeTree();
 
-        if (getXZoomFactor() > 900 && getXZoomFactor() < 9000) {
+        if (getXZoomFactor() > 3000 && getXZoomFactor() < 9000) {
             for(CityNamesKDTree.TreeNode cityNodes : townTree.getInRange(screenRectangle)) {
                 String cityName = cityNodes.getCityName();
                 Point2D drawLocation = lonLatToScreenCords(-cityNodes.getX(), -cityNodes.getY());
@@ -238,7 +265,7 @@ public class DrawCanvas extends JComponent implements Observer {
         }
 
         CityNamesKDTree cityTree = model.getCityTree();
-        if (getXZoomFactor() < 400 && getXZoomFactor() > 80){
+        if (getXZoomFactor() < 400 && getXZoomFactor() > 180){
             for(CityNamesKDTree.TreeNode cityNodes : cityTree.getInRange(screenRectangle)) {
                 String cityName = cityNodes.getCityName();
                 Point2D drawLocation = lonLatToScreenCords(-cityNodes.getX(), -cityNodes.getY());
@@ -327,21 +354,30 @@ public class DrawCanvas extends JComponent implements Observer {
         g.setTransform(transform);
         g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
-        if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        if (antiAliasFromMenu && antiAliasFromPanning) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         //Tegn coastlines
+
         drawCoastlines(g);
 
         //Hent og tegn shapes fra diverse KDTræer
+
         drawShapes(g);
+
+        //Tegn vejene og evt vejnavne
+
+        drawRoads(g);
+
 
         //Tegn regionen, hvis der er søgt efter den
         if(regionShape != null){
             Color color = g.getColor();
-            g.setColor(new Color(255,0,0,127));
+            g.setStroke(new BasicStroke((float)0.001f));
+            g.setColor(new Color(255,0,0));
             g.draw(regionShape);
             g.setColor(color);
         }
+
     }
 
     private Color getDrawColor(WayType type) {
@@ -372,6 +408,99 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
+    public void drawRoadNames(Graphics2D g){
+        g.setColor(new Color(144, 132, 140));
+        for(RoadKDTree tree: model.getRoadTreeList()){
+            switch(tree.getType()){
+                case HIGHWAY_PRIMARY:
+                    if(getXZoomFactor()>25000){
+                        drawRoadNameInCenter(g,tree);
+                    }
+                    break;
+                case HIGHWAY_SECONDARY:
+                    if(getXZoomFactor()>35000){
+                        drawRoadNameInCenter(g,tree);
+                    }
+                    break;
+                case HIGHWAY_TERTIARY:
+                    if(getXZoomFactor()>50000) {
+                        drawRoadNameInCenter(g, tree);
+                    } break;
+                case HIGHWAY_MOTORWAY:
+                    if(getXZoomFactor()>20000){
+                        drawRoadNameInCenter(g,tree);
+                    }
+                    break;
+                default:
+                    if(getXZoomFactor()>250000){
+                        drawRoadNameInCenter(g,tree);
+                    }
+            }
+    }
+}
+
+    public void drawRoadNameInCenter(Graphics2D g, RoadKDTree tree){
+        HashSet<RoadNode> roadNodes = tree.getInRange(screenRectangle);
+        float[] coords = new float[2];
+        for (RoadNode roadNode : roadNodes) {
+            String roadName = roadNode.getRoadName();
+            PolygonApprox shape = roadNode.getShape();
+            PathIterator iterator = shape.getPathIterator(g.getTransform(), 0.00000000000001 / transform.getScaleX());
+            Point2D from = null;
+            int i = 0;
+            while (!iterator.isDone()) {
+                if(i==(shape.getLengthOfCoords()/4)-1) {
+                    iterator.currentSegment(coords);
+                    Point2D drawLocation = lonLatToScreenCords(-coords[0], -coords[1]);
+                    from = drawLocation;
+                    iterator.next();
+                } else if(i == shape.getLengthOfCoords()/4) {
+                    iterator.currentSegment(coords);
+                    Point2D drawLocation = lonLatToScreenCords(-coords[0], -coords[1]);
+                    double angle = getAngle(from, drawLocation);
+                    AffineTransform saved = g.getTransform();
+                    AffineTransform rotated = g.getTransform();
+                    int width = g.getFontMetrics().stringWidth(roadName);
+                    int midpointX = (int) ((from.getX()+drawLocation.getX())/2);
+                    int midpointY = (int) ((from.getY()+drawLocation.getY())/2);
+                    rotated.rotate(angle,midpointX,midpointY);
+                    g.setTransform(rotated);
+                    g.drawString(roadName, (int) (midpointX - width/2), (int) midpointY);
+                    g.setTransform(saved);
+                    from = drawLocation;
+                    iterator.next();
+                } else iterator.next();
+
+                i++;
+            }
+        }
+    }
+
+    public double getAngle(Point2D from, Point2D to){
+        double theta =Math.atan2(to.getY()-from.getY(),to.getX()-from.getX());
+        return theta;
+    }
+    public void drawRoads(Graphics2D g){
+        for(RoadKDTree tree: model.getRoadTreeList()){
+            WayType type = tree.getType();
+            if(type.getZoomFactor()>getXZoomFactor()){
+                continue;
+            }
+
+            g.setColor(getDrawColor(type));
+            g.setStroke(type.getDrawStroke());
+            HashSet<RoadNode> roadNodes = tree.getInRange(screenRectangle);
+            for (RoadNode roadNode : roadNodes) {
+                if(type.getFillType() == FillType.LINE){
+                    g.draw(roadNode.getShape());
+                }else if (type.getFillType() == FillType.SOLID) {
+                    g.fill(roadNode.getShape());
+
+                }
+            }
+        }
+    }
+
     Integer numOfShapes=0;
 	public void drawShapes(Graphics2D g) {
 	    numOfShapes=0;
@@ -383,18 +512,6 @@ public class DrawCanvas extends JComponent implements Observer {
             g.setColor(getDrawColor(type));
             g.setStroke(type.getDrawStroke());
 
-            /*
-            if(type == WayType.HIGHWAY_RESIDENTIAL) {
-                Point2D centerPoint = new Point2D.Double(-getCenterCordinateX(), -getCenterCordinateY());
-                Shape nearestNeighbour = tree.getNearestNeighbour(centerPoint);
-                if (nearestNeighbour != null) {
-                    Rectangle2D r = nearestNeighbour.getBounds2D();
-                    Line2D l = new Line2D.Double(new Point2D.Double(r.getCenterX(), r.getCenterY()), centerPoint);
-                    g.setColor(Color.black);
-                    g.draw(l);
-                }
-            }*/
-
             HashSet<TreeNode> nodes = tree.getInRange(screenRectangle);
             numOfShapes+=nodes.size();
 
@@ -402,12 +519,6 @@ public class DrawCanvas extends JComponent implements Observer {
 
             if (type.getFillType() == FillType.LINE) {
                 for (TreeNode node : nodes) {
-                    /*double split=node.getSplit();
-                    if(node.issVertical()){
-                        g.draw(new Line2D.Double(node.getSplit(),-56,node.getSplit(),-55));
-                    } else {
-                        g.draw(new Line2D.Double(8, node.getSplit(), 8.5, node.getSplit()));
-                    }*/
                     g.draw(node.getShape());
                 }
             } else if (type.getFillType() == FillType.SOLID) {
@@ -494,7 +605,7 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
-        java.util.Timer timer = new java.util.Timer();
+        timer = new Timer();
 
         double partDX = distanceToCenterX * getXZoomFactor() / 100;
         double partDY = distanceToCenterY * getYZoomFactor() / 100;
@@ -507,7 +618,7 @@ public class DrawCanvas extends JComponent implements Observer {
             public void run() {
                 if (panCounter >= 100) {
                     if (needToZoom) {
-                        zoomWithFactor(3.0 / 100.0);
+                        zoomWithFactor(1.5 / 100.0);
                     }
                     cancel();
                 }
@@ -519,19 +630,19 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void zoomOutSlowAndThenPan(double distanceToCenterX, double distanceToCenterY) {
-        java.util.Timer timer = new java.util.Timer();
+        timer = new Timer();
 
         timer.scheduleAtFixedRate(new TimerTask() {
             int zoomOutCounter = 1;
 
             @Override
             public void run() {
-                if(zoomOutCounter >= 100) {
+                if(zoomOutCounter >= 120) {
                     panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
                     cancel();
                 }
-                else if (zoomOutCounter < 100) {
-                    centerZoomToZoomLevel(150000  * 10 / zoomOutCounter);
+                else if (zoomOutCounter < 120) {
+                    centerZoomToZoomLevel(15000  * 10 / zoomOutCounter);
 
                     zoomOutCounter++;
                 }
@@ -549,10 +660,17 @@ public class DrawCanvas extends JComponent implements Observer {
         //Zoom begrænsning
         if(getXZoomFactor()*factor>800000) {
             return;
+            //max zoom out
+        } else if(getXZoomFactor()*factor<120){
+            return;
         }
-        transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
-        repaint();
-        revalidate();
+
+        else {
+            transform.preConcatenate(AffineTransform.getScaleInstance(factor, factor));
+
+            repaint();
+            revalidate();
+        }
     }
 
     public void centerZoomToZoomLevel(double zoomLevel){
@@ -566,7 +684,7 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void zoomWithFactor(double factor) {
-        java.util.Timer timer = new java.util.Timer();
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             int zoomInCounter = 1;
 
@@ -581,6 +699,11 @@ public class DrawCanvas extends JComponent implements Observer {
             }
         }, 0, 20);
     }
+
+    public Timer getTimer(){
+        return timer;
+    }
+
 
     public double getXZoomFactor(){return transform.getScaleY();}
     public double getYZoomFactor(){return transform.getScaleY();}
