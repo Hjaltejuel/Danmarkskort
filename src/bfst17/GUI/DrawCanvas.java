@@ -15,6 +15,7 @@ import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.*;
+import java.util.Timer;
 
 /**
  * Created by trold on 2/8/17.
@@ -35,6 +36,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	Rectangle2D screenRectangle;
 	HashMap<String, BufferedImage> PinAndPOIImageMap;
 	boolean drawCityNames = true;
+    private Timer timer;
 
     public DrawCanvas(Model model) {
 		this.model = model;
@@ -218,7 +220,7 @@ public class DrawCanvas extends JComponent implements Observer {
     public void drawCityAndTownNames(Graphics2D g) {
         CityNamesKDTree townTree = model.getTownTreeTree();
 
-        if (getXZoomFactor() > 900 && getXZoomFactor() < 9000) {
+        if (getXZoomFactor() > 3000 && getXZoomFactor() < 9000) {
             for(CityNamesKDTree.TreeNode cityNodes : townTree.getInRange(screenRectangle)) {
                 String cityName = cityNodes.getCityName();
                 Point2D drawLocation = lonLatToScreenCords(-cityNodes.getX(), -cityNodes.getY());
@@ -230,7 +232,7 @@ public class DrawCanvas extends JComponent implements Observer {
         }
 
         CityNamesKDTree cityTree = model.getCityTree();
-        if (getXZoomFactor() < 400 && getXZoomFactor() > 80){
+        if (getXZoomFactor() < 400 && getXZoomFactor() > 180){
             for(CityNamesKDTree.TreeNode cityNodes : cityTree.getInRange(screenRectangle)) {
                 String cityName = cityNodes.getCityName();
                 Point2D drawLocation = lonLatToScreenCords(-cityNodes.getX(), -cityNodes.getY());
@@ -455,14 +457,14 @@ public class DrawCanvas extends JComponent implements Observer {
         } else {
             if (distance < 400/getXZoomFactor()) {
                 panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
-            } else {
+            }else {
                 zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
             }
         }
     }
 
     public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
-        java.util.Timer timer = new java.util.Timer();
+        timer = new Timer();
 
         double partDX = distanceToCenterX * getXZoomFactor() / 100;
         double partDY = distanceToCenterY * getYZoomFactor() / 100;
@@ -475,7 +477,7 @@ public class DrawCanvas extends JComponent implements Observer {
             public void run() {
                 if (panCounter >= 100) {
                     if (needToZoom) {
-                        zoomWithFactor(3.0 / 100.0);
+                        zoomWithFactor(1.5 / 100.0);
                     }
                     cancel();
                 }
@@ -487,19 +489,19 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void zoomOutSlowAndThenPan(double distanceToCenterX, double distanceToCenterY) {
-        java.util.Timer timer = new java.util.Timer();
+        timer = new Timer();
 
         timer.scheduleAtFixedRate(new TimerTask() {
             int zoomOutCounter = 1;
 
             @Override
             public void run() {
-                if(zoomOutCounter >= 100) {
+                if(zoomOutCounter >= 120) {
                     panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
                     cancel();
                 }
-                else if (zoomOutCounter < 100) {
-                    centerZoomToZoomLevel(150000  * 10 / zoomOutCounter);
+                else if (zoomOutCounter < 120) {
+                    centerZoomToZoomLevel(15000  * 10 / zoomOutCounter);
 
                     zoomOutCounter++;
                 }
@@ -541,7 +543,7 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void zoomWithFactor(double factor) {
-        java.util.Timer timer = new java.util.Timer();
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             int zoomInCounter = 1;
 
@@ -556,6 +558,11 @@ public class DrawCanvas extends JComponent implements Observer {
             }
         }, 0, 20);
     }
+
+    public Timer getTimer(){
+        return timer;
+    }
+
 
     public double getXZoomFactor(){return transform.getScaleY();}
     public double getYZoomFactor(){return transform.getScaleY();}
