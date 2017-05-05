@@ -139,18 +139,17 @@ public abstract class KDTree implements Serializable {
         //getShapesBelowNodeInsideBounds(startNode.high, rect);
     }
 
-    public Shape getNearestNeighbour(Point2D point) {
+    public TreeNode getNearestNeighbour(Point2D point) {
         TreeNode champion = neighbourRecursion(point, root, true, root, 100);
         if(champion!=null) {
-            return champion.shape;
+            return champion;
         } else {
             return null;
         }
     }
 
     public double distance(Point2D p1, TreeNode node) {
-        Rectangle2D bounds = node.shape.getBounds2D();
-        Point2D p2 = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
+        Point2D p2 = new Point2D.Double(node.getX(), node.getY());
         return Math.sqrt(Math.pow(p1.getX()-p2.getX(),2)+Math.pow(p1.getY()-p2.getY(),2));
     }
 
@@ -164,11 +163,31 @@ public abstract class KDTree implements Serializable {
             bestDistance = distance;
             champion = node;
         }
-        boolean nodeIsSmaller = vertical ? node.getX() < point.getX() : node.getY() < point.getY();
-        //ShapeTreeNode nextNode = nodeIsSmaller ? node.high : node.low;
-        //ShapeTreeNode otherNode = !nodeIsSmaller ? node.high : node.low;
 
-        //return neighbourRecursion(point, nextNode, !vertical, champion, bestDistance);
-        return null;
+        boolean nodeIsSmaller = vertical ? node.getX() < point.getX() : node.getY() < point.getY();
+        TreeNode nextNode = nodeIsSmaller ? node.high : node.low;
+        TreeNode compareNode = null;
+        if (vertical) {
+            double yDiff = Math.abs(point.getY() - node.getY());
+            if (yDiff < distance) {
+                compareNode = nodeIsSmaller ? node.low : node.high;
+            }
+        } else {
+            double xDiff = Math.abs(point.getX() - node.getX());
+            if (xDiff < distance) {
+                compareNode = nodeIsSmaller ? node.low : node.high;
+            }
+        }
+        if (compareNode == null) {
+            return neighbourRecursion(point, nextNode, !vertical, champion, bestDistance);
+        } else {
+            TreeNode champ1 = neighbourRecursion(point, nextNode, !vertical, champion, bestDistance);
+            TreeNode champ2 = neighbourRecursion(point, compareNode, !vertical, champion, bestDistance);
+            if (distance(point, champ1) < distance(point, champ2)) {
+                return champ1;
+            } else {
+                return champ2;
+            }
+        }
     }
 }

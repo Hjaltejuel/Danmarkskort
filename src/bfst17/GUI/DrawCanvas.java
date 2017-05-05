@@ -44,6 +44,9 @@ public class DrawCanvas extends JComponent implements Observer {
 		loadImages();
 	}
 
+    /**
+     * Indlæs billeder så det kun behøver gøres én gang.
+     */
 	private void loadImages() {
         PinAndPOIImageMap = new HashMap<>();
         try{
@@ -210,6 +213,13 @@ public class DrawCanvas extends JComponent implements Observer {
                     drawImageAtLocation(g, imagePath, -POINode.getX(), -POINode.getY());
                 }
             }
+        }
+        TreeNode nearestPOI = model.getPOITree().getNearestNeighbour(getCenterCordinate());
+        if(nearestPOI!=null) {
+            Point2D p1 = lonLatToScreenCords(-getCenterCordinate().getX(),-getCenterCordinate().getY());
+            Point2D p2 = lonLatToScreenCords(-nearestPOI.getX(),-nearestPOI.getY());
+            Line2D line = new Line2D.Double(p1,p2);
+            g.draw(line);
         }
     }
 
