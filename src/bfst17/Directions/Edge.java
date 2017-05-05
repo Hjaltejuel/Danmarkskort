@@ -8,7 +8,6 @@ public class Edge {
         private GraphNode destination;
 
         private double weightCar;
-        private double weightFoot;
         private double weightShortest;
 
         double weightedX;
@@ -56,7 +55,7 @@ public class Edge {
             return weightCar;
         }
         public double getWeightShortest(){
-            return weightFoot;
+            return weightShortest;
         }
 
 

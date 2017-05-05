@@ -1,9 +1,8 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.Enums.*;
 import bfst17.Directions.Graph;
-import bfst17.Directions.GraphNode;
+import bfst17.Enums.*;
 import bfst17.KDTrees.CityNamesKDTree;
 import bfst17.KDTrees.KDTree;
 import bfst17.KDTrees.POIKDTree;
@@ -579,7 +578,7 @@ public class DrawCanvas extends JComponent implements Observer {
             return;
         }
         else {
-            GraphNode source;
+/*            GraphNode source;
             ArrayList<GraphNode> alist = graph.getRandomPath();
             for (int i = 0; i < alist.size() - 1; i++) {
                 source = alist.get(i);
@@ -593,6 +592,7 @@ public class DrawCanvas extends JComponent implements Observer {
                 g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),
                         alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY()));
             }
+*/
         }
 
     }

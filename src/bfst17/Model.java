@@ -310,8 +310,11 @@ public class Model extends Observable implements Serializable {
 		Map<Long,OSMWay> idToWay = new HashMap<>();
 		HashMap<Long, OSMNode> idToNode = new HashMap<>();
 		Map<OSMNode,OSMWay> coastlines = new HashMap<>();
-		HashMap<Long, GraphNode> idToGraphNode = new HashMap<>();
 		ArrayList<Long> tmpNodeIDs = new ArrayList<>();
+		HashMap<Point2D, GraphNode> graphFilterMap = new HashMap<>();
+
+		int k;
+		int j;
 		float lat;
 		float lon;
 		OSMWay way;
@@ -336,9 +339,12 @@ public class Model extends Observable implements Serializable {
 
 		@Override
 		public void endDocument() throws SAXException {
+			graphFilterMap.clear();
 			fillTrees();
             System.out.println("OSMNodes: "+idToNode.size());
-        }
+			System.out.println("Relevant Nodes: "+k);
+			System.out.println("GraphNodes: "+j);
+		}
 
 		@Override
 		public void startPrefixMapping(String prefix, String uri) throws SAXException {
@@ -366,7 +372,7 @@ public class Model extends Observable implements Serializable {
 					lat = Float.parseFloat(atts.getValue("lat"));
 					lon = Float.parseFloat(atts.getValue("lon"));
 					OSMNode _OSMNode = new OSMNode(lonfactor * lon, -lat);
-					idToGraphNode.put(nodeID, new GraphNode(_OSMNode));
+//					idToGraphNode.put(nodeID, new GraphNode(_OSMNode));
 					idToNode.put(nodeID, _OSMNode);
 					break;
 				case "way":
@@ -540,34 +546,37 @@ public class Model extends Observable implements Serializable {
                         add(type, new PolygonApprox(way));
 
                         if (bicycle == true || foot == true || maxspeed > 0) {
-                            for (int i = 1; i < tmpNodeIDs.size(); i++) {
-                                GraphNode previousGraphNode = idToGraphNode.get(tmpNodeIDs.get(i - 1));
-                                GraphNode currentGraphNode = idToGraphNode.get(tmpNodeIDs.get(i));
 
-                                previousGraphNode.setNodeTags(bicycle, foot, maxspeed, oneway);
-                                currentGraphNode.setNodeTags(bicycle, foot, maxspeed, oneway);
-
-                                if (i == 1) {
-                                    previousGraphNode.setStart(true);
-                                } else if(i==tmpNodeIDs.size()){
-                                    currentGraphNode.setEnd(true);
-                                } else {
-									previousGraphNode.setStart(false);
-									previousGraphNode.setEnd(false);
-									currentGraphNode.setStart(false);
-									currentGraphNode.setEnd(false);
+							GraphNode currentGraphNode = null;
+							GraphNode previousGraphNode = null;
+                            for (int i = 0; i < tmpNodeIDs.size(); i++) {
+								if(i >= 1){
+									previousGraphNode = currentGraphNode;
 								}
-
-								graph.addGraphNode(currentGraphNode);
-								graph.addGraphNode(previousGraphNode);
-
-                                graph.addEdge(currentGraphNode, previousGraphNode);
-                                graph.addEdge(previousGraphNode, currentGraphNode);
+								if(graphFilterMap.containsKey(idToNode.get(tmpNodeIDs.get(i)))){
+									currentGraphNode = graphFilterMap.get(idToNode.get(tmpNodeIDs.get(i)));
+									if (previousGraphNode != null) {
+										graph.addEdge(currentGraphNode, previousGraphNode);
+										graph.addEdge(previousGraphNode, currentGraphNode);
+										k = k+2;
+									}
+								}
+								else {
+									currentGraphNode = new GraphNode(idToNode.get(tmpNodeIDs.get(i)));
+									currentGraphNode.setNodeTags(bicycle, foot, maxspeed, oneway);
+									graphFilterMap.put(idToNode.get(tmpNodeIDs.get(i)), currentGraphNode);
+									if (previousGraphNode != null) {
+										graph.addEdge(currentGraphNode, previousGraphNode);
+										graph.addEdge(previousGraphNode, currentGraphNode);
+										k = k + 2;
+									}
+								}
+								j++;
                             }
-							System.out.println(tmpNodeIDs.size());
-							tmpNodeIDs.clear();
+//							System.out.println(tmpNodeIDs.size());
                         }
                     }
+					tmpNodeIDs.clear();
                     bicycle = false;
                     foot = false;
                     oneway = false;

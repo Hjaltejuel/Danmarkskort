@@ -35,10 +35,10 @@ public class Graph {
 
     public ArrayList<GraphNode> getRandomPath() {
         Random r = new Random();
-        int i = r.nextInt(graphNodeList.size());
-        int i2 = r.nextInt(graphNodeList.size());
-        source = graphNodeList.get(i);
-        target = graphNodeList.get(i2);
+//        int i = r.nextInt(graphNodeList.size());
+//        int i2 = r.nextInt(graphNodeList.size());
+        source = graphNodeList.get(297);
+        target = graphNodeList.get(7148);
         sp = new ShortestPath(this);
         sp.execute(source, target);
         return getPath(source, target);

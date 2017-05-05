@@ -14,7 +14,6 @@ public class GraphNode implements Comparable {
     private boolean isSettled;
     private boolean shortest, oneway;
     private int maxspeed;
-    private boolean relevantForRouting, isStart, isEnd = false;
     private ArrayList<Edge> edgeList;
     private double dist = Double.POSITIVE_INFINITY;
 
@@ -31,17 +30,10 @@ public class GraphNode implements Comparable {
         this.maxspeed = maxspeed;
     }
 
-    public void setRelevantForRouting(boolean b) {
-        relevantForRouting = b;
-    }
-
     public Point2D getPoint2D() {
         return new Point2D.Double(originOSMNode.getX(), originOSMNode.getY());
     }
 
-    public boolean isRelevantForRouting() {
-        return relevantForRouting;
-    }
 
     public boolean isShortest() {
         return shortest;
@@ -100,20 +92,5 @@ public class GraphNode implements Comparable {
         isSettled = settled;
     }
 
-    public boolean isStart() {
-        return isStart;
-    }
-
-    public void setStart(boolean start) {
-        isStart = start;
-    }
-
-    public boolean isEnd() {
-        return isEnd;
-    }
-
-    public void setEnd(boolean end) {
-        isEnd = end;
-    }
 }
 
