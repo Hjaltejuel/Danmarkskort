@@ -56,7 +56,7 @@ public class RoadKDTree extends KDTree {
 
         private RoadTreeNode(double x, double y, RoadNode node) {
             this.X = x;
-            this.X = y;
+            this.Y = y;
             this.roadNode = node;
         }
 

@@ -38,7 +38,7 @@ public class CanvasMouseController extends MouseAdapter {
 		}
 		lastMousePosition = e.getPoint();
 		System.out.println(e.getX() + " " + e.getY());
-		canvas.AAOff();
+		canvas.setMousePos(lastMousePosition);
 	}
 
 	/**
@@ -64,12 +64,13 @@ public class CanvasMouseController extends MouseAdapter {
 	 */
 	@Override
 	public void mouseDragged(MouseEvent e) {
+		canvas.AAOff();
 		Point2D currentMousePosition = e.getPoint();
-			double dx = currentMousePosition.getX() - lastMousePosition.getX();
-			double dy = currentMousePosition.getY() - lastMousePosition.getY();
-			canvas.pan(dx,dy);
+		double dx = currentMousePosition.getX() - lastMousePosition.getX();
+		double dy = currentMousePosition.getY() - lastMousePosition.getY();
+		canvas.pan(dx, dy);
 
-			lastMousePosition = currentMousePosition;
+		lastMousePosition = currentMousePosition;
 	}
 
 	/**

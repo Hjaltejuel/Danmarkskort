@@ -220,6 +220,8 @@ public class DrawCanvas extends JComponent implements Observer {
             drawCityAndTownNames(g);
         }
 
+
+
     }
 
     public void drawPin(Graphics2D g) {
@@ -227,6 +229,20 @@ public class DrawCanvas extends JComponent implements Observer {
             return; //Lad være at tegne, hvis der ikke er en pin
         }
         drawImageAtLocation(g,"pin",pin.getX(),pin.getY());
+    }
+
+    public void setMousePos(Point2D mousePos) {
+        this.mousePos = mousePos;
+        addressNode = ((RoadKDTree.RoadTreeNode)model.getRoadTreeList().get(4).getNearestNeighbour(screenCordsToLonLat(mousePos.getX(),mousePos.getY()))).getRoadName();
+        System.out.println(addressNode);
+    }
+
+    Point2D mousePos;
+	String addressNode;
+    public void drawClosestRoad(Graphics2D g) {
+        if(mousePos!=null) {
+            g.drawString(addressNode,(int)mousePos.getX(),(int)mousePos.getY());
+        }
     }
 
     public void drawPointsOfInteres(Graphics2D g) {
@@ -454,10 +470,10 @@ public class DrawCanvas extends JComponent implements Observer {
                     from = drawLocation;
                 } else if (i == shape.getLengthOfCoords() / 4) {
                     double angle = getAngle(from, drawLocation);
+                    //Rotér hvis skriften er vendt på hovedet
                     if (angle > 1.57079633 || angle < -1.57079633) {
                         angle += Math.PI;
                     }
-                    System.out.println(angle);
                     AffineTransform saved = g.getTransform();
                     AffineTransform rotated = g.getTransform();
                     int width = g.getFontMetrics().stringWidth(roadName);
@@ -479,10 +495,11 @@ public class DrawCanvas extends JComponent implements Observer {
         double theta = Math.atan2(to.getY()-from.getY(),to.getX()-from.getX());
         return theta;
     }
+
     public void drawRoads(Graphics2D g){
-        for(RoadKDTree tree: model.getRoadTreeList()){
+        for(RoadKDTree tree: model.getRoadTreeList()) {
             WayType type = tree.getType();
-            if(type.getZoomFactor()>getXZoomFactor()){
+            if (type.getZoomFactor() > getXZoomFactor()) {
                 continue;
             }
 
@@ -490,13 +507,8 @@ public class DrawCanvas extends JComponent implements Observer {
             g.setStroke(type.getDrawStroke());
             HashSet<TreeNode> roadNodes = tree.getInRange(screenRectangle);
             for (TreeNode _roadNode : roadNodes) {
-                RoadKDTree.RoadTreeNode roadNode = (RoadKDTree.RoadTreeNode)_roadNode;
-                if(type.getFillType() == FillType.LINE){
-                    g.draw(roadNode.getShape());
-                }else if (type.getFillType() == FillType.SOLID) {
-                    g.fill(roadNode.getShape());
-
-                }
+                RoadKDTree.RoadTreeNode roadNode = (RoadKDTree.RoadTreeNode) _roadNode;
+                g.draw(roadNode.getShape());
             }
         }
     }
