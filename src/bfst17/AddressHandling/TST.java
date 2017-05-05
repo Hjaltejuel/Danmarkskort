@@ -74,7 +74,7 @@ public class TST<TSTInterface> implements Serializable {
                  }
                 }
                 else {
-                    int randomNum = ThreadLocalRandom.current().nextInt(0, 3 + 1);
+                    int randomNum = ThreadLocalRandom.current().nextInt(0, ((DuplicateAddressNode) x.val).size());
                     return (TSTInterface) ((DuplicateAddressNode) x.val).get(randomNum);
                 }
                 }

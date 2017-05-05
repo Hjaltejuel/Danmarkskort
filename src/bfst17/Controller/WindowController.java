@@ -204,7 +204,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     public void search() {
-
+        //cancel timer så det ikke bliver skørt
+        if(canvas.getTimer() != null){
+            canvas.getTimer().cancel();
+        }
         String s = (String) window.getCombo().getSelectedItem();
         if (s == null || s.length()==0) {
             isPopUpOpen = true;

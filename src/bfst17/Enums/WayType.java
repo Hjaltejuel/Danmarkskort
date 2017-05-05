@@ -443,7 +443,7 @@ public enum WayType implements Serializable {
 	BUILDING
 			(new Color(217, 208, 201),
 					null,
-					37000,
+					20000,
 					FillType.SOLID,
 					new Color(47, 57, 72)),
 	WATERWAY_DRAIN
@@ -473,19 +473,19 @@ public enum WayType implements Serializable {
 	HIGHWAY_PRIMARY
 			(new Color(252, 193, 97),
 					new BasicStroke(0.0001f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
-					450,
+					1,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_SECONDARY
 			(new Color(105, 121, 0),
 					null,
-					1500,
+					500,
 					FillType.LINE,
 					new Color(116, 104, 85)),
 	HIGHWAY_TERTIARY
 			(new Color(157, 157, 157),
 					null,
-					5000,
+					2000,
 					FillType.LINE,
 					new Color(116, 104, 85)),
 	HIGHWAY_UNCLASSIFIED
@@ -509,13 +509,13 @@ public enum WayType implements Serializable {
 	HIGHWAY_LIVING_STREET
 			(new Color(237, 237, 237),
 					null,
-					5000,
+					4000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_PEDESTRIAN
 			(new Color(150, 148, 149),
 					null,
-					5000,
+					4000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_BRIDLEWAY
