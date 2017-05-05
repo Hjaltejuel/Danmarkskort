@@ -260,6 +260,7 @@ public class DrawWindow {
 		AntiAliasingToggle = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
 		directions = new JCheckBoxMenuItem("Directions");
 		showCityNames = new JCheckBoxMenuItem("Show city names");
+		showCityNames.setSelected(true);
 
 
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK), "action5", save);

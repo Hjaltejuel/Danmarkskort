@@ -42,7 +42,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	HashMap<String, BufferedImage> PinAndPOIImageMap;
 	boolean drawCityNames = true;
     private Timer timer;
-
     public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
@@ -385,21 +384,21 @@ public class DrawCanvas extends JComponent implements Observer {
         for(RoadKDTree tree: model.getRoadTreeList()){
             switch(tree.getType()){
                 case HIGHWAY_PRIMARY:
-                    if(getXZoomFactor()>25000){
+                    if(getXZoomFactor()>50000){
                         drawRoadNameInCenter(g,tree);
                     }
                     break;
                 case HIGHWAY_SECONDARY:
-                    if(getXZoomFactor()>35000){
+                    if(getXZoomFactor()>60000){
                         drawRoadNameInCenter(g,tree);
                     }
                     break;
                 case HIGHWAY_TERTIARY:
-                    if(getXZoomFactor()>50000) {
+                    if(getXZoomFactor()>60000) {
                         drawRoadNameInCenter(g, tree);
                     } break;
                 case HIGHWAY_MOTORWAY:
-                    if(getXZoomFactor()>20000){
+                    if(getXZoomFactor()>30000){
                         drawRoadNameInCenter(g,tree);
                     }
                     break;
@@ -458,7 +457,6 @@ public class DrawCanvas extends JComponent implements Observer {
             if(type.getZoomFactor()>getXZoomFactor()){
                 continue;
             }
-
             g.setColor(getDrawColor(type));
             g.setStroke(type.getDrawStroke());
             HashSet<RoadNode> roadNodes = tree.getInRange(screenRectangle);
@@ -481,9 +479,7 @@ public class DrawCanvas extends JComponent implements Observer {
             }
             HashSet<Shape> shapes = tree.getInRange(screenRectangle);
             g.setColor(getDrawColor(type));
-
             g.setStroke(type.getDrawStroke());
-
             //Her bestemmes om shapes skal fyldes eller ej
             if (type.getFillType() == FillType.LINE) {
                 for (Shape shape : shapes) {

@@ -17,21 +17,27 @@ public enum WayType implements Serializable {
 	NATURAL_BEACH
 			(new Color(255, 240, 169),
 					null,
-					20000,
+					1500,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
+	LEISURE_PARK
+			(new Color(205, 247, 201),
+					null,
+					1500,
+					FillType.SOLID,
+					new Color(38, 60, 63)),
+	LEISURE_COMMON
+			(new Color(205,235,176),
+					null,
+					1500,
+					FillType.SOLID,
+					new Color(36,47,62)),
 	NATURAL_GRASSLAND
 			(new Color(198, 228, 180),
 					null,
 					1500,
 					FillType.SOLID,
 					new Color(38, 60, 63)),
-    LANDUSE_FOREST
-            (new Color(157, 202, 138),
-                    null,
-                    700,
-                    FillType.SOLID,
-                    new Color(42, 62, 51)),
 	LANDUSE_GRASS
 			(new Color(197, 236, 148),
 					null,
@@ -47,7 +53,7 @@ public enum WayType implements Serializable {
 	LANDUSE_RESIDENTIAL
 			(new Color(218, 218, 218),
 					null,
-					5000,
+					1500,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_COMMERCIAL
@@ -107,25 +113,25 @@ public enum WayType implements Serializable {
 	NATURAL_SCRUB
 			(new Color(181, 227, 181),
 					null,
-					10000,
+					1500,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	NATURAL_HEATH
 			(new Color(214, 217, 159),
 					null,
-					15000,
+					1500,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	NATURAL_SAND
 			(new Color(241, 229, 184),
 					null,
-					30000,
+					1500,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	NATURAL_BARE_ROCK
 			(new Color(233, 225, 217),
 					null,
-					40000,
+					1500,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	NATURAL_SCREE
@@ -197,7 +203,7 @@ public enum WayType implements Serializable {
 	NATURAL_GLACIER
 			(new Color(221, 236, 236),
 					null,
-					10000,
+					1500,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	AMENITY_GRAVE_YARD
@@ -239,7 +245,7 @@ public enum WayType implements Serializable {
 	LEISURE_PITCH
 			(new Color(138, 211, 175),
 					null,
-					35000,
+					1500,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	AMENITY_HOSPITAL
@@ -320,16 +326,16 @@ public enum WayType implements Serializable {
 					55000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
-	LEISURE_PARK
-			(new Color(205, 247, 201),
+	LANDUSE_FOREST
+			(new Color(157, 202, 138),
 					null,
-					30000,
+					1500,
 					FillType.SOLID,
-					new Color(38, 60, 63)),
+					new Color(42, 62, 51)),
 	NATURAL_MEADOW
 			(new Color(197, 236, 148),
 					null,
-					10000,
+					1500,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
 	LANDUSE_RECREATION_GROUND
@@ -443,7 +449,7 @@ public enum WayType implements Serializable {
 	BUILDING
 			(new Color(217, 208, 201),
 					null,
-					20000,
+					10000,
 					FillType.SOLID,
 					new Color(47, 57, 72)),
 	WATERWAY_DRAIN
@@ -527,13 +533,13 @@ public enum WayType implements Serializable {
 	HIGHWAY_CYCLEWAY
 			(new Color(172, 171, 245),
 					new BasicStroke(0.000008f),
-					55000,
+					35000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_FOOTWAY
 			(new Color(246, 222, 216),
 					new BasicStroke(0.000008f),
-					40000,
+					35000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_PATH
@@ -773,7 +779,7 @@ public enum WayType implements Serializable {
 	NATURAL_TREE_ROW
 			(new Color(169, 206, 161),
 					null,
-					42000,
+					15000,
 					FillType.LINE,
 					new Color(36, 47, 62)),
 	BOUNDARY_ADMINISTRATIVE
