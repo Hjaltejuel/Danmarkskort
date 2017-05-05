@@ -12,7 +12,7 @@ public class GraphNode implements Comparable {
     private OSMNode originOSMNode;
     private GraphNode nodeFrom;
     private boolean isSettled;
-    private boolean shortest, oneway;
+    private boolean shortest, oneway, end;
     private int maxspeed;
     private ArrayList<Edge> edgeList;
     private double dist = Double.POSITIVE_INFINITY;
@@ -92,5 +92,12 @@ public class GraphNode implements Comparable {
         isSettled = settled;
     }
 
+    public boolean isEnd() {
+        return end;
+    }
+
+    public void setEnd(boolean end) {
+        this.end = end;
+    }
 }
 

@@ -540,6 +540,7 @@ public class Model extends Observable implements Serializable {
 					}
 					break;
 				case "way":
+					System.out.println(idToNode.size());
 					if (type == WayType.NATURAL_COASTLINE) {
 						//DO NOTHING
 					} else {
@@ -552,6 +553,7 @@ public class Model extends Observable implements Serializable {
                             for (int i = 0; i < tmpNodeIDs.size(); i++) {
 								if(i >= 1){
 									previousGraphNode = currentGraphNode;
+
 								}
 								if(graphFilterMap.containsKey(idToNode.get(tmpNodeIDs.get(i)))){
 									currentGraphNode = graphFilterMap.get(idToNode.get(tmpNodeIDs.get(i)));
