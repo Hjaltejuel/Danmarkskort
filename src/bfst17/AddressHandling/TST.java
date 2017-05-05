@@ -263,7 +263,6 @@ public class TST<TSTInterface> implements Serializable {
     public void addAddressNodeToQueue(PriorityQueue<PriorityStrings> queue, AddressNode x, String found){
         String compare = x.toString();
         double similarity = similarity(compare,suffix);
-        System.out.println(found+ x.toString());
         double n = (((double) this.prefix.length()  / ((double) found.length()+ x.toString().length()))+similarity);
         //System.out.println(prefix + " " + n);
         queue.add(new PriorityStrings(n,found + ", " +x.toString()));
