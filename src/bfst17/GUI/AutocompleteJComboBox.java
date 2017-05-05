@@ -64,13 +64,15 @@ public class AutocompleteJComboBox extends JComboBox {
                         int i = 0;
                         String[] strArray = s.split(" ");
                         for (String str : strArray) {
-                            i++;
-                            char[] stringArray = str.trim().toCharArray();
-                            stringArray[0] = Character.toUpperCase(stringArray[0]);
-                            str = new String(stringArray);
-                            if (i != strArray.length) {
-                                res.append(str).append(" ");
-                            } else res.append(str);
+                            if(!str.equals("")) {
+                                i++;
+                                char[] stringArray = str.trim().toCharArray();
+                                stringArray[0] = Character.toUpperCase(stringArray[0]);
+                                str = new String(stringArray);
+                                if (i != strArray.length) {
+                                    res.append(str).append(" ");
+                                } else res.append(str);
+                            }
 
                         }
                         return res.toString();
