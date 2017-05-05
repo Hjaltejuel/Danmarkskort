@@ -134,10 +134,17 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     }
 
+    boolean isPopUpOpen = false;
+
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyChar() == 10) {
-            search();
+            if(!isPopUpOpen) {
+                search();
+            }
+            else{
+                isPopUpOpen = false;
+            }
         }
     }
 
@@ -200,11 +207,15 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
         String s = (String) window.getCombo().getSelectedItem();
         if (s == null || s.length()==0) {
+            isPopUpOpen = true;
+            JOptionPane.showMessageDialog(canvas, "Du har ikke indtastet noget i søgefeltet");
             return; //Ikke noget at søge efter!
         }
 
         TSTInterface address = addressModel.getAddress(s.trim());
         if(address == null) {
+            isPopUpOpen = true;
+            JOptionPane.showMessageDialog(canvas, "Din søgning på '" +  s + "' gav ingen resultater");
             return; //Ingen adresse fundet...
         }
         if(address instanceof DuplicateAddressNode){

@@ -23,7 +23,8 @@ public class DrawCanvas extends JComponent implements Observer {
 	Model model;
 	AffineTransform transform = new AffineTransform();
     Shape regionShape = null;
-	boolean antiAlias;
+	private boolean antiAliasFromMenu; //Bestemmer over antiAliasFromPanning
+    private boolean antiAliasFromPanning;
     GUIMode GUITheme = GUIMode.NORMAL;
 	boolean fancyPanEnabled = true;
 	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
@@ -71,7 +72,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 
     public void toggleAA() {
-        antiAlias = !antiAlias;
+        antiAliasFromMenu = !antiAliasFromMenu;
         repaint();
         revalidate();
     }
@@ -79,15 +80,17 @@ public class DrawCanvas extends JComponent implements Observer {
     //De næste metoder er til at slå aa fra hvis der pannes på og fra når der stoppes.
     //Den før kan ikke bruges da det giver den modsatte værdi. Hvis AA nu er false bliver den sat til true når der pannes og det skal den ikke.
     public void AAOff(){
-        antiAlias = false;
+        antiAliasFromPanning = false;
         repaint();
         revalidate();
     }
 
     public void AAOn(){
-        antiAlias = true;
-        repaint();
-        revalidate();
+        if(antiAliasFromMenu) {
+            antiAliasFromPanning = true;
+            repaint();
+            revalidate();
+        }
     }
 
     public boolean isFancyPanEnabled() {
@@ -313,7 +316,7 @@ public class DrawCanvas extends JComponent implements Observer {
         g.setTransform(transform);
         g.setStroke(new BasicStroke(Float.MIN_VALUE));
 
-        if (antiAlias) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        if (antiAliasFromMenu && antiAliasFromPanning) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         //Tegn coastlines
         drawCoastlines(g);
