@@ -47,7 +47,7 @@ public class POIKDTree extends KDTree implements Serializable {
             return POIType;
         }
 
-        public boolean sortVertically() {
+        protected boolean sortVertically() {
             return isVertical;
         }
 

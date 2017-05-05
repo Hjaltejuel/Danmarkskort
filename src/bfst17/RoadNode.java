@@ -13,16 +13,16 @@ import java.io.Serializable;
  * Created by Michelle on 5/2/2017.
  */
 public class RoadNode implements Serializable {
-    PolygonApprox s;
+    PolygonApprox shape;
     String roadName;
 
 
-    public RoadNode(PolygonApprox s, String roadName){
-        this.s = s;
+    public RoadNode(PolygonApprox shape, String roadName){
+        this.shape = shape;
         this.roadName = roadName;
     }
     public PolygonApprox getShape() {
-        return s;
+        return shape;
     }
 
     public String getRoadName() {
