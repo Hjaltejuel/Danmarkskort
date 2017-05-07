@@ -16,26 +16,22 @@ public class AddressNode implements TSTInterface, Serializable{
         this.node = node;
     }
 
-    @Override
     public double getX() {
         return node.getX();
     }
 
-    @Override
     public double getY() {
         return node.getY();
     }
 
-
-    @Override
     public Shape getShape() {
         return null;
     }
 
-    @Override
     public String getAddress() {
         return cityAndPostcode;
     }
 
+    @Override
     public String toString(){return cityAndPostcode;}
 }

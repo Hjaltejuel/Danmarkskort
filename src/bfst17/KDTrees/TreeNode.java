@@ -1,6 +1,7 @@
 package bfst17.KDTrees;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
@@ -36,6 +37,11 @@ public abstract class TreeNode implements Comparable<TreeNode>, Serializable {
             return -1;
         }
         return 0;
+    }
+
+
+    public double distance(Point2D p1) {
+        return Math.sqrt(Math.pow(p1.getX()-getX(),2)+Math.pow(p1.getY()-getY(),2));
     }
 
     @Override

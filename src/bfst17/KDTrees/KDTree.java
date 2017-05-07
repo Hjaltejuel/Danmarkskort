@@ -148,17 +148,12 @@ public abstract class KDTree implements Serializable {
         }
     }
 
-    public double distance(Point2D p1, TreeNode node) {
-        Point2D p2 = new Point2D.Double(node.getX(), node.getY());
-        return Math.sqrt(Math.pow(p1.getX()-p2.getX(),2)+Math.pow(p1.getY()-p2.getY(),2));
-    }
-
     public TreeNode neighbourRecursion(Point2D point, TreeNode node, boolean vertical, TreeNode champion, double bestDistance) {
         if (node == null) {
             return champion;
         }
 
-        double distance = distance(point, node);
+        double distance = node.distance(point);
         if (distance < bestDistance) {
             bestDistance = distance;
             champion = node;
@@ -183,7 +178,7 @@ public abstract class KDTree implements Serializable {
         } else {
             TreeNode champ1 = neighbourRecursion(point, nextNode, !vertical, champion, bestDistance);
             TreeNode champ2 = neighbourRecursion(point, compareNode, !vertical, champion, bestDistance);
-            if (distance(point, champ1) < distance(point, champ2)) {
+            if (champ1.distance(point) < champ2.distance(point)) {
                 return champ1;
             } else {
                 return champ2;

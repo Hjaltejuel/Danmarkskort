@@ -1,5 +1,6 @@
 package bfst17;
 
+import bfst17.AddressHandling.StreetAndPointNode;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
 import bfst17.KDTrees.*;
@@ -290,9 +291,9 @@ public class Model extends Observable implements Serializable {
 		}
 		private ArrayList<PointOfInterestObject> pointsOfInterest = new ArrayList<>();
 
-		private HashMap<String, Point2D> cityNames = new HashMap<>();
+		private ArrayList<StreetAndPointNode> cityNames = new ArrayList<>();
 
-		private HashMap<String, Point2D> townNames = new HashMap<>();
+		private ArrayList<StreetAndPointNode> townNames = new ArrayList<>();
 
         private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class); {
             for (WayType type : WayType.values()) {
@@ -351,12 +352,12 @@ public class Model extends Observable implements Serializable {
                 pointsOfInterest.clear();
             }
             if (cityTree != null) {
-                //cityTree.fillTree(cityNames);
+                cityTree.fillTree(cityNames);
                 cityNames.clear();
             }
 
             if (townTree != null) {
-                //townTree.fillTree(townNames);
+                townTree.fillTree(townNames);
                 townNames.clear();
             }
 
@@ -371,7 +372,7 @@ public class Model extends Observable implements Serializable {
         public void endDocument() throws SAXException {
             long StartTime = System.nanoTime();
 			fillTrees();
-			System.out.println("KDTrees filled in: "+(System.nanoTime()-StartTime)/1_000_000+" ms");
+			System.out.println("fillTrees() ran in: "+(System.nanoTime()-StartTime)/1_000_000+" ms");
         }
 
         @Override
@@ -464,10 +465,10 @@ public class Model extends Observable implements Serializable {
                                 addressModel.putCity(name, idToNode.get(nodeID));
                             }
                             if (v.equals("town")) {
-                                townNames.put(name, new Point2D.Double(lon * lonfactor, -lat));
+                                townNames.add(new StreetAndPointNode(name, new Point2D.Double(lon * lonfactor, -lat)));
                             }
                             if (v.equals("city")) {
-                                cityNames.put(name, new Point2D.Double(lon * lonfactor, -lat));
+                                cityNames.add(new StreetAndPointNode(name, new Point2D.Double(lon * lonfactor, -lat)));
                             }
                             break;
                     }

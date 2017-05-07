@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
-public class ShapeKDTree extends KDTree implements Serializable {
+public class ShapeKDTree extends KDTree {
     WayType type;
 
     public ShapeKDTree(WayType type) {

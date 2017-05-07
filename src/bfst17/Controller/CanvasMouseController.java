@@ -37,7 +37,6 @@ public class CanvasMouseController extends MouseAdapter {
 			canvas.getTimer().cancel();
 		}
 		lastMousePosition = e.getPoint();
-		System.out.println(e.getX() + " " + e.getY());
 		canvas.setMousePos(lastMousePosition);
 	}
 

@@ -7,7 +7,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.*;
 
-public class POIKDTree extends KDTree implements Serializable {
+public class POIKDTree extends KDTree {
 
     boolean isVertical = true;
 

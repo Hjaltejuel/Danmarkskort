@@ -8,11 +8,7 @@ import bfst17.KDTrees.TreeNode;
 import bfst17.KDTrees.RoadKDTree;
 import bfst17.Model;
 import bfst17.AddressHandling.TSTInterface;
-import sun.reflect.generics.tree.Tree;
-import bfst17.RoadNode;
 import bfst17.ShapeStructure.PolygonApprox;
-import com.sun.org.apache.xpath.internal.SourceTree;
-import javafx.scene.transform.Affine;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -20,7 +16,6 @@ import java.awt.*;
 
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
 import java.util.*;
 import java.util.Timer;
 
@@ -220,8 +215,7 @@ public class DrawCanvas extends JComponent implements Observer {
             drawCityAndTownNames(g);
         }
 
-
-
+        drawClosestRoad(g);
     }
 
     public void drawPin(Graphics2D g) {
@@ -233,15 +227,29 @@ public class DrawCanvas extends JComponent implements Observer {
 
     public void setMousePos(Point2D mousePos) {
         this.mousePos = mousePos;
-        addressNode = ((RoadKDTree.RoadTreeNode)model.getRoadTreeList().get(4).getNearestNeighbour(screenCordsToLonLat(mousePos.getX(),mousePos.getY()))).getRoadName();
-        System.out.println(addressNode);
+        Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(),mousePos.getY());
+        TreeNode closestNode=null;
+        for(RoadKDTree tree : model.getRoadTreeList()) {
+            TreeNode nearestNode = tree.getNearestNeighbour(lonLatCords);
+            if(closestNode==null) {
+                closestNode=nearestNode;
+            } else {
+                if(closestNode.distance(lonLatCords)>nearestNode.distance(lonLatCords)){
+                    closestNode=nearestNode;
+                }
+            }
+        }
+        addressNode = (RoadKDTree.RoadTreeNode)closestNode;
+        System.out.println(addressNode.getRoadName());
+        repaint();
     }
 
     Point2D mousePos;
-	String addressNode;
+	RoadKDTree.RoadTreeNode addressNode;
     public void drawClosestRoad(Graphics2D g) {
-        if(mousePos!=null) {
-            g.drawString(addressNode,(int)mousePos.getX(),(int)mousePos.getY());
+        if(addressNode!=null) {
+            Point2D p = lonLatToScreenCords(-addressNode.getX(),-addressNode.getY());
+            g.drawString(addressNode.getRoadName(),(int)p.getX(),(int)p.getY());
         }
     }
 
@@ -287,8 +295,6 @@ public class DrawCanvas extends JComponent implements Observer {
             }
         }
     }
-
-
 
     public void drawImageAtLocation(Graphics2D g, String imagePath, double x, double y) {
         BufferedImage image = PinAndPOIImageMap.get(imagePath);
@@ -370,15 +376,12 @@ public class DrawCanvas extends JComponent implements Observer {
         if (antiAliasFromMenu && antiAliasFromPanning) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         //Tegn coastlines
-
         drawCoastlines(g);
 
         //Hent og tegn shapes fra diverse KDTræer
-
         drawShapes(g);
 
         //Tegn vejene og evt vejnavne
-
         drawRoads(g);
 
 
