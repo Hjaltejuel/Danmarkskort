@@ -39,7 +39,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	HashMap<String, BufferedImage> PinAndPOIImageMap;
 	boolean drawCityNames = true;
     private Timer timer;
-
     public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
@@ -505,7 +504,6 @@ public class DrawCanvas extends JComponent implements Observer {
             if (type.getZoomFactor() > getXZoomFactor()) {
                 continue;
             }
-
             g.setColor(getDrawColor(type));
             g.setStroke(type.getDrawStroke());
             HashSet<TreeNode> roadNodes = tree.getInRange(screenRectangle);
