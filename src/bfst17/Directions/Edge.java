@@ -7,56 +7,51 @@ public class Edge {
         private GraphNode source;
         private GraphNode destination;
 
-        private double weightCar;
-        private double weightShortest;
+        private double weight;
 
-        double weightedX;
-        double weightedY;
+        double weighted;
 
 
         public Edge(GraphNode source, GraphNode destination){
             this.source = source;
             this.destination = destination;
-            weightedX = destination.getPoint2D().getX() - source.getPoint2D().getX();
-            weightedY = destination.getPoint2D().getY() - source.getPoint2D().getY();
-            Weigh();
+            weighted = Math.pow(destination.getPoint2D().getX() - source.getPoint2D().getX(),2) +
+                    Math.pow(destination.getPoint2D().getY() - source.getPoint2D().getY(),2);
+            Weigh("FASTEST");
             source.insertNeighbor(this);
        //     System.out.println(weightCar + " " + weightFoot + " " + weightBicycle);
         }
-        private void Weigh(){
-            if(source.isShortest() && destination.isShortest()){
-                weightShortest = calcWeightForShortest();
-            }
-            if(source.getMaxspeed() > 0 && destination.getMaxspeed() > 0){
-                weightCar = calcWeightForFastest();
+        public void Weigh(String weighingMethod){
+            switch(weighingMethod){
+                case "SHORTEST": calcWeightForShortest();
+                    break;
+                case "FASTEST": calcWeightForFastest();
+                    break;
             }
         }
-        private double calcWeightForFastest(){
-            int speed;
+        private void calcWeightForFastest(){
+
             if(source.getMaxspeed() >= destination.getMaxspeed()) {
-                speed = source.getMaxspeed();
+                weight = Math.sqrt(weighted)/source.getMaxspeed();
             }
             else{
-                speed = destination.getMaxspeed();
+                weight = Math.sqrt(weighted)/(destination.getMaxspeed());
             }
-            return Math.sqrt(Math.pow(weightedX,2) + Math.pow(weightedY,2))/speed;
-        }
-        private double calcWeightForShortest(){
 
-            return Math.sqrt(Math.pow(weightedX,2) + Math.pow(weightedY,2));
+        }
+        private void calcWeightForShortest(){
+
+            weight = weighted;
         }
         public GraphNode getSource(){
             return source;
         }
-        public GraphNode getDestination(){
+        public GraphNode getDestination() {
             return destination;
         }
-        public double getWeightCar(){
-            return weightCar;
-        }
-        public double getWeightShortest(){
-            return weightShortest;
-        }
+        public double getWeight(){
+            return weight;
+    }
 
 
 }

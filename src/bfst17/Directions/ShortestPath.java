@@ -41,7 +41,7 @@ public class ShortestPath {
         ArrayList<Edge> edgelist = node.getEdgeList();
         for (Edge e: edgelist) {
             if(!e.getDestination().isSettled()) {
-                double tempDistTo = node.getDistTo() + e.getWeightShortest();
+                double tempDistTo = node.getDistTo() + e.getWeight();
                 if (tempDistTo < e.getDestination().getDistTo()) {
                     e.getDestination().setDistTo(tempDistTo);
                     e.getDestination().setNodeFrom(node);

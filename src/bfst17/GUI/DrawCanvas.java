@@ -578,7 +578,8 @@ public class DrawCanvas extends JComponent implements Observer {
             return;
         }
         else {
-/*            GraphNode source;
+            /*
+           GraphNode source;
             ArrayList<GraphNode> alist = graph.getRandomPath();
             for (int i = 0; i < alist.size() - 1; i++) {
                 source = alist.get(i);

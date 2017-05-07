@@ -99,5 +99,8 @@ public class GraphNode implements Comparable {
     public void setEnd(boolean end) {
         this.end = end;
     }
+    public void addEdge(GraphNode destination){
+        Edge e = new Edge(this, destination);
+    }
 }
 
