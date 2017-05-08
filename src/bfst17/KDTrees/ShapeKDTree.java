@@ -36,7 +36,6 @@ public class ShapeKDTree extends KDTree {
             int type = PI.currentSegment(coordinates);
             switch (type) {
                 case PathIterator.SEG_MOVETO:
-                    System.out.println("move to " + coordinates[0] + ", " + coordinates[1]);
                     break;
                 case PathIterator.SEG_LINETO:
                     System.out.println("line to " + coordinates[0] + ", " + coordinates[1]);

@@ -33,12 +33,6 @@ public class TST<TSTInterface> implements Serializable {
         return n;
     }
 
-    public boolean contains(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("argument to contains() is null");
-        }
-        return get(key) != null;
-    }
     /**
      * Description: returns the value of a specific key by call on get, used for searching, saves the suffix (city and postcode val)
        If it finds a duplicateAddressNode, return the val that matches the suffix
