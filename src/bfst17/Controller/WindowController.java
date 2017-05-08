@@ -35,7 +35,6 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         canvas.resetCamera();
         new CanvasMouseController(canvas, model);
         initiate();
-
     }
 
     public void initiate() {
