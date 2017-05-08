@@ -193,6 +193,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
         //Opdater FPS
         checkFPS();
+
+
 	}
 
     //<editor-fold desc="Funktioner der tegner">
@@ -253,7 +255,7 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void drawPointsOfInteres(Graphics2D g) {
-        if (getXZoomFactor() > 40000) {
+        if (getZoomFactor() > 40000) {
             POIKDTree POITree = model.getPOITree();
             for (TreeNode node : POITree.getInRange(screenRectangle)) {
                 POIKDTree.POITreeNode POINode = (POIKDTree.POITreeNode)node;
@@ -269,7 +271,7 @@ public class DrawCanvas extends JComponent implements Observer {
     public void drawCityAndTownNames(Graphics2D g) {
 
         //Draw townnames
-        if (getXZoomFactor() > 3000 && getXZoomFactor() < 9000) {
+        if (getZoomFactor() > 3000 && getZoomFactor() < 9000) {
             CityNamesKDTree townTree = model.getTownTreeTree();
             for (TreeNode _cityNode : townTree.getInRange(screenRectangle)) {
                 CityNamesKDTree.CityNameTreeNode cityNode = (CityNamesKDTree.CityNameTreeNode) _cityNode;
@@ -282,7 +284,7 @@ public class DrawCanvas extends JComponent implements Observer {
         }
 
         //Draw citynames
-        if (getXZoomFactor() < 400 && getXZoomFactor() > 180) {
+        if (getZoomFactor() < 400 && getZoomFactor() > 180) {
             CityNamesKDTree cityTree = model.getCityTree();
             for (TreeNode _cityNode : cityTree.getInRange(screenRectangle)) {
                 CityNamesKDTree.CityNameTreeNode cityNode = (CityNamesKDTree.CityNameTreeNode) _cityNode;
@@ -297,7 +299,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
     public void drawImageAtLocation(Graphics2D g, String imagePath, double x, double y) {
         BufferedImage image = PinAndPOIImageMap.get(imagePath);
-        Rectangle2D imageRect = new Rectangle2D.Double(-x,-y,image.getWidth()/getXZoomFactor(),image.getHeight()/getYZoomFactor());
+        Rectangle2D imageRect = new Rectangle2D.Double(-x,-y,image.getWidth()/ getZoomFactor(),image.getHeight()/ getZoomFactor());
 
         if(!screenRectangle.intersects(imageRect)) {
             return; //Billedet er ikke inden for skærmen
@@ -428,27 +430,27 @@ public class DrawCanvas extends JComponent implements Observer {
         for (RoadKDTree tree : model.getRoadTreeList()) {
             switch (tree.getType()) {
                 case HIGHWAY_PRIMARY:
-                    if (getXZoomFactor() > 25000) {
+                    if (getZoomFactor() > 25000) {
                         drawRoadNameInCenter(g, tree);
                     }
                     break;
                 case HIGHWAY_SECONDARY:
-                    if (getXZoomFactor() > 35000) {
+                    if (getZoomFactor() > 35000) {
                         drawRoadNameInCenter(g, tree);
                     }
                     break;
                 case HIGHWAY_TERTIARY:
-                    if (getXZoomFactor() > 50000) {
+                    if (getZoomFactor() > 50000) {
                         drawRoadNameInCenter(g, tree);
                     }
                     break;
                 case HIGHWAY_MOTORWAY:
-                    if (getXZoomFactor() > 20000) {
+                    if (getZoomFactor() > 20000) {
                         drawRoadNameInCenter(g, tree);
                     }
                     break;
                 default:
-                    if (getXZoomFactor() > 250000) {
+                    if (getZoomFactor() > 250000) {
                         drawRoadNameInCenter(g, tree);
                     }
             }
@@ -501,7 +503,7 @@ public class DrawCanvas extends JComponent implements Observer {
     public void drawRoads(Graphics2D g){
         for(RoadKDTree tree: model.getRoadTreeList()) {
             WayType type = tree.getType();
-            if (type.getZoomFactor() > getXZoomFactor()) {
+            if (type.getZoomFactor() > getZoomFactor()) {
                 continue;
             }
             g.setColor(getDrawColor(type));
@@ -519,7 +521,7 @@ public class DrawCanvas extends JComponent implements Observer {
 	    numOfShapes=0;
         for (ShapeKDTree tree : model.getTrees()) {
             WayType type = tree.getType();
-            if (type.getZoomFactor() > getXZoomFactor()) {
+            if (type.getZoomFactor() > getZoomFactor()) {
                 continue;
             }
             g.setColor(getDrawColor(type));
@@ -547,10 +549,10 @@ public class DrawCanvas extends JComponent implements Observer {
 
     //Punktudregnings ting
     public double getCenterCordinateX() {
-        return (transform.getTranslateX()-getWidth()/2)/getXZoomFactor();
+        return (transform.getTranslateX()-getWidth()/2)/ getZoomFactor();
     }
     public double getCenterCordinateY() {
-        return (transform.getTranslateY()-getHeight()/2) / getYZoomFactor();
+        return (transform.getTranslateY()-getHeight()/2) / getZoomFactor();
     }
 
     public Point2D getCenterCordinate() {
@@ -559,20 +561,20 @@ public class DrawCanvas extends JComponent implements Observer {
 
     public Point2D getDistanceInPixelToPoint(double lon, double lat) {
         //distance from center of screen in lat lon
-        double Xdist = (lon - getCenterCordinateX()) * getXZoomFactor();
-        double Ydist = (lat - getCenterCordinateY()) * getYZoomFactor();
+        double Xdist = (lon - getCenterCordinateX()) * getZoomFactor();
+        double Ydist = (lat - getCenterCordinateY()) * getZoomFactor();
         return new Point2D.Double(Xdist, Ydist);
     }
 
     private Point2D screenCordsToLonLat(double x, double y) {
-        double correctedX = -(transform.getTranslateX() - x) / getXZoomFactor();
-        double correctedY = -(transform.getTranslateY() - y) / getYZoomFactor();
+        double correctedX = -(transform.getTranslateX() - x) / getZoomFactor();
+        double correctedY = -(transform.getTranslateY() - y) / getZoomFactor();
         return new Point2D.Double(correctedX, correctedY);
     }
 
     private Point2D lonLatToScreenCords(double x, double y) {
-        double correctedX = -(x * getXZoomFactor() - transform.getTranslateX());
-        double correctedY = -(y * getYZoomFactor() - transform.getTranslateY());
+        double correctedX = -(x * getZoomFactor() - transform.getTranslateX());
+        double correctedY = -(y * getZoomFactor() - transform.getTranslateY());
         return new Point2D.Double(correctedX, correctedY);
     }
 
@@ -604,12 +606,12 @@ public class DrawCanvas extends JComponent implements Observer {
         double distanceToCenterY = lat - getCenterCordinateY();
 
         double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX, 2) + Math.pow(distanceToCenterY, 2)));
-        double amountOfZoom = 150000 / getXZoomFactor();
+        double amountOfZoom = 150000 / getZoomFactor();
 
         if (amountOfZoom >= 2) {
             panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
         } else {
-            if (distance < 400/getXZoomFactor()) {
+            if (distance < 400/ getZoomFactor()) {
                 panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
             } else {
                 zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
@@ -620,8 +622,8 @@ public class DrawCanvas extends JComponent implements Observer {
     public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
         timer = new Timer();
 
-        double partDX = distanceToCenterX * getXZoomFactor() / 100;
-        double partDY = distanceToCenterY * getYZoomFactor() / 100;
+        double partDX = distanceToCenterX * getZoomFactor() / 100;
+        double partDY = distanceToCenterY * getZoomFactor() / 100;
 
         timer.scheduleAtFixedRate(new TimerTask() {
 
@@ -671,10 +673,10 @@ public class DrawCanvas extends JComponent implements Observer {
     //Zoom ting
     public void zoom(double factor) {
         //Zoom begrænsning
-        if(getXZoomFactor()*factor>800000) {
+        if(getZoomFactor()*factor>800000) {
             return;
             //max zoom out
-        } else if(getXZoomFactor()*factor<120){
+        } else if(getZoomFactor()*factor<120){
             return;
         }
 
@@ -687,7 +689,7 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void centerZoomToZoomLevel(double zoomLevel){
-        centerZoom(zoomLevel / getXZoomFactor());
+        centerZoom(zoomLevel / getZoomFactor());
     }
 
     public void centerZoom(double factor) {
@@ -718,8 +720,7 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
 
-    public double getXZoomFactor(){return transform.getScaleY();}
-    public double getYZoomFactor(){return transform.getScaleY();}
+    public double getZoomFactor(){return transform.getScaleX();}
     //</editor-fold>
 
 	/**
