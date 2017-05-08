@@ -386,4 +386,8 @@ public class DrawWindow {
 	public JMenuItem getGreyScaleMenuItem() {
 		return greyScaleMenuItem;
 	}
+
+	public boolean getShowDirectionsBoolean(){
+		return showDirectionsComboBox;
+	}
 }

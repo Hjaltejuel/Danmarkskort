@@ -25,6 +25,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     DrawCanvas canvas;
     AddressModel addressModel;
     boolean setUpDirectionsMenu = false;
+    boolean directionsMode = false;
 
     public WindowController(Model model) {
         window = new DrawWindow();
@@ -74,6 +75,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     break;
                 case "Directions":
                     window.toggleDirectionsBar();
+                    if(window.getShowDirectionsBoolean()){
+                        directionsMode = true;
+                    }
+                    else directionsMode = false;
                     break;
                 case "Nightmode":
                     setColorTheme(GUIMode.NIGHT);
@@ -137,7 +142,17 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyChar() == 10) {
-            search();
+            if(directionsMode){
+                String s = (String) window.getCombo().getSelectedItem();
+                if (s == null || s.length()==0) {
+                    return; //Ikke noget at søge efter!
+                }
+
+                TSTInterface address = addressModel.getAddress(s.trim());
+            }
+            else{
+                search();
+            }
         }
     }
 
