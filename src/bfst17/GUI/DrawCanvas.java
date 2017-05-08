@@ -1,12 +1,10 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TSTInterface;
+import bfst17.Directions.Edge;
 import bfst17.Directions.Graph;
 import bfst17.Directions.GraphNode;
-import bfst17.Enums.GUIMode;
-import bfst17.Enums.POIclasification;
-import bfst17.Enums.PointsOfInterest;
-import bfst17.Enums.WayType;
+import bfst17.Enums.*;
 import bfst17.KDTrees.*;
 import bfst17.Model;
 import bfst17.ShapeStructure.PolygonApprox;
@@ -557,19 +555,11 @@ public class DrawCanvas extends JComponent implements Observer {
 
         g.setStroke(new BasicStroke(0.000008f));
         Graph graph = model.getGraph();
-        GraphNode source = graph.getSourceTest();
-        GraphNode target = graph.getTargetTest();
 
        // ArrayList<GraphNode> alist = graph.getPath(source, target);
-        ArrayList<Edge> alist = graph.getEdges();
+        ArrayList<GraphNode> alist = graph.getRandomPath();
         for(int i = 0; i < alist.size()-1; i++){
-            source = alist.get(i).getSource();
-            for(int j = 0; j < source.getEdgeList().size()-1; j++){
-                GraphNode dest = source.getEdgeList().get(j).getDestination();
-                System.out.println(dest);
-                g.draw(new Line2D.Double(source.getPoint2D().getX(), source.getPoint2D().getY(),dest.getPoint2D().getX(), dest.getPoint2D().getY()));
 
-            }
             g.draw(new Line2D.Double(alist.get(i).getSource().getPoint2D().getX(), alist.get(i).getSource().getPoint2D().getY(),alist.get(i).getDestination().getPoint2D().getX(), alist.get(i).getDestination().getPoint2D().getY()));
         }
     }
