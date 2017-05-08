@@ -1,5 +1,6 @@
 package bfst17;
 
+import bfst17.Enums.WayType;
 import bfst17.ShapeStructure.PolygonApprox;
 
 import java.awt.*;
@@ -15,14 +16,19 @@ import java.io.Serializable;
 public class RoadNode implements Serializable {
     PolygonApprox shape;
     String roadName;
+    WayType type;
 
-
-    public RoadNode(PolygonApprox shape, String roadName){
+    public RoadNode(PolygonApprox shape, String roadName, WayType type){
         this.shape = shape;
         this.roadName = roadName;
+        this.type = type;
     }
     public PolygonApprox getShape() {
         return shape;
+    }
+
+    public WayType getType() {
+        return type;
     }
 
     public String getRoadName() {

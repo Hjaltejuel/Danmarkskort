@@ -1,6 +1,7 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TST;
+import bfst17.Enums.GUIMode;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -208,32 +209,12 @@ public class DrawWindow {
 	}
 
 
-	public void setUpNightMode() {
-		menuButton.setBackground(new Color(36, 47, 62));
-		combo.getEditor().getEditorComponent().setBackground(new Color(36, 47, 62));
+	public void toggleNightModeComboBox(GUIMode theme) {
+		boolean isNightmode = theme == GUIMode.NIGHT;
+		combo.getEditor().getEditorComponent().setBackground(isNightmode ? new Color(36, 47, 62) : Color.white);
 		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
-		component.setForeground(Color.WHITE);
-		component.setCaretColor(Color.WHITE);
-		BasicComboPopup popup = (BasicComboPopup) combo.getAccessibleContext().getAccessibleChild(0);
-		JList list = popup.getList();
-		list.setBackground(new Color(36, 47, 62));
-		list.setForeground(Color.WHITE);
-		popUpMenu.setForeground(Color.WHITE);
-
-	}
-
-	public void tearDownNightMode() {
-		menuButton.setBackground(null);
-		combo.getEditor().getEditorComponent().setBackground(Color.WHITE);
-		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
-		component.setForeground(Color.BLACK);
-		component.setCaretColor(Color.BLACK);
-		BasicComboPopup popup = (BasicComboPopup) combo.getAccessibleContext().getAccessibleChild(0);
-		JList list = popup.getList();
-		list.setBackground(null);
-		list.setForeground(null);
-		popUpMenu.setForeground(Color.BLACK);
-
+		component.setForeground(isNightmode ? Color.WHITE : Color.black);
+		component.setCaretColor(isNightmode ? Color.WHITE : Color.black);
 	}
 
 	public void addKeyListeners(KeyStroke stroke, String action, JMenuItem clicker) {
