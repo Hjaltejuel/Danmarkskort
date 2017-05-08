@@ -112,7 +112,7 @@ public class MultiPolygonApprox extends PolygonApprox {
 					Collections.reverse(before);
 					merged.addAll(before);
 				}
-				merged.addAll(way);
+				merged.addAll((Collection<? extends OSMNode>) way);
 				if(after != null){
 					merged.addAll(after);
 				}
