@@ -153,10 +153,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     public void loadFile(File startingDirectory) throws IOException {
         JFileChooser fileChooser = new JFileChooser();
-
         fileChooser.setCurrentDirectory(startingDirectory);
 
         fileChooser.setAcceptAllFileFilterUsed(false);
+        //Her sørger vi får at man kun vælge bestemte filer
         fileChooser.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File file) {
@@ -200,7 +200,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     public void search() {
-        //cancel timer så det ikke bliver skørt
+        //cancel timer så der ikke kommer to timers på én gang
         if(canvas.getTimer() != null){
             canvas.getTimer().cancel();
         }
