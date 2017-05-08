@@ -86,8 +86,10 @@ public class PolygonApprox implements Shape, Serializable {
 	}
 
 	public PathIterator getPathIterator(AffineTransform at) {
-		float pixelsq = (float) (PIXEL/Math.abs(at.getDeterminant()));
-		return getPathIterator(at, pixelsq);
+		if(at != null) {
+			float pixelsq = (float) (PIXEL / Math.abs(at.getDeterminant()));
+			return getPathIterator(at, pixelsq);
+		} return getPathIterator(null,0);
 	}
 
 	public PathIterator getPathIterator(AffineTransform at, float pixelsq) {
@@ -189,6 +191,10 @@ public class PolygonApprox implements Shape, Serializable {
 
 	public float getHeight() {
 		return bh;
+	}
+
+	public int getLengthOfCoords(){
+		return coords.length;
 	}
 
 	public Rectangle getBounds() {

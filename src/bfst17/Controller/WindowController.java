@@ -134,10 +134,17 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     }
 
+    boolean isPopUpOpen = false;
+
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyChar() == 10) {
-            search();
+            if(!isPopUpOpen) {
+                search();
+            }
+            else{
+                isPopUpOpen = false;
+            }
         }
     }
 
@@ -171,7 +178,8 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             File fileToLoad = fileChooser.getSelectedFile();
             if (fileChooser.accept(fileToLoad) && fileToLoad.exists()) { //Filen er fundet! Indlæs:
                 model.load(fileToLoad.getAbsolutePath());
-                //window.getWindow().dispose();
+                addressModel = model.getAddressModel();
+                window.setTreeInAutocompleter(addressModel.getTSTTree());
             } else { //Filen blev ikke fundet - giv fejlmeddelelse
                 if (!fileChooser.accept(fileToLoad)) {
                     JOptionPane.showMessageDialog(window.getWindow(), "You must choose a correct filetype to loadFile");
@@ -196,14 +204,21 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     public void search() {
-
+        //cancel timer så det ikke bliver skørt
+        if(canvas.getTimer() != null){
+            canvas.getTimer().cancel();
+        }
         String s = (String) window.getCombo().getSelectedItem();
         if (s == null || s.length()==0) {
+            isPopUpOpen = true;
+            JOptionPane.showMessageDialog(canvas, "Du har ikke indtastet noget i søgefeltet");
             return; //Ikke noget at søge efter!
         }
 
         TSTInterface address = addressModel.getAddress(s.trim());
         if(address == null) {
+            isPopUpOpen = true;
+            JOptionPane.showMessageDialog(canvas, "Din søgning på '" +  s + "' gav ingen resultater");
             return; //Ingen adresse fundet...
         }
         if(address instanceof DuplicateAddressNode){

@@ -202,6 +202,11 @@ public class DrawWindow {
 		secondCombo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 	}
 
+	public void setTreeInAutocompleter(TST tree){
+		combo.setTree(tree);
+		secondCombo.setTree(tree);
+	}
+
 
 	public void setUpNightMode() {
 		menuButton.setBackground(new Color(36, 47, 62));
@@ -255,6 +260,7 @@ public class DrawWindow {
 		AntiAliasingToggle = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
 		directions = new JCheckBoxMenuItem("Directions");
 		showCityNames = new JCheckBoxMenuItem("Show city names");
+		showCityNames.setSelected(true);
 
 
 		addKeyListeners(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK), "action5", save);
