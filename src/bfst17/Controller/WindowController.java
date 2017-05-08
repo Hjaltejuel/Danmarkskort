@@ -106,21 +106,18 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
 
         //Hvad gør setup & tear down?? Der er umiddelbart ingen forskel om de er med eller fra
-
         canvas.setGUITheme(newTheme);
         if (newTheme == GUIMode.NORMAL) {
             window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
             window.getGreyScaleMenuItem().setText("GreyScale (CTRL-G)");
-            //window.tearDownNightMode();
         } else if (newTheme == GUIMode.GREYSCALE) {
             window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
             window.getGreyScaleMenuItem().setText("Color (CTRL-G)");
-            //window.tearDownNightMode();
         } else if (newTheme == GUIMode.NIGHT) {
             window.getNightModeMenuItem().setText("Color (CTRL-N)");
             window.getGreyScaleMenuItem().setText("GreyScale (CTRL-G)");
-            //window.setUpNightMode();
         }
+        window.toggleNightModeComboBox(newTheme);
         canvas.repaint();
     }
 
@@ -156,10 +153,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     public void loadFile(File startingDirectory) throws IOException {
         JFileChooser fileChooser = new JFileChooser();
-
         fileChooser.setCurrentDirectory(startingDirectory);
 
         fileChooser.setAcceptAllFileFilterUsed(false);
+        //Her sørger vi får at man kun vælge bestemte filer
         fileChooser.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File file) {
@@ -183,7 +180,6 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             } else { //Filen blev ikke fundet - giv fejlmeddelelse
                 if (!fileChooser.accept(fileToLoad)) {
                     JOptionPane.showMessageDialog(window.getWindow(), "You must choose a correct filetype to loadFile");
-
                 } else if (!fileToLoad.exists()) {
                     JOptionPane.showMessageDialog(window.getWindow(), "File does not exist");
                 }
@@ -204,7 +200,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     public void search() {
-        //cancel timer så det ikke bliver skørt
+        //cancel timer så der ikke kommer to timers på én gang
         if(canvas.getTimer() != null){
             canvas.getTimer().cancel();
         }
