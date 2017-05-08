@@ -217,7 +217,7 @@ public class DrawCanvas extends JComponent implements Observer {
         if (pin == null) {
             return; //Lad være at tegne, hvis der ikke er en pin
         }
-        drawImageAtLocation(g,"pin",pin.getX(),pin.getY());
+        drawImageAtLocation(g, "pin", pin.getX(), pin.getY());
     }
 
     public void setMousePos(Point2D mousePos) {
@@ -229,6 +229,10 @@ public class DrawCanvas extends JComponent implements Observer {
         addressNode = (RoadKDTree.RoadTreeNode) nearestNode;
         System.out.println(addressNode.getRoadName());
         repaint();
+    }
+
+    public RoadKDTree.RoadTreeNode getClosestRoad() {
+	    return null;
     }
 
     Point2D mousePos;

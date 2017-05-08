@@ -8,7 +8,6 @@ import bfst17.GUI.DrawCanvas;
 import bfst17.GUI.DrawWindow;
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.GUI.LoadCanvas;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -24,12 +23,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     DrawWindow window;
     Model model;
     DrawCanvas canvas;
-    LoadCanvas loadCanvas;
     AddressModel addressModel;
     boolean setUpDirectionsMenu = false;
 
     public WindowController(Model model) {
-        this.loadCanvas = new LoadCanvas();
         window = new DrawWindow();
         this.model = model;
         this.addressModel = model.getAddressModel();
