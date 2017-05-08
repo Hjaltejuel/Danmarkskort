@@ -102,5 +102,10 @@ public class GraphNode implements Comparable {
     public void addEdge(GraphNode destination){
         Edge e = new Edge(this, destination);
     }
+    public void reweighEdges(String weightType){
+                for(Edge edge: edgeList){
+                    edge.weigh(weightType);
+        }
+    }
 }
 

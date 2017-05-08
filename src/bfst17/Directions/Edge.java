@@ -17,12 +17,12 @@ public class Edge {
             this.destination = destination;
             weighted = Math.pow(destination.getPoint2D().getX() - source.getPoint2D().getX(),2) +
                     Math.pow(destination.getPoint2D().getY() - source.getPoint2D().getY(),2);
-            Weigh("FASTEST");
+            weigh("FASTEST");
             source.insertNeighbor(this);
        //     System.out.println(weightCar + " " + weightFoot + " " + weightBicycle);
         }
-        public void Weigh(String weighingMethod){
-            switch(weighingMethod){
+        public void weigh(String weighingType){
+            switch(weighingType){
                 case "SHORTEST": calcWeightForShortest();
                     break;
                 case "FASTEST": calcWeightForFastest();

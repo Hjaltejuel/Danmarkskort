@@ -44,14 +44,6 @@ public class Graph {
         GraphNode currentGraphNode = null;
         int j = 0;
 
-/*        Iterator it = idToWay.entrySet().iterator();
-        int j = 0;
-        while(it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            OSMWay currentWay =(OSMWay)pair.getValue();
-            if(currentWay.isRelevantForRouting()) {
-
-                */
         for (OSMWay currentWay : graphWays) {
             j++;
             for (int i = 0; i < currentWay.size(); i++) {
@@ -120,6 +112,14 @@ public class Graph {
         }
         Collections.reverse(pathList);
         return pathList;
+    }
+    public void reweighEdges(String weightType){
+                Iterator it = graphFilteredMap.entrySet().iterator();
+                while(it.hasNext()){
+                    Map.Entry pair = (Map.Entry)it.next();
+                    GraphNode graphNode = (GraphNode)pair.getValue();
+                    graphNode.reweighEdges(weightType);
+                }
     }
 
     public ShortestPath getSP() {

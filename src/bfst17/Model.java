@@ -437,8 +437,8 @@ public class Model extends Observable implements Serializable {
 								maxspeed = 50;
 								if (v.equals("motorway")) {
 									maxspeed = 130;
-									bicycle = false;
-									foot = false;
+									bicycle = true;
+									foot = true;
 								}
 								if (v.equals("primary")) {
 									maxspeed = 80;

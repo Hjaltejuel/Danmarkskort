@@ -2,6 +2,7 @@ package bfst17.GUI;
 
 import bfst17.AddressHandling.TSTInterface;
 import bfst17.Directions.Graph;
+import bfst17.Directions.GraphNode;
 import bfst17.Enums.*;
 import bfst17.KDTrees.CityNamesKDTree;
 import bfst17.KDTrees.KDTree;
@@ -570,30 +571,27 @@ public class DrawCanvas extends JComponent implements Observer {
 	}
 	public void drawGraph(Graphics2D g){
 
-        g.setColor(Color.PINK);
+        g.setColor(Color.BLACK);
 
-        g.setStroke(new BasicStroke(0.000008f));
+        g.setStroke(new BasicStroke(0.00008f));
         Graph graph = model.getGraph();
         if(graph == null){
             return;
         }
         else {
-            /*
-           GraphNode source;
+
             ArrayList<GraphNode> alist = graph.getRandomPath();
             for (int i = 0; i < alist.size() - 1; i++) {
-                source = alist.get(i);
-                for (int j = 0; j < source.getEdgeList().size() - 1; j++) {
+        /*        for (int j = 0; j < source.getEdgeList().size() - 1; j++) {
                     GraphNode dest = source.getEdgeList().get(j).getDestination();
-                    System.out.println(dest);
                     g.draw(new Line2D.Double(source.getPoint2D().getX(), source.getPoint2D().getY(),
                             dest.getPoint2D().getX(), dest.getPoint2D().getY()));
 
-                }
+                }*/
                 g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),
-                        alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY()));
+                        alist.get(i+1).getPoint2D().getX(), alist.get(i+1).getPoint2D().getY()));
             }
-*/
+
         }
 
     }
