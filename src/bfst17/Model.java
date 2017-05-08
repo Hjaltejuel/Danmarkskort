@@ -52,7 +52,6 @@ public class Model extends Observable implements Serializable {
     private AddressModel addressModel = new AddressModel();
 
     private float minlat, minlon, maxlat, maxlon;
-    private float clminlat, clminlon, clmaxlat, clmaxlon;
     private long nodeID;
     private float lonfactor;
 
@@ -93,7 +92,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(this.getClass().getResource("/bornholm.osm").getPath());
+            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,12 +129,15 @@ public class Model extends Observable implements Serializable {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
 
+            System.out.println("Saving trees");
             out.writeObject(treeList);
             out.writeObject(roadKDTree);
             out.writeObject(POITree);
             out.writeObject(cityTree);
             out.writeObject(townTree);
+            System.out.println("Saving adressModel");
             out.writeObject(addressModel);
+            System.out.println("Saving coordinates");
             out.writeFloat(minlon);
             out.writeFloat(minlat);
             out.writeFloat(maxlon);
@@ -245,10 +247,6 @@ public class Model extends Observable implements Serializable {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             coastlines = (ArrayList<Shape>) in.readObject();
             lonfactor = in.readFloat();
-            clminlon = in.readFloat();
-            clminlat = in.readFloat();
-            clmaxlon = in.readFloat();
-            clmaxlat = in.readFloat();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -545,13 +543,6 @@ public class Model extends Observable implements Serializable {
                             add(type, path);
                         }
                     }
-                    break;
-                case "osm":
-                    coastlines.forEach((key, way) -> {
-                        if (key == way.getFromNode()) {
-                            //add(WayType.NATURAL_COASTLINE, new PolygonApprox(way));
-                        }
-                    });
                     break;
             }
         }

@@ -213,6 +213,8 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
+
+
     public void drawPin(Graphics2D g) {
         if (pin == null) {
             return; //Lad være at tegne, hvis der ikke er en pin
@@ -255,17 +257,16 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void drawCityAndTownNames(Graphics2D g) {
-
         //Draw townnames
         if (getZoomFactor() > 3000 && getZoomFactor() < 9000) {
             CityNamesKDTree townTree = model.getTownTreeTree();
-            for (TreeNode _cityNode : townTree.getInRange(screenRectangle)) {
-                CityNamesKDTree.CityNameTreeNode cityNode = (CityNamesKDTree.CityNameTreeNode) _cityNode;
-                String cityName = cityNode.getCityName();
-                Point2D drawLocation = lonLatToScreenCords(-cityNode.getX(), -cityNode.getY());
+            for (TreeNode _townNode : townTree.getInRange(screenRectangle)) {
+                CityNamesKDTree.CityNameTreeNode townNode = (CityNamesKDTree.CityNameTreeNode) _townNode;
+                String townName = townNode.getCityName();
+                Point2D drawLocation = lonLatToScreenCords(-townNode.getX(), -townNode.getY());
                 g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
-                int stringWidth = g.getFontMetrics().stringWidth(cityName);
-                g.drawString(cityName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
+                int stringWidth = g.getFontMetrics().stringWidth(townName);
+                g.drawString(townName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
             }
         }
 
@@ -526,6 +527,26 @@ public class DrawCanvas extends JComponent implements Observer {
                     g.fill(node.getShape());
                 }
             }
+
+        }
+        g.setColor(Color.PINK);
+
+        g.setStroke(new BasicStroke(0.000008f));
+        Graph graph = model.getGraph();
+        GraphNode source = graph.getSourceTest();
+        GraphNode target = graph.getTargetTest();
+
+       // ArrayList<GraphNode> alist = graph.getPath(source, target);
+        ArrayList<Edge> alist = graph.getEdges();
+        for(int i = 0; i < alist.size()-1; i++){
+            source = alist.get(i).getSource();
+            for(int j = 0; j < source.getEdgeList().size()-1; j++){
+                GraphNode dest = source.getEdgeList().get(j).getDestination();
+                System.out.println(dest);
+                g.draw(new Line2D.Double(source.getPoint2D().getX(), source.getPoint2D().getY(),dest.getPoint2D().getX(), dest.getPoint2D().getY()));
+
+            }
+            g.draw(new Line2D.Double(alist.get(i).getSource().getPoint2D().getX(), alist.get(i).getSource().getPoint2D().getY(),alist.get(i).getDestination().getPoint2D().getX(), alist.get(i).getDestination().getPoint2D().getY()));
         }
     }
     //</editor-fold>
@@ -590,15 +611,19 @@ public class DrawCanvas extends JComponent implements Observer {
         double distanceToCenterX = lon - getCenterCordinateX();
         double distanceToCenterY = lat - getCenterCordinateY();
 
+        //Udregner en afstance udfra lat/lon-koordinater
         double distance = Math.sqrt(Math.abs(Math.pow(distanceToCenterX, 2) + Math.pow(distanceToCenterY, 2)));
         double amountOfZoom = 150000 / getZoomFactor();
 
         if (amountOfZoom >= 2) {
+            //Hvis der er brug for at zoome, men bare panning
             panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
         } else {
             if (distance < 400/ getZoomFactor()) {
+                //Hvis der bare skal pannes, fordi afstanden er kort
                 panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
             } else {
+                //Ellers zoomer den ud først og så panner den.
                 zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
             }
         }
@@ -607,13 +632,12 @@ public class DrawCanvas extends JComponent implements Observer {
     public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
         timer = new Timer();
 
+        //Vi panner en 1/100 hver gang.
         double partDX = distanceToCenterX * getZoomFactor() / 100;
         double partDY = distanceToCenterY * getZoomFactor() / 100;
 
         timer.scheduleAtFixedRate(new TimerTask() {
-
             int panCounter = 1;
-
             @Override
             public void run() {
                 if (panCounter >= 100) {
@@ -687,7 +711,6 @@ public class DrawCanvas extends JComponent implements Observer {
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             int zoomInCounter = 1;
-
             @Override
             public void run() {
                 if (zoomInCounter > 100) {
