@@ -1,13 +1,17 @@
 package bfst17;
 
-import bfst17.AddressHandling.StreetAndPointNode;
-import bfst17.Enums.PointsOfInterest;
-import bfst17.Enums.WayType;
-import bfst17.KDTrees.*;
 import bfst17.AddressHandling.Address;
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.Region;
+import bfst17.AddressHandling.StreetAndPointNode;
+import bfst17.Directions.Graph;
+import bfst17.Directions.NodeTags;
+import bfst17.Enums.PointsOfInterest;
+import bfst17.Enums.WayType;
+import bfst17.KDTrees.CityNamesKDTree;
+import bfst17.KDTrees.POIKDTree;
 import bfst17.KDTrees.RoadKDTree;
+import bfst17.KDTrees.ShapeKDTree;
 import bfst17.OSMData.OSMNode;
 import bfst17.OSMData.OSMRelation;
 import bfst17.OSMData.OSMWay;
@@ -54,6 +58,7 @@ public class Model extends Observable implements Serializable {
     private float minlat, minlon, maxlat, maxlon;
     private long nodeID;
     private float lonfactor;
+    private Graph graph;
 
 
     public RoadKDTree getRoadKDTree() {
@@ -275,17 +280,32 @@ public class Model extends Observable implements Serializable {
     public ArrayList<Shape> getCoastlines() {
         return coastlines;
     }
+    public Graph getGraph(){
+        return graph;
+    }
 
     private class OSMHandler implements ContentHandler {
         //LongToPointMap idToNode = new LongToPointMap(18000000);
         Map<Long, OSMWay> idToWay = new HashMap<>();
         HashMap<Long, OSMNode> idToNode = new HashMap<>();
         Map<OSMNode, OSMWay> coastlines = new HashMap<>();
+
+        private HashMap<Point2D, NodeTags> graphNodeBuilder = new HashMap<>();
+
+        private ArrayList<OSMWay> graphWays = new ArrayList<>();
+
         float lat;
         float lon;
         OSMWay way;
         OSMRelation relation;
         WayType type;
+
+        boolean isWay = false;
+        Boolean bicycle = false;
+        Boolean foot = false;
+        Integer maxspeed = 0;
+        Boolean oneway = false;
+
 
         public Iterable<Shape> get(WayType type) {
             return shapes.get(type);
@@ -384,9 +404,15 @@ public class Model extends Observable implements Serializable {
 
         @Override
         public void endDocument() throws SAXException {
+            idToNode.clear();
             long StartTime = System.nanoTime();
             fillTrees();
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
+
+            graph = new Graph(idToWay, graphNodeBuilder, graphWays);
+            graph.buildGraphNodes();
+            graph.buildEdges();
+            graphNodeBuilder.clear();
         }
 
         @Override
@@ -398,6 +424,7 @@ public class Model extends Observable implements Serializable {
         public void endPrefixMapping(String prefix) throws SAXException {
 
         }
+
 
         PointsOfInterest POIType;
 
@@ -421,6 +448,7 @@ public class Model extends Observable implements Serializable {
                     break;
                 case "way":
                     way = new OSMWay();
+                    isWay = true;
                     Long id = Long.parseLong(atts.getValue("id"));
                     type = WayType.UNKNOWN;
                     idToWay.put(id, way);
@@ -448,7 +476,51 @@ public class Model extends Observable implements Serializable {
 
                     switch (k) {
                         case "highway":
+                                if(isWay) {
+                                    bicycle = true;
+                                    foot = true;
+                                    maxspeed = 50;
+                                    if (v.equals("motorway")) {
+                                        maxspeed = 130;
+                                        bicycle = true;
+                                        foot = true;
+                                    }
+                                    if (v.equals("primary")) {
+                                        maxspeed = 80;
+                                        bicycle = true;
+                                        foot = true;
+                                    }
+                                    if (v.equals("secondary")) {
+                                        maxspeed = 80;
+                                        bicycle = true;
+                                        foot = true;
+                                    }
+                                    if (v.equals("tertiary")) {
+                                        maxspeed = 80;
+                                        bicycle = true;
+                                        foot = true;
+                                    }
+                                    if (v.equals("unclassified")) {
+                                        maxspeed = 80;
+                                        bicycle = true;
+                                        foot = true;
+                                    }
+                                    if (v.equals("residential")) {
+                                        maxspeed = 50;
+                                        bicycle = true;
+                                        foot = true;
+                                    }
+                                }
                             isHighway = true;
+                            break;
+                        case "foot":
+                            foot = true;
+                            break;
+                        case "bicycle":
+                            bicycle = true;
+                            break;
+                        case "oneway":
+                            oneway = true;
                         case "addr:street":
                             addressBuilder.street(v);
                             isAddressNode = true;
@@ -531,6 +603,25 @@ public class Model extends Observable implements Serializable {
                     }
                     if (type != WayType.NATURAL_COASTLINE) {
                         add(type, new PolygonApprox(way));
+
+                        if (bicycle == true || foot == true || maxspeed > 0) {
+                            graphWays.add(way);
+                            for (int i = 0; i < way.size(); i++) {
+
+                                if (!graphNodeBuilder.containsKey(way.get(i))) {
+                                    NodeTags n = new NodeTags(bicycle, foot, oneway, maxspeed);
+                                    graphNodeBuilder.put(way.get(i), n);
+                                }
+                            }
+//							System.out.println(tmpNodeIDs.size());
+                        }
+                        bicycle = false;
+                        foot = false;
+                        oneway = false;
+                        maxspeed = 0;
+                        isWay = false;
+                        break;
+
                     }
                     break;
                 case "relation":

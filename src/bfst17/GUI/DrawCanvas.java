@@ -1,19 +1,19 @@
 package bfst17.GUI;
 
-import bfst17.Enums.*;
-import bfst17.KDTrees.CityNamesKDTree;
-import bfst17.KDTrees.ShapeKDTree;
-import bfst17.KDTrees.POIKDTree;
-import bfst17.KDTrees.TreeNode;
-import bfst17.KDTrees.RoadKDTree;
-import bfst17.Model;
 import bfst17.AddressHandling.TSTInterface;
+import bfst17.Directions.Graph;
+import bfst17.Directions.GraphNode;
+import bfst17.Enums.GUIMode;
+import bfst17.Enums.POIclasification;
+import bfst17.Enums.PointsOfInterest;
+import bfst17.Enums.WayType;
+import bfst17.KDTrees.*;
+import bfst17.Model;
 import bfst17.ShapeStructure.PolygonApprox;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
@@ -208,6 +208,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
         drawClosestRoad(g);
 
+        drawGraph(g);
+
         if(drawCityNames) {
             drawCityAndTownNames(g);
         }
@@ -283,6 +285,28 @@ public class DrawCanvas extends JComponent implements Observer {
             }
         }
     }
+
+    public void drawGraph(Graphics2D g){
+
+        g.setColor(Color.BLACK);
+
+        g.setStroke(new BasicStroke(0.00008f));
+        Graph graph = model.getGraph();
+        if(graph == null){
+            return;
+        }
+        else {
+
+            ArrayList<GraphNode> alist = graph.getRandomPath();
+            for (int i = 0; i < alist.size() - 1; i++) {
+                g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),
+                        alist.get(i+1).getPoint2D().getX(), alist.get(i+1).getPoint2D().getY()));
+            }
+
+        }
+
+    }
+
 
     public void drawImageAtLocation(Graphics2D g, String imagePath, double x, double y) {
         BufferedImage image = PinAndPOIImageMap.get(imagePath);

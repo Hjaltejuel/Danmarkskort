@@ -35,7 +35,7 @@ public class Graph {
     }
 
     public void addEdge(GraphNode node, GraphNode neighbour) {
-        Edge e = new Edge(node, neighbour);
+        new Edge(node, neighbour);
     }
 
     public void buildEdges() {
@@ -44,14 +44,6 @@ public class Graph {
         GraphNode currentGraphNode = null;
         int j = 0;
 
-/*        Iterator it = idToWay.entrySet().iterator();
-        int j = 0;
-        while(it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            OSMWay currentWay =(OSMWay)pair.getValue();
-            if(currentWay.isRelevantForRouting()) {
-
-                */
         for (OSMWay currentWay : graphWays) {
             j++;
             for (int i = 0; i < currentWay.size(); i++) {
