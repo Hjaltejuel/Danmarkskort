@@ -11,7 +11,7 @@ import java.util.Observer;
  */
 public class LoadCanvas extends JComponent implements Observer {
     public LoadCanvas(){
-
+        System.out.println("A");
     }
 
     @Override
@@ -21,6 +21,7 @@ public class LoadCanvas extends JComponent implements Observer {
     @Override
     protected void paintComponent(Graphics _g) {
         Graphics2D g = (Graphics2D)_g;
+        System.out.println("A");
 
         g.draw(new Rectangle2D.Double(0,0,1000,1000));
     }
