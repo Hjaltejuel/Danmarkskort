@@ -28,6 +28,7 @@ public class DrawCanvas extends JComponent implements Observer {
     Shape regionShape = null;
 	private boolean antiAliasFromMenu; //Bestemmer over antiAliasFromPanning
     private boolean antiAliasFromPanning;
+    private boolean needToDrawNearestNeighbour;
     GUIMode GUITheme = GUIMode.NORMAL;
 	boolean fancyPanEnabled = true;
 	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
@@ -206,7 +207,9 @@ public class DrawCanvas extends JComponent implements Observer {
 
         drawFPSCounter(g);
 
-        drawClosestRoad(g);
+        if (needToDrawNearestNeighbour) {
+            drawClosestRoad(g);
+        }
 
         if(drawCityNames) {
             drawCityAndTownNames(g);
@@ -220,23 +223,51 @@ public class DrawCanvas extends JComponent implements Observer {
         drawImageAtLocation(g,"pin",pin.getX(),pin.getY());
     }
 
-    public void setMousePos(Point2D mousePos) {
+    public void getNeighbourFromMousePos(Point2D mousePos) {
         this.mousePos = mousePos;
         Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(), mousePos.getY());
         RoadKDTree tree = model.getRoadKDTree();
         TreeNode nearestNode = tree.getNearestNeighbour(lonLatCords);
 
         addressNode = (RoadKDTree.RoadTreeNode) nearestNode;
-        System.out.println(addressNode.getRoadName());
-        repaint();
+
+        //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en node. Her en minimum afstand på 0.01 i lonlat koordinater.
+        if (addressNode.distance(lonLatCords) > 0.01) {
+            needToDrawNearestNeighbour = false;
+        }
+            else {
+            needToDrawNearestNeighbour = true;
+        }
     }
 
     Point2D mousePos;
 	RoadKDTree.RoadTreeNode addressNode;
     public void drawClosestRoad(Graphics2D g) {
         if(addressNode!=null) {
-            Point2D p = lonLatToScreenCords(-addressNode.getX(),-addressNode.getY());
-            g.drawString(addressNode.getRoadName(),(int)p.getX(),(int)p.getY());
+            String nearestNeighbourText = addressNode.getRoadName();
+
+            int textWidth = g.getFontMetrics().stringWidth(nearestNeighbourText);
+
+            //Boksen omkring teksten.
+            Integer Y = getHeight() - 30;
+            Integer X1 = getWidth()-textWidth-39, X2=getWidth()-35;
+            Rectangle2D rect = new Rectangle2D.Double(X1,Y-13,X2-X1,13);
+            Line2D line = new Line2D.Double(X1,Y,X2,Y);
+            Line2D rightVertLine = new Line2D.Double(X2,Y-13,X2,Y);
+            Line2D leftVertLine = new Line2D.Double(X1,Y-13,X1,Y);
+
+            g.setColor(new Color(255,255,255,100));
+            g.fill(rect);
+
+
+            g.setColor(Color.black);
+            g.draw(line);
+            g.draw(rightVertLine);
+            g.draw(leftVertLine);
+
+            g.drawString(nearestNeighbourText, getWidth()-35-textWidth, getHeight()-33);
+
+
         }
     }
 
@@ -333,7 +364,6 @@ public class DrawCanvas extends JComponent implements Observer {
         //y= 0.4607*e^(0.7682*x)
         return 0;
     }
-
 
     private void drawFPSCounter(Graphics2D g) {
         g.drawString("FPS: " + FPS, 5, getHeight() - 55);

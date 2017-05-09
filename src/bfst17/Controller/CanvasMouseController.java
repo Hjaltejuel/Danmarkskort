@@ -2,25 +2,34 @@ package bfst17.Controller;
 
 import bfst17.GUI.DrawCanvas;
 import bfst17.Model;
+import edu.princeton.cs.algs4.Stopwatch;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
+import java.sql.Time;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by trold on 2/8/17.
  */
-public class CanvasMouseController extends MouseAdapter {
+public class CanvasMouseController extends MouseAdapter implements MouseMotionListener {
 	Model model;
 	DrawCanvas canvas;
 	Point2D lastMousePosition;
 	private static boolean draggingLine;
+	//NN Timer
+	long timeSinceMove;
+	Timer timer;
 
 
 	public CanvasMouseController(DrawCanvas canvas, Model model) {
 		this.model = model;
 		this.canvas = canvas;
+		timer = new Timer();
 		canvas.addMouseListener(this);
 		canvas.addMouseMotionListener(this);
 		canvas.addMouseWheelListener(this);
@@ -37,7 +46,6 @@ public class CanvasMouseController extends MouseAdapter {
 			canvas.getTimer().cancel();
 		}
 		lastMousePosition = e.getPoint();
-		canvas.setMousePos(lastMousePosition);
 	}
 
 	/**
@@ -88,5 +96,11 @@ public class CanvasMouseController extends MouseAdapter {
 		canvas.pan(-dx,-dy);
 		canvas.zoom(factor);
 		canvas.pan(dx,dy);
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		canvas.getNeighbourFromMousePos(e.getPoint());
+		canvas.repaint();
 	}
 }
