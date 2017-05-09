@@ -220,13 +220,26 @@ public class DrawCanvas extends JComponent implements Observer {
         drawImageAtLocation(g,"pin",pin.getX(),pin.getY());
     }
 
+    public RoadKDTree.RoadTreeNode getClosestRoad(Point2D point) {
+        TreeNode closestNode = null;
+        for(RoadKDTree tree : model.getRoadKDTreeList()){
+            if(closestNode==null){
+                closestNode=tree.getNearestNeighbour(point);
+            } else {
+                TreeNode newClosestNode = tree.getNearestNeighbour(point);
+                if(newClosestNode.distance(point)<closestNode.distance(point)) {
+                    closestNode=newClosestNode;
+                }
+            }
+        }
+        return (RoadKDTree.RoadTreeNode)closestNode;
+    }
+
     public void setMousePos(Point2D mousePos) {
         this.mousePos = mousePos;
         Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(), mousePos.getY());
-        RoadKDTree tree = model.getRoadKDTree();
-        TreeNode nearestNode = tree.getNearestNeighbour(lonLatCords);
 
-        addressNode = (RoadKDTree.RoadTreeNode) nearestNode;
+        addressNode = getClosestRoad(mousePos);
         System.out.println(addressNode.getRoadName());
         repaint();
     }
@@ -482,20 +495,22 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void drawRoads(Graphics2D g) {
-        RoadKDTree tree = model.getRoadKDTree();
-        HashSet<TreeNode> roadNodes = tree.getInRange(screenRectangle);
-        for (TreeNode _roadNode : roadNodes) {
-            RoadKDTree.RoadTreeNode roadNode = (RoadKDTree.RoadTreeNode) _roadNode;
-            WayType type = roadNode.getType();
+        for(RoadKDTree tree : model.getRoadKDTreeList()) {
+            WayType type = tree.getType();
             if (type.getZoomFactor() > getZoomFactor()) {
                 continue;
             }
-            g.setColor(Color.black);
-            g.setColor(type.getDrawColor());
-            g.draw(roadNode.getShape());
-            if(shouldDrawRoadName(type)) {
-                g.setColor(Color.black);
-                drawRoadNameInCenter(g, roadNode);
+            boolean shouldDrawRoadName = shouldDrawRoadName(type);
+            HashSet<TreeNode> roadNodes = tree.getInRange(screenRectangle);
+            for (TreeNode _roadNode : roadNodes) {
+                RoadKDTree.RoadTreeNode roadNode = (RoadKDTree.RoadTreeNode) _roadNode;
+                g.setColor(type.getDrawColor());
+                g.draw(roadNode.getShape());
+
+                if (shouldDrawRoadName) {
+                    g.setColor(Color.black);
+                    drawRoadNameInCenter(g, roadNode);
+                }
             }
         }
     }

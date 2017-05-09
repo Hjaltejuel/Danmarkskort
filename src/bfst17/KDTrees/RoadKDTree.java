@@ -53,13 +53,11 @@ public class RoadKDTree extends KDTree {
 
     public class RoadTreeNode extends TreeNode {
         private RoadNode roadNode;
-        private WayType type;
 
         private RoadTreeNode(double x, double y, RoadNode node) {
             this.X = x;
             this.Y = y;
             this.roadNode = node;
-            this.type = node.getType();
         }
 
         protected boolean sortVertically() {

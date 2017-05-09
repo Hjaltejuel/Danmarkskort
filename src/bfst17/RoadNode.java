@@ -21,14 +21,9 @@ public class RoadNode implements Serializable {
     public RoadNode(PolygonApprox shape, String roadName, WayType type){
         this.shape = shape;
         this.roadName = roadName;
-        this.type = type;
     }
     public PolygonApprox getShape() {
         return shape;
-    }
-
-    public WayType getType() {
-        return type;
     }
 
     public String getRoadName() {
