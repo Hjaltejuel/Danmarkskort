@@ -242,8 +242,9 @@ public class DrawCanvas extends JComponent implements Observer {
         this.mousePos = mousePos;
         Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(), mousePos.getY());
         addressNode = getClosestRoad(lonLatCords);
-        //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en vertex.
-        if (addressNode.distance(lonLatCords) > 100000) {
+        System.out.println(addressNode.distance(lonLatCords));
+        //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en vertex. Hvis distancen er over 0.01 i latlon koordinater vises ingen nearestNeighbour
+        if (addressNode.distance(lonLatCords) > 0.01) {
             needToDrawNearestNeighbour = false;
         } else {
             needToDrawNearestNeighbour = true;
