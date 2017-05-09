@@ -1,10 +1,13 @@
 package bfst17.ShapeStructure;
 
+import bfst17.OSMData.OSMWay;
+
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -78,5 +81,33 @@ public class MultiPolygonApprox extends PolygonApprox {
 		public int currentSegment(double[] coords) {
 			throw new UnsupportedOperationException("Unexpected call to PolygonApprox.contains(Rectangle2D)");
 		}
+
+		public void mergedWays(List<? extends List<? extends Point2D>> rel){
+			for (List<? extends Point2D> way : rel){
+				if(way != null){
+					OSMWay before = wayMap.remove(way.get(0));
+					OSMWay after = wayMap.remove(way.get(way.size()-1));
+					OSMWay merged = new OSMWay();
+					if (before != null){
+						OSMWay reversedBefore = (OSMWay) before.clone();
+						Collections.reverse(reversedBefore);
+						if(reversedBefore.equals(after)){
+							before = null;
+						}
+					}
+
+					if (before != null){
+						Collections.reverse(before);
+						merged.addAll(before);
+					}
+					merged.addAll(way);
+					if(after != null){
+						merged.addAll(after);
+					}
+					wayMap.put(merged.get(0), merged);
+					OSMWay reservedMerged = (OSMWay) merged.clone();
+					Collections.reverse(reservedMerged);
+					wayMap.put(reservedMerged.get(0), reservedMerged);
+				}
 	}
 }
