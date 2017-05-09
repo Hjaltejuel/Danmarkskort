@@ -1,8 +1,10 @@
 package bfst17;
 
+import bfst17.AddressHandling.Address;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.testng.AssertJUnit.assertEquals;
 
 /**
  * Created by Hjalte on 21-04-2017.

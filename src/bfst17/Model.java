@@ -3,7 +3,6 @@ package bfst17;
 import bfst17.AddressHandling.StreetAndPointNode;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
-import bfst17.GUI.LoadProgressMonitor;
 import bfst17.KDTrees.*;
 import bfst17.AddressHandling.Address;
 import bfst17.AddressHandling.AddressModel;
@@ -17,11 +16,11 @@ import bfst17.ShapeStructure.MultiPolygonApprox;
 import bfst17.ShapeStructure.PolygonApprox;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
-import sun.net.ProgressEvent;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -42,7 +41,6 @@ public class Model extends Observable implements Serializable {
     private ArrayList<RoadNode> roads = new ArrayList<>();
 
     private ArrayList<Shape> coastlines = new ArrayList<>();
-
     private CityNamesKDTree cityTree = new CityNamesKDTree();
     private POIKDTree POITree = new POIKDTree();
     private ArrayList<ShapeKDTree> treeList = new ArrayList<>();
@@ -97,7 +95,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(this.getClass().getResource("/bornholm.osm").getPath());
+            load(this.getClass().getResource("/denmark-latest.osm").getPath());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -158,29 +156,27 @@ public class Model extends Observable implements Serializable {
     }
 
     public void load(String filename) throws IOException {
-        LoadProgressMonitor LMP = new LoadProgressMonitor();
         BufferedInputStream input = new BufferedInputStream(new FileInputStream(filename));
+        Timer progressPrinter = new Timer();
         int total = input.available();
         double startTime = currentTimeInSeconds();
-        Timer progressPrinter = new Timer();
         progressPrinter.scheduleAtFixedRate(
                 new TimerTask() {
                     @Override
                     public void run() {
-                        try {
-                            double fractionLeft = input.available() / (double) total;
-                            double fractionDone = 1 - fractionLeft;
-                            //LMP.propertyChange(new ProgressEvent());
-                            if (fractionLeft < 1) {
-                                double secondsUsed = currentTimeInSeconds() - startTime;
-                                long secondsLeft = Math.round(secondsUsed / fractionDone * fractionLeft);
-                                System.out.printf("\rParsing %.1f%% done, time left: %d:%02d\n", 100 * fractionDone, secondsLeft / 60, secondsLeft % 60);
-                            }
-                        } catch (IOException e) {
-                            System.out.print("Parsing 100% done, time left: 0:00\n");
-                            System.out.println("Now drawing shapes, please wait.");
-                            progressPrinter.cancel();
+                     try {
+                         double fractionLeft = input.available() / (double) total;
+                        double fractionDone = 1 - fractionLeft;
+                         if (fractionLeft < 1) {
+                         double secondsUsed = currentTimeInSeconds() - startTime;
+                         long secondsLeft = Math.round(secondsUsed / fractionDone * fractionLeft);
+                             System.out.printf("\rParsing %.1f%% done, time left: %d:%02d\n", 100 * fractionDone, secondsLeft / 60, secondsLeft % 60);
                         }
+                         } catch (IOException e) {
+                         System.out.print("Parsing 100% done, time left: 0:00\n");
+                         System.out.println("Now drawing shapes, please wait.");
+                         progressPrinter.cancel();
+                     }
                     }
                 }, 0, 1000);
 
