@@ -30,7 +30,7 @@ public class DrawCanvas extends JComponent implements Observer {
     private boolean antiAliasFromPanning;
     private boolean needToDrawNearestNeighbour;
     GUIMode GUITheme = GUIMode.NORMAL;
-	boolean fancyPanEnabled = true;
+	boolean fancyPanEnabled = false;
 	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
 	Point2D pin;
 	Integer FrameCounter=0;
