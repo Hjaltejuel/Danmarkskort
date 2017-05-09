@@ -260,7 +260,7 @@ public class DrawCanvas extends JComponent implements Observer {
             int textWidth = g.getFontMetrics().stringWidth(nearestNeighbourText);
 
             //Boksen omkring teksten.
-            Integer Y = getHeight() - 30;
+            Integer Y = getHeight() - 50;
             Integer X1 = getWidth()-textWidth-39, X2=getWidth()-35;
             Rectangle2D rect = new Rectangle2D.Double(X1,Y-13,X2-X1,13);
             Line2D line = new Line2D.Double(X1,Y,X2,Y);
@@ -276,7 +276,7 @@ public class DrawCanvas extends JComponent implements Observer {
             g.draw(rightVertLine);
             g.draw(leftVertLine);
 
-            g.drawString(nearestNeighbourText, getWidth()-35-textWidth, getHeight()-33);
+            g.drawString(nearestNeighbourText, getWidth()-35-textWidth, getHeight()-53);
 
 
         }
@@ -340,7 +340,7 @@ public class DrawCanvas extends JComponent implements Observer {
     private void drawMeasureBand(Graphics2D g) {
 	    g.setColor(Color.black);
 	    g.setStroke(new BasicStroke(1f));
-	    Integer Y = getHeight() - 55;
+	    Integer Y = getHeight() - 75;
 	    Integer X1 = getWidth()-100, X2=getWidth()-35;
 
 	    Point2D p1 = screenCordsToLonLat(X1,Y);
