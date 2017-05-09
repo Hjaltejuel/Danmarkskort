@@ -3,6 +3,7 @@ package bfst17;
 import bfst17.AddressHandling.StreetAndPointNode;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
+import bfst17.GUI.LoadProgressMonitor;
 import bfst17.KDTrees.*;
 import bfst17.AddressHandling.Address;
 import bfst17.AddressHandling.AddressModel;
@@ -16,6 +17,7 @@ import bfst17.ShapeStructure.MultiPolygonApprox;
 import bfst17.ShapeStructure.PolygonApprox;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
+import sun.net.ProgressEvent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -156,6 +158,7 @@ public class Model extends Observable implements Serializable {
     }
 
     public void load(String filename) throws IOException {
+        LoadProgressMonitor LMP = new LoadProgressMonitor();
         BufferedInputStream input = new BufferedInputStream(new FileInputStream(filename));
         int total = input.available();
         double startTime = currentTimeInSeconds();
@@ -167,6 +170,7 @@ public class Model extends Observable implements Serializable {
                         try {
                             double fractionLeft = input.available() / (double) total;
                             double fractionDone = 1 - fractionLeft;
+                            //LMP.propertyChange(new ProgressEvent());
                             if (fractionLeft < 1) {
                                 double secondsUsed = currentTimeInSeconds() - startTime;
                                 long secondsLeft = Math.round(secondsUsed / fractionDone * fractionLeft);
