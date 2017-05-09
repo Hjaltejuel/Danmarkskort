@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class GraphNode implements Comparable {
     private OSMNode originOSMNode;
     private GraphNode nodeFrom;
-    private boolean isSettled;
+    //private boolean isSettled;
     private boolean shortest, oneway, end;
     private int maxspeed;
     private ArrayList<Edge> edgeList;
@@ -83,7 +83,7 @@ public class GraphNode implements Comparable {
     public void setNodeFrom(GraphNode nodeFrom) {
         this.nodeFrom = nodeFrom;
     }
-
+/*
     public boolean isSettled() {
         return isSettled;
     }
@@ -91,7 +91,7 @@ public class GraphNode implements Comparable {
     public void setSettled(boolean settled) {
         isSettled = settled;
     }
-
+*/
     public boolean isEnd() {
         return end;
     }

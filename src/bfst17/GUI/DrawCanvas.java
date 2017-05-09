@@ -309,11 +309,6 @@ public class DrawCanvas extends JComponent implements Observer {
             */
             ArrayList<GraphNode> alist = graph.getPathList();
             if(alist != null) {
-            for(GraphNode n: alist) {
-                n.setNodeFrom(null);
-            }
-
-
             for (int i = 0; i < alist.size() - 1; i++) {
                 g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),
                         alist.get(i + 1).getPoint2D().getX(), alist.get(i + 1).getPoint2D().getY()));

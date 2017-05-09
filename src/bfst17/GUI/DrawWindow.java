@@ -373,7 +373,10 @@ public class DrawWindow {
 		return greyScaleMenuItem;
 	}
 
-	public boolean getDiretionsBoolean(){
+	public boolean getDirectionsBoolean(){
 		return showDirectionsComboBox;
 	}
+	public AutocompleteJComboBox getSecondCombo(){
+	    return secondCombo;
+    }
 }

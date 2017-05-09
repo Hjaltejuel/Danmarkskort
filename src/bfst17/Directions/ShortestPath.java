@@ -19,7 +19,9 @@ public class ShortestPath {
     }
 
     public void execute(GraphNode source, GraphNode target) {
+
         if(source != null && target != null) {
+            graph.cleanUpGraph();
             settledNodes = new HashSet<>();
             unSettledNodes = new PriorityQueue<>();
             predecessors = new HashMap<>();

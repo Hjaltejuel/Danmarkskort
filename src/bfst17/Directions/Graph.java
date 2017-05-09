@@ -110,11 +110,14 @@ public class Graph {
     public ArrayList<GraphNode> getPath(GraphNode source, GraphNode destination) {
         ArrayList<GraphNode> pathList = new ArrayList<>();
 
+
+
         for (GraphNode n = destination; n.getNodeFrom() != null; n = n.getNodeFrom()) {
             pathList.add(n);
         }
         Collections.reverse(pathList);
         this.pathList = pathList;
+        source.setNodeFrom(null);
         return pathList;
     }
 
@@ -128,11 +131,22 @@ public class Graph {
     public HashMap<Point2D, GraphNode> getGraphFilteredMap(){
         return graphFilteredMap;
     }
-    public void setSource(Point2D p2d){
-        this.source = graphFilteredMap.get(p2d);
-        if(target != null){
+    public void setNodes(Point2D point2Source, Point2D point2Destination){
+        this.source = graphFilteredMap.get(point2Source);
+        this.target = graphFilteredMap.get(point2Destination);
+
+        if(source != null || target != null){
             sp = new ShortestPath(this);
             sp.execute(source,target);
+        }
+    }
+    public void cleanUpGraph(){
+        Iterator it = graphFilteredMap.entrySet().iterator();
+        while(it.hasNext()){
+            Map.Entry pair = (Map.Entry)it.next();
+            GraphNode g = (GraphNode)pair.getValue();
+            g.setDistTo(Double.POSITIVE_INFINITY);
+            g.setNodeFrom(null);
         }
     }
     public ArrayList<GraphNode> getPathList(){
