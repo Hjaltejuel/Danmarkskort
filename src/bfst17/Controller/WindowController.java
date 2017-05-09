@@ -1,18 +1,19 @@
 package bfst17.Controller;
 
-import bfst17.*;
+import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.DuplicateAddressNode;
+import bfst17.AddressHandling.TSTInterface;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
 import bfst17.GUI.DrawCanvas;
 import bfst17.GUI.DrawWindow;
-import bfst17.AddressHandling.AddressModel;
-import bfst17.AddressHandling.TSTInterface;
+import bfst17.Model;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 
@@ -25,6 +26,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     DrawCanvas canvas;
     AddressModel addressModel;
     boolean setUpDirectionsMenu = false;
+    boolean startDirections = false;
 
     public WindowController(Model model) {
         window = new DrawWindow();
@@ -74,6 +76,11 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     break;
                 case "Directions":
                     window.toggleDirectionsBar();
+                    if(window.getDiretionsBoolean()){
+                        startDirections = true;
+                    }
+                    else startDirections = false;
+
                     break;
                 case "Nightmode":
                     setColorTheme(GUIMode.NIGHT);
@@ -136,6 +143,23 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyChar() == 10) {
+            if(startDirections){
+                String s = (String) window.getCombo().getSelectedItem();
+                if (s == null || s.length()==0) {
+                    isPopUpOpen = true;
+                    JOptionPane.showMessageDialog(canvas, "Du har ikke indtastet noget i søgefeltet");
+                    return; //Ikke noget at søge efter!
+                }
+
+                TSTInterface address = addressModel.getAddress(s.trim());
+                Point2D point = new Point2D.Float((float)address.getX(),(float)address.getY());
+                float x = (float)model.getRoadKDTree().getNearestNeighbour(point).getX();
+                float y = (float)model.getRoadKDTree().getNearestNeighbour(point).getY();
+                Point2D fromPoint = new Point2D.Float(x,y);
+                System.out.println(x + " " + y);
+                model.getGraph().setSource(fromPoint);
+
+            }
             if(!isPopUpOpen) {
                 search();
             }

@@ -404,7 +404,8 @@ public class Model extends Observable implements Serializable {
 
         @Override
         public void endDocument() throws SAXException {
-            idToNode.clear();
+            idToNode = null;
+            System.gc();
             long StartTime = System.nanoTime();
             fillTrees();
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");

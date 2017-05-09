@@ -19,28 +19,31 @@ public class ShortestPath {
     }
 
     public void execute(GraphNode source, GraphNode target) {
-        settledNodes = new HashSet<>();
-        unSettledNodes = new PriorityQueue<>();
-        predecessors = new HashMap<>();
-        source.setDistTo(0.0);
-        unSettledNodes.add(source);
-        while (unSettledNodes.size() > 0) {
-            GraphNode node = unSettledNodes.poll();
-            node.setSettled(true);
-            unSettledNodes.remove(node);
-            //System.out.println(unSettledNodes.size());
-            relaxEdges(node);
-        }
-        if(unSettledNodes.size() == 0){
-            source.setNodeFrom(null);
-            graph.getPath(source, target);
+        if(source != null && target != null) {
+            settledNodes = new HashSet<>();
+            unSettledNodes = new PriorityQueue<>();
+            predecessors = new HashMap<>();
+            source.setDistTo(0.0);
+            unSettledNodes.add(source);
+            while (unSettledNodes.size() > 0) {
+                GraphNode node = unSettledNodes.poll();
+                //node.setSettled(true);
+                settledNodes.add(node);
+                unSettledNodes.remove(node);
+                //System.out.println(unSettledNodes.size());
+                relaxEdges(node);
+            }
+            if (unSettledNodes.size() == 0) {
+                source.setNodeFrom(null);
+                graph.getPath(source, target);
+            }
         }
     }
 
     private void relaxEdges(GraphNode node) {
         ArrayList<Edge> edgelist = node.getEdgeList();
         for (Edge e: edgelist) {
-            if(!e.getDestination().isSettled()) {
+            if(!settledNodes.contains(e.getDestination())){
                 double tempDistTo = node.getDistTo() + e.getWeight();
                 if (tempDistTo < e.getDestination().getDistTo()) {
                     e.getDestination().setDistTo(tempDistTo);

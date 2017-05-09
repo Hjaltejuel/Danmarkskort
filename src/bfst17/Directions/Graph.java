@@ -17,6 +17,8 @@ public class Graph {
 
     private HashMap<Point2D, GraphNode> graphFilteredMap;
     private HashMap<Point2D, NodeTags> graphNodeBuilder;
+
+    private ArrayList<GraphNode> pathList;
     //private Map<Long, OSMWay> idToWay;
 
     private ShortestPath sp;
@@ -53,7 +55,7 @@ public class Graph {
                 currentGraphNode = graphFilteredMap.get(currentWay.get(i));
                 //TEST
                 if (j == 88) {
-                    source = currentGraphNode;
+                   // source = currentGraphNode;
                     j++;
                 }
                 //TEST
@@ -89,9 +91,6 @@ public class Graph {
         graphNodeBuilder.clear();
     }
 
-    public void addGraphNode(GraphNode node) {
-        graphNodeList.add(node);
-    }
 
     public ArrayList<GraphNode> getRandomPath() {
         Random r = new Random();
@@ -99,9 +98,13 @@ public class Graph {
 //        int i2 = r.nextInt(graphNodeList.size());
 //        source = graphNodeList.get(297);
 //        target = graphNodeList.get(7148);
-        sp = new ShortestPath(this);
-        sp.execute(source, target);
-        return getPath(source, target);
+//        sp = new ShortestPath(this);
+//        sp.execute(source, target);
+        if(source != null && target != null) {
+            return getPath(source, target);
+        }
+        else{return null;}
+
     }
 
     public ArrayList<GraphNode> getPath(GraphNode source, GraphNode destination) {
@@ -111,11 +114,29 @@ public class Graph {
             pathList.add(n);
         }
         Collections.reverse(pathList);
+        this.pathList = pathList;
+        return pathList;
+    }
+
+    public ArrayList<GraphNode> pathfinding(){
         return pathList;
     }
 
     public ShortestPath getSP() {
         return sp;
+    }
+    public HashMap<Point2D, GraphNode> getGraphFilteredMap(){
+        return graphFilteredMap;
+    }
+    public void setSource(Point2D p2d){
+        this.source = graphFilteredMap.get(p2d);
+        if(target != null){
+            sp = new ShortestPath(this);
+            sp.execute(source,target);
+        }
+    }
+    public ArrayList<GraphNode> getPathList(){
+        return pathList;
     }
 }
 

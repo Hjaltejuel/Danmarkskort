@@ -3,11 +3,6 @@ package bfst17;
 import bfst17.Enums.WayType;
 import bfst17.ShapeStructure.PolygonApprox;
 
-import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
 /**

@@ -3,12 +3,10 @@ package bfst17.KDTrees;
 import bfst17.Enums.WayType;
 import bfst17.ShapeStructure.PolygonApprox;
 
-import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
-import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ShapeKDTree extends KDTree {
@@ -36,21 +34,21 @@ public class ShapeKDTree extends KDTree {
             int type = PI.currentSegment(coordinates);
             switch (type) {
                 case PathIterator.SEG_MOVETO:
-                    System.out.println("move to " + coordinates[0] + ", " + coordinates[1]);
+//                    System.out.println("move to " + coordinates[0] + ", " + coordinates[1]);
                     break;
                 case PathIterator.SEG_LINETO:
-                    System.out.println("line to " + coordinates[0] + ", " + coordinates[1]);
+//                    System.out.println("line to " + coordinates[0] + ", " + coordinates[1]);
                     break;
                 case PathIterator.SEG_QUADTO:
-                    System.out.println("quadratic to " + coordinates[0] + ", " + coordinates[1] + ", "
-                            + coordinates[2] + ", " + coordinates[3]);
+//                    System.out.println("quadratic to " + coordinates[0] + ", " + coordinates[1] + ", "
+//                            + coordinates[2] + ", " + coordinates[3]);
                     break;
                 case PathIterator.SEG_CUBICTO:
-                    System.out.println("cubic to " + coordinates[0] + ", " + coordinates[1] + ", "
-                            + coordinates[2] + ", " + coordinates[3] + ", " + coordinates[4] + ", " + coordinates[5]);
+//                    System.out.println("cubic to " + coordinates[0] + ", " + coordinates[1] + ", "
+//                            + coordinates[2] + ", " + coordinates[3] + ", " + coordinates[4] + ", " + coordinates[5]);
                     break;
                 case PathIterator.SEG_CLOSE:
-                    System.out.println("close");
+//                    System.out.println("close");
                     break;
                 default:
                     break;

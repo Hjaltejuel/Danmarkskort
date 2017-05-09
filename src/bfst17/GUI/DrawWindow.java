@@ -5,14 +5,13 @@ import bfst17.Enums.GUIMode;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.*;
 import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by trold on 2/1/17.
@@ -372,5 +371,9 @@ public class DrawWindow {
 
 	public JMenuItem getGreyScaleMenuItem() {
 		return greyScaleMenuItem;
+	}
+
+	public boolean getDiretionsBoolean(){
+		return showDirectionsComboBox;
 	}
 }

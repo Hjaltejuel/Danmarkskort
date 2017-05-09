@@ -1,7 +1,6 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.Directions.Edge;
 import bfst17.Directions.Graph;
 import bfst17.Directions.GraphNode;
 import bfst17.Enums.*;
@@ -206,8 +205,6 @@ public class DrawCanvas extends JComponent implements Observer {
 
         drawClosestRoad(g);
 
-        drawGraph(g);
-
         if(drawCityNames) {
             drawCityAndTownNames(g);
         }
@@ -290,17 +287,38 @@ public class DrawCanvas extends JComponent implements Observer {
 
         g.setStroke(new BasicStroke(0.00008f));
         Graph graph = model.getGraph();
+
         if(graph == null){
             return;
         }
         else {
+/*            Iterator it = graph.getGraphFilteredMap().entrySet().iterator();
+            while(it.hasNext()){
+                Map.Entry pair = (Map.Entry)it.next();
+                GraphNode graphNode = (GraphNode)pair.getValue();
 
-            ArrayList<GraphNode> alist = graph.getRandomPath();
-            for (int i = 0; i < alist.size() - 1; i++) {
-                g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),
-                        alist.get(i+1).getPoint2D().getX(), alist.get(i+1).getPoint2D().getY()));
+                    for(int j = 0; j < graphNode.getEdgeList().size();j++){
+
+                        g.draw(new Line2D.Double(graphNode.getPoint2D().getX(), graphNode.getPoint2D().getY(),
+                                graphNode.getEdgeList().get(j).getDestination().getPoint2D().getX(), graphNode.getEdgeList().get(j).getDestination().getPoint2D().getY()));
+
+                    }
+
+                it.remove();
+            }
+            */
+            ArrayList<GraphNode> alist = graph.getPathList();
+            if(alist != null) {
+            for(GraphNode n: alist) {
+                n.setNodeFrom(null);
             }
 
+
+            for (int i = 0; i < alist.size() - 1; i++) {
+                g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),
+                        alist.get(i + 1).getPoint2D().getX(), alist.get(i + 1).getPoint2D().getY()));
+            }
+        }
         }
 
     }
@@ -394,6 +412,8 @@ public class DrawCanvas extends JComponent implements Observer {
 
         //Tegn vejene og evt vejnavne
         drawRoads(g);
+
+        drawGraph(g);
 
 
         //Tegn regionen, hvis der er søgt efter den
@@ -526,7 +546,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
     Integer numOfShapes=0;
 	public void drawShapes(Graphics2D g) {
-	    numOfShapes=0;
+        numOfShapes = 0;
         for (ShapeKDTree tree : model.getTrees()) {
             WayType type = tree.getType();
             if (type.getZoomFactor() > getZoomFactor()) {
@@ -536,7 +556,7 @@ public class DrawCanvas extends JComponent implements Observer {
             g.setStroke(type.getDrawStroke());
 
             HashSet<TreeNode> nodes = tree.getInRange(screenRectangle);
-            numOfShapes+=nodes.size();
+            numOfShapes += nodes.size();
 
             //Her bestemmes om shapes skal fyldes eller ej
 
@@ -550,17 +570,7 @@ public class DrawCanvas extends JComponent implements Observer {
                 }
             }
 
-        }
-        g.setColor(Color.PINK);
 
-        g.setStroke(new BasicStroke(0.000008f));
-        Graph graph = model.getGraph();
-
-       // ArrayList<GraphNode> alist = graph.getPath(source, target);
-        ArrayList<GraphNode> alist = graph.getRandomPath();
-        for(int i = 0; i < alist.size()-1; i++){
-
-            g.draw(new Line2D.Double(alist.get(i).getSource().getPoint2D().getX(), alist.get(i).getSource().getPoint2D().getY(),alist.get(i).getDestination().getPoint2D().getX(), alist.get(i).getDestination().getPoint2D().getY()));
         }
     }
     //</editor-fold>

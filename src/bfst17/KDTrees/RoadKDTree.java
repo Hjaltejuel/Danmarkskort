@@ -4,6 +4,7 @@ import bfst17.Enums.WayType;
 import bfst17.RoadNode;
 import bfst17.ShapeStructure.PolygonApprox;
 
+import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.util.*;
 import java.util.List;
@@ -27,13 +28,21 @@ public class RoadKDTree extends KDTree {
         ArrayList<TreeNode> allShapesList = new ArrayList<>();
         for (int i = 0; i < roadNodes.size(); i++) {
             RoadNode rdNode = (RoadNode) roadNodes.get(i);
-            Rectangle2D bounds = rdNode.getShape().getBounds2D();
+            float[] xyVal = new float[2];
+            PathIterator it = rdNode.getShape().getPathIterator(null,0);
+            int j = 0;
+            while(!it.isDone()){
+                it.currentSegment(xyVal);
+                if(j%10==0){
+                    allShapesList.add(new RoadTreeNode(xyVal[0],xyVal[1],rdNode));
+               }
+                it.next();
+                j++;
+            }
+            if((j-1%10)!=0){
+                allShapesList.add(new RoadTreeNode(xyVal[0],xyVal[1],rdNode));
+            }
 
-            allShapesList.add(new RoadTreeNode(bounds.getCenterX(), bounds.getCenterY(), rdNode));
-            allShapesList.add(new RoadTreeNode(bounds.getMinX(), bounds.getMinY(), rdNode));
-            allShapesList.add(new RoadTreeNode(bounds.getMinX(), bounds.getMaxY(), rdNode));
-            allShapesList.add(new RoadTreeNode(bounds.getMaxX(), bounds.getMinY(), rdNode));
-            allShapesList.add(new RoadTreeNode(bounds.getMaxX(), bounds.getMaxY(), rdNode));
         }
         TreeNode[] allShapes = allShapesList.toArray(new TreeNode[allShapesList.size()]);
         insertArray(allShapes, 0, allShapes.length - 1, true);
