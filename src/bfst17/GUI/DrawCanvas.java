@@ -223,15 +223,14 @@ public class DrawCanvas extends JComponent implements Observer {
         drawImageAtLocation(g,"pin",pin.getX(),pin.getY());
     }
 
-    public void getNeighbourFromMousePos(Point2D mousePos) {
     public RoadKDTree.RoadTreeNode getClosestRoad(Point2D point) {
         TreeNode closestNode = null;
-        for(RoadKDTree tree : model.getRoadKDTreeList()){
-            if(closestNode==null){
-                closestNode=tree.getNearestNeighbour(point);
+        for(RoadKDTree tree : model.getRoadKDTreeList()) {
+            TreeNode newClosestNode = tree.getNearestNeighbour(point);
+            if(closestNode==null) {
+                closestNode=newClosestNode;
             } else {
-                TreeNode newClosestNode = tree.getNearestNeighbour(point);
-                if(newClosestNode.distance(point)<closestNode.distance(point)) {
+                if(newClosestNode.distance(point) < closestNode.distance(point)) {
                     closestNode=newClosestNode;
                 }
             }
@@ -242,18 +241,13 @@ public class DrawCanvas extends JComponent implements Observer {
     public void setMousePos(Point2D mousePos) {
         this.mousePos = mousePos;
         Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(), mousePos.getY());
-
-        addressNode = (RoadKDTree.RoadTreeNode) nearestNode;
-
-        //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en node. Her en minimum afstand på 0.01 i lonlat koordinater.
-        if (addressNode.distance(lonLatCords) > 0.01) {
+        addressNode = getClosestRoad(lonLatCords);
+        //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en vertex.
+        if (addressNode.distance(lonLatCords) > 100000) {
             needToDrawNearestNeighbour = false;
-        }
-            else {
+        } else {
             needToDrawNearestNeighbour = true;
         }
-        addressNode = getClosestRoad(mousePos);
-        System.out.println(addressNode.getRoadName());
         repaint();
     }
 
