@@ -8,10 +8,7 @@ import bfst17.Directions.Graph;
 import bfst17.Directions.NodeTags;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
-import bfst17.KDTrees.CityNamesKDTree;
-import bfst17.KDTrees.POIKDTree;
-import bfst17.KDTrees.RoadKDTree;
-import bfst17.KDTrees.ShapeKDTree;
+import bfst17.KDTrees.*;
 import bfst17.OSMData.OSMNode;
 import bfst17.OSMData.OSMRelation;
 import bfst17.OSMData.OSMWay;
@@ -37,8 +34,6 @@ public class Model extends Observable implements Serializable {
     private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class);
     private HashMap<String, WayType> namesToWayTypes = new HashMap<>();
     private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>();
-    private HashMap<String, Point2D> cityNames = new HashMap<>();
-    private HashMap<String, Point2D> townNames = new HashMap<>();
     private HashMap<WayType, ArrayList<RoadNode>> roads = new HashMap<>();
 
     private ArrayList<Shape> coastlines = new ArrayList<>();
@@ -60,6 +55,21 @@ public class Model extends Observable implements Serializable {
     private float lonfactor;
     private Graph graph;
 
+
+    public RoadKDTree.RoadTreeNode getClosestRoad(Point2D point) {
+        TreeNode closestNode = null;
+        for(RoadKDTree tree : getRoadKDTreeList()) {
+            TreeNode newClosestNode = tree.getNearestNeighbour(point);
+            if(closestNode==null) {
+                closestNode=newClosestNode;
+            } else {
+                if(newClosestNode.distance(point) < closestNode.distance(point)) {
+                    closestNode=newClosestNode;
+                }
+            }
+        }
+        return (RoadKDTree.RoadTreeNode)closestNode;
+    }
 
     public ArrayList<RoadKDTree> getRoadKDTreeList() {
         return roadKDTreeList;

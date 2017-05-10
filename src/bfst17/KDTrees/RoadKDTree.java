@@ -53,6 +53,39 @@ public class RoadKDTree extends KDTree {
         return insertNode;
     }
 
+
+    HashSet<RoadNode> nodes = new HashSet<>();
+    public HashSet<RoadNode> getInRange(Rectangle2D rect){
+        nodes = new HashSet<>();
+        getShapesBelowNodeInsideBounds(root, rect);
+        return nodes;
+    }
+
+    public void getShapesBelowNodeInsideBounds(TreeNode startNode, Rectangle2D rect) {
+        if (startNode == null) {
+            return;
+        }
+
+        //Kun tegn det der er inde for skærmen
+        if(startNode.isInside(rect)) {
+            nodes.add(((RoadTreeNode)startNode).getRoadNode());
+        }
+
+
+        //boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMaxX() : startNode.getSplit() > rect.getMaxY();
+        //boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMinX() : startNode.getSplit() < rect.getMinY();
+
+        boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMinX() : startNode.getSplit() > rect.getMinY();
+        boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMaxX() : startNode.getSplit() < rect.getMaxY();
+
+        if(goLow) {
+            getShapesBelowNodeInsideBounds(startNode.low, rect);
+        }
+        if(goHigh) {
+            getShapesBelowNodeInsideBounds(startNode.high, rect);
+        }
+    }
+
     public class RoadTreeNode extends TreeNode {
         private RoadNode roadNode;
 

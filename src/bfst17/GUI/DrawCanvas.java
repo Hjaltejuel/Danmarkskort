@@ -1,12 +1,11 @@
 package bfst17.GUI;
 
-import bfst17.AddressHandling.StreetAndPointNode;
 import bfst17.AddressHandling.TSTInterface;
 import bfst17.Directions.Graph;
-import bfst17.Directions.GraphNode;
 import bfst17.Enums.*;
 import bfst17.KDTrees.*;
 import bfst17.Model;
+import bfst17.RoadNode;
 import bfst17.ShapeStructure.PolygonApprox;
 
 import javax.imageio.ImageIO;
@@ -199,7 +198,7 @@ public class DrawCanvas extends JComponent implements Observer {
 
         drawPin(g);
 
-        drawPointsOfInteres(g);
+        drawPointsOfInterest(g);
 
         drawMeasureBand(g);
 
@@ -214,8 +213,6 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
-
-
     public void drawPin(Graphics2D g) {
         if (pin == null) {
             return; //Lad være at tegne, hvis der ikke er en pin
@@ -223,25 +220,10 @@ public class DrawCanvas extends JComponent implements Observer {
         drawImageAtLocation(g,"pin",pin.getX(),pin.getY());
     }
 
-    public RoadKDTree.RoadTreeNode getClosestRoad(Point2D point) {
-        TreeNode closestNode = null;
-        for(RoadKDTree tree : model.getRoadKDTreeList()) {
-            TreeNode newClosestNode = tree.getNearestNeighbour(point);
-            if(closestNode==null) {
-                closestNode=newClosestNode;
-            } else {
-                if(newClosestNode.distance(point) < closestNode.distance(point)) {
-                    closestNode=newClosestNode;
-                }
-            }
-        }
-        return (RoadKDTree.RoadTreeNode)closestNode;
-    }
-
     public void setMousePos(Point2D mousePos) {
         this.mousePos = mousePos;
         Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(), mousePos.getY());
-        addressNode = getClosestRoad(lonLatCords);
+        addressNode = model.getClosestRoad(lonLatCords);
         //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en vertex. Hvis distancen er over 0.01 i latlon koordinater vises ingen nearestNeighbour
         if (addressNode.distance(lonLatCords) > 0.01) {
             needToDrawNearestNeighbour = false;
@@ -276,12 +258,10 @@ public class DrawCanvas extends JComponent implements Observer {
             g.draw(leftVertLine);
 
             g.drawString(nearestNeighbourText, getWidth()-35-textWidth, getHeight()-53);
-
-
         }
     }
 
-    public void drawPointsOfInteres(Graphics2D g) {
+    public void drawPointsOfInterest(Graphics2D g) {
         if (getZoomFactor() > 40000) {
             POIKDTree POITree = model.getPOITree();
             for (TreeNode node : POITree.getInRange(screenRectangle)) {
@@ -324,7 +304,6 @@ public class DrawCanvas extends JComponent implements Observer {
     }
 
     public void drawGraph(Graphics2D g) {
-
         g.setColor(Color.BLACK);
 
         g.setStroke(new BasicStroke(0.00008f));
@@ -333,28 +312,10 @@ public class DrawCanvas extends JComponent implements Observer {
         if (graph == null) {
             return;
         } else {
-            ArrayList<GraphNode> alist = graph.getPathList();
-            if (alist != null) {
-                for (int i = 0; i < alist.size() - 1; i++) {
-                    g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),
-                            alist.get(i + 1).getPoint2D().getX(), alist.get(i + 1).getPoint2D().getY()));
-                }
-                System.out.println("BEYGMND");
-                String prevRoad = "";
-                for (int i=0;i<alist.size();i++) {
-                    GraphNode ag = alist.get(i);
-                    String currentRoad = getClosestRoad(ag.getPoint2D()).getRoadName();
-                    if(!prevRoad.equals(currentRoad)) {
-                        prevRoad=currentRoad;
-                        System.out.print(currentRoad);
-                        if(i>0) {
-                            Point2D prevPoint = alist.get(i-1).getPoint2D();
-                            Point2D currentPoint = alist.get(i).getPoint2D();
-                            System.out.println(getAngle(prevPoint,currentPoint));
-                        }
-                    }
-                }
-                System.out.println("SLUUG");
+            ArrayList<Point2D> graphPointList = graph.getPointList();
+            if (graphPointList != null) {
+                PolygonApprox polygon = new PolygonApprox(graphPointList);
+                g.draw(polygon);
             }
         }
     }
@@ -520,7 +481,7 @@ public class DrawCanvas extends JComponent implements Observer {
         return false;
     }
 
-    public void drawRoadNameInCenter(Graphics2D g, RoadKDTree.RoadTreeNode roadNode) {
+    public void drawRoadNameInCenter(Graphics2D g, RoadNode roadNode) {
         float[] coords = new float[2];
         String roadName = roadNode.getRoadName();
         PolygonApprox shape = roadNode.getShape();
@@ -567,9 +528,8 @@ public class DrawCanvas extends JComponent implements Observer {
                 continue;
             }
             boolean shouldDrawRoadName = shouldDrawRoadName(type);
-            HashSet<TreeNode> roadNodes = tree.getInRange(screenRectangle);
-            for (TreeNode _roadNode : roadNodes) {
-                RoadKDTree.RoadTreeNode roadNode = (RoadKDTree.RoadTreeNode) _roadNode;
+            HashSet<RoadNode> roadNodes = tree.getInRange(screenRectangle);
+            for (RoadNode roadNode : roadNodes) {
                 g.setStroke(type.getDrawStroke());
                 g.setColor(type.getDrawColor());
                 g.draw(roadNode.getShape());
@@ -593,18 +553,17 @@ public class DrawCanvas extends JComponent implements Observer {
             g.setColor(getDrawColor(type));
             g.setStroke(type.getDrawStroke());
 
-            HashSet<TreeNode> nodes = tree.getInRange(screenRectangle);
+            HashSet<Shape> nodes = tree.getInRange(screenRectangle);
             numOfShapes += nodes.size();
 
             //Her bestemmes om shapes skal fyldes eller ej
-
             if (type.getFillType() == FillType.LINE) {
-                for (TreeNode node : nodes) {
-                    g.draw(node.getShape());
+                for (Shape shape : nodes) {
+                    g.draw(shape);
                 }
             } else if (type.getFillType() == FillType.SOLID) {
-                for (TreeNode node : nodes) {
-                    g.fill(node.getShape());
+                for (Shape shape : nodes) {
+                    g.fill(shape);
                 }
             }
 

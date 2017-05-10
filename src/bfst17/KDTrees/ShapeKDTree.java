@@ -1,8 +1,10 @@
 package bfst17.KDTrees;
 
 import bfst17.Enums.WayType;
+import bfst17.RoadNode;
 import bfst17.ShapeStructure.PolygonApprox;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
@@ -61,6 +63,34 @@ public class ShapeKDTree extends KDTree {
         //_insertNode.lowSplit = !vertical ? bounds.getMinX() : bounds.getMinY();
         //System.out.println(root.highSplit + " " + root.lowSplit);
         return _insertNode;
+    }
+
+
+    HashSet<Shape> nodes = new HashSet<>();
+    public HashSet<Shape> getInRange(Rectangle2D rect){
+        nodes = new HashSet<>();
+        getShapesBelowNodeInsideBounds(root, rect);
+        return nodes;
+    }
+
+    public void getShapesBelowNodeInsideBounds(TreeNode startNode, Rectangle2D rect) {
+        if (startNode == null) {
+            return;
+        }
+
+        //Kun tegn det der er inde for skærmen
+        if(startNode.isInside(rect)) {
+            nodes.add(startNode.getShape());
+        }
+        boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMinX() : startNode.getSplit() > rect.getMinY();
+        boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMaxX() : startNode.getSplit() < rect.getMaxY();
+
+        if(goLow) {
+            getShapesBelowNodeInsideBounds(startNode.low, rect);
+        }
+        if(goHigh) {
+            getShapesBelowNodeInsideBounds(startNode.high, rect);
+        }
     }
 
 

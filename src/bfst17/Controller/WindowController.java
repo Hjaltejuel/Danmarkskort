@@ -156,10 +156,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 TSTInterface addressDest = addressModel.getAddress(k.trim());
                 TSTInterface address = addressModel.getAddress(s.trim());
 
-                TreeNode closestNode = canvas.getClosestRoad(new Point2D.Double(address.getX(), address.getY()));
+                TreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()));
                 Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
-                closestNode = canvas.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()));
+                closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()));
                 Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
                 model.getGraph().setNodes(fromPoint, toPoint);

@@ -67,22 +67,7 @@ public abstract class KDTree implements Serializable {
         }
     }
     private HashSet<TreeNode> nodes;
-    public HashSet<TreeNode> getInRange(Rectangle2D rect) {
-        /*if(nodes ==null) {
-            nodes = new HashSet<>();
-        } else {
-            Iterator<TreeNode> iter = nodes.iterator();
-            while (iter.hasNext()) {
-                TreeNode currentNode = iter.next();
-                if(!currentNode.isInside(rect)) {
-                    iter.remove();
-                }
-            }
-        }*/
-        nodes = new HashSet<>();
-        getShapesBelowNodeInsideBounds(root, rect);
-        return nodes;
-    }
+    public abstract <E> HashSet<E> getInRange(Rectangle2D rect);
 
     public void drawTree(Graphics2D g) {
         c=0;
@@ -101,43 +86,6 @@ public abstract class KDTree implements Serializable {
         drawTreeNode(g, node.high, X+1, Y+1);
     }
 
-    public void getShapesBelowNodeInsideBounds(TreeNode startNode, Rectangle2D rect) {
-        if (startNode == null) {
-            return;
-        }
-
-        //Kun tegn det der er inde for skærmen
-        if(startNode.isInside(rect)) {
-            nodes.add(startNode);
-        }
-
-
-        //boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMaxX() : startNode.getSplit() > rect.getMaxY();
-        //boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMinX() : startNode.getSplit() < rect.getMinY();
-
-        boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMinX() : startNode.getSplit() > rect.getMinY();
-        boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMaxX() : startNode.getSplit() < rect.getMaxY();
-
-        if(goLow) {
-            getShapesBelowNodeInsideBounds(startNode.low, rect);
-        }
-        if(goHigh) {
-            getShapesBelowNodeInsideBounds(startNode.high, rect);
-        }
-        /*
-
-        if(goLow||goHigh) {
-            if (goLow) {
-                getShapesBelowNodeInsideBounds(startNode.low, rect);
-            }
-            if (goHigh) {
-                getShapesBelowNodeInsideBounds(startNode.high, rect);
-            }
-            return;
-        }*/
-        //getShapesBelowNodeInsideBounds(startNode.low, rect);
-        //getShapesBelowNodeInsideBounds(startNode.high, rect);
-    }
 
     public TreeNode getNearestNeighbour(Point2D point) {
         TreeNode champion = neighbourRecursion(point, root, true, root, 100);

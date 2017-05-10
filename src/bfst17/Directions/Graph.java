@@ -19,6 +19,8 @@ public class Graph {
     private HashMap<Point2D, NodeTags> graphNodeBuilder;
 
     private ArrayList<GraphNode> pathList;
+    private ArrayList<Point2D> pointList;
+
     //private Map<Long, OSMWay> idToWay;
 
     private ShortestPath sp;
@@ -69,8 +71,6 @@ public class Graph {
                 }
             }
         }
-
-
         System.out.println("Graph complete!");
     }
 
@@ -90,33 +90,40 @@ public class Graph {
         }
         graphNodeBuilder.clear();
     }
-
-
-    public ArrayList<GraphNode> getRandomPath() {
-        Random r = new Random();
-//        int i = r.nextInt(graphNodeList.size());
-//        int i2 = r.nextInt(graphNodeList.size());
-//        source = graphNodeList.get(297);
-//        target = graphNodeList.get(7148);
-//        sp = new ShortestPath(this);
-//        sp.execute(source, target);
-        if(source != null && target != null) {
-            return getPath(source, target);
+/*
+    public ArrayList<DirectionsObjekt> getDirectionList(){
+        //System.out.println("BEYGMND");
+        String prevRoad = "";
+        for (int i=0;i<pointList.size();i++) {
+            Point2D ag = pointList.get(i);
+            String currentRoad = getClosestRoad(ag).getRoadName();
+            if(!prevRoad.equals(currentRoad)) {
+                prevRoad=currentRoad;
+                //System.out.print(currentRoad);
+                if(i>0) {
+                    Point2D prevPoint = pointList.get(i-1);
+                    Point2D currentPoint = pointList.get(i);
+                    System.out.println(getAngle(prevPoint,currentPoint));
+                }
+            }
         }
-        else{return null;}
-
+        //System.out.println("SLUUG");
+    }
+*/
+    public ArrayList<Point2D> getPointList() {
+        return pointList;
     }
 
     public ArrayList<GraphNode> getPath(GraphNode source, GraphNode destination) {
-        ArrayList<GraphNode> pathList = new ArrayList<>();
-
+        pathList = new ArrayList<>();
+        pointList = new ArrayList<>();
 
 
         for (GraphNode n = destination; n.getNodeFrom() != null; n = n.getNodeFrom()) {
             pathList.add(n);
+            pointList.add(n.getPoint2D());
         }
         Collections.reverse(pathList);
-        this.pathList = pathList;
         source.setNodeFrom(null);
         return pathList;
     }
