@@ -135,21 +135,23 @@ public class Graph {
         this.source = graphFilteredMap.get(point2Source);
         this.target = graphFilteredMap.get(point2Destination);
 
-        if(source != null || target != null){
+        if(source != null || target != null) {
             sp = new ShortestPath(this);
-            sp.execute(source,target);
+            sp.execute(source, target);
         }
     }
-    public void cleanUpGraph(){
+
+    public void cleanUpGraph() {
         Iterator it = graphFilteredMap.entrySet().iterator();
-        while(it.hasNext()){
+        while(it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
             GraphNode g = (GraphNode)pair.getValue();
             g.setDistTo(Double.POSITIVE_INFINITY);
             g.setNodeFrom(null);
         }
     }
-    public ArrayList<GraphNode> getPathList(){
+
+    public ArrayList<GraphNode> getPathList() {
         return pathList;
     }
 }

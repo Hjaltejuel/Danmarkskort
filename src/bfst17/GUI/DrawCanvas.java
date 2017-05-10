@@ -1,5 +1,6 @@
 package bfst17.GUI;
 
+import bfst17.AddressHandling.StreetAndPointNode;
 import bfst17.AddressHandling.TSTInterface;
 import bfst17.Directions.Graph;
 import bfst17.Directions.GraphNode;
@@ -269,7 +270,6 @@ public class DrawCanvas extends JComponent implements Observer {
             g.setColor(new Color(255,255,255,100));
             g.fill(rect);
 
-
             g.setColor(Color.black);
             g.draw(line);
             g.draw(rightVertLine);
@@ -323,41 +323,40 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
-    public void drawGraph(Graphics2D g){
+    public void drawGraph(Graphics2D g) {
 
         g.setColor(Color.BLACK);
 
         g.setStroke(new BasicStroke(0.00008f));
         Graph graph = model.getGraph();
 
-        if(graph == null){
+        if (graph == null) {
             return;
-        }
-        else {
-/*            Iterator it = graph.getGraphFilteredMap().entrySet().iterator();
-            while(it.hasNext()){
-                Map.Entry pair = (Map.Entry)it.next();
-                GraphNode graphNode = (GraphNode)pair.getValue();
-
-                    for(int j = 0; j < graphNode.getEdgeList().size();j++){
-
-                        g.draw(new Line2D.Double(graphNode.getPoint2D().getX(), graphNode.getPoint2D().getY(),
-                                graphNode.getEdgeList().get(j).getDestination().getPoint2D().getX(), graphNode.getEdgeList().get(j).getDestination().getPoint2D().getY()));
-
-                    }
-
-                it.remove();
-            }
-            */
+        } else {
             ArrayList<GraphNode> alist = graph.getPathList();
-            if(alist != null) {
-            for (int i = 0; i < alist.size() - 1; i++) {
-                g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),
-                        alist.get(i + 1).getPoint2D().getX(), alist.get(i + 1).getPoint2D().getY()));
+            if (alist != null) {
+                for (int i = 0; i < alist.size() - 1; i++) {
+                    g.draw(new Line2D.Double(alist.get(i).getPoint2D().getX(), alist.get(i).getPoint2D().getY(),
+                            alist.get(i + 1).getPoint2D().getX(), alist.get(i + 1).getPoint2D().getY()));
+                }
+                System.out.println("BEYGMND");
+                String prevRoad = "";
+                for (int i=0;i<alist.size();i++) {
+                    GraphNode ag = alist.get(i);
+                    String currentRoad = getClosestRoad(ag.getPoint2D()).getRoadName();
+                    if(!prevRoad.equals(currentRoad)) {
+                        prevRoad=currentRoad;
+                        System.out.print(currentRoad);
+                        if(i>0) {
+                            Point2D prevPoint = alist.get(i-1).getPoint2D();
+                            Point2D currentPoint = alist.get(i).getPoint2D();
+                            System.out.println(getAngle(prevPoint,currentPoint));
+                        }
+                    }
+                }
+                System.out.println("SLUUG");
             }
         }
-        }
-
     }
 
 

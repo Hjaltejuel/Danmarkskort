@@ -30,17 +30,10 @@ public class RoadKDTree extends KDTree {
             RoadNode rdNode = (RoadNode) roadNodes.get(i);
             float[] xyVal = new float[2];
             PathIterator it = rdNode.getShape().getPathIterator(null,0);
-            int j = 0;
-            while(!it.isDone()){
+            while(!it.isDone()) {
                 it.currentSegment(xyVal);
-                if(j%10==0){
-                    allShapesList.add(new RoadTreeNode(xyVal[0],xyVal[1],rdNode));
-               }
-                it.next();
-                j++;
-            }
-            if((j-1%10)!=0){
                 allShapesList.add(new RoadTreeNode(xyVal[0],xyVal[1],rdNode));
+                it.next();
             }
 
         }

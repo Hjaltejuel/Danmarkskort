@@ -7,6 +7,7 @@ import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
 import bfst17.GUI.DrawCanvas;
 import bfst17.GUI.DrawWindow;
+import bfst17.KDTrees.TreeNode;
 import bfst17.Model;
 
 import javax.swing.*;
@@ -144,35 +145,29 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyChar() == 10) {
-            if(startDirections){
+            if (startDirections) {
                 String s = (String) window.getCombo().getSelectedItem();
-                String k = (String)window.getSecondCombo().getSelectedItem();
-                if(s.length()!=0 && k.length()!=0) {
-                    if (s == null || s.length() == 0 || k == null || k.length() == 0) {
-                        isPopUpOpen = true;
-                        JOptionPane.showMessageDialog(canvas, "Du har ikke indtastet noget i søgefeltet");
-                        return; //Ikke noget at søge efter!
-                    }
-                    TSTInterface addressDest = addressModel.getAddress(k.trim());
-                    TSTInterface address = addressModel.getAddress(s.trim());
-                    Point2D point = new Point2D.Float((float) address.getX(), (float) address.getY());
-                    float x = (float) model.getRoadKDTree().getNearestNeighbour(point).getX();
-                    float y = (float) model.getRoadKDTree().getNearestNeighbour(point).getY();
-                    Point2D fromPoint = new Point2D.Float(x, y);
-
-
-                    Point2D to = new Point2D.Float((float) addressDest.getX(), (float) addressDest.getY());
-                    x = (float) model.getRoadKDTree().getNearestNeighbour(to).getX();
-                    y = (float) model.getRoadKDTree().getNearestNeighbour(to).getY();
-                    Point2D toPoint = new Point2D.Float(x,y);
-
-                    model.getGraph().setNodes(fromPoint, toPoint);
+                String k = (String) window.getSecondCombo().getSelectedItem();
+                if (s == null || s.length() == 0 || k == null || k.length() == 0) {
+                    isPopUpOpen = true;
+                    JOptionPane.showMessageDialog(canvas, "Du har ikke indtastet noget i søgefeltet");
+                    return; //Ikke noget at søge efter!
                 }
+                TSTInterface addressDest = addressModel.getAddress(k.trim());
+                TSTInterface address = addressModel.getAddress(s.trim());
+
+                TreeNode closestNode = canvas.getClosestRoad(new Point2D.Double(address.getX(), address.getY()));
+                Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
+
+                closestNode = canvas.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()));
+                Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
+
+                model.getGraph().setNodes(fromPoint, toPoint);
             }
-            if(!isPopUpOpen) {
+
+            if (!isPopUpOpen) {
                 search();
-            }
-            else{
+            } else {
                 isPopUpOpen = false;
             }
         }
