@@ -2,16 +2,13 @@ package bfst17.Controller;
 
 import bfst17.GUI.DrawCanvas;
 import bfst17.Model;
-import edu.princeton.cs.algs4.Stopwatch;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
-import java.sql.Time;
 import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by trold on 2/8/17.

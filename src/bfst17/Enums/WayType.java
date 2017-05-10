@@ -44,6 +44,12 @@ public enum WayType implements Serializable {
 					1500,
 					FillType.SOLID,
 					new Color(54, 80, 50)),
+	LANDUSE_FOREST
+			(new Color(157, 202, 138),
+					null,
+					1500,
+					FillType.SOLID,
+					new Color(42, 62, 51)),
 	LANDUSE_MEADOW
 			(new Color(205, 235, 176),
 					null,
@@ -326,12 +332,6 @@ public enum WayType implements Serializable {
 					55000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
-	LANDUSE_FOREST
-			(new Color(157, 202, 138),
-					null,
-					1500,
-					FillType.SOLID,
-					new Color(42, 62, 51)),
 	NATURAL_MEADOW
 			(new Color(197, 236, 148),
 					null,
