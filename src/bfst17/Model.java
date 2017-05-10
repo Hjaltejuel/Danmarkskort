@@ -39,14 +39,14 @@ public class Model extends Observable implements Serializable {
     private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>();
     private HashMap<String, Point2D> cityNames = new HashMap<>();
     private HashMap<String, Point2D> townNames = new HashMap<>();
-    private ArrayList<RoadNode> roads = new ArrayList<>();
+    private HashMap<WayType, ArrayList<RoadNode>> roads = new HashMap<>();
 
     private ArrayList<Shape> coastlines = new ArrayList<>();
 
     private CityNamesKDTree cityTree = new CityNamesKDTree();
     private POIKDTree POITree = new POIKDTree();
     private ArrayList<ShapeKDTree> treeList = new ArrayList<>();
-    private RoadKDTree roadKDTree;
+    private ArrayList<RoadKDTree> roadKDTreeList = new ArrayList<>();
     private CityNamesKDTree townTree = new CityNamesKDTree();
 
     String name = "";
@@ -61,8 +61,8 @@ public class Model extends Observable implements Serializable {
     private Graph graph;
 
 
-    public RoadKDTree getRoadKDTree() {
-        return roadKDTree;
+    public ArrayList<RoadKDTree> getRoadKDTreeList() {
+        return roadKDTreeList;
     }
 
     public ArrayList<ShapeKDTree> getTrees() {
@@ -136,7 +136,7 @@ public class Model extends Observable implements Serializable {
 
             System.out.println("Saving trees");
             out.writeObject(treeList);
-            out.writeObject(roadKDTree);
+            out.writeObject(roadKDTreeList);
             out.writeObject(POITree);
             out.writeObject(cityTree);
             out.writeObject(townTree);
@@ -203,7 +203,7 @@ public class Model extends Observable implements Serializable {
             try (ObjectInputStream in = new ObjectInputStream(input)) {
                 //Ryk rundt på dem her og få med Jens' knytnæve at bestille
                 treeList = (ArrayList<ShapeKDTree>) in.readObject();
-                roadKDTree = (RoadKDTree) in.readObject();
+                roadKDTreeList = (ArrayList<RoadKDTree>) in.readObject();
                 POITree = (POIKDTree) in.readObject();
                 cityTree = (CityNamesKDTree) in.readObject();
                 townTree = (CityNamesKDTree) in.readObject();
@@ -312,7 +312,6 @@ public class Model extends Observable implements Serializable {
         }
 
         private HashMap<String, Enum<?>> stringToEnum = new HashMap<>();
-
         {
             for (WayType type : WayType.values()) {
                 stringToEnum.put(type.name(), type);
@@ -370,6 +369,12 @@ public class Model extends Observable implements Serializable {
                 if (shapeList.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
                     continue;
                 }
+                if(type.name().split("_")[0].equals("HIGHWAY")){
+                    RoadKDTree tmpRoadKDTree = new RoadKDTree(type);
+                    tmpRoadKDTree.fillTree(roads.get(type));
+                    roadKDTreeList.add(tmpRoadKDTree);
+                    continue;
+                }
                 //if(type!=WayType.BARRIER_RETAINING_WALL){continue;}
                 ShapeKDTree treeWithType = new ShapeKDTree(type);
                 treeWithType.fillTree(shapeList);
@@ -378,8 +383,6 @@ public class Model extends Observable implements Serializable {
                 totalShapes += treeWithType.getSize();
             }
 
-            roadKDTree = new RoadKDTree(type);
-            roadKDTree.fillTree(roads);
 
             if (pointsOfInterest != null) {
                 POITree.fillTree(pointsOfInterest);
@@ -598,7 +601,10 @@ public class Model extends Observable implements Serializable {
                     if (type == WayType.NATURAL_COASTLINE) {
                         //DO NOTHING
                     } else if (type.toString().split("_")[0].equals("HIGHWAY")) {
-                        roads.add(new RoadNode(shape, roadName, type));
+                        if(roads.get(type)==null){
+                            roads.put(type,new ArrayList<>());
+                        }
+                        roads.get(type).add(new RoadNode(shape, roadName, type));
                     } else {
                         add(type, shape);
                     }

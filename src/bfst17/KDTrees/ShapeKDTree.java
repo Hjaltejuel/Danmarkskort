@@ -6,7 +6,7 @@ import bfst17.ShapeStructure.PolygonApprox;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 public class ShapeKDTree extends KDTree {
@@ -26,42 +26,20 @@ public class ShapeKDTree extends KDTree {
         }
         ArrayList<ShapeTreeNode> allShapesList = new ArrayList<>();
         for(Shape _shape : shapes) {
-            PolygonApprox shape = (PolygonApprox)_shape;
-            PathIterator PI = shape.getPathIterator(new AffineTransform());
             int Counter=0;
 
-            float[] coordinates = new float[6];
-            int type = PI.currentSegment(coordinates);
-            switch (type) {
-                case PathIterator.SEG_MOVETO:
-//                    System.out.println("move to " + coordinates[0] + ", " + coordinates[1]);
-                    break;
-                case PathIterator.SEG_LINETO:
-//                    System.out.println("line to " + coordinates[0] + ", " + coordinates[1]);
-                    break;
-                case PathIterator.SEG_QUADTO:
-//                    System.out.println("quadratic to " + coordinates[0] + ", " + coordinates[1] + ", "
-//                            + coordinates[2] + ", " + coordinates[3]);
-                    break;
-                case PathIterator.SEG_CUBICTO:
-//                    System.out.println("cubic to " + coordinates[0] + ", " + coordinates[1] + ", "
-//                            + coordinates[2] + ", " + coordinates[3] + ", " + coordinates[4] + ", " + coordinates[5]);
-                    break;
-                case PathIterator.SEG_CLOSE:
-//                    System.out.println("close");
-                    break;
-                default:
-                    break;
+            PolygonApprox shape = (PolygonApprox)_shape;
+            allShapesList.add(new ShapeTreeNode(shape, shape.getCenterX(), shape.getCenterY()));
+            float[] coordinates = new float[2];
+            PathIterator PI = shape.getPathIterator(null);
+            while(!PI.isDone()) {
+                Counter++;
+                if(Counter%80==0) {
+                    PI.currentSegment(coordinates);
+                    allShapesList.add(new ShapeTreeNode(shape, coordinates[0], coordinates[1]));
+                }
+                PI.next();
             }
-            //System.out.println(Counter);
-            Rectangle2D bounds = shape.getBounds2D();
-            //System.out.println(bounds.getWidth()+bounds.getHeight());
-            allShapesList.add(new ShapeTreeNode(shape, bounds.getCenterX(), bounds.getCenterY()));
-            /*allShapesList.add(new ShapeTreeNode(shape, bounds.getMinX(), bounds.getMinY()));
-            allShapesList.add(new ShapeTreeNode(shape, bounds.getMinX(), bounds.getMaxY()));
-            allShapesList.add(new ShapeTreeNode(shape, bounds.getMaxX(), bounds.getMinY()));
-            allShapesList.add(new ShapeTreeNode(shape, bounds.getMaxX(), bounds.getMaxY()));
-            */
         }
         ShapeTreeNode[] allShapes = allShapesList.toArray(new ShapeTreeNode[allShapesList.size()]);
         insertArray(allShapes, 0, allShapes.length - 1, true);

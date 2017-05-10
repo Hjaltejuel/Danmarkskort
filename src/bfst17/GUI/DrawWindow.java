@@ -43,6 +43,7 @@ public class DrawWindow {
 	private JCheckBoxMenuItem[] POICheckBoxArray;
 	boolean menu1IsShown = false;
 	boolean menu2IsShown = false;
+	private JLabel nearestNeighbourText;
 
 	private JPanel sidebarMenu = new JPanel(new GridLayout(0, 1));
 
@@ -328,6 +329,7 @@ public class DrawWindow {
 		}, 0, 5);
 		secondCombo.setEditable(showDirectionsComboBox);
 	}
+
 
 	public AutocompleteJComboBox getCombo() {
 		return combo;
