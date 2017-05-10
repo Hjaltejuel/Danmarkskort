@@ -12,11 +12,15 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class AutocompleteJComboBox extends JComboBox {
     private static TST searcher;
     private boolean firstTime = true;
     private JTextComponent userInput;
+    private Timer timer;
+
 
     public void setTree(TST tree){
         searcher = tree;
@@ -25,6 +29,7 @@ public class AutocompleteJComboBox extends JComboBox {
 
     public AutocompleteJComboBox(TST tree) {
         //Makes the arrow invisible and set it so it does nothing
+        timer = new Timer();
         setUI(new BasicComboBoxUI() {
             protected JButton createArrowButton() {
                 return new JButton() {
@@ -46,15 +51,37 @@ public class AutocompleteJComboBox extends JComboBox {
             userInput = (JTextComponent) c;
             userInput.getDocument().putProperty("key",userInput);
             userInput.getDocument().addDocumentListener(new DocumentListener() {
+
+                timerTask task = new timerTask();
+
+                class timerTask extends TimerTask{
+                    boolean hasSarted = false;
+                    @Override
+                    public void run() {
+                        hasSarted = true;
+                        update();
+                        hasSarted = false;
+
+                    }
+                    public boolean getStatus(){return hasSarted;}
+                }
+
                 public void changedUpdate(DocumentEvent arg0) {
                 }
 
                 public void insertUpdate(DocumentEvent arg0) {
-                    this.update();
+                    if(task.getStatus()) {
+                        timer.cancel();
+                    }
+                    timer.schedule(new timerTask(),250);
+
                 }
 
                 public void removeUpdate(DocumentEvent arg0) {
-                    this.update();
+                    if(task.getStatus()) {
+                        timer.cancel();
+                    }
+                    timer.schedule(new timerTask(),250);
 
 
                 }
@@ -79,9 +106,9 @@ public class AutocompleteJComboBox extends JComboBox {
                     }
                     return "";
                 }
-
                 public void update() {
                     SwingUtilities.invokeLater(() -> {
+
                             ArrayList<String> founds = AutocompleteJComboBox.searcher.keysWithPrefix(makeUpperCase(userInput.getText()));
                             if(founds!=null) {
                                 ArrayList<String> copyList = new ArrayList<String>();
