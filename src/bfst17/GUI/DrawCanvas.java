@@ -532,6 +532,7 @@ public class DrawCanvas extends JComponent implements Observer {
             HashSet<TreeNode> roadNodes = tree.getInRange(screenRectangle);
             for (TreeNode _roadNode : roadNodes) {
                 RoadKDTree.RoadTreeNode roadNode = (RoadKDTree.RoadTreeNode) _roadNode;
+                g.setStroke(type.getDrawStroke());
                 g.setColor(type.getDrawColor());
                 g.draw(roadNode.getShape());
 

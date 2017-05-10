@@ -167,56 +167,56 @@ public class TST<TSTInterface> implements Serializable {
      */
     public ArrayList<String> keysWithPrefix(String prefixUser) {
         //cant match with nothing
-        if(prefixUser!="") {
-            //set the prefix
-            this.prefix = prefixUser;
-            //delete the commas
-            String[] split = prefix.split(",");
-            //reset the values
-            this.suffix = "";
-            prefix = "";
-            //run trough the split array and make the suffix
-            prefix = split[0];
-            //run trough the split array and make the suffix
-            if(split.length>1) {
-                suffix = split[1];
-            }
-
-            if (prefix == null) {
-                throw new IllegalArgumentException("calls keysWithPrefix() with null argument");
-            }
-            //make a new priority queue and get the node belonging to the prefix if there are any
-            PriorityQueue<PriorityStrings> queue = new PriorityQueue<>();
-            Node<TSTInterface> x = get(root, prefix, 0);
-
-            if (x == null) return makeArray(queue);
-            
-            //If the prefix had a val, (only happens with cities and regions)
-            if (x.val != null ){
-                //if there are duplicates, add them all
-                if(x.val instanceof DuplicateAddressNode){
-                    for(bfst17.AddressHandling.TSTInterface node: ((DuplicateAddressNode)x.val)){
-                        if(node instanceof AddressNode) {
-                            addAddressNodeToQueue(queue, (AddressNode) node, prefix);
-                        } else {
-                            addOtherNodeToQueue(queue,prefix);
-                        }
-                    }
-                } else
-                    //if there only is one match and its an address
-                if(x.val instanceof AddressNode) {
-                    queue.add(new PriorityStrings(1, prefix + ", " + x.val.toString()));
-                } else {
-                    //if there only is one match and its a city or region
-                    queue.add(new PriorityStrings(1, prefix));
+        if (prefixUser != "") {
+                //set the prefix
+                this.prefix = prefixUser;
+                //delete the commas
+                String[] split = prefix.split(",");
+                //reset the values
+                this.suffix = "";
+                prefix = "";
+                //run trough the split array and make the suffix
+                prefix = split[0];
+                //run trough the split array and make the suffix
+                if (split.length > 1) {
+                    suffix = split[1];
                 }
-            }
-            //starts the recursive addToQueue call
-            addToQueue(x.mid, new StringBuilder(prefix), queue);
 
-            return makeArray(queue);
-        } else return null;
-    }
+                if (prefix == null) {
+                    throw new IllegalArgumentException("calls keysWithPrefix() with null argument");
+                }
+                //make a new priority queue and get the node belonging to the prefix if there are any
+                PriorityQueue<PriorityStrings> queue = new PriorityQueue<>();
+                Node<TSTInterface> x = get(root, prefix, 0);
+
+                if (x == null) return makeArray(queue);
+
+                //If the prefix had a val, (only happens with cities and regions)
+                if (x.val != null) {
+                    //if there are duplicates, add them all
+                    if (x.val instanceof DuplicateAddressNode) {
+                        for (bfst17.AddressHandling.TSTInterface node : ((DuplicateAddressNode) x.val)) {
+                            if (node instanceof AddressNode) {
+                                addAddressNodeToQueue(queue, (AddressNode) node, prefix);
+                            } else {
+                                addOtherNodeToQueue(queue, prefix);
+                            }
+                        }
+                    } else
+                        //if there only is one match and its an address
+                        if (x.val instanceof AddressNode) {
+                            queue.add(new PriorityStrings(1, prefix + ", " + x.val.toString()));
+                        } else {
+                            //if there only is one match and its a city or region
+                            queue.add(new PriorityStrings(1, prefix));
+                        }
+                }
+                //starts the recursive addToQueue call
+                addToQueue(x.mid, new StringBuilder(prefix), queue);
+
+                return makeArray(queue);
+            } else return null;
+        }
 
     /**
      * Description: method for making the list of the top 5 results
