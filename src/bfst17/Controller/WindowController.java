@@ -153,7 +153,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                         JOptionPane.showMessageDialog(canvas, "Du har ikke indtastet noget i søgefeltet");
                         return; //Ikke noget at søge efter!
                     }
-                    TSTInterface to = addressModel.getAddress(k.trim());
+                    TSTInterface addressDest = addressModel.getAddress(k.trim());
                     TSTInterface address = addressModel.getAddress(s.trim());
                     Point2D point = new Point2D.Float((float) address.getX(), (float) address.getY());
                     float x = (float) model.getRoadKDTree().getNearestNeighbour(point).getX();
@@ -161,9 +161,9 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     Point2D fromPoint = new Point2D.Float(x, y);
 
 
-                    point = new Point2D.Float((float) address.getX(), (float) address.getY());
-                    x = (float) model.getRoadKDTree().getNearestNeighbour(point).getX();
-                    y = (float) model.getRoadKDTree().getNearestNeighbour(point).getY();
+                    Point2D to = new Point2D.Float((float) addressDest.getX(), (float) addressDest.getY());
+                    x = (float) model.getRoadKDTree().getNearestNeighbour(to).getX();
+                    y = (float) model.getRoadKDTree().getNearestNeighbour(to).getY();
                     Point2D toPoint = new Point2D.Float(x,y);
 
                     model.getGraph().setNodes(fromPoint, toPoint);
