@@ -599,6 +599,7 @@ public class Model extends Observable implements Serializable {
                         //DO NOTHING
                     } else if (type.toString().split("_")[0].equals("HIGHWAY")) {
                         roads.add(new RoadNode(shape, roadName, type));
+                        add(type,shape);
                     } else {
                         add(type, shape);
                     }

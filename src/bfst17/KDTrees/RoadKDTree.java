@@ -30,19 +30,11 @@ public class RoadKDTree extends KDTree {
             RoadNode rdNode = (RoadNode) roadNodes.get(i);
             float[] xyVal = new float[2];
             PathIterator it = rdNode.getShape().getPathIterator(null,0);
-            int j = 0;
             while(!it.isDone()){
                 it.currentSegment(xyVal);
-                if(j%10==0){
-                    allShapesList.add(new RoadTreeNode(xyVal[0],xyVal[1],rdNode));
-               }
+                allShapesList.add(new RoadTreeNode(xyVal[0],xyVal[1],rdNode.getType(),rdNode.getRoadName()));
                 it.next();
-                j++;
             }
-            if((j-1%10)!=0){
-                allShapesList.add(new RoadTreeNode(xyVal[0],xyVal[1],rdNode));
-            }
-
         }
         TreeNode[] allShapes = allShapesList.toArray(new TreeNode[allShapesList.size()]);
         insertArray(allShapes, 0, allShapes.length - 1, true);
@@ -61,15 +53,17 @@ public class RoadKDTree extends KDTree {
     }
 
     public class RoadTreeNode extends TreeNode {
-        private RoadNode roadNode;
-        private WayType type;
-
-        private RoadTreeNode(double x, double y, RoadNode node) {
+        String name;
+        WayType type;
+        private RoadTreeNode(double x, double y, WayType type, String name) {
             this.X = x;
             this.Y = y;
-            this.roadNode = node;
-            this.type = node.getType();
+            this.name = name;
+            this.type = type;
+
         }
+
+        public String getName(){return name;}
 
         protected boolean sortVertically() {
             return isVertical;
@@ -77,18 +71,6 @@ public class RoadKDTree extends KDTree {
 
         protected boolean isInside(Rectangle2D rect) {
             return rect.contains(X, Y);
-        }
-
-        private RoadNode getRoadNode() {
-            return roadNode;
-        }
-
-        public PolygonApprox getShape() {
-            return getRoadNode().getShape();
-        }
-
-        public String getRoadName() {
-            return getRoadNode().getRoadName();
         }
 
         public WayType getType() {
