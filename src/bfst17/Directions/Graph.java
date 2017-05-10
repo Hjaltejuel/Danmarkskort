@@ -1,5 +1,6 @@
 package bfst17.Directions;
 
+import bfst17.Model;
 import bfst17.OSMData.OSMNode;
 import bfst17.OSMData.OSMWay;
 
@@ -90,26 +91,25 @@ public class Graph {
         }
         graphNodeBuilder.clear();
     }
-/*
-    public ArrayList<DirectionsObjekt> getDirectionList(){
+    public ArrayList<DirectionsObjekt> getDirectionList(Model model){
         //System.out.println("BEYGMND");
         String prevRoad = "";
         for (int i=0;i<pointList.size();i++) {
             Point2D ag = pointList.get(i);
-            String currentRoad = getClosestRoad(ag).getRoadName();
+            String currentRoad = model.getClosestRoad(ag).getRoadName();
             if(!prevRoad.equals(currentRoad)) {
                 prevRoad=currentRoad;
                 //System.out.print(currentRoad);
                 if(i>0) {
                     Point2D prevPoint = pointList.get(i-1);
                     Point2D currentPoint = pointList.get(i);
-                    System.out.println(getAngle(prevPoint,currentPoint));
+                    //System.out.println(getAngle(prevPoint,currentPoint));
                 }
             }
         }
         //System.out.println("SLUUG");
     }
-*/
+
     public ArrayList<Point2D> getPointList() {
         return pointList;
     }

@@ -71,6 +71,11 @@ public class Model extends Observable implements Serializable {
         return (RoadKDTree.RoadTreeNode)closestNode;
     }
 
+    public void getDirectionsList(){
+        graph.getDirectionList(this);
+
+    }
+
     public ArrayList<RoadKDTree> getRoadKDTreeList() {
         return roadKDTreeList;
     }
