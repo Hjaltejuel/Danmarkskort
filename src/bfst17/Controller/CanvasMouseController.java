@@ -15,6 +15,7 @@ import java.util.Timer;
  *
  *
  */
+//hejss
 public class CanvasMouseController extends MouseAdapter implements MouseMotionListener {
 	Model model;
 	DrawCanvas canvas;
