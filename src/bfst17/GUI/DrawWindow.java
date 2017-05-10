@@ -25,6 +25,7 @@ public class DrawWindow {
 	private JPopupMenu popUpMenu;
 	private JPopupMenu poiMenu;
 	private JLabel barImage;
+	private JPanel directionsWindow;
 	private JMenuItem save;
 	private JMenuItem load;
 	private JMenuItem showCityNames;
@@ -35,7 +36,7 @@ public class DrawWindow {
 	private JMenuItem nightModeMenuItem;
 	private JMenuItem AntiAliasingToggle;
 	private JMenuItem fancyPan;
-	JCheckBoxMenuItem directions;
+	private JCheckBoxMenuItem directions;
 	private ImageButton searchButton;
 	private ImageButton menuButton;
 	private ImageButton zoomInButton;
@@ -44,7 +45,6 @@ public class DrawWindow {
 	private JCheckBoxMenuItem[] POICheckBoxArray;
 	boolean menu1IsShown = false;
 	boolean menu2IsShown = false;
-	private JLabel nearestNeighbourText;
 
 	private JPanel sidebarMenu = new JPanel(new GridLayout(0, 1));
 
@@ -67,6 +67,7 @@ public class DrawWindow {
 		window.pack();
 		setUpButtons();
 		setUpPOIItems();
+		toggleDirections();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
 	}
@@ -179,7 +180,7 @@ public class DrawWindow {
 		windowPane.add(sidebarMenu, 50);
 		windowPane.add(searchButton);
 
-		windowPane.setComponentZOrder(canvas, 2);
+		windowPane.setComponentZOrder(canvas, 5);
 		windowPane.setComponentZOrder(searchButton, 1);
 		windowPane.setComponentZOrder(sidebarMenu, 1);
 		windowPane.setComponentZOrder(combo, 1);
@@ -297,6 +298,8 @@ public class DrawWindow {
 	public void setBounds(DrawCanvas canvas) {
 		canvas.setBounds(0, 0, window.getWidth(), window.getHeight());
 		sidebarMenu.setBounds(canvas.getWidth() - 60, 10, 40, 130);
+		directionsWindow.setBounds(10,canvas.getHeight()-352,300,320);
+
 	}
 
 	boolean showDirectionsComboBox = false;
@@ -331,6 +334,67 @@ public class DrawWindow {
 		secondCombo.setEditable(showDirectionsComboBox);
 	}
 
+	public void toggleDirections(){
+
+    directionsWindow = new JPanel(new GridBagLayout());
+    GridBagConstraints c = new GridBagConstraints();
+    c.fill = GridBagConstraints.HORIZONTAL;
+
+    ImageButton car = new ImageButton("/car.png");
+    c.gridx = 0;
+    c.gridy = 0;
+    c.weightx = 0.3333333333333333;
+    directionsWindow.add(car, c);
+
+    ImageButton bike = new ImageButton("/biking.png");
+    c.gridx = 1;
+    c.gridy = 0;
+    directionsWindow.add(bike, c);
+
+    ImageButton walk = new ImageButton("/walking.png");
+    c.gridx = 2;
+    c.gridy = 0;
+    directionsWindow.add(walk, c);
+
+
+    JPanel gridPanel = new JPanel(new GridLayout(1, 2));
+    c.gridx = 0;
+    c.gridy = 1;
+    c.gridwidth = 3;
+    c.ipady = 30;
+
+    directionsWindow.add(gridPanel, c);
+
+    JPanel time = new JPanel();
+    time.setBackground(Color.lightGray);
+    time.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
+    gridPanel.add(time);
+
+
+    JPanel distance = new JPanel();
+    distance.setBackground(Color.lightGray);
+    distance.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
+    gridPanel.add(distance);
+
+
+    JScrollPane directionsScroll = new JScrollPane();
+    c.gridx = 0;
+    c.gridy = 2;
+    c.weighty = 1;
+    c.ipady = 300;
+    c.gridwidth = 3;
+    directionsWindow.add(directionsScroll, c);
+
+
+    windowPane.add(directionsWindow);
+    windowPane.setComponentZOrder(directionsWindow, 2);
+    directionsWindow.setBackground(new Color(1, 111, 222));
+    directionsWindow.setBounds(10, window.getHeight() - 50, 300, 320);
+
+    directionsWindow.setVisible(true);
+
+
+	}
 
 	public AutocompleteJComboBox getCombo() {
 		return combo;
