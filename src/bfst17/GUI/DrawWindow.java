@@ -332,6 +332,10 @@ public class DrawWindow {
 			}
 		}, 0, 5);
 		secondCombo.setEditable(showDirectionsComboBox);
+		if(!directionsWindow.isVisible()){
+		directionsWindow.setVisible(true);}
+		else{directionsWindow.setVisible(false);}
+
 	}
 
 	public void toggleDirections(){
@@ -391,7 +395,7 @@ public class DrawWindow {
     directionsWindow.setBackground(new Color(1, 111, 222));
     directionsWindow.setBounds(10, window.getHeight() - 50, 300, 320);
 
-    directionsWindow.setVisible(true);
+    directionsWindow.setVisible(false);
 
 
 	}
