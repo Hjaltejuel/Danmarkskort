@@ -59,17 +59,17 @@ public class Model extends Observable implements Serializable {
 
     public RoadKDTree.RoadTreeNode getClosestRoad(Point2D point) {
         TreeNode closestNode = null;
-        for(RoadKDTree tree : getRoadKDTreeList()) {
+        for (RoadKDTree tree : getRoadKDTreeList()) {
             TreeNode newClosestNode = tree.getNearestNeighbour(point);
-            if(closestNode==null) {
-                closestNode=newClosestNode;
+            if (closestNode == null) {
+                closestNode = newClosestNode;
             } else {
-                if(newClosestNode.distance(point) < closestNode.distance(point)) {
-                    closestNode=newClosestNode;
+                if (newClosestNode.distance(point) < closestNode.distance(point)) {
+                    closestNode = newClosestNode;
                 }
             }
         }
-        return (RoadKDTree.RoadTreeNode)closestNode;
+        return (RoadKDTree.RoadTreeNode) closestNode;
     }
 
     public ArrayList<DirectionsObjekt> getDirectionsList() {
@@ -146,7 +146,6 @@ public class Model extends Observable implements Serializable {
         for (WayType type : WayType.values()) {
             shapes.put(type, new ArrayList<>());
         }
-
     }
 
     public void add(WayType type, Shape shape) {
@@ -162,7 +161,6 @@ public class Model extends Observable implements Serializable {
     public void save(String filename) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
-
             System.out.println("Saving trees");
             out.writeObject(treeList);
             out.writeObject(roadKDTreeList);
@@ -309,7 +307,8 @@ public class Model extends Observable implements Serializable {
     public ArrayList<Shape> getCoastlines() {
         return coastlines;
     }
-    public Graph getGraph(){
+
+    public Graph getGraph() {
         return graph;
     }
 
@@ -341,6 +340,7 @@ public class Model extends Observable implements Serializable {
         }
 
         private HashMap<String, Enum<?>> stringToEnum = new HashMap<>();
+
         {
             for (WayType type : WayType.values()) {
                 stringToEnum.put(type.name(), type);
@@ -398,7 +398,7 @@ public class Model extends Observable implements Serializable {
                 if (shapeList.size() == 0 || type == WayType.UNKNOWN || type == WayType.NATURAL_COASTLINE) {
                     continue;
                 }
-                if(type.name().split("_")[0].equals("HIGHWAY")){
+                if (type.name().split("_")[0].equals("HIGHWAY")) {
                     RoadKDTree tmpRoadKDTree = new RoadKDTree(type);
                     tmpRoadKDTree.fillTree(roads.get(type));
                     roadKDTreeList.add(tmpRoadKDTree);
@@ -509,41 +509,41 @@ public class Model extends Observable implements Serializable {
 
                     switch (k) {
                         case "highway":
-                                if(isWay) {
+                            if (isWay) {
+                                bicycle = true;
+                                foot = true;
+                                maxspeed = 50;
+                                if (v.equals("motorway")) {
+                                    maxspeed = 130;
                                     bicycle = true;
                                     foot = true;
-                                    maxspeed = 50;
-                                    if (v.equals("motorway")) {
-                                        maxspeed = 130;
-                                        bicycle = true;
-                                        foot = true;
-                                    }
-                                    if (v.equals("primary")) {
-                                        maxspeed = 80;
-                                        bicycle = true;
-                                        foot = true;
-                                    }
-                                    if (v.equals("secondary")) {
-                                        maxspeed = 80;
-                                        bicycle = true;
-                                        foot = true;
-                                    }
-                                    if (v.equals("tertiary")) {
-                                        maxspeed = 80;
-                                        bicycle = true;
-                                        foot = true;
-                                    }
-                                    if (v.equals("unclassified")) {
-                                        maxspeed = 80;
-                                        bicycle = true;
-                                        foot = true;
-                                    }
-                                    if (v.equals("residential")) {
-                                        maxspeed = 50;
-                                        bicycle = true;
-                                        foot = true;
-                                    }
                                 }
+                                if (v.equals("primary")) {
+                                    maxspeed = 80;
+                                    bicycle = true;
+                                    foot = true;
+                                }
+                                if (v.equals("secondary")) {
+                                    maxspeed = 80;
+                                    bicycle = true;
+                                    foot = true;
+                                }
+                                if (v.equals("tertiary")) {
+                                    maxspeed = 80;
+                                    bicycle = true;
+                                    foot = true;
+                                }
+                                if (v.equals("unclassified")) {
+                                    maxspeed = 80;
+                                    bicycle = true;
+                                    foot = true;
+                                }
+                                if (v.equals("residential")) {
+                                    maxspeed = 50;
+                                    bicycle = true;
+                                    foot = true;
+                                }
+                            }
                             isHighway = true;
                             break;
                         case "foot":
@@ -630,8 +630,8 @@ public class Model extends Observable implements Serializable {
                     if (type == WayType.NATURAL_COASTLINE) {
                         //DO NOTHING
                     } else if (type.toString().split("_")[0].equals("HIGHWAY")) {
-                        if(roads.get(type)==null){
-                            roads.put(type,new ArrayList<>());
+                        if (roads.get(type) == null) {
+                            roads.put(type, new ArrayList<>());
                         }
                         roads.get(type).add(new RoadNode(shape, roadName, type));
                     } else {
