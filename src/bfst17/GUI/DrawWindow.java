@@ -383,7 +383,7 @@ public class DrawWindow {
     gridPanel.add(distance);
 
     scrollPanel = new JPanel(new GridLayout(0,	1));
-    fillDirections("asdasdasdasdasdasadda asd asdads ad asd adasd asd ad asdasd a");
+    fillDirections("Drej til højre om 400m til Vestervangs Ale raas dsad dsad dads");
 
     directionsScroll = new JScrollPane(scrollPanel);
     c.gridx = 0;
@@ -418,18 +418,24 @@ public class DrawWindow {
 			FontMetrics fm = g2d.getFontMetrics();
 			String s ="";
 			int k = 0;
-			for(String string: direction.split(" ")){
-				if(fm.stringWidth(s +string)<155){
-					if(k == 0) {
+			String[] split = direction.split((" "));
+			for(String string: split){
+				if(fm.stringWidth(s +string)<155) {
+					if (k == 0) {
 						s += string;
 					} else
 						s += " " + string;
+					if(k==split.length-1){
+						JLabel directionDescription = new JLabel(s);
+						labelPanel.add(directionDescription);
+					}
 				} else{
 					JLabel directionDescription = new JLabel(s);
 					labelPanel.add(directionDescription);
-					s = "";
-					k++;
+					s = string;
 				}
+				k++;
+
 			}
 			g2d.dispose();
 			c.gridx = 0;
@@ -450,7 +456,8 @@ public class DrawWindow {
 				c.weightx = 0.10;
 				c.weighty = 0.40;
 			if(isGray){arrowImagePanel.setBackground(Color.LIGHT_GRAY);} else arrowImagePanel.setBackground(Color.WHITE);
-			System.out.println(arrowImage.getBackground());
+
+
 
 			boxForEachDirection.add(arrowImagePanel,c);
 
