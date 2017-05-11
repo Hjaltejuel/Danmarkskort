@@ -527,18 +527,28 @@ public class DrawCanvas extends JComponent implements Observer {
             if (type.getZoomFactor() > getZoomFactor()) {
                 continue;
             }
-            boolean shouldDrawRoadName = shouldDrawRoadName(type);
             HashSet<RoadNode> roadNodes = tree.getInRange(screenRectangle);
             for (RoadNode roadNode : roadNodes) {
                 g.setStroke(type.getDrawStroke());
                 g.setColor(type.getDrawColor());
                 g.draw(roadNode.getShape());
-
+            }
+        }
+        for(RoadKDTree tree: model.getRoadKDTreeList()){
+            WayType type = tree.getType();
+            if (type.getZoomFactor() > getZoomFactor()) {
+                continue;
+            }
+            boolean shouldDrawRoadName = shouldDrawRoadName(type);
+            HashSet<RoadNode> roadNodes = tree.getInRange(screenRectangle);
+            for(RoadNode roadNode: roadNodes) {
                 if (shouldDrawRoadName) {
                     g.setColor(Color.black);
                     drawRoadNameInCenter(g, roadNode);
                 }
             }
+
+
         }
     }
 
