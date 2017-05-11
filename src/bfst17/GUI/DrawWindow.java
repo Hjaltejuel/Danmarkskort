@@ -26,6 +26,7 @@ public class DrawWindow {
 	private JPopupMenu poiMenu;
 	private JLabel barImage;
 	private JPanel directionsWindow;
+	private JPanel scrollPanel;
 	private JMenuItem save;
 	private JMenuItem load;
 	private JMenuItem showCityNames;
@@ -43,6 +44,7 @@ public class DrawWindow {
 	private ImageButton zoomOutButton;
 	private ImageButton pointsOfInterestButton;
 	private JCheckBoxMenuItem[] POICheckBoxArray;
+	private JScrollPane directionsScroll;
 	boolean menu1IsShown = false;
 	boolean menu2IsShown = false;
 
@@ -337,7 +339,7 @@ public class DrawWindow {
 		else{directionsWindow.setVisible(false);}
 
 	}
-
+        //creates the directions menu
 	public void toggleDirections(){
 
     directionsWindow = new JPanel(new GridBagLayout());
@@ -361,7 +363,7 @@ public class DrawWindow {
     directionsWindow.add(walk, c);
 
 
-    JPanel gridPanel = new JPanel(new GridLayout(1, 2));
+    JPanel gridPanel = new JPanel(new GridLayout(1, 1));
     c.gridx = 0;
     c.gridy = 1;
     c.gridwidth = 3;
@@ -380,8 +382,10 @@ public class DrawWindow {
     distance.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
     gridPanel.add(distance);
 
+    scrollPanel = new JPanel(new GridLayout(0,	1));
+    fillDirections("asdasdasdasdasdasadda asd asdads ad asd adasd asd ad asdasd a");
 
-    JScrollPane directionsScroll = new JScrollPane();
+    directionsScroll = new JScrollPane(scrollPanel);
     c.gridx = 0;
     c.gridy = 2;
     c.weighty = 1;
@@ -397,8 +401,73 @@ public class DrawWindow {
 
     directionsWindow.setVisible(false);
 
-
 	}
+
+	//public fillDirections(Arraylist<Direction> directionsArraylist){
+    public void fillDirections(String direction){
+	    boolean isGray = false;
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		// for(Direction d : directionsArraylist){
+        for(int i =0;i<10;i++){
+			JPanel boxForEachDirection = new JPanel(new GridBagLayout());
+			JPanel labelPanel = new JPanel(new GridLayout(0,1));
+			labelPanel.setPreferredSize(new Dimension(155,60));
+			BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2d = img.createGraphics();
+			FontMetrics fm = g2d.getFontMetrics();
+			String s ="";
+			int k = 0;
+			for(String string: direction.split(" ")){
+				if(fm.stringWidth(s +string)<155){
+					if(k == 0) {
+						s += string;
+					} else
+						s += " " + string;
+				} else{
+					JLabel directionDescription = new JLabel(s);
+					labelPanel.add(directionDescription);
+					s = "";
+					k++;
+				}
+			}
+			g2d.dispose();
+			c.gridx = 0;
+			c.gridy = 0;
+			c.weightx = 0.90;
+			boxForEachDirection.add(labelPanel,c);
+			if(isGray){labelPanel.setBackground(Color.LIGHT_GRAY);} else labelPanel.setBackground(Color.WHITE);
+
+			ImageButton arrowImage;
+			JPanel arrowImagePanel;
+
+			//if(turn.equals("ight")){
+				arrowImagePanel = new JPanel();
+	            arrowImage = new ImageButton("/right.png");
+	            arrowImagePanel.add(arrowImage);
+				c.gridx = 1;
+				c.gridy = 0;
+				c.weightx = 0.10;
+				c.weighty = 0.40;
+			if(isGray){arrowImagePanel.setBackground(Color.LIGHT_GRAY);} else arrowImagePanel.setBackground(Color.WHITE);
+			System.out.println(arrowImage.getBackground());
+
+			boxForEachDirection.add(arrowImagePanel,c);
+
+            /*}else if(turn.equals("left")){
+                arrowImage = new ImageButton("/left.png");
+                scrollPanel.add(arrowImage,BorderLayout.EAST);
+            }else if(turn.equals("roundabout")){
+                arrowImage = new ImageButton("/roundabout.png");
+                scrollPanel.add(arrowImage,BorderLayout.EAST);
+            }*/
+
+
+            scrollPanel.add(boxForEachDirection);
+            isGray=!isGray;
+
+        }
+    }
 
 	public AutocompleteJComboBox getCombo() {
 		return combo;
