@@ -303,6 +303,8 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         window.setBounds(canvas);
     }
 
+
+
     //<editor-fold desc="Ting vi skal override, men ikke bruger">
     @Override
     public void mousePressed(MouseEvent e) { }
