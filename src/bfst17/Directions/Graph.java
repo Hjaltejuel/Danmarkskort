@@ -75,7 +75,7 @@ public class Graph {
         System.out.println("Graph complete!");
     }
 
-    public void buildGraphNodes(){
+    public void buildGraphNodes() {
         System.out.println("Building GraphNodes!");
         Iterator it = graphNodeBuilder.entrySet().iterator();
         int j = 0;
@@ -90,24 +90,6 @@ public class Graph {
             it.remove();
         }
         graphNodeBuilder.clear();
-    }
-    public ArrayList<DirectionsObjekt> getDirectionList(Model model){
-        //System.out.println("BEYGMND");
-        String prevRoad = "";
-        for (int i=0;i<pointList.size();i++) {
-            Point2D ag = pointList.get(i);
-            String currentRoad = model.getClosestRoad(ag).getRoadName();
-            if(!prevRoad.equals(currentRoad)) {
-                prevRoad=currentRoad;
-                //System.out.print(currentRoad);
-                if(i>0) {
-                    Point2D prevPoint = pointList.get(i-1);
-                    Point2D currentPoint = pointList.get(i);
-                    //System.out.println(getAngle(prevPoint,currentPoint));
-                }
-            }
-        }
-        //System.out.println("SLUUG");
     }
 
     public ArrayList<Point2D> getPointList() {

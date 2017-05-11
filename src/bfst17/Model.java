@@ -4,7 +4,9 @@ import bfst17.AddressHandling.Address;
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.Region;
 import bfst17.AddressHandling.StreetAndPointNode;
+import bfst17.Directions.DirectionsObjekt;
 import bfst17.Directions.Graph;
+import bfst17.Directions.GraphNode;
 import bfst17.Directions.NodeTags;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
@@ -55,7 +57,6 @@ public class Model extends Observable implements Serializable {
     private float lonfactor;
     private Graph graph;
 
-
     public RoadKDTree.RoadTreeNode getClosestRoad(Point2D point) {
         TreeNode closestNode = null;
         for(RoadKDTree tree : getRoadKDTreeList()) {
@@ -71,9 +72,22 @@ public class Model extends Observable implements Serializable {
         return (RoadKDTree.RoadTreeNode)closestNode;
     }
 
-    public void getDirectionsList(){
-        graph.getDirectionList(this);
-
+    public ArrayList<DirectionsObjekt> getDirectionsList() {
+        ArrayList<DirectionsObjekt> directions = new ArrayList<>();
+        String prevRoad = "";
+        ArrayList<GraphNode> graphNodeList = graph.getPathList();
+        for (int i = 1; i < graphNodeList.size(); i++) {
+            GraphNode currentGraphNode = graphNodeList.get(i);
+            if (currentGraphNode.getEdgeList().size() <= 2) {
+                continue;
+            }
+            DirectionsObjekt DirObj = new DirectionsObjekt(graphNodeList.get(i - 1).getPoint2D(), currentGraphNode.getPoint2D(), this);
+            if (!prevRoad.equals(DirObj.getCurrentRoad())) {
+                prevRoad = DirObj.getCurrentRoad();
+                directions.add(DirObj);
+            }
+        }
+        return directions;
     }
 
     public ArrayList<RoadKDTree> getRoadKDTreeList() {

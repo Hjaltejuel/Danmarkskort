@@ -3,6 +3,7 @@ package bfst17.Controller;
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.DuplicateAddressNode;
 import bfst17.AddressHandling.TSTInterface;
+import bfst17.Directions.DirectionsObjekt;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
 import bfst17.GUI.DrawCanvas;
@@ -39,7 +40,6 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         canvas.resetCamera();
         new CanvasMouseController(canvas, model);
         initiate();
-
     }
 
     public void initiate() {
@@ -163,6 +163,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
                 model.getGraph().setNodes(fromPoint, toPoint);
+                System.out.println("Begynd...");
+                for(DirectionsObjekt DirObj : model.getDirectionsList()) {
+                    System.out.println(DirObj);
+                }
             }
 
             if (!isPopUpOpen) {
