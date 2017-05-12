@@ -19,6 +19,13 @@ public class GraphNode implements Comparable {
     private ArrayList<Edge> edgeList;
     private double distance = Double.POSITIVE_INFINITY;
 
+    /**
+     * Opretter en GraphNode
+     * @param originOSMNode     Den OSMNode grafnoden er placeret på
+     * @param type              Hvilken vejtype noden er på
+     * @param oneway            Hvorvidt vejen er ensrettet
+     * @param maxSpeed          Hvor hurtigt man må køre på vejen
+     */
     public GraphNode(OSMNode originOSMNode, RoadTypes type, boolean oneway, int maxSpeed) {
         this.oneway = oneway;
         this.maxSpeed = maxSpeed;

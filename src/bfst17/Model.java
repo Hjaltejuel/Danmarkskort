@@ -446,6 +446,8 @@ public class Model extends Observable implements Serializable {
         String roadName;
         boolean isHighway = false;
         boolean oneway = false;
+        PointsOfInterest POIType;
+        Integer totalDepth = 0, totalShapes = 0;
         int maxSpeed = 0;
 
         @Override
@@ -457,12 +459,10 @@ public class Model extends Observable implements Serializable {
 		{
 			return idToNode;
 		}
-
         @Override
         public void startDocument() throws SAXException {
         }
 
-        Integer totalDepth = 0, totalShapes = 0;
         private void fillTrees() {
             treeList = new ArrayList<>();
             POITree = new POIKDTree();
@@ -521,14 +521,11 @@ public class Model extends Observable implements Serializable {
 
         }
 
+
         @Override
         public void endPrefixMapping(String prefix) throws SAXException {
 
         }
-
-
-        PointsOfInterest POIType;
-
         @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
             switch (qName) {

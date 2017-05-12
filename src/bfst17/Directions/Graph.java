@@ -17,15 +17,30 @@ public class Graph {
     private HashSet<GraphNode> relaxedNodes;
     private PriorityQueue<GraphNode> unRelaxedNodes;
 
+    /**
+     * Opretter en Graf
+     * @param graphNodeBuilder  Et HashMap der kan finde GrafNoder udfra Point2D
+     * @param graphWays         En ArrayListe af OSMWays, der kan bruges til at trække grafnoder ud af graphNodeBuilder
+     */
     public Graph(HashMap<Point2D, GraphNode> graphNodeBuilder, ArrayList<OSMWay> graphWays) {
         this.graphNodeBuilder = graphNodeBuilder;
         buildEdges(graphWays);
     }
 
+    /**
+     * Opretter en edge mellem to GraphNodes
+     * @param node          noden der skal oprettes edge fra
+     * @param neighbour     noden der skal oprettes edge til
+     */
     public void addEdge(GraphNode node, GraphNode neighbour) {
         node.addEdge(neighbour);
     }
 
+    /**
+     * Kører alle OSMWays igennem og finder de graphNodes der skal lave edges mellem hinanden
+     * Vi finder graphNodesne vha. de punkter der er i OSMWays'ne
+     * @param graphWays     OSMWays
+     */
     public void buildEdges(ArrayList<OSMWay> graphWays) {
         System.out.println("Building Edges!");
         for (OSMWay currentWay : graphWays) {
@@ -51,6 +66,12 @@ public class Graph {
         System.out.println(j);
     }
 
+    /**
+     * Finder den korteste vej mellem to punkter
+     * @param point2Source          Start punkt
+     * @param point2Destination     Slut punkt
+     * @param weighType             Vægttype ( FASTEST | SHORTEST )
+     */
     public void findShortestPath(Point2D point2Source, Point2D point2Destination, WeighType weighType) {
         GraphNode source = graphNodeBuilder.get(point2Source);
         GraphNode target = graphNodeBuilder.get(point2Destination);
@@ -86,6 +107,13 @@ public class Graph {
         Collections.reverse(pathList);
     }
 
+    /**
+     * Tjekker 'node's edges (Naboer) og ser om de er relaxed (Markeret), hvis ikke
+     * bliver de lagt i Queuen (unRelaxedNodes) og så bliver deres naboer undersøgt.
+     * ved samtidig at lægge hver edges weight til nodernes distance, finder vi den korteste path
+     * @param node          Den node, hvis naboer skal undersøges
+     * @param weighType     vægtTypen ( FASTEST | SHORTEST )
+     */
     private void relaxEdges(GraphNode node, WeighType weighType) {
         ArrayList<Edge> edgelist = node.getEdgeList();
         for (Edge edge : edgelist) {

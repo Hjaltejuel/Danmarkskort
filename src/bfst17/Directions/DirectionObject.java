@@ -9,23 +9,19 @@ import java.awt.geom.Point2D;
  * Created by Jens on 10-05-2017.
  */
 public class DirectionObject {
-    public String getCurrentRoad() {
-        return currentRoad;
-    }
-
-    public RoadDirektion getRoadDirection() {
-        return roadDirection;
-    }
-
     String currentRoad;
+
     double roadLength;
+
     RoadDirektion roadDirection;
-
-    public Point2D getLocation() {
-        return location;
-    }
-
     Point2D location;
+
+    /**
+     * Opret et direktionobjekt
+     * @param from Punktet fra
+     * @param to punktet til
+     * @param model modellen
+     */
     public DirectionObject(Point2D from, Point2D to, Model model) {
         location=from;
         calculationRoadLength(from, to);
@@ -33,14 +29,29 @@ public class DirectionObject {
         setRoadName(to, model);
     }
 
+    /**
+     * Sætter den nuværende vejs navn vha nearest neighbour
+     * @param to
+     * @param model
+     */
     public void setRoadName(Point2D to, Model model) {
         currentRoad = model.getClosestRoad(to).getRoadName();
     }
 
+    /**
+     * Udregner vejens længde vha pythagoras
+     * @param from
+     * @param to
+     */
     public void calculationRoadLength(Point2D from, Point2D to) {
         this.roadLength=Math.sqrt(Math.pow(from.getX()-to.getX(),2)+Math.pow(from.getY()-to.getY(),2));
     }
 
+    /**
+     * Udregner vinklen på de to punkter og finder vejens retning
+     * @param from
+     * @param to
+     */
     public void setTurnType(Point2D from, Point2D to) {
         double angle = Math.atan2(to.getY() - from.getY(), to.getX() - from.getX());
         double angleDegree = ((angle*180/Math.PI)+360)%360; //Altid mere en 0 & under 360
@@ -60,5 +71,17 @@ public class DirectionObject {
     @Override
     public String toString(){
         return currentRoad+" "+roadLength+" "+ roadDirection.name();
+    }
+
+    public RoadDirektion getRoadDirection() {
+        return roadDirection;
+    }
+
+    public Point2D getLocation() {
+        return location;
+    }
+
+    public String getCurrentRoad() {
+        return currentRoad;
     }
 }

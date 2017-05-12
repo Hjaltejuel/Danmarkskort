@@ -11,7 +11,11 @@ public class Edge {
     private double weight;
     private double distance;
 
-
+    /**
+     * Opretter en edge mellem to GraphNodes
+     * @param source
+     * @param destination
+     */
     public Edge(GraphNode source, GraphNode destination) {
         this.source = source;
         this.destination = destination;
@@ -19,14 +23,22 @@ public class Edge {
                 Math.pow(destination.getPoint2D().getY() - source.getPoint2D().getY(), 2));
     }
 
+    /**
+     * Udregner edges vægt mhp. at det skal være den hurtigeste rute
+     * der tages altså også højde for hvor hurtigt man må køre på vejen
+     */
     private void calcWeightForFastest() {
         Integer maxSpeed = Math.max(source.getMaxSpeed(),destination.getMaxSpeed());
         weight = distance / maxSpeed;
     }
 
+    /**
+     * Udregner edges vægt på baggrund af faktisk afstand mellem de to GraphNodes
+     */
     private void calcWeightForShortest() {
         weight = distance;
     }
+
 
     public GraphNode getSource() {
         return source;
@@ -36,6 +48,10 @@ public class Edge {
         return destination;
     }
 
+    /**
+     * @param weighType hvorvidt det skal være Fastest / Shortest
+     * @return returnerer den tilpassede vægt
+     */
     public double getWeight(WeighType weighType) {
         if(weighType == WeighType.FASTEST) {
             calcWeightForFastest();
