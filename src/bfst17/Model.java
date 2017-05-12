@@ -128,7 +128,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
+            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -320,11 +320,9 @@ public class Model extends Observable implements Serializable {
         HashMap<Long, OSMNode> idToNode = new HashMap<>();
         Map<OSMNode, OSMWay> coastlines = new HashMap<>();
 
-
         private HashMap<Point2D, GraphNode> graphNodeBuilder = new HashMap<>();
 
         private ArrayList<OSMWay> graphWays = new ArrayList<>();
-
 
         float lat;
         float lon;
@@ -332,8 +330,6 @@ public class Model extends Observable implements Serializable {
         OSMRelation relation;
         WayType type;
         Pattern pattern = Pattern.compile(("^-?\\d+$"));
-
-
 
         public Iterable<Shape> get(WayType type) {
             return shapes.get(type);
@@ -364,7 +360,21 @@ public class Model extends Observable implements Serializable {
             }
         }
 
-        public void add(WayType type, Shape shape) {
+        public void addRoad(PolygonApprox shape, String roadName, WayType type){
+            if (roads.get(type) == null) {
+                roads.put(type, new ArrayList<>());
+            }
+            roads.get(type).add(new RoadNode(shape, roadName, type));
+        }
+
+        public void addGraphNode(PolygonApprox shape, String roadName, WayType type){
+            if (roads.get(type) == null) {
+                roads.put(type, new ArrayList<>());
+            }
+            roads.get(type).add(new RoadNode(shape, roadName, type));
+        }
+
+        public void addShape(WayType type, Shape shape) {
             shapes.get(type).add(shape);
             dirty();
         }
@@ -413,8 +423,6 @@ public class Model extends Observable implements Serializable {
                 totalDepth += treeWithType.getMaxDepth();
                 totalShapes += treeWithType.getSize();
             }
-
-
             if (pointsOfInterest != null) {
                 POITree.fillTree(pointsOfInterest);
                 pointsOfInterest.clear();
@@ -438,15 +446,14 @@ public class Model extends Observable implements Serializable {
 
         @Override
         public void endDocument() throws SAXException {
-            idToNode = null;
-            System.gc();
+            //idToNode = null;
+            //System.gc();
             long StartTime = System.nanoTime();
             fillTrees();
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
 
             graph = new Graph(graphNodeBuilder, graphWays);
-            graph.buildEdges();
-            graphNodeBuilder.clear();
+            //graphNodeBuilder.clear();
         }
 
         @Override
@@ -479,6 +486,7 @@ public class Model extends Observable implements Serializable {
                     lon = Float.parseFloat(atts.getValue("lon"));
                     idToNode.put(nodeID, new OSMNode(lonfactor * lon, -lat));
                     POIType = PointsOfInterest.UNKNOWN;
+                    type = WayType.UNKNOWN;
                     break;
                 case "way":
                     way = new OSMWay();
@@ -510,10 +518,6 @@ public class Model extends Observable implements Serializable {
                     switch (k) {
                         case "highway":
                             isHighway = true;
-                            if(isHighway){
-                                System.out.println(k + " " + v);
-                                System.out.println(type);
-                            }
                             break;
                         case "addr:street":
                             addressBuilder.street(v);
@@ -535,15 +539,15 @@ public class Model extends Observable implements Serializable {
                             type = WayType.BUILDING;
                             break;
                         case "maxspeed":
-                            if(isHighway) {
+                            if (isHighway) {
                                 Matcher matcher = pattern.matcher(v);
-                                if(matcher.matches()){
+                                if (matcher.matches()) {
                                     maxSpeed = Integer.parseInt(v);
                                 }
                             }
                             break;
                         case "oneway":
-                            if(isHighway) {
+                            if (isHighway) {
                                 if (v.equals("yes")) {
                                     oneway = true;
                                 }
@@ -600,32 +604,20 @@ public class Model extends Observable implements Serializable {
                     }
                     break;
                 case "way":
-                    PolygonApprox shape = new PolygonApprox(way);
-                    if (type == WayType.NATURAL_COASTLINE) {
-                        //DO NOTHING
-                    } else if (type.toString().split("_")[0].equals("HIGHWAY")) {
-                        if (roads.get(type) == null) {
-                            roads.put(type, new ArrayList<>());
-                        }
-                        roads.get(type).add(new RoadNode(shape, roadName, type));
-                    } else {
-                        add(type, shape);
-                    }
-                    if (type != WayType.NATURAL_COASTLINE) {
-                        add(type, new PolygonApprox(way));
+                    if (type != WayType.NATURAL_COASTLINE && type != WayType.UNKNOWN) {
+                        PolygonApprox shape = new PolygonApprox(way);
+                        if (type.toString().split("_")[0].equals("HIGHWAY")) { //Hvis vejen er en highway
+                            addRoad(shape, roadName, type); //Tilføj vej
 
-                        if (isHighway) {
                             graphWays.add(way);
                             for (int i = 0; i < way.size(); i++) {
-
                                 if (!graphNodeBuilder.containsKey(way.get(i))) {
                                     RoadTypes roadType = RoadTypes.valueOf(type.toString());
-                                    graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i),roadType,oneway,maxSpeed));
+                                    graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed));
                                 }
                             }
-//							System.out.println(tmpNodeIDs.size());
                         }
-                        break;
+                        addShape(type, shape); //Tilføj shape
                     }
                     maxSpeed = 0;
                     oneway = false;
@@ -638,7 +630,7 @@ public class Model extends Observable implements Serializable {
                             addressModel.putRegion(name, new Region(path, regionCenter));
                             adminRelation = false;
                         } else {
-                            add(type, path);
+                            addShape(type, path);
                         }
                     }
                     break;

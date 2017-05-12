@@ -26,12 +26,10 @@ public class Graph {
 
 
 
-    public Graph( HashMap<Point2D, GraphNode> graphNodeBuilder, ArrayList<OSMWay> graphWays) {
-
+    public Graph(HashMap<Point2D, GraphNode> graphNodeBuilder, ArrayList<OSMWay> graphWays) {
         this.graphWays = graphWays;
-
         this.graphNodeBuilder = graphNodeBuilder;
-
+        buildEdges();
     }
 
     public void addEdge(GraphNode node, GraphNode neighbour) {

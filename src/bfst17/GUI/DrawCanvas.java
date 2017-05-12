@@ -28,7 +28,7 @@ public class DrawCanvas extends JComponent implements Observer {
     private boolean needToDrawNearestNeighbour;
     GUIMode GUITheme = GUIMode.NORMAL;
 	boolean fancyPanEnabled = false;
-	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
+	boolean[] POIToShow = new boolean[POIclasification.values().length];
 	Point2D pin;
 	Integer FrameCounter=0;
 	double timeTracker;
@@ -40,7 +40,6 @@ public class DrawCanvas extends JComponent implements Observer {
     public DrawCanvas(Model model) {
 		this.model = model;
 		model.addObserver(this);
-		fillNameToBoolean();
 		loadImages();
 	}
 
@@ -69,12 +68,6 @@ public class DrawCanvas extends JComponent implements Observer {
 	public GUIMode getGUITheme() {
         return GUITheme;
     }
-
-	public void fillNameToBoolean() {
-		for(POIclasification name: POIclasification.values()) {
-			nameToBoolean.put(name, false);
-		}
-	}
 
     public void toggleAA() {
         antiAliasFromMenu = !antiAliasFromMenu;
@@ -106,9 +99,13 @@ public class DrawCanvas extends JComponent implements Observer {
         fancyPanEnabled = !fancyPanEnabled;
     }
 
+    /**
+     * Vælger hvilke points of interests der skal vises, vha. et boolean array
+     * @param name - hvilken type af POI det er
+     */
     public void setPointsOfInterest(POIclasification name) {
-        boolean nameToBooleanCopy = nameToBoolean.get(name);
-        nameToBoolean.put(name, !nameToBooleanCopy);
+        Integer EnumIndex = name.ordinal();
+        POIToShow[EnumIndex]=!POIToShow[EnumIndex];
         repaint();
     }
 
@@ -224,6 +221,9 @@ public class DrawCanvas extends JComponent implements Observer {
         this.mousePos = mousePos;
         Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(), mousePos.getY());
         addressNode = model.getClosestRoad(lonLatCords);
+        if(addressNode==null){
+            return;
+        }
         //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en vertex. Hvis distancen er over 0.01 i latlon koordinater vises ingen nearestNeighbour
         if (addressNode.distance(lonLatCords) > 0.01) {
             needToDrawNearestNeighbour = false;
@@ -267,7 +267,7 @@ public class DrawCanvas extends JComponent implements Observer {
             for (TreeNode node : POITree.getInRange(screenRectangle)) {
                 POIKDTree.POITreeNode POINode = (POIKDTree.POITreeNode)node;
                 PointsOfInterest POIType = POINode.getPOIType();
-                if (nameToBoolean.get(POIType.getClassification())) {
+                if (POIToShow[POIType.getClassification().ordinal()]) {
                     String imagePath = POIType.name();
                     drawImageAtLocation(g, imagePath, -POINode.getX(), -POINode.getY());
                 }
@@ -319,7 +319,6 @@ public class DrawCanvas extends JComponent implements Observer {
             }
         }
     }
-
 
     public void drawImageAtLocation(Graphics2D g, String imagePath, double x, double y) {
         BufferedImage image = PinAndPOIImageMap.get(imagePath);

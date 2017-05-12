@@ -462,10 +462,10 @@ public class DrawWindow {
 
             /*}else if(turn.equals("left")){
                 arrowImage = new ImageButton("/left.png");
-                scrollPanel.add(arrowImage,BorderLayout.EAST);
+                scrollPanel.addShape(arrowImage,BorderLayout.EAST);
             }else if(turn.equals("roundabout")){
                 arrowImage = new ImageButton("/roundabout.png");
-                scrollPanel.add(arrowImage,BorderLayout.EAST);
+                scrollPanel.addShape(arrowImage,BorderLayout.EAST);
             }*/
 
 

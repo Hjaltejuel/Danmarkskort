@@ -26,7 +26,7 @@ public enum RoadTypes {
 
     HIGHWAY_LIVING_STREET(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.ONFOOT}),
 
-    HIGHWAY_PEDESTRIANnew(new VehicleType[]{VehicleType.BICYCLE,VehicleType.ONFOOT}),
+    HIGHWAY_PEDESTRIAN(new VehicleType[]{VehicleType.BICYCLE,VehicleType.ONFOOT}),
 
     HIGHWAY_BRIDLEWAY(new VehicleType[]{VehicleType.BICYCLE,VehicleType.ONFOOT}),
 
