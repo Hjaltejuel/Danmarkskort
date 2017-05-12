@@ -3,7 +3,7 @@ package bfst17.Controller;
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.DuplicateAddressNode;
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.Directions.DirectionsObjekt;
+import bfst17.Directions.DirectionObject;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
 import bfst17.GUI.DrawCanvas;
@@ -146,15 +146,14 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     public void keyReleased(KeyEvent e) {
         if (e.getKeyChar() == 10) {
             if (startDirections) {
-                String s = (String) window.getCombo().getSelectedItem();
-                String k = (String) window.getSecondCombo().getSelectedItem();
-                if (s == null || s.length() == 0 || k == null || k.length() == 0) {
-                    isPopUpOpen = true;
-                    JOptionPane.showMessageDialog(canvas, "Du har ikke indtastet noget i søgefeltet");
+                String firstComboBoxString = (String) window.getCombo().getSelectedItem();
+                String secondComboBoxString = (String) window.getSecondCombo().getSelectedItem();
+                if (firstComboBoxString == null || firstComboBoxString.length() == 0 ||
+                        secondComboBoxString == null || secondComboBoxString.length() == 0) {
                     return; //Ikke noget at søge efter!
                 }
-                TSTInterface addressDest = addressModel.getAddress(k.trim());
-                TSTInterface address = addressModel.getAddress(s.trim());
+                TSTInterface addressDest = addressModel.getAddress(secondComboBoxString.trim());
+                TSTInterface address = addressModel.getAddress(firstComboBoxString.trim());
 
                 TreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()));
                 Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
@@ -164,7 +163,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
                 model.getGraph().setNodes(fromPoint, toPoint);
                 System.out.println("Begynd...");
-                for(DirectionsObjekt DirObj : model.getDirectionsList()) {
+                for (DirectionObject DirObj : model.getDirectionsList()) {
                     System.out.println(DirObj);
                 }
             }
@@ -192,7 +191,8 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         fileChooser.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File file) {
-                return file.getName().endsWith(".osm") || file.getName().endsWith(".bin") || file.getName().endsWith(".zip") || (file.isDirectory() && !file.getName().endsWith(".app"));
+                return file.getName().endsWith(".osm") || file.getName().endsWith(".bin") ||
+                        file.getName().endsWith(".zip") || (file.isDirectory() && !file.getName().endsWith(".app"));
             }
 
             @Override
@@ -238,8 +238,6 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
         String s = (String) window.getCombo().getSelectedItem();
         if (s == null || s.length()==0) {
-            isPopUpOpen = true;
-            JOptionPane.showMessageDialog(canvas, "Du har ikke indtastet noget i søgefeltet");
             return; //Ikke noget at søge efter!
         }
 
@@ -311,29 +309,19 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
+    public void mouseReleased(MouseEvent e) { }
 
     @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
+    public void mouseEntered(MouseEvent e) { }
 
     @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
+    public void mouseExited(MouseEvent e) { }
 
     @Override
-    public void componentMoved(ComponentEvent e) {
-
-    }
+    public void componentMoved(ComponentEvent e) { }
 
     @Override
-    public void componentShown(ComponentEvent e) {
-
-    }
+    public void componentShown(ComponentEvent e) { }
 
     @Override
     public void componentHidden(ComponentEvent e) {

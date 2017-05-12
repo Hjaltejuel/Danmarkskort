@@ -11,10 +11,7 @@ import bfst17.Directions.RoadTypes;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
 import bfst17.KDTrees.*;
-import bfst17.OSMData.OSMNode;
-import bfst17.OSMData.OSMRelation;
-import bfst17.OSMData.OSMWay;
-import bfst17.OSMData.PointOfInterestObject;
+import bfst17.OSMData.*;
 import bfst17.ShapeStructure.MultiPolygonApprox;
 import bfst17.ShapeStructure.PolygonApprox;
 import org.xml.sax.*;
@@ -74,16 +71,31 @@ public class Model extends Observable implements Serializable {
         return (RoadKDTree.RoadTreeNode) closestNode;
     }
 
-    public ArrayList<DirectionsObjekt> getDirectionsList() {
-        ArrayList<DirectionsObjekt> directions = new ArrayList<>();
+    /**
+     * Lav vejvisning ud fra shortestPath, hvis den er lavet
+     * @return
+     *          HVIS shortest path eksisterer: ArrayListe af DirectionObjekter, der indeholder vejvisningsinformation
+     *          HVIS ikke shortest path exist: En tom ArrayListe
+     */
+    public ArrayList<DirectionObject> getDirectionsList() {
+        ArrayList<DirectionObject> directions = new ArrayList<>();
         String prevRoad = "";
         ArrayList<GraphNode> graphNodeList = graph.getPathList();
+        if (graphNodeList == null) {
+            return directions;
+        }
         for (int i = 1; i < graphNodeList.size(); i++) {
             GraphNode currentGraphNode = graphNodeList.get(i);
             if (currentGraphNode.getEdgeList().size() <= 2) {
                 continue;
             }
-            DirectionsObjekt DirObj = new DirectionsObjekt(graphNodeList.get(i - 1).getPoint2D(), currentGraphNode.getPoint2D(), this);
+            if ((i + 1) < graphNodeList.size()) {
+                GraphNode nextGraphNode = graphNodeList.get(i + 1);
+                for (Edge e : currentGraphNode.getEdgeList()) {
+
+                }
+            }
+            DirectionObject DirObj = new DirectionObject(graphNodeList.get(i - 1).getPoint2D(), currentGraphNode.getPoint2D(), this);
             if (!prevRoad.equals(DirObj.getCurrentRoad())) {
                 prevRoad = DirObj.getCurrentRoad();
                 directions.add(DirObj);
@@ -315,9 +327,8 @@ public class Model extends Observable implements Serializable {
     }
 
     private class OSMHandler implements ContentHandler {
-        //LongToPointMap idToNode = new LongToPointMap(18000000);
+        LongToPointMap idToNode = new LongToPointMap(22);
         Map<Long, OSMWay> idToWay = new HashMap<>();
-        HashMap<Long, OSMNode> idToNode = new HashMap<>();
         Map<OSMNode, OSMWay> coastlines = new HashMap<>();
 
         private HashMap<Point2D, GraphNode> graphNodeBuilder = new HashMap<>();
@@ -353,7 +364,6 @@ public class Model extends Observable implements Serializable {
         private ArrayList<StreetAndPointNode> townNames = new ArrayList<>();
 
         private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class);
-
         {
             for (WayType type : WayType.values()) {
                 shapes.put(type, new ArrayList<>());
@@ -388,12 +398,11 @@ public class Model extends Observable implements Serializable {
         public void setDocumentLocator(Locator locator) {
 
         }
-		/*
-		 public LongToPointMap getIdToNode()
+
+		public LongToPointMap getIdToNode()
 		{
 			return idToNode;
 		}
-		*/
 
         @Override
         public void startDocument() throws SAXException {
@@ -484,7 +493,7 @@ public class Model extends Observable implements Serializable {
                     nodeID = Long.parseLong(atts.getValue("id"));
                     lat = Float.parseFloat(atts.getValue("lat"));
                     lon = Float.parseFloat(atts.getValue("lon"));
-                    idToNode.put(nodeID, new OSMNode(lonfactor * lon, -lat));
+                    idToNode.put(nodeID, lonfactor * lon, -lat);
                     POIType = PointsOfInterest.UNKNOWN;
                     type = WayType.UNKNOWN;
                     break;
@@ -500,7 +509,7 @@ public class Model extends Observable implements Serializable {
                     break;
                 case "nd":
                     long ref = Long.parseLong(atts.getValue("ref"));
-                    way.add(idToNode.get(ref));
+                    way.add(new OSMNode(idToNode.get(ref)));
                     break;
                 case "tag":
                     String k = atts.getValue("k");
@@ -575,8 +584,7 @@ public class Model extends Observable implements Serializable {
                     String role = atts.getValue("role");
                     ref = Long.parseLong(atts.getValue("ref"));
                     if (role.equals("admin_centre")) {
-                        regionCenter = idToNode.get(ref);
-                        if (regionCenter == null) {
+                        if (idToNode.get(ref)!=null) {
                             regionCenter = new OSMNode((maxlon + minlon) / 2, -(maxlat + minlat) / 2);
                         }
                         adminRelation = true;

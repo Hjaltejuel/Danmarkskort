@@ -100,7 +100,7 @@ public class CanvasMouseController extends MouseAdapter implements MouseMotionLi
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		canvas.setMousePos(e.getPoint());
+		canvas.getNearestNeighbourFromMousePos(e.getPoint());
 		canvas.repaint();
 	}
 }

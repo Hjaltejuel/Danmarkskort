@@ -9,19 +9,20 @@ import java.io.Serializable;
  * Created by Michelle on 4/27/2017.
  */
 public class AddressNode implements TSTInterface, Serializable{
-    OSMNode node;
+    float X, Y;
     String cityAndPostcode;
-    public AddressNode(OSMNode node, String cityAndPostcode){
+    public AddressNode(float lon, float lat, String cityAndPostcode){
         this.cityAndPostcode = cityAndPostcode;
-        this.node = node;
+        this.X=lon;
+        this.Y=lat;
     }
 
     public double getX() {
-        return node.getX();
+        return X;
     }
 
     public double getY() {
-        return node.getY();
+        return Y;
     }
 
     public Shape getShape() {

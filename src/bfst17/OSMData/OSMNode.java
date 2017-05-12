@@ -13,6 +13,10 @@ public class OSMNode extends Point2D.Float implements TSTInterface {
 		super(x, y);
 	}
 
+	public OSMNode(Point2D p) {
+		super((float)p.getX(), (float)p.getY());
+	}
+
 	@Override
 	public Shape getShape() {
 		return null;

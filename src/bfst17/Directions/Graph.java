@@ -76,7 +76,6 @@ public class Graph {
         pathList = new ArrayList<>();
         pointList = new ArrayList<>();
 
-
         for (GraphNode n = destination; n.getNodeFrom() != null; n = n.getNodeFrom()) {
             pathList.add(n);
             pointList.add(n.getPoint2D());
