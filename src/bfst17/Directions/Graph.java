@@ -1,6 +1,7 @@
 package bfst17.Directions;
 
 import bfst17.Enums.WeighType;
+import bfst17.OSMData.OSMNode;
 import bfst17.OSMData.OSMWay;
 
 import java.awt.geom.Point2D;
@@ -19,6 +20,7 @@ public class Graph {
     public Graph(HashMap<Point2D, GraphNode> graphNodeBuilder, ArrayList<OSMWay> graphWays) {
         this.graphNodeBuilder = graphNodeBuilder;
         buildEdges(graphWays);
+        buildGraphNodes();
     }
 
     public void addEdge(GraphNode node, GraphNode neighbour) {
@@ -38,14 +40,31 @@ public class Graph {
         System.out.println("Graph complete!");
     }
 
+
+    public void buildGraphNodes() {
+        System.out.println("Building GraphNodes!");
+        GraphNode currentGraphNode;
+        for (GraphNode graphNode : graphNodeBuilder.values()) {
+            /*
+            OSMNode currentOSMNode = (OSMNode)pair.getKey();
+            NodeTags currentTags =(NodeTags)pair.getValue();
+            currentGraphNode = new GraphNode(currentOSMNode);
+            currentGraphNode.setNodeTags(currentTags.bicycle,currentTags.foot,currentTags.maxspeed,currentTags.oneway);
+            graphFilteredMap.put(currentOSMNode, currentGraphNode);
+            */
+        }
+    }
+
     /**
      * Resetter graphen så den er klar til en ny Shortest Path
      */
     public void cleanUpGraph() {
+        int j=0;
         for (GraphNode graphNode : graphNodeBuilder.values()) {
             graphNode.setDistTo(Double.POSITIVE_INFINITY);
             graphNode.setNodeFrom(null);
         }
+        System.out.println(j);
     }
 
     public void findShortestPath(Point2D point2Source, Point2D point2Destination, WeighType weighType) {
