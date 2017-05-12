@@ -19,6 +19,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.*;
+import java.nio.Buffer;
 import java.util.*;
 import java.util.List;
 import java.util.zip.ZipInputStream;
@@ -53,6 +54,29 @@ public class Model extends Observable implements Serializable {
     private float lonfactor;
     private Graph graph;
 
+    public Model(String filename) throws IOException {
+        load(filename);
+    }
+
+    public Model() {
+        //Til osm
+        try {
+            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //til bin
+        //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
+        loadAllCoastlines();
+        //loadFile(path);
+    }
+
+
+    /**
+     * Description: Løber igennem alle roadKDtræerne for at finde et nearestNeightbour for alle træerne, hvor den korteste vælges.
+     * @param point
+     * @return RoadTreeNode
+     */
     public RoadKDTree.RoadTreeNode getClosestRoad(Point2D point) {
         TreeNode closestNode = null;
         for (RoadKDTree tree : getRoadKDTreeList()) {
@@ -69,10 +93,11 @@ public class Model extends Observable implements Serializable {
     }
 
     /**
-     * Lav vejvisning ud fra shortestPath, hvis den er lavet
+     * Description: Lav vejvisning ud fra shortestPath hvis den er lavet.
+     * Description: HVIS shortest path eksisterer: ArrayListe af DirectionObjekter, der indeholder vejvisningsinformation
+     * Description: HVIS ikke shortest path exist: En tom ArrayListe
      * @return
-     *          HVIS shortest path eksisterer: ArrayListe af DirectionObjekter, der indeholder vejvisningsinformation
-     *          HVIS ikke shortest path exist: En tom ArrayListe
+     *
      */
     public ArrayList<DirectionObject> getDirectionsList() {
         ArrayList<DirectionObject> directions = new ArrayList<>();
@@ -101,52 +126,57 @@ public class Model extends Observable implements Serializable {
         return directions;
     }
 
+    /**
+     * Description: Returnere en ArrayList med RoadKD-træer
+     * @return ArrayList<RoadKDTree>
+     */
     public ArrayList<RoadKDTree> getRoadKDTreeList() {
         return roadKDTreeList;
     }
 
+    /**
+     * Description: Returnere en ArrayList med ShapeKD-træer
+     * @return ArrayList<ShapeKDTree>
+     */
     public ArrayList<ShapeKDTree> getTrees() {
         return treeList;
     }
 
+    /**
+     * Description: Returnere et POIKD-træ
+     * @return POIKDTree
+     */
     public POIKDTree getPOITree() {
         return POITree;
     }
 
+    /**
+     * Description: Returnere et CityNamesKDTree-træ
+     * @return CityNamesKDTree
+     */
     public CityNamesKDTree getCityTree() {
         return cityTree;
     }
-
+    /**
+     * Description: Returnere et CityNamesKD-træ - indeholdende towns (mindre by en city)
+     * @return POIKDTree
+     */
     public CityNamesKDTree getTownTreeTree() {
         return townTree;
     }
 
+    /**
+     * Description: Returnere et AddressModel objekt
+     * @return AddressModel
+     */
     public AddressModel getAddressModel() {
         return addressModel;
     }
 
-    public Iterable<Shape> get(WayType type) {
-        return shapes.get(type);
-    }
-
-
-    public Model(String filename) throws IOException {
-        load(filename);
-    }
-
-    public Model() {
-        //Til osm
-        try {
-            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //til bin
-        //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
-        loadAllCoastlines();
-        //loadFile(path);
-    }
-
+    /**
+     * Description: Tilføjer entres for hver type POI i pointsOfInterest og WayType i namesToWayTypes og i shapes.
+     * Description:
+     */
     public void initializeHashmaps() {
         for (PointsOfInterest type : PointsOfInterest.values()) {
             pointsOfInterest.put(type.name(), new HashSet<>());
@@ -159,6 +189,11 @@ public class Model extends Observable implements Serializable {
         }
     }
 
+    /**
+     * Description: Tilføjer en entry til HashMappet shapes.
+     * @param type
+     * @param shape
+     */
     public void add(WayType type, Shape shape) {
         shapes.get(type).add(shape);
         dirty();
@@ -169,6 +204,10 @@ public class Model extends Observable implements Serializable {
         notifyObservers();
     }
 
+    /**
+     * Description: Opretter en bin-fil med de forskellige KD-træ objekter, addressModel og min/max koordinaterne kortet har.
+     * @param filename
+     */
     public void save(String filename) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
@@ -194,10 +233,19 @@ public class Model extends Observable implements Serializable {
         }
     }
 
+    /**
+     * Description: Returerne den nuværende til i sekunder.
+     * @return double
+     */
     public double currentTimeInSeconds() {
         return System.nanoTime() / 1_000_000_000d;
     }
 
+    /**
+     * Description:
+     * @param filename
+     * @throws IOException
+     */
     public void load(String filename) throws IOException {
         BufferedInputStream input = new BufferedInputStream(new FileInputStream(filename));
         int total = input.available();
@@ -238,35 +286,43 @@ public class Model extends Observable implements Serializable {
                 e.printStackTrace();
             }
         } else {
-            try (ObjectInputStream in = new ObjectInputStream(input)) {
-                //Ryk rundt på dem her og få med Jens' knytnæve at bestille
-                treeList = (ArrayList<ShapeKDTree>) in.readObject();
-                roadKDTreeList = (ArrayList<RoadKDTree>) in.readObject();
-                POITree = (POIKDTree) in.readObject();
-                cityTree = (CityNamesKDTree) in.readObject();
-                townTree = (CityNamesKDTree) in.readObject();
-                addressModel = (AddressModel) in.readObject();
-                minlon = in.readFloat();
-                minlat = in.readFloat();
-                maxlon = in.readFloat();
-                maxlat = in.readFloat();
-
-                double elapsedTime = currentTimeInSeconds() - startTime;
-                System.out.printf("WE HAVE ACHIEVED: [Object deserialization: %f s]\n", elapsedTime);
-                dirty();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (ClassCastException e) {
-                e.printStackTrace();
-            }
+            loadBin(input);
         }
+        dirty();
+
         progressPrinter.cancel();
         int loadTime = (int) Math.round(currentTimeInSeconds() - startTime);
         System.out.printf("\nLoad time: %d:%02d\n", loadTime / 60, loadTime % 60);
+    }
+
+    private void loadBin(BufferedInputStream input){
+        try (ObjectInputStream in = new ObjectInputStream(input)) {
+            //Ryk rundt på dem her og få med Jens' knytnæve at bestille
+            System.out.println("Loading Trees");
+            treeList = (ArrayList<ShapeKDTree>) in.readObject();
+            roadKDTreeList = (ArrayList<RoadKDTree>) in.readObject();
+            POITree = (POIKDTree) in.readObject();
+            cityTree = (CityNamesKDTree) in.readObject();
+            townTree = (CityNamesKDTree) in.readObject();
+            System.out.println("Loading AdressModel");
+            addressModel = (AddressModel) in.readObject();
+            System.out.println("Loading Coordinates");
+            minlon = in.readFloat();
+            minlat = in.readFloat();
+            maxlon = in.readFloat();
+            maxlat = in.readFloat();
+
+            System.out.printf("WE HAVE ACHIEVED: [Object deserialization]\n");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void loadOSM(InputSource source) {
