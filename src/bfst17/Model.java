@@ -326,7 +326,6 @@ public class Model extends Observable implements Serializable {
     private class OSMHandler implements ContentHandler {
         LongToPointMap idToNode = new LongToPointMap(22);
         Map<Long, OSMWay> idToWay = new HashMap<>();
-        Map<OSMNode, OSMWay> coastlines = new HashMap<>();
 
         private HashMap<Point2D, GraphNode> graphNodeBuilder = new HashMap<>();
 
@@ -403,11 +402,9 @@ public class Model extends Observable implements Serializable {
 
         @Override
         public void startDocument() throws SAXException {
-
         }
 
         Integer totalDepth = 0, totalShapes = 0;
-
         private void fillTrees() {
             treeList = new ArrayList<>();
             POITree = new POIKDTree();

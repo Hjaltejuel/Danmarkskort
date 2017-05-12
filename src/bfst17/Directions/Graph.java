@@ -20,7 +20,6 @@ public class Graph {
     public Graph(HashMap<Point2D, GraphNode> graphNodeBuilder, ArrayList<OSMWay> graphWays) {
         this.graphNodeBuilder = graphNodeBuilder;
         buildEdges(graphWays);
-        buildGraphNodes();
     }
 
     public void addEdge(GraphNode node, GraphNode neighbour) {
@@ -38,21 +37,6 @@ public class Graph {
             }
         }
         System.out.println("Graph complete!");
-    }
-
-
-    public void buildGraphNodes() {
-        System.out.println("Building GraphNodes!");
-        GraphNode currentGraphNode;
-        for (GraphNode graphNode : graphNodeBuilder.values()) {
-            /*
-            OSMNode currentOSMNode = (OSMNode)pair.getKey();
-            NodeTags currentTags =(NodeTags)pair.getValue();
-            currentGraphNode = new GraphNode(currentOSMNode);
-            currentGraphNode.setNodeTags(currentTags.bicycle,currentTags.foot,currentTags.maxspeed,currentTags.oneway);
-            graphFilteredMap.put(currentOSMNode, currentGraphNode);
-            */
-        }
     }
 
     /**
