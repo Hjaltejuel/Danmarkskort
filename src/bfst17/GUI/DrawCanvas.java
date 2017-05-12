@@ -1,6 +1,7 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TSTInterface;
+import bfst17.Directions.DirectionsObjekt;
 import bfst17.Directions.Graph;
 import bfst17.Enums.*;
 import bfst17.KDTrees.*;
@@ -106,6 +107,10 @@ public class DrawCanvas extends JComponent implements Observer {
         fancyPanEnabled = !fancyPanEnabled;
     }
 
+    /**
+     *
+     * @param name
+     */
     public void setPointsOfInterest(POIclasification name) {
         boolean nameToBooleanCopy = nameToBoolean.get(name);
         nameToBoolean.put(name, !nameToBooleanCopy);
@@ -121,6 +126,10 @@ public class DrawCanvas extends JComponent implements Observer {
         pin = new Point2D.Double(-address.getX(), -address.getY());
     }
 
+    /**
+     * Changes the colour theme of the GUI
+     * @param newTheme the new theme enum
+     */
     public void setGUITheme(GUIMode newTheme) {
 	    GUITheme = newTheme;
     }
@@ -211,6 +220,11 @@ public class DrawCanvas extends JComponent implements Observer {
         if(drawCityNames) {
             drawCityAndTownNames(g);
         }
+
+        for(DirectionsObjekt DirObj: model.getDirectionsList()) {
+            Point2D drawLocation = lonLatToScreenCords(-DirObj.getLocation().getX(), -DirObj.getLocation().getY());
+            g.drawString(DirObj.toString(),(float)drawLocation.getX(),(float)drawLocation.getY());
+        }
     }
 
     public void drawPin(Graphics2D g) {
@@ -224,6 +238,7 @@ public class DrawCanvas extends JComponent implements Observer {
         this.mousePos = mousePos;
         Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(), mousePos.getY());
         addressNode = model.getClosestRoad(lonLatCords);
+        if(addressNode==null){return;}
         //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en vertex. Hvis distancen er over 0.01 i latlon koordinater vises ingen nearestNeighbour
         if (addressNode.distance(lonLatCords) > 0.01) {
             needToDrawNearestNeighbour = false;
@@ -235,6 +250,11 @@ public class DrawCanvas extends JComponent implements Observer {
 
     Point2D mousePos;
 	RoadKDTree.RoadTreeNode addressNode;
+
+    /**
+     * Tegner den vej der er tættest på musemakøren, nede i høj
+     * @param g
+     */
     public void drawClosestRoad(Graphics2D g) {
         if(addressNode!=null) {
             String nearestNeighbourText = addressNode.getRoadName();
@@ -261,6 +281,10 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
+    /**
+     * Tegn Points Of Interest billederne, hvis zoomFactor tillader det
+     * @param g
+     */
     public void drawPointsOfInterest(Graphics2D g) {
         if (getZoomFactor() > 40000) {
             POIKDTree POITree = model.getPOITree();
@@ -275,6 +299,10 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
+    /**
+     * Tegn bynavne, hvis zoomFactor tillader det
+     * @param g
+     */
     public void drawCityAndTownNames(Graphics2D g) {
         //Draw townnames
         if (getZoomFactor() > 3000 && getZoomFactor() < 9000) {
@@ -303,6 +331,10 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
+    /**
+     * Tegn shortest path
+     * @param g
+     */
     public void drawGraph(Graphics2D g) {
         g.setColor(Color.BLACK);
 
@@ -320,7 +352,13 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
-
+    /**
+     *
+     * @param g
+     * @param imagePath
+     * @param x
+     * @param y
+     */
     public void drawImageAtLocation(Graphics2D g, String imagePath, double x, double y) {
         BufferedImage image = PinAndPOIImageMap.get(imagePath);
         Rectangle2D imageRect = new Rectangle2D.Double(-x, -y, image.getWidth() / getZoomFactor(), image.getHeight() / getZoomFactor());
@@ -358,11 +396,12 @@ public class DrawCanvas extends JComponent implements Observer {
         Line2D leftVertLine = new Line2D.Double(X1,Y-13,X1,Y);
 
         String showString = roundedDistance+mål;
+        Integer stringWidth = g.getFontMetrics().stringWidth(showString);
 
         g.setColor(new Color(255,255,255,100));
         g.fill(rect);
         g.setColor(Color.black);
-        g.drawString(showString,X1+(32-showString.length()*4),Y-2);
+        g.drawString(showString,X1+(32-stringWidth/2),Y-2);
         g.draw(line);
         g.draw(rightVertLine);
         g.draw(leftVertLine);
@@ -481,6 +520,11 @@ public class DrawCanvas extends JComponent implements Observer {
         return false;
     }
 
+    /**
+     *
+     * @param g
+     * @param roadNode
+     */
     public void drawRoadNameInCenter(Graphics2D g, RoadNode roadNode) {
         float[] coords = new float[2];
         String roadName = roadNode.getRoadName();
@@ -547,8 +591,6 @@ public class DrawCanvas extends JComponent implements Observer {
                     drawRoadNameInCenter(g, roadNode);
                 }
             }
-
-
         }
     }
 

@@ -1,8 +1,7 @@
 package bfst17.Directions;
 
-import bfst17.Enums.TurnType;
+import bfst17.Enums.RoadDirektion;
 import bfst17.Model;
-import bfst17.OSMData.PointOfInterestObject;
 
 import java.awt.geom.Point2D;
 
@@ -14,25 +13,28 @@ public class DirectionsObjekt {
         return currentRoad;
     }
 
-    public double getRoadLength() {
-        return roadLength;
-    }
-
-    public TurnType getTurnDirection() {
-        return turnDirection;
+    public RoadDirektion getRoadDirection() {
+        return roadDirection;
     }
 
     String currentRoad;
     double roadLength;
-    TurnType turnDirection;
-    public DirectionsObjekt(Point2D from, Point2D to, Model model) {
-        calculationRoadLength(from,to);
-        setTurnType(from,to);
-        setRoadName(from,model);
+    RoadDirektion roadDirection;
+
+    public Point2D getLocation() {
+        return location;
     }
 
-    public void setRoadName(Point2D from, Model model) {
-        currentRoad = model.getClosestRoad(from).getRoadName();
+    Point2D location;
+    public DirectionsObjekt(Point2D from, Point2D to, Model model) {
+        location=from;
+        calculationRoadLength(from, to);
+        setTurnType(from, to);
+        setRoadName(to, model);
+    }
+
+    public void setRoadName(Point2D to, Model model) {
+        currentRoad = model.getClosestRoad(to).getRoadName();
     }
 
     public void calculationRoadLength(Point2D from, Point2D to) {
@@ -41,17 +43,22 @@ public class DirectionsObjekt {
 
     public void setTurnType(Point2D from, Point2D to) {
         double angle = Math.atan2(to.getY() - from.getY(), to.getX() - from.getX());
-        if (angle < 1 && angle > -1) {
-            this.turnDirection = TurnType.RIGHT;
-        } else if (angle < 2 && angle > -2) {
-            this.turnDirection = TurnType.LEFT;
-        } else {
-            this.turnDirection = TurnType.STRAIGHT;
+        double angleDegree = ((angle*180/Math.PI)+360)%360; //Altid mere en 0 & under 360
+        if (angleDegree < 0 || angleDegree > 360) throw new AssertionError();
+
+        if (angleDegree > 315 || angleDegree <= 45) {
+            this.roadDirection = RoadDirektion.EAST;
+        } else if (angleDegree > 45  && angleDegree <= 135) {
+            this.roadDirection = RoadDirektion.SOUTH;
+        } else if (angleDegree > 135  && angleDegree <= 225) {
+            this.roadDirection = RoadDirektion.WEST;
+        } else if (angleDegree > 225  && angleDegree <= 315) {
+            this.roadDirection = RoadDirektion.NORTH;
         }
     }
 
     @Override
     public String toString(){
-        return currentRoad+" "+roadLength+" "+turnDirection.name();
+        return currentRoad+" "+roadLength+" "+ roadDirection.name();
     }
 }

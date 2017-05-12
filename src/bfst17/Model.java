@@ -76,6 +76,7 @@ public class Model extends Observable implements Serializable {
         ArrayList<DirectionsObjekt> directions = new ArrayList<>();
         String prevRoad = "";
         ArrayList<GraphNode> graphNodeList = graph.getPathList();
+        if(graphNodeList==null){return directions;}
         for (int i = 1; i < graphNodeList.size(); i++) {
             GraphNode currentGraphNode = graphNodeList.get(i);
             if (currentGraphNode.getEdgeList().size() <= 2) {
@@ -126,7 +127,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            //load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
+            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
