@@ -21,23 +21,28 @@ import java.util.Timer;
  * Created by trold on 2/8/17.
  */
 public class DrawCanvas extends JComponent {
-	Model model;
-	AffineTransform transform = new AffineTransform();
-    Shape regionShape = null;
+    private Model model;
+    private AffineTransform transform = new AffineTransform();
+    private  Shape regionShape = null;
 	private boolean antiAliasFromMenu; //Bestemmer over antiAliasFromPanning
     private boolean antiAliasFromPanning;
     private boolean needToDrawNearestNeighbour;
-    GUIMode GUITheme = GUIMode.NORMAL;
-	boolean fancyPanEnabled = false;
-	HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
-	Point2D pin;
-	Integer FrameCounter=0;
-	double timeTracker;
-	Integer FPS=0;
-	Rectangle2D screenRectangle;
-	HashMap<String, BufferedImage> PinAndPOIImageMap;
-	boolean drawCityNames = true;
+    private  GUIMode GUITheme = GUIMode.NORMAL;
+    private boolean fancyPanEnabled = false;
+    private HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
+    private Point2D pin;
+    private Integer FrameCounter=0;
+    private double timeTracker;
+    private Integer FPS=0;
+    private Rectangle2D screenRectangle;
+    private HashMap<String, BufferedImage> PinAndPOIImageMap;
+    private boolean drawCityNames = true;
     private Timer timer;
+    private final float lonToKM = 111.320f;
+    private RoadKDTree.RoadTreeNode addressNode;
+    private long MapDrawTime;
+    private ArrayList<Long> times = new ArrayList<>();
+
     public DrawCanvas(Model model) {
 		this.model = model;
 		fillNameToBoolean();
@@ -66,6 +71,10 @@ public class DrawCanvas extends JComponent {
         }
     }
 
+    /**
+     * Description: Returnerer et GUI thema (nightmode, greyscale)
+     * @return GUIMode
+     */
 	public GUIMode getGUITheme() {
         return GUITheme;
     }
@@ -76,6 +85,10 @@ public class DrawCanvas extends JComponent {
 		}
 	}
 
+    /**
+     * Description: Slår antiAliasing til og fra
+     * Description: Metoden kaldes fra AntiAliasing fra menuen.
+     */
     public void toggleAA() {
         antiAliasFromMenu = !antiAliasFromMenu;
         repaint();
@@ -84,12 +97,19 @@ public class DrawCanvas extends JComponent {
 
     //De næste metoder er til at slå aa fra hvis der pannes på og fra når der stoppes.
     //Den før kan ikke bruges da det giver den modsatte værdi. Hvis AA nu er false bliver den sat til true når der pannes og det skal den ikke.
+    /**
+     * Description: Slår antiAliasing fra.
+     */
     public void AAOff(){
         antiAliasFromPanning = false;
         repaint();
         revalidate();
     }
 
+    /**
+     * Description: Slår antiAliasing til hvis det er slået til fra menu.
+     * Description: Det bruges til slå AA til når der pannes, men kun hvis du er slået til fra menuen.
+     */
     public void AAOn() {
         if(antiAliasFromMenu) {
             antiAliasFromPanning = true;
@@ -98,18 +118,21 @@ public class DrawCanvas extends JComponent {
         }
     }
 
+    /**
+     * Description: Viser om FancyPan er slået til
+     * @return boolean
+     */
     public boolean isFancyPanEnabled() {
         return fancyPanEnabled;
     }
 
+    /**
+     * Description: Slår FancyPan til eller fra.
+     */
     public void toggleFancyPan() {
         fancyPanEnabled = !fancyPanEnabled;
     }
 
-    /**
-     *
-     * @param name
-     */
     public void setPointsOfInterest(POIclasification name) {
         boolean nameToBooleanCopy = nameToBoolean.get(name);
         nameToBoolean.put(name, !nameToBooleanCopy);
@@ -126,13 +149,16 @@ public class DrawCanvas extends JComponent {
     }
 
     /**
-     * Changes the colour theme of the GUI
+     * Description: Ændrer farvetemaet af GUI'en
      * @param newTheme the new theme enum
      */
     public void setGUITheme(GUIMode newTheme) {
 	    GUITheme = newTheme;
     }
 
+    /**
+     * Description: Opdaterer FPScounter ved at sætte et timestamp og tælle hvor mange gange en counter når at stige på et sekund.
+     */
     public void checkFPS() {
         FrameCounter++;
         if(System.nanoTime()-timeTracker >= 1_000_000_000) {
@@ -170,36 +196,32 @@ public class DrawCanvas extends JComponent {
 	 *
 	 * @see #paint
 	 */
-	long MapDrawTime;
-	ArrayList<Long> times = new ArrayList<Long>();
 	@Override
 	protected void paintComponent(Graphics _g) {
         Graphics2D g = (Graphics2D) _g;
 
         //Definér skærmbilledet
-        //Point2D topLeft = screenCordsToLonLat(200, 200);
-        //Point2D topRight = screenCordsToLonLat(600,600);
         Point2D topLeft = screenCordsToLonLat(0, 0);
         Point2D topRight = screenCordsToLonLat(getWidth(), getHeight());
-        screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
-                topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
-
-        MapDrawTime=System.nanoTime();
+        screenRectangle = new Rectangle2D.Double(topLeft.getX(), topLeft.getY(), topRight.getX() - topLeft.getX(), topRight.getY() - topLeft.getY());
+        MapDrawTime = System.nanoTime();
         //Tegn kortet
         drawMap(g);
-        MapDrawTime=System.nanoTime()-MapDrawTime;
+        MapDrawTime = System.nanoTime()-MapDrawTime;
         times.add(MapDrawTime);
 
         //g.draw(screenRectangle);
 
         //Tegn overlay (Pin, POI, Målebånd, FPS)
         drawOverlay(g);
-
-        //Opdater FPS
-        checkFPS();
 	}
 
     //<editor-fold desc="Funktioner der tegner">
+
+    /**
+     * Description: Kalder alle de funktioner der tegner overlayet (information oven på kortet).
+     * @param g
+     */
     private void drawOverlay(Graphics2D g) {
         //Reset transform til billeder / overlay
         g.setTransform(new AffineTransform());
@@ -226,6 +248,11 @@ public class DrawCanvas extends JComponent {
         }
     }
 
+    /**
+     * Description: Tegner et billede af en pin.
+     * Description: Bruges når der søges på by/vejnavn/region.
+     * @param g
+     */
     public void drawPin(Graphics2D g) {
         if (pin == null) {
             return; //Lad være at tegne, hvis der ikke er en pin
@@ -233,15 +260,18 @@ public class DrawCanvas extends JComponent {
         drawImageAtLocation(g,"pin",pin.getX(),pin.getY());
     }
 
-    public void setMousePos(Point2D mousePos) {
-        this.mousePos = mousePos;
+    /**
+     * Description: Finder den nærmeste addressNode udfra musen lonlat koordinater. AddressNode bliver opdateret.
+     * Description: Hvis distancen til addressNode er for stor skal der ikke vises nogen og needToDrawNearestNeighbour sættes til false.
+     * @param mousePos
+     */
+    public void getNearestNeighbourFromMousePos(Point2D mousePos) {
         Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(), mousePos.getY());
         addressNode = model.getClosestRoad(lonLatCords);
-        if(addressNode==null){return;}
-        //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en vertex. Hvis distancen er over 0.01 i latlon koordinater vises ingen nearestNeighbour
-       if(addressNode == null){
-           return;
-       }
+        if(addressNode == null){
+            return;
+        }
+       //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en vertex. Hvis distancen er over 0.01 i latlon koordinater vises ingen nearestNeighbour
         if (addressNode.distance(lonLatCords) > 0.01) {
             needToDrawNearestNeighbour = false;
         } else {
@@ -250,11 +280,10 @@ public class DrawCanvas extends JComponent {
         repaint();
     }
 
-    Point2D mousePos;
-	RoadKDTree.RoadTreeNode addressNode;
+
 
     /**
-     * Tegner den vej der er tættest på musemakøren, nede i høj
+     * Description: Tegner den vej der er tættest på musemakøren, nede i højre hjørne
      * @param g
      */
     public void drawClosestRoad(Graphics2D g) {
@@ -284,7 +313,7 @@ public class DrawCanvas extends JComponent {
     }
 
     /**
-     * Tegn Points Of Interest billederne, hvis zoomFactor tillader det
+     * Description: Tegn Points Of Interest billederne, hvis zoomFactor tillader det
      * @param g
      */
     public void drawPointsOfInterest(Graphics2D g) {
@@ -302,7 +331,7 @@ public class DrawCanvas extends JComponent {
     }
 
     /**
-     * Tegn bynavne, hvis zoomFactor tillader det
+     * Description: Tegn bynavne, hvis zoomFactor tillader det
      * @param g
      */
     public void drawCityAndTownNames(Graphics2D g) {
@@ -334,7 +363,7 @@ public class DrawCanvas extends JComponent {
     }
 
     /**
-     * Tegn shortest path
+     * Description: Tegn shortest path
      * @param g
      */
     public void drawGraph(Graphics2D g) {
@@ -355,8 +384,8 @@ public class DrawCanvas extends JComponent {
     }
 
     /**
-     *
-     * @param g
+     * Description: Tegner et billede på kortet ud fra lonlat koordinater og en path til billedet som passer til et billede i et HashMap
+     * @param g Det givne graphicsobjekt givet fra paintComponent overriden
      * @param imagePath
      * @param x
      * @param y
@@ -372,8 +401,11 @@ public class DrawCanvas extends JComponent {
         g.drawImage(image, (int) drawLocation.getX() - image.getWidth() / 2, (int) drawLocation.getY() - image.getHeight(), this);
     }
 
-    final float lonToKM = 111.320f, KMToMiles = 0.621371192f;
-
+    /**
+     * Description: Omregner to pixelkoordinater til lonlatkoordinater og herefter udregner afstanden i mellem dem til km.
+     * Description: Tegner GUI til at vise afstandsmåleren.
+      * @param g Det givne graphicsobjekt givet fra paintComponent overriden
+     */
     private void drawMeasureBand(Graphics2D g) {
 	    g.setColor(Color.black);
 	    g.setStroke(new BasicStroke(1f));
@@ -409,27 +441,32 @@ public class DrawCanvas extends JComponent {
         g.draw(leftVertLine);
     }
 
-    private Integer getRoundedDistance() {
-        //y= 0.4607*e^(0.7682*x)
-        return 0;
-    }
-
+    /**
+     * Description: Opdaterer FPS og derefter tegner FPS counteren
+     * @param g Det givne graphicsobjekt givet fra paintComponent overriden
+     */
     private void drawFPSCounter(Graphics2D g) {
+        checkFPS();
         g.drawString("FPS: " + FPS, 5, getHeight() - 55);
-        g.drawString("Shapes: " + numOfShapes, 5, getHeight() - 70);
         if (FPS == 0) {
             return;
         }
-        g.drawString("Shape/FPS: " + numOfShapes / FPS, 5, getHeight() - 85);
 
         long avg = 0;
         for (Long l : times) {
             avg += l / times.size();
         }
+
         g.drawString("Curr time: " + MapDrawTime/1_000_000, 5, getHeight() - 100);
         g.drawString("Avg  time: " + avg/1_000_000, 5, getHeight() - 115);
     }
 
+    /**
+     * Description: Tegner hele kortet ved først at farve vand, tegne coastlines, alle shapes, veje, og tegne det korteste vej hvis det er sat.
+     * Description: Hvis der er søgt efter en region tegnes omridset af denne også.
+     * Description: Denne funktion bliver kaldt fra paintComponent, hvilket vil sige hver gang der repaintes.
+     * @param g Det givne graphicsobjekt givet fra paintComponent overriden
+     */
     private void drawMap(Graphics2D g) {
         //Tegn vand
         g.setColor(getDrawColor(WayType.NATURAL_WATER));
@@ -463,6 +500,11 @@ public class DrawCanvas extends JComponent {
         }
     }
 
+    /**
+     * Description: Henter en WayTypes drawColor og returner den. Der laves beregninger på farven, hvis NightMode og GreyScale er aktiveret.
+     * @param type
+     * @return
+     */
     private Color getDrawColor(WayType type) {
         Color drawColor = type.getDrawColor();
 
@@ -479,7 +521,7 @@ public class DrawCanvas extends JComponent {
     }
 
     /**
-     * Tegner alle de coastlines der er indenfor skærmbillede
+     * Description: Tegner alle de coastlines der er indenfor skærmbillede
      * @param g Det givne graphicsobjekt givet fra paintComponent overriden
      */
     private void drawCoastlines(Graphics2D g) {
@@ -491,6 +533,11 @@ public class DrawCanvas extends JComponent {
         }
     }
 
+    /**
+     * Description: Undersøger om den specifikke WayType der bliver taget som parameter skal tegnes udfra den nuværende zoomfactor
+     * @param roadType
+     * @return boolean
+     */
     public boolean shouldDrawRoadName(WayType roadType) {
         switch (roadType) {
             case HIGHWAY_PRIMARY:
@@ -521,11 +568,7 @@ public class DrawCanvas extends JComponent {
         return false;
     }
 
-    /**
-     *
-     * @param g
-     * @param roadNode
-     */
+
     public void drawRoadNameInCenter(Graphics2D g, RoadNode roadNode) {
         float[] coords = new float[2];
         String roadName = roadNode.getRoadName();
@@ -537,7 +580,6 @@ public class DrawCanvas extends JComponent {
         while (!iterator.isDone()) {
             iterator.currentSegment(coords);
             Point2D drawLocation = lonLatToScreenCords(-coords[0], -coords[1]);
-            //System.out.println(drawLocation);
             if (i == (shape.getLengthOfCoords() / 4) - 1) {
                 from = drawLocation;
             } else if (i == shape.getLengthOfCoords() / 4) {
@@ -561,11 +603,22 @@ public class DrawCanvas extends JComponent {
         g.setTransform(transform);
     }
 
+    /**
+     * Description: Udregner vinklen mellem to punkter i radianer.
+     * @param from
+     * @param to
+     * @return double
+     */
     public double getAngle(Point2D from, Point2D to) {
         double theta = Math.atan2(to.getY()-from.getY(),to.getX()-from.getX());
         return theta;
     }
 
+    /**
+     * Description: Gennemgår alle road Kd-træer, og undersøger for hver WayType ved hvilket zoomFactor de skal tegnes og tegner dem.
+     * De samme Kd-træer bliver gennemgået for at undersøge og tegne vejnavne hvis de skal tegnes.
+     * @param g Det givne graphicsobjekt givet fra paintComponent overriden
+     */
     public void drawRoads(Graphics2D g) {
         for(RoadKDTree tree : model.getRoadKDTreeList()) {
             WayType type = tree.getType();
@@ -595,9 +648,12 @@ public class DrawCanvas extends JComponent {
         }
     }
 
-    Integer numOfShapes=0;
+    /**
+     * Description: Gennemgår alle shapes Kd-træer, og undersøger ved hvilket zoomFactor det skal vises.
+     * De tegnes eller fylder alle de shapes der har punkter inden for screenRectangle
+     * @param g Det givne graphicsobjekt givet fra paintComponent overriden
+     */
 	public void drawShapes(Graphics2D g) {
-        numOfShapes = 0;
         for (ShapeKDTree tree : model.getTrees()) {
             WayType type = tree.getType();
             if (type.getZoomFactor() > getZoomFactor()) {
@@ -607,7 +663,6 @@ public class DrawCanvas extends JComponent {
             g.setStroke(type.getDrawStroke());
 
             HashSet<Shape> nodes = tree.getInRange(screenRectangle);
-            numOfShapes += nodes.size();
 
             //Her bestemmes om shapes skal fyldes eller ej
             if (type.getFillType() == FillType.LINE) {
@@ -626,59 +681,81 @@ public class DrawCanvas extends JComponent {
     //<editor-fold desc="Zoom funktioner, Punktudregnings funktioner, Panerings funktioner & Panko rasp!">
 
     //Punktudregnings ting
+
+    /**
+     * Returnere center x koordinat i lon vha et AffineTransform objekt.
+     * @return
+     */
     public double getCenterCordinateX() {
         return (transform.getTranslateX()-getWidth()/2)/ getZoomFactor();
     }
+
+    /**
+     * Returnere center y koordinat i lat vha et AffineTransform objekt.
+     * @return double
+     */
     public double getCenterCordinateY() {
         return (transform.getTranslateY()-getHeight()/2) / getZoomFactor();
     }
 
-    public Point2D getCenterCordinate() {
-	    return screenCordsToLonLat(getWidth()/2,getHeight()/2);
-    }
 
-    public Point2D getDistanceInPixelToPoint(double lon, double lat) {
-        //distance from center of screen in lat lon
-        double Xdist = (lon - getCenterCordinateX()) * getZoomFactor();
-        double Ydist = (lat - getCenterCordinateY()) * getZoomFactor();
-        return new Point2D.Double(Xdist, Ydist);
-    }
-
+    /**
+     * Description: Omregner pixel koordinater til lon lat koordinater vha et AffineTransform objekt
+     * @param x
+     * @param y
+     * @return Point2D
+     */
     private Point2D screenCordsToLonLat(double x, double y) {
         double correctedX = -(transform.getTranslateX() - x) / getZoomFactor();
         double correctedY = -(transform.getTranslateY() - y) / getZoomFactor();
         return new Point2D.Double(correctedX, correctedY);
     }
 
+    /**
+     * Description: Omregner lon lat koordinater til pixel koordinater vha et AffineTransform objekt
+     * @param x
+     * @param y
+     * @return Point2D
+     */
     private Point2D lonLatToScreenCords(double x, double y) {
         double correctedX = -(x * getZoomFactor() - transform.getTranslateX());
         double correctedY = -(y * getZoomFactor() - transform.getTranslateY());
         return new Point2D.Double(correctedX, correctedY);
     }
 
-    public Point2D toModelCoords(Point2D lastMousePosition) {
-        try {
-            return transform.inverseTransform(lastMousePosition, null);
-        } catch (NoninvertibleTransformException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    //Pan ting
+    /**
+     * Description: Panner til et x,y koordinat, i forhold til venstre øvre hjørne (som altid er 0,0)
+     * @param dx
+     * @param dy
+     */
     public void pan(double dx, double dy) {
         transform.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
         repaint();
         revalidate();
     }
 
+    /**
+     * Description: Panner til et specifikt punkt i lon, lat koordinater.
+     * @param lon
+     * @param lat
+     */
     public void panToPoint(double lon, double lat) {
-        Point2D distanceVector = getDistanceInPixelToPoint(lon, lat);
+        double Xdist = (lon - getCenterCordinateX()) * getZoomFactor();
+        double Ydist = (lat - getCenterCordinateY()) * getZoomFactor();
+
+        Point2D distanceVector = new Point2D.Double(Xdist, Ydist);
         double distanceToCenterX = distanceVector.getX();
         double distanceToCenterY = distanceVector.getY();
 
         pan(distanceToCenterX, distanceToCenterY);
     }
 
+    /**
+     * Description: Styrer hvordan der skal zoomes og pannes. Hvis der allerede er zoomet langt ud behøves der ikke at zoome ud, men blot at panne og zoome ind.
+     * Hvis dette ikke er tilfældet og hvis afstanden til punktet der skal zoomes til er kort pannes der bare, ellers zoomes der ud, pannes og herefter zoomes ind.
+     * @param lon
+     * @param lat
+     */
     public void fancyPan(double lon, double lat) {
         double distanceToCenterX = lon - getCenterCordinateX();
         double distanceToCenterY = lat - getCenterCordinateY();
@@ -688,19 +765,22 @@ public class DrawCanvas extends JComponent {
         double amountOfZoom = 150000 / getZoomFactor();
 
         if (amountOfZoom >= 2) {
-            //Hvis der er brug for at zoome, men bare panning
             panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, true);
         } else {
             if (distance < 400/ getZoomFactor()) {
-                //Hvis der bare skal pannes, fordi afstanden er kort
                 panSlowAndThenZoomIn(distanceToCenterX, distanceToCenterY, false);
             } else {
-                //Ellers zoomer den ud først og så panner den.
                 zoomOutSlowAndThenPan(distanceToCenterX, distanceToCenterY);
             }
         }
     }
 
+    /**
+     * Description: Panner til et punkt over 100 steps ved brug af en timer. Hvis der skal zoomes kaldes zoomWithFactor
+     * @param distanceToCenterX
+     * @param distanceToCenterY
+     * @param needToZoom: Bestemmer om der skal zoomes efter der er blevet pannet.
+     */
     public void panSlowAndThenZoomIn(double distanceToCenterX, double distanceToCenterY, boolean needToZoom) {
         timer = new Timer();
 
@@ -725,12 +805,16 @@ public class DrawCanvas extends JComponent {
         }, 0, 10);
     }
 
+    /**
+     * Description: Zoomer ud 120 gange hver 20ms ved brug af en timer. Efter der er zoomet ud, kaldes panSlowAndThenZoomIn der panner og zoomer ind.
+     * @param distanceToCenterX
+     * @param distanceToCenterY
+     */
     public void zoomOutSlowAndThenPan(double distanceToCenterX, double distanceToCenterY) {
         timer = new Timer();
 
         timer.scheduleAtFixedRate(new TimerTask() {
             int zoomOutCounter = 1;
-
             @Override
             public void run() {
                 if(zoomOutCounter >= 120) {
@@ -739,25 +823,30 @@ public class DrawCanvas extends JComponent {
                 }
                 else if (zoomOutCounter < 120) {
                     centerZoomToZoomLevel(15000  * 10 / zoomOutCounter);
-
                     zoomOutCounter++;
                 }
             }
         }, 0 , 20);
     }
 
+    /**
+     * Description: Panner til kortets center ud fra min/max lat/lon. Bruges når der loadet en fil i programmet.
+     */
     public void resetCamera() {
         panToPoint(-(model.getMinLon() + model.getMaxLon()) / 2, (model.getMinLat() + model.getMaxLat()) / 2);
         centerZoomToZoomLevel(getWidth() / (model.getMaxLon() - model.getMinLon()));
     }
 
-    //Zoom ting
+    /**
+     * Description: Zoomer enten ind eller ud. Bruges til zoom med mousewheel og zoomknapper.
+     * @param factor: Over 1 zoomes der ind. Under 1 zoomes der ud.
+     */
     public void zoom(double factor) {
         //Zoom begrænsning
-        if(getZoomFactor()*factor>800000) {
+        if(getZoomFactor() * factor > 800000) {
             return;
             //max zoom out
-        } else if(getZoomFactor()*factor<120){
+        } else if(getZoomFactor() * factor < 120){
             return;
         }
 
@@ -792,7 +881,6 @@ public class DrawCanvas extends JComponent {
      * @param factor
      */
     public void zoomWithFactor(double factor) {
-        System.out.println(factor);
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             int zoomInCounter = 1;
@@ -810,20 +898,21 @@ public class DrawCanvas extends JComponent {
     }
 
     /**
+     * Description: returnere zoomfactoren fra et AffineTransform Objekt
+     * @return double: scaleX
+     */
+    public double getZoomFactor() {
+        return transform.getScaleX();
+    }
+
+    //</editor-fold>
+
+    /**
      * Description: returnere en timer, som bruges til FancyPan
      * @return Timer: timer
      */
     public Timer getTimer(){
         return timer;
-    }
-
-
-    /**
-     * Description: returnere zoomfactoren fra et AfflineTransform Objekt
-      * @return double: scaleX
-     */
-    public double getZoomFactor() {
-        return transform.getScaleX();
     }
 
     /**
