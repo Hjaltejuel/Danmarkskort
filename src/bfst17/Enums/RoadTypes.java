@@ -1,5 +1,6 @@
-package bfst17.Directions;
+package bfst17.Enums;
 
+import bfst17.Directions.VehicleType;
 import bfst17.Enums.FillType;
 
 import java.awt.*;

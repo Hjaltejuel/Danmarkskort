@@ -6,6 +6,7 @@ import bfst17.AddressHandling.Region;
 import bfst17.AddressHandling.StreetAndPointNode;
 import bfst17.Directions.*;
 import bfst17.Enums.PointsOfInterest;
+import bfst17.Enums.RoadTypes;
 import bfst17.Enums.WayType;
 import bfst17.KDTrees.*;
 import bfst17.OSMData.*;
@@ -287,7 +288,6 @@ public class Model extends Observable implements Serializable {
     public void loadAllCoastlines() {
         String path = System.getProperty("user.dir") + "/resources/dkcoast.bin";
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
-            //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             coastlines = (ArrayList<Shape>) in.readObject();
             lonfactor = in.readFloat();
         } catch (FileNotFoundException e) {
@@ -447,7 +447,6 @@ public class Model extends Observable implements Serializable {
             roads.clear();
 
             System.out.println("totalDepth: " + totalDepth + " total TreeNodes:  " + totalShapes);
-
         }
 
         @Override
