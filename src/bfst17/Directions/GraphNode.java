@@ -1,6 +1,7 @@
 package bfst17.Directions;
 
 import bfst17.Enums.RoadTypes;
+import bfst17.Enums.VehicleType;
 import bfst17.OSMData.OSMNode;
 
 import java.awt.geom.Point2D;

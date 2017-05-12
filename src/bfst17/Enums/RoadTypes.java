@@ -1,10 +1,5 @@
 package bfst17.Enums;
 
-import bfst17.Directions.VehicleType;
-import bfst17.Enums.FillType;
-
-import java.awt.*;
-
 /**
  * Created by Michelle on 5/12/2017.
  */
