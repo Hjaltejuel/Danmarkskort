@@ -8,7 +8,7 @@ import java.awt.geom.Point2D;
 /**
  * Created by Jens on 10-05-2017.
  */
-public class DirectionsObjekt {
+public class DirectionObject {
     public String getCurrentRoad() {
         return currentRoad;
     }
@@ -26,7 +26,7 @@ public class DirectionsObjekt {
     }
 
     Point2D location;
-    public DirectionsObjekt(Point2D from, Point2D to, Model model) {
+    public DirectionObject(Point2D from, Point2D to, Model model) {
         location=from;
         calculationRoadLength(from, to);
         setTurnType(from, to);

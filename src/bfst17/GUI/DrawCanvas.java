@@ -1,7 +1,7 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.Directions.DirectionsObjekt;
+import bfst17.Directions.DirectionObject;
 import bfst17.Directions.Graph;
 import bfst17.Enums.*;
 import bfst17.KDTrees.*;
@@ -220,7 +220,7 @@ public class DrawCanvas extends JComponent {
             drawCityAndTownNames(g);
         }
 
-        for(DirectionsObjekt DirObj: model.getDirectionsList()) {
+        for(DirectionObject DirObj: model.getDirectionsList()) {
             Point2D drawLocation = lonLatToScreenCords(-DirObj.getLocation().getX(), -DirObj.getLocation().getY());
             g.drawString(DirObj.toString(),(float)drawLocation.getX(),(float)drawLocation.getY());
         }
@@ -380,8 +380,8 @@ public class DrawCanvas extends JComponent {
 	    Integer Y = getHeight() - 75;
 	    Integer X1 = getWidth()-100, X2=getWidth()-35;
 
-	    Point2D p1 = screenCordsToLonLat(X1,Y);
-        Point2D p2 = screenCordsToLonLat(X2,Y);
+	    Point2D p1 = screenCordsToLonLat(X1, Y);
+        Point2D p2 = screenCordsToLonLat(X2, Y);
 
         double distance = (p2.getX()-p1.getX()) * lonToKM;
         String mål = " KM";
@@ -461,7 +461,6 @@ public class DrawCanvas extends JComponent {
             g.draw(regionShape);
             g.setColor(color);
         }
-
     }
 
     private Color getDrawColor(WayType type) {
@@ -620,8 +619,6 @@ public class DrawCanvas extends JComponent {
                     g.fill(shape);
                 }
             }
-
-
         }
     }
     //</editor-fold>

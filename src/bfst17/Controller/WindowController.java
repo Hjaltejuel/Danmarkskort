@@ -3,7 +3,7 @@ package bfst17.Controller;
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.DuplicateAddressNode;
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.Directions.DirectionsObjekt;
+import bfst17.Directions.DirectionObject;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
 import bfst17.GUI.DrawCanvas;
@@ -163,7 +163,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
                 model.getGraph().setNodes(fromPoint, toPoint);
                 System.out.println("Begynd...");
-                for (DirectionsObjekt DirObj : model.getDirectionsList()) {
+                for (DirectionObject DirObj : model.getDirectionsList()) {
                     System.out.println(DirObj);
                 }
             }

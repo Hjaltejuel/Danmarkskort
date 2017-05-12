@@ -10,7 +10,6 @@ public class LongToPointMap implements Serializable {
         public LongToPointMap(int capacity) {
             tab = new Node[1 << capacity];
             MASK = tab.length - 1;
-
         }
 
         public void put(long key, float x, float y) {
