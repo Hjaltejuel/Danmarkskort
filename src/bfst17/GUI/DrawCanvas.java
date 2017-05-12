@@ -23,15 +23,12 @@ import java.util.Timer;
 public class DrawCanvas extends JComponent {
     private Model model;
     private AffineTransform transform = new AffineTransform();
-    private  Shape regionShape = null;
+    private Shape regionShape = null;
 	private boolean antiAliasFromMenu; //Bestemmer over antiAliasFromPanning
     private boolean antiAliasFromPanning;
     private boolean needToDrawNearestNeighbour;
-    GUIMode GUITheme = GUIMode.NORMAL;
-	boolean fancyPanEnabled = false;
-	boolean[] POIToShow = new boolean[POIclasification.values().length];
-	boolean drawCityNames = true;
-    private  GUIMode GUITheme = GUIMode.NORMAL;
+    private boolean[] POIToShow = new boolean[POIclasification.values().length];
+	private GUIMode GUITheme = GUIMode.NORMAL;
     private boolean fancyPanEnabled = false;
     private Point2D pin;
     private Integer FrameCounter=0;
@@ -48,7 +45,6 @@ public class DrawCanvas extends JComponent {
 
     public DrawCanvas(Model model) {
 		this.model = model;
-		model.addObserver(this);
 		loadImages();
 	}
 
@@ -81,12 +77,6 @@ public class DrawCanvas extends JComponent {
 	public GUIMode getGUITheme() {
         return GUITheme;
     }
-
-	public void fillNameToBoolean() {
-		for(POIclasification name: POIclasification.values()) {
-			nameToBoolean.put(name, false);
-		}
-	}
 
     /**
      * Description: Slår antiAliasing til og fra
