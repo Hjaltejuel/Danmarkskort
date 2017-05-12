@@ -7,7 +7,7 @@ import bfst17.AddressHandling.StreetAndPointNode;
 import bfst17.Directions.DirectionsObjekt;
 import bfst17.Directions.Graph;
 import bfst17.Directions.GraphNode;
-import bfst17.Directions.NodeTags;
+import bfst17.Directions.RoadTypes;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
 import bfst17.KDTrees.*;
@@ -25,6 +25,8 @@ import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -126,7 +128,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            //load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
+            load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -318,21 +320,19 @@ public class Model extends Observable implements Serializable {
         HashMap<Long, OSMNode> idToNode = new HashMap<>();
         Map<OSMNode, OSMWay> coastlines = new HashMap<>();
 
-        private HashMap<Point2D, NodeTags> graphNodeBuilder = new HashMap<>();
+
+        private HashMap<Point2D, GraphNode> graphNodeBuilder = new HashMap<>();
 
         private ArrayList<OSMWay> graphWays = new ArrayList<>();
+
 
         float lat;
         float lon;
         OSMWay way;
         OSMRelation relation;
         WayType type;
+        Pattern pattern = Pattern.compile(("^-?\\d+$"));
 
-        boolean isWay = false;
-        Boolean bicycle = false;
-        Boolean foot = false;
-        Integer maxspeed = 0;
-        Boolean oneway = false;
 
 
         public Iterable<Shape> get(WayType type) {
@@ -371,6 +371,8 @@ public class Model extends Observable implements Serializable {
 
         String roadName;
         boolean isHighway = false;
+        boolean oneway = false;
+        int maxSpeed = 0;
 
         @Override
         public void setDocumentLocator(Locator locator) {
@@ -442,8 +444,7 @@ public class Model extends Observable implements Serializable {
             fillTrees();
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
 
-            graph = new Graph(idToWay, graphNodeBuilder, graphWays);
-            graph.buildGraphNodes();
+            graph = new Graph(graphNodeBuilder, graphWays);
             graph.buildEdges();
             graphNodeBuilder.clear();
         }
@@ -481,7 +482,6 @@ public class Model extends Observable implements Serializable {
                     break;
                 case "way":
                     way = new OSMWay();
-                    isWay = true;
                     Long id = Long.parseLong(atts.getValue("id"));
                     type = WayType.UNKNOWN;
                     idToWay.put(id, way);
@@ -509,51 +509,12 @@ public class Model extends Observable implements Serializable {
 
                     switch (k) {
                         case "highway":
-                            if (isWay) {
-                                bicycle = true;
-                                foot = true;
-                                maxspeed = 50;
-                                if (v.equals("motorway")) {
-                                    maxspeed = 130;
-                                    bicycle = true;
-                                    foot = true;
-                                }
-                                if (v.equals("primary")) {
-                                    maxspeed = 80;
-                                    bicycle = true;
-                                    foot = true;
-                                }
-                                if (v.equals("secondary")) {
-                                    maxspeed = 80;
-                                    bicycle = true;
-                                    foot = true;
-                                }
-                                if (v.equals("tertiary")) {
-                                    maxspeed = 80;
-                                    bicycle = true;
-                                    foot = true;
-                                }
-                                if (v.equals("unclassified")) {
-                                    maxspeed = 80;
-                                    bicycle = true;
-                                    foot = true;
-                                }
-                                if (v.equals("residential")) {
-                                    maxspeed = 50;
-                                    bicycle = true;
-                                    foot = true;
-                                }
-                            }
                             isHighway = true;
+                            if(isHighway){
+                                System.out.println(k + " " + v);
+                                System.out.println(type);
+                            }
                             break;
-                        case "foot":
-                            foot = true;
-                            break;
-                        case "bicycle":
-                            bicycle = true;
-                            break;
-                        case "oneway":
-                            oneway = true;
                         case "addr:street":
                             addressBuilder.street(v);
                             isAddressNode = true;
@@ -573,11 +534,24 @@ public class Model extends Observable implements Serializable {
                         case "building":
                             type = WayType.BUILDING;
                             break;
+                        case "maxspeed":
+                            if(isHighway) {
+                                Matcher matcher = pattern.matcher(v);
+                                if(matcher.matches()){
+                                    maxSpeed = Integer.parseInt(v);
+                                }
+                            }
+                            break;
+                        case "oneway":
+                            if(isHighway) {
+                                if (v.equals("yes")) {
+                                    oneway = true;
+                                }
+                            }
                         case "name":
                             name = v;
                             if (isHighway) {
                                 roadName = v;
-                                isHighway = false;
                             }
                             break;
                         case "place":
@@ -640,25 +614,22 @@ public class Model extends Observable implements Serializable {
                     if (type != WayType.NATURAL_COASTLINE) {
                         add(type, new PolygonApprox(way));
 
-                        if (bicycle == true || foot == true || maxspeed > 0) {
+                        if (isHighway) {
                             graphWays.add(way);
                             for (int i = 0; i < way.size(); i++) {
 
                                 if (!graphNodeBuilder.containsKey(way.get(i))) {
-                                    NodeTags n = new NodeTags(bicycle, foot, oneway, maxspeed);
-                                    graphNodeBuilder.put(way.get(i), n);
+                                    RoadTypes roadType = RoadTypes.valueOf(type.toString());
+                                    graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i),roadType,oneway,maxSpeed));
                                 }
                             }
 //							System.out.println(tmpNodeIDs.size());
                         }
-                        bicycle = false;
-                        foot = false;
-                        oneway = false;
-                        maxspeed = 0;
-                        isWay = false;
                         break;
-
                     }
+                    maxSpeed = 0;
+                    oneway = false;
+                    isHighway = false;
                     break;
                 case "relation":
                     if (relation.size() != 0) {

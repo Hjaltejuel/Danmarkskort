@@ -16,27 +16,22 @@ public class Graph {
     private GraphNode source;
     private GraphNode target;
 
-    private HashMap<Point2D, GraphNode> graphFilteredMap;
-    private HashMap<Point2D, NodeTags> graphNodeBuilder;
+    private HashMap<Point2D, GraphNode> graphNodeBuilder;
 
     private ArrayList<GraphNode> pathList;
     private ArrayList<Point2D> pointList;
 
-    //private Map<Long, OSMWay> idToWay;
 
     private ShortestPath sp;
 
-    ArrayList<GraphNode> graphNodeList;
 
 
-    public Graph(Map<Long, OSMWay> idToWay, HashMap<Point2D, NodeTags> graphNodeBuilder, ArrayList<OSMWay> graphWays) {
+    public Graph( HashMap<Point2D, GraphNode> graphNodeBuilder, ArrayList<OSMWay> graphWays) {
 
         this.graphWays = graphWays;
-     //   this.idToWay = idToWay;
-        this.graphNodeBuilder = graphNodeBuilder;
-        this.graphFilteredMap = new HashMap<>();
 
-    //    graphNodeList = new ArrayList<>();
+        this.graphNodeBuilder = graphNodeBuilder;
+
     }
 
     public void addEdge(GraphNode node, GraphNode neighbour) {
@@ -55,7 +50,7 @@ public class Graph {
                 if (i > 0) {
                     previousGraphNode = currentGraphNode;
                 }
-                currentGraphNode = graphFilteredMap.get(currentWay.get(i));
+                currentGraphNode = graphNodeBuilder.get(currentWay.get(i));
                 //TEST
                 if (j == 88) {
                    // source = currentGraphNode;
@@ -73,23 +68,6 @@ public class Graph {
             }
         }
         System.out.println("Graph complete!");
-    }
-
-    public void buildGraphNodes() {
-        System.out.println("Building GraphNodes!");
-        Iterator it = graphNodeBuilder.entrySet().iterator();
-        int j = 0;
-        GraphNode currentGraphNode;
-        while(it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            OSMNode currentOSMNode = (OSMNode)pair.getKey();
-            NodeTags currentTags =(NodeTags)pair.getValue();
-            currentGraphNode = new GraphNode(currentOSMNode);
-            currentGraphNode.setNodeTags(currentTags.bicycle,currentTags.foot,currentTags.maxspeed,currentTags.oneway);
-            graphFilteredMap.put(currentOSMNode, currentGraphNode);
-            it.remove();
-        }
-        graphNodeBuilder.clear();
     }
 
     public ArrayList<Point2D> getPointList() {
@@ -118,11 +96,11 @@ public class Graph {
         return sp;
     }
     public HashMap<Point2D, GraphNode> getGraphFilteredMap(){
-        return graphFilteredMap;
+        return graphNodeBuilder;
     }
     public void setNodes(Point2D point2Source, Point2D point2Destination){
-        this.source = graphFilteredMap.get(point2Source);
-        this.target = graphFilteredMap.get(point2Destination);
+        this.source = graphNodeBuilder.get(point2Source);
+        this.target = graphNodeBuilder.get(point2Destination);
 
         if(source != null || target != null) {
             sp = new ShortestPath(this);
@@ -131,7 +109,7 @@ public class Graph {
     }
 
     public void cleanUpGraph() {
-        Iterator it = graphFilteredMap.entrySet().iterator();
+        Iterator it = graphNodeBuilder.entrySet().iterator();
         while(it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
             GraphNode g = (GraphNode)pair.getValue();

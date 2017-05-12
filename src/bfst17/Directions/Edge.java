@@ -31,11 +31,11 @@ public class Edge {
         }
         private void calcWeightForFastest(){
 
-            if(source.getMaxspeed() >= destination.getMaxspeed()) {
-                weight = Math.sqrt(weighted)/source.getMaxspeed();
+            if(source.getMaxSpeed() >= destination.getMaxSpeed()) {
+                weight = Math.sqrt(weighted)/source.getMaxSpeed();
             }
             else{
-                weight = Math.sqrt(weighted)/(destination.getMaxspeed());
+                weight = Math.sqrt(weighted)/(destination.getMaxSpeed());
             }
 
         }
