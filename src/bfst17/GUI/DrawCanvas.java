@@ -20,7 +20,7 @@ import java.util.Timer;
 /**
  * Created by trold on 2/8/17.
  */
-public class DrawCanvas extends JComponent implements Observer {
+public class DrawCanvas extends JComponent {
 	Model model;
 	AffineTransform transform = new AffineTransform();
     Shape regionShape = null;
@@ -40,7 +40,6 @@ public class DrawCanvas extends JComponent implements Observer {
     private Timer timer;
     public DrawCanvas(Model model) {
 		this.model = model;
-		model.addObserver(this);
 		fillNameToBoolean();
 		loadImages();
 	}
@@ -240,6 +239,9 @@ public class DrawCanvas extends JComponent implements Observer {
         addressNode = model.getClosestRoad(lonLatCords);
         if(addressNode==null){return;}
         //Vi vil ikke vise nearestNeighbour hvis musen er for langt væk fra en vertex. Hvis distancen er over 0.01 i latlon koordinater vises ingen nearestNeighbour
+       if(addressNode == null){
+           return;
+       }
         if (addressNode.distance(lonLatCords) > 0.01) {
             needToDrawNearestNeighbour = false;
         } else {
@@ -770,17 +772,30 @@ public class DrawCanvas extends JComponent implements Observer {
         }
     }
 
+    /**
+     * Description: Zoomer til et specifikt zoomlevel.
+     * @param zoomLevel
+     */
     public void centerZoomToZoomLevel(double zoomLevel){
         centerZoom(zoomLevel / getZoomFactor());
     }
 
+    /**
+     * Description: Panner først til center zoomer og panner tilbage til det pågældende punkt.
+     * @param factor
+     */
     public void centerZoom(double factor) {
         pan(-getWidth() / 2, -getHeight() / 2);
         zoom(factor);
         pan(getWidth() / 2, getHeight() / 2);
     }
 
+    /**
+     * Description: Del af FancyPan. Bruges når der zoomes ind. Desto mindre faktoren er desto mindre zoomer den ind.
+     * @param factor
+     */
     public void zoomWithFactor(double factor) {
+        System.out.println(factor);
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             int zoomInCounter = 1;
@@ -789,6 +804,7 @@ public class DrawCanvas extends JComponent implements Observer {
                 if (zoomInCounter > 100) {
                     cancel();
                 } else {
+                    //den zoomer mest ud når zoomInCounter er lille.
                     centerZoomToZoomLevel(150000 * zoomInCounter * factor);
                     zoomInCounter++;
                 }
@@ -796,27 +812,26 @@ public class DrawCanvas extends JComponent implements Observer {
         }, 0, 20);
     }
 
+    /**
+     * Description: returnere en timer, som bruges til FancyPan
+     * @return Timer: timer
+     */
     public Timer getTimer(){
         return timer;
     }
 
 
-    public double getZoomFactor(){return transform.getScaleX();}
-    //</editor-fold>
+    /**
+     * Description: returnere zoomfactoren fra et AfflineTransform Objekt
+      * @return double: scaleX
+     */
+    public double getZoomFactor() {
+        return transform.getScaleX();
+    }
 
-	/**
-	 * This method is called whenever the observed object is changed. An
-	 * application calls an <tt>Observable</tt> object's
-	 * <code>notifyObservers</code> method to have all the object's
-	 * observers notified of the change.
-	 *
-	 * @param o   the observable object.
-	 * @param arg an argument passed to the <code>notifyObservers</code>
-	 */
-	@Override
-	public void update(Observable o, Object arg) {
-	}
-
+    /**
+     * Desciption: Slår boolean'en der styrer om der bliver tegnet bynavne.
+     */
     public void toggleCityNames() {
         drawCityNames = !drawCityNames;
         repaint();
