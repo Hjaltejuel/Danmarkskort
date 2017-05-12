@@ -1,6 +1,5 @@
 package bfst17.Directions;
 
-import bfst17.Model;
 import bfst17.OSMData.OSMNode;
 import bfst17.OSMData.OSMWay;
 

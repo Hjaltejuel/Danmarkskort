@@ -371,7 +371,6 @@ public class DrawCanvas extends JComponent {
 
         g.setStroke(new BasicStroke(0.00008f));
         Graph graph = model.getGraph();
-
         if (graph == null) {
             return;
         } else {

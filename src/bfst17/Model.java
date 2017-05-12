@@ -5,6 +5,8 @@ import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.Region;
 import bfst17.AddressHandling.StreetAndPointNode;
 import bfst17.Directions.*;
+import bfst17.Directions.Graph;
+import bfst17.Directions.GraphNode;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.WayType;
 import bfst17.KDTrees.*;
