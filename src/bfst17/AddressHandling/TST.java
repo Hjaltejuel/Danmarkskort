@@ -143,13 +143,13 @@ public class TST<TSTInterface> implements Serializable {
         else if (c > x.c) x.right = put(x.right, key, val, d);
         //if the key char equals the node char but we are not at the end of the key go in the middle
         else if (d < key.length() - 1) x.mid = put(x.mid, key, val, d + 1);
-        // if there is already a node with the keys prefix, then add the val to be entered to the node val
+        // if there is already a node with the keys prefix, then addShape the val to be entered to the node val
         else  if(x.val != null){
-            //if there is multiple instances of the node, then add the val to the list
+            //if there is multiple instances of the node, then addShape the val to the list
             if(x.val instanceof DuplicateAddressNode){
                 ((DuplicateAddressNode) x.val).add((bfst17.AddressHandling.TSTInterface)val);
             } else {
-                //if there is only one addressNode, make a new list and add them both
+                //if there is only one addressNode, make a new list and addShape them both
                 DuplicateAddressNode addresArray = new DuplicateAddressNode();
                 addresArray.add((bfst17.AddressHandling.TSTInterface) x.val);
                 addresArray.add((bfst17.AddressHandling.TSTInterface) val);
@@ -193,7 +193,7 @@ public class TST<TSTInterface> implements Serializable {
 
                 //If the prefix had a val, (only happens with cities and regions)
                 if (x.val != null) {
-                    //if there are duplicates, add them all
+                    //if there are duplicates, addShape them all
                     if (x.val instanceof DuplicateAddressNode) {
                         for (bfst17.AddressHandling.TSTInterface node : ((DuplicateAddressNode) x.val)) {
                             if (node instanceof AddressNode) {

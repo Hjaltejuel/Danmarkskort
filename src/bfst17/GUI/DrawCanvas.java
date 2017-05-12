@@ -23,13 +23,13 @@ import java.util.Timer;
 public class DrawCanvas extends JComponent {
     private Model model;
     private AffineTransform transform = new AffineTransform();
-    private  Shape regionShape = null;
+    private Shape regionShape = null;
 	private boolean antiAliasFromMenu; //Bestemmer over antiAliasFromPanning
     private boolean antiAliasFromPanning;
     private boolean needToDrawNearestNeighbour;
-    private  GUIMode GUITheme = GUIMode.NORMAL;
+    private boolean[] POIToShow = new boolean[POIclasification.values().length];
+	private GUIMode GUITheme = GUIMode.NORMAL;
     private boolean fancyPanEnabled = false;
-    private HashMap<POIclasification, Boolean> nameToBoolean = new HashMap<>();
     private Point2D pin;
     private Integer FrameCounter=0;
     private double timeTracker;
@@ -45,7 +45,6 @@ public class DrawCanvas extends JComponent {
 
     public DrawCanvas(Model model) {
 		this.model = model;
-		fillNameToBoolean();
 		loadImages();
 	}
 
@@ -78,12 +77,6 @@ public class DrawCanvas extends JComponent {
 	public GUIMode getGUITheme() {
         return GUITheme;
     }
-
-	public void fillNameToBoolean() {
-		for(POIclasification name: POIclasification.values()) {
-			nameToBoolean.put(name, false);
-		}
-	}
 
     /**
      * Description: Slår antiAliasing til og fra
@@ -133,9 +126,13 @@ public class DrawCanvas extends JComponent {
         fancyPanEnabled = !fancyPanEnabled;
     }
 
+    /**
+     * Vælger hvilke points of interests der skal vises, vha. et boolean array
+     * @param name - hvilken type af POI det er
+     */
     public void setPointsOfInterest(POIclasification name) {
-        boolean nameToBooleanCopy = nameToBoolean.get(name);
-        nameToBoolean.put(name, !nameToBooleanCopy);
+        Integer EnumIndex = name.ordinal();
+        POIToShow[EnumIndex]=!POIToShow[EnumIndex];
         repaint();
     }
 
@@ -322,7 +319,7 @@ public class DrawCanvas extends JComponent {
             for (TreeNode node : POITree.getInRange(screenRectangle)) {
                 POIKDTree.POITreeNode POINode = (POIKDTree.POITreeNode)node;
                 PointsOfInterest POIType = POINode.getPOIType();
-                if (nameToBoolean.get(POIType.getClassification())) {
+                if (POIToShow[POIType.getClassification().ordinal()]) {
                     String imagePath = POIType.name();
                     drawImageAtLocation(g, imagePath, -POINode.getX(), -POINode.getY());
                 }

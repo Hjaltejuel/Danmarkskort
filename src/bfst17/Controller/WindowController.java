@@ -6,6 +6,7 @@ import bfst17.AddressHandling.TSTInterface;
 import bfst17.Directions.DirectionObject;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
+import bfst17.Enums.WeighType;
 import bfst17.GUI.DrawCanvas;
 import bfst17.GUI.DrawWindow;
 import bfst17.KDTrees.TreeNode;
@@ -161,7 +162,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()));
                 Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
-                model.getGraph().setNodes(fromPoint, toPoint);
+                model.getGraph().findShortestPath(fromPoint, toPoint, WeighType.SHORTEST);
                 System.out.println("Begynd...");
                 for (DirectionObject DirObj : model.getDirectionsList()) {
                     System.out.println(DirObj);
@@ -300,6 +301,8 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     public void componentResized(ComponentEvent e) {
         window.setBounds(canvas);
     }
+
+
 
     //<editor-fold desc="Ting vi skal override, men ikke bruger">
     @Override
