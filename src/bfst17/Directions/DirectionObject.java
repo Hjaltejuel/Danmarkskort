@@ -39,7 +39,7 @@ public class DirectionObject {
     }
 
     /**
-     * Udregner vejens længde vha pythagoras
+     * Udregner vejens længde vha pythagoras (a^2+b^2=c^2)
      * @param from
      * @param to
      */
