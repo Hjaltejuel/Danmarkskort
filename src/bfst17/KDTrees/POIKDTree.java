@@ -39,16 +39,10 @@ public class POIKDTree extends KDTree {
         if (startNode == null) {
             return;
         }
-
         //Kun tegn det der er inde for skærmen
         if(startNode.isInside(rect)) {
             nodes.add(startNode);
         }
-
-
-        //boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMaxX() : startNode.getSplit() > rect.getMaxY();
-        //boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMinX() : startNode.getSplit() < rect.getMinY();
-
         boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMinX() : startNode.getSplit() > rect.getMinY();
         boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMaxX() : startNode.getSplit() < rect.getMaxY();
 

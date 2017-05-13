@@ -39,7 +39,6 @@ public class Edge {
         weight = distance;
     }
 
-
     public GraphNode getSource() {
         return source;
     }
@@ -59,6 +58,5 @@ public class Edge {
             calcWeightForShortest();
         }
         return weight;
-
     }
 }

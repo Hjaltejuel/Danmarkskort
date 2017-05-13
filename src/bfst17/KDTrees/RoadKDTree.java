@@ -70,11 +70,6 @@ public class RoadKDTree extends KDTree {
         if(startNode.isInside(rect)) {
             nodes.add(((RoadTreeNode)startNode).getRoadNode());
         }
-
-
-        //boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMaxX() : startNode.getSplit() > rect.getMaxY();
-        //boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMinX() : startNode.getSplit() < rect.getMinY();
-
         boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMinX() : startNode.getSplit() > rect.getMinY();
         boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMaxX() : startNode.getSplit() < rect.getMaxY();
 

@@ -46,9 +46,9 @@ public class Model extends Observable implements Serializable {
     private ArrayList<RoadKDTree> roadKDTreeList = new ArrayList<>();
     private CityNamesKDTree townTree = new CityNamesKDTree();
 
-    String name = "";
-    OSMNode regionCenter = null;
-    boolean adminRelation = false;
+    private String name = "";
+    private OSMNode regionCenter = null;
+    private boolean adminRelation = false;
     private boolean isAddressNode = false;
     private AddressModel addressModel = new AddressModel();
 
@@ -298,7 +298,7 @@ public class Model extends Observable implements Serializable {
         System.out.printf("\nLoad time: %d:%02d\n", loadTime / 60, loadTime % 60);
     }
 
-    private void loadBin(BufferedInputStream input){
+    private void loadBin(BufferedInputStream input) {
         try (ObjectInputStream in = new ObjectInputStream(input)) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             System.out.println("Loading Trees");
@@ -325,7 +325,6 @@ public class Model extends Observable implements Serializable {
         } catch (ClassCastException e) {
             e.printStackTrace();
         }
-
     }
 
     private void loadOSM(InputSource source) {
@@ -431,13 +430,6 @@ public class Model extends Observable implements Serializable {
             roads.get(type).add(new RoadNode(shape, roadName, type));
         }
 
-        public void addGraphNode(PolygonApprox shape, String roadName, WayType type){
-            if (roads.get(type) == null) {
-                roads.put(type, new ArrayList<>());
-            }
-            roads.get(type).add(new RoadNode(shape, roadName, type));
-        }
-
         public void addShape(WayType type, Shape shape) {
             shapes.get(type).add(shape);
             dirty();
@@ -459,6 +451,7 @@ public class Model extends Observable implements Serializable {
 		{
 			return idToNode;
 		}
+
         @Override
         public void startDocument() throws SAXException {
         }
@@ -484,20 +477,13 @@ public class Model extends Observable implements Serializable {
                 totalDepth += treeWithType.getMaxDepth();
                 totalShapes += treeWithType.getSize();
             }
-            if (pointsOfInterest != null) {
-                POITree.fillTree(pointsOfInterest);
-                pointsOfInterest.clear();
-            }
-            if (cityTree != null) {
-                cityTree.fillTree(cityNames);
-                cityNames.clear();
-            }
+            POITree.fillTree(pointsOfInterest);
+            cityTree.fillTree(cityNames);
+            townTree.fillTree(townNames);
 
-            if (townTree != null) {
-                townTree.fillTree(townNames);
-                townNames.clear();
-            }
-
+            cityNames.clear();
+            pointsOfInterest.clear();
+            townNames.clear();
             shapes.clear();
             roads.clear();
 
@@ -616,6 +602,7 @@ public class Model extends Observable implements Serializable {
                             }
                             break;
                         case "place":
+                            System.out.println(name);
                             if (v.equals("village") || v.equals("town") || v.equals("city")) {
                                 addressModel.putCity(name, idToNode.get(nodeID));
                             }
@@ -647,6 +634,7 @@ public class Model extends Observable implements Serializable {
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
+            isHighway=false;
             switch (qName) {
                 case "node":
                     if (isAddressNode == true) {
@@ -663,7 +651,9 @@ public class Model extends Observable implements Serializable {
                     if (type != WayType.NATURAL_COASTLINE && type != WayType.UNKNOWN) {
                         PolygonApprox shape = new PolygonApprox(way);
                         if (type.toString().split("_")[0].equals("HIGHWAY")) { //Hvis vejen er en highway
-                            addRoad(shape, roadName, type); //Tilføj vej
+                            if(isHighway) {
+                                addRoad(shape, roadName, type); //Tilføj vej
+                            }
 
                             graphWays.add(way);
                             for (int i = 0; i < way.size(); i++) {
@@ -677,7 +667,6 @@ public class Model extends Observable implements Serializable {
                     }
                     maxSpeed = 0;
                     oneway = false;
-                    isHighway = false;
                     break;
                 case "relation":
                     if (relation.size() != 0) {

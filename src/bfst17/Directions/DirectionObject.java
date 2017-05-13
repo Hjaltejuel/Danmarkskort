@@ -9,12 +9,10 @@ import java.awt.geom.Point2D;
  * Created by Jens on 10-05-2017.
  */
 public class DirectionObject {
-    String currentRoad;
-
-    double roadLength;
-
-    RoadDirektion roadDirection;
-    Point2D location;
+    private String currentRoad;
+    private double roadLength;
+    private RoadDirektion roadDirection;
+    private Point2D location;
 
     /**
      * Opret et direktionobjekt

@@ -40,11 +40,9 @@ public class GraphNode implements Comparable {
         edgeList = new ArrayList<>();
     }
 
-
     public Point2D getPoint2D() {
         return new Point2D.Double(originOSMNode.getX(), originOSMNode.getY());
     }
-
 
     public boolean isShortest() {
         return shortest;
