@@ -1,7 +1,6 @@
 package bfst17.Directions;
 
 import bfst17.Enums.WeighType;
-import bfst17.OSMData.OSMNode;
 import bfst17.OSMData.OSMWay;
 
 import java.awt.geom.Point2D;

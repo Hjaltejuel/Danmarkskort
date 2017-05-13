@@ -7,7 +7,12 @@ public class LongToPointMap implements Serializable {
         int MASK;
         public Node[] tab;
 
-        public LongToPointMap(int capacity) {
+    /**
+     * Opretter et LongToPointMap objekt.
+     * @param capacity
+     */
+
+    public LongToPointMap(int capacity) {
             tab = new Node[1 << capacity];
             MASK = tab.length - 1;
         }
@@ -24,20 +29,23 @@ public class LongToPointMap implements Serializable {
             }
             return null;
         }
-
         static class Node extends Point2D.Float implements Serializable {
             public static final long serialVersionUID = 20160216;
             Node next;
             long key;
 
+            /**
+             * Opretter et Node objekt.
+             * @param _key
+             * @param x
+             * @param y
+             * @param _next
+             */
+
             public Node(long _key, float x, float y, Node _next) {
                 super(x, y);
                 key = _key;
                 next = _next;
-            }
-            public void setNextNodeToNull()
-            {
-                this.next = null;
             }
         }
 

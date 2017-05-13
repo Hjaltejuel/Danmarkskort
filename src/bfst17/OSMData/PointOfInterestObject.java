@@ -20,6 +20,13 @@ public class PointOfInterestObject {
 
     PointsOfInterest type;
     double X, Y;
+
+    /**
+     * Opretter et PointOfInterestObject Objekt
+     * @param type
+     * @param X
+     * @param Y
+     */
     public PointOfInterestObject(PointsOfInterest type, double X, double Y) {
         this.type=type;
         this.X=X;
