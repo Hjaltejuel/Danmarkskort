@@ -14,7 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Created by trold on 2/1/17.
+ * Created by Rasmus on 2/1/17.
  */
 public class DrawWindow {
 	JFrame window;
@@ -49,6 +49,11 @@ public class DrawWindow {
 
 	private JPanel sidebarMenu = new JPanel(new GridLayout(0, 1));
 
+	/**
+	 * opsætter vinduet med alle de forskellige komponenter der ligger i de forskellige undermetoder.
+	 * Standard størrelsen på vinduet er 750x750, men kan selvfølgelig ændres på runtime.
+	 */
+
 	public DrawWindow() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
@@ -73,6 +78,11 @@ public class DrawWindow {
 		window.setVisible(true);
 	}
 
+	/**
+	 * Her opsættes Points of interest menuen. De forskellige kategorier dækker over flere types hver
+	 * for at gøre det mere overskueligt. Alle items er checkbox items så de kan slås til og fra.
+	 * hver enkelt knap får deres funktion fra GUI controlleren.
+	 */
 	private void setUpPOIItems() {
 		poiMenu = new JPopupMenu("Points of interest");
 		JCheckBoxMenuItem foodAndDrinks = new JCheckBoxMenuItem("Food and drinks");
@@ -98,6 +108,10 @@ public class DrawWindow {
 		}
 	}
 
+	/**
+	 * denne metode opsætter de forskellige knapper med deres billeder. samtidig bliver hovedmenuens
+	 * konstruktør kaldt og opsat. overlayet til søgebaren bliver sat på windowpane.
+	 */
 	private void setUpButtons() {
 		searchButton = new ImageButton("/SearchButtonImage.png");
 		menuButton = new ImageButton("/MenuButtonImage.png");
@@ -128,16 +142,27 @@ public class DrawWindow {
 		windowPane.setComponentZOrder(menuButton, 1);
 	}
 
-
+	/**
+	 * tilføjer WindowControlleren som listener til komponenterne i vinduet
+	 * @param controller
+	 */
 	public void setComponentListener(ComponentListener controller) {
 		window.addComponentListener(controller);
 	}
 
+	/**
+	 * tilføjer controlleren til de to comboboxe for at anvende keyboard
+	 * @param controller
+	 */
 	public void setKeyListener(KeyListener controller) {
 		combo.getEditor().getEditorComponent().addKeyListener((controller));
 		secondCombo.getEditor().getEditorComponent().addKeyListener((controller));
 	}
 
+	/**
+	 * tilføjer musens funktioner til de forskellige knapper fra controlleren
+	 * @param controller
+	 */
 	public void setMouseListener(MouseListener controller) {
 		searchButton.addMouseListener(controller);
 		zoomInButton.addMouseListener(controller);
@@ -145,6 +170,11 @@ public class DrawWindow {
 		pointsOfInterestButton.addMouseListener(controller);
 		menuButton.addMouseListener(controller);
 	}
+
+	/**
+	 * tilføjer genveje til alle de knapper som har en i controlleren ud fra deres givne string
+	 * @param controller
+	 */
 
 	public void addActionListener(ActionListener controller) {
 		for (JCheckBoxMenuItem items : POICheckBoxArray) {
@@ -174,6 +204,10 @@ public class DrawWindow {
 		fancyPan.setActionCommand("Fancypan");
 	}
 
+	/**
+	 * sætter ordnen på alle componenter i den JLayeredPane der er vores windowManager
+	 * @param canvas
+	 */
 	public void setComponentzZOrder(DrawCanvas canvas) {
 		windowPane.add(canvas, 100);
 		windowPane.add(combo, 50);
@@ -196,7 +230,7 @@ public class DrawWindow {
 	}
 
 	/**
-	 * Makes the autocomplete bar with all the addresses
+	 * laver autocompleter baren med alle adresserne
 	 */
 	public void createAutocomplete(TST tree) {
 		combo = new AutocompleteJComboBox(tree);
@@ -206,12 +240,19 @@ public class DrawWindow {
 		secondCombo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 	}
 
+	/**
+	 * tilføjer tst træet til de to autocompletere
+	 * @param tree
+	 */
 	public void setTreeInAutocompleter(TST tree){
 		combo.setTree(tree);
 		secondCombo.setTree(tree);
 	}
 
-
+	/**
+	 * funktionen ændrer farverne til nightmode på comboboxen og kortets andre komponenter
+	 * @param theme
+	 */
 	public void toggleNightModeComboBox(GUIMode theme) {
 		boolean isNightmode = theme == GUIMode.NIGHT;
 		combo.getEditor().getEditorComponent().setBackground(isNightmode ? new Color(36, 47, 62) : Color.white);
@@ -219,7 +260,13 @@ public class DrawWindow {
 		component.setForeground(isNightmode ? Color.WHITE : Color.black);
 		component.setCaretColor(isNightmode ? Color.WHITE : Color.black);
 	}
-
+//FIXME
+	/**
+	 *
+	 * @param stroke
+	 * @param action
+	 * @param clicker
+	 */
 	public void addKeyListeners(KeyStroke stroke, String action, JMenuItem clicker) {
 		windowPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(stroke, action);
 		windowPane.getActionMap().put(action, new AbstractAction() {
@@ -230,6 +277,10 @@ public class DrawWindow {
 		});
 	}
 
+	/**
+	 * Laver hovedmenuen og undermenuen og opsætter deres funktioner vi Controlleren.
+	 * "action" er de navne de har i controlleren. de får samtidig tastaur genveje
+	 */
 	public void setUpMenu() {
 		popUpMenu = new JPopupMenu("Options");
 
@@ -275,7 +326,7 @@ public class DrawWindow {
 
 		popUpMenu.add(tools);
 	}
-
+//FIXME
 	public void showMenuTwo() {
 		if (!menu2IsShown) {
 			popUpMenu.show(menuButton, 0, 40);
@@ -285,7 +336,7 @@ public class DrawWindow {
 		menu2IsShown = !menu2IsShown;
 		window.repaint();
 	}
-
+//FIXME
 	public void showMenuOne() {
 		if (!menu1IsShown) {
 			poiMenu.show(sidebarMenu, 0, 130);
@@ -296,6 +347,10 @@ public class DrawWindow {
 		window.repaint();
 	}
 
+	/**
+	 * sætter altid vejvisningsviduet og sidebarens position til en fast afstand fra kanten af vinduet
+	 * @param canvas
+	 */
 	public void setBounds(DrawCanvas canvas) {
 		canvas.setBounds(0, 0, window.getWidth(), window.getHeight());
 		sidebarMenu.setBounds(canvas.getWidth() - 60, 10, 40, 130);
@@ -303,6 +358,12 @@ public class DrawWindow {
 
 	}
 
+	/**
+	 * funktionen viser directions søgefeltet (nummer to søgefelt) når den vælges i menuen.
+	 * den er som udgangspunkt ikke vist. Timeren her gør så at boxen kommer glidende ned fra den anden box
+	 * når den fravælges igen vil den køre op igen på samme måde.
+	 * Directions-vinduet kommer samtidig med frem når metoden køres.
+	 */
 	boolean showDirectionsComboBox = false;
 	public void toggleDirectionsBar() {
 		showDirectionsComboBox = !showDirectionsComboBox;
@@ -338,6 +399,11 @@ public class DrawWindow {
 		else{directionsWindow.setVisible(false);}
 
 	}
+
+	/**
+	 * opsætter directions vinduet som køres under toggleDirectionsBar.
+	 * den består af et gridBaglayout med underlæggende GridBags inden i.
+	 */
         //creates the directions menu
 	public void toggleDirections(){
 
