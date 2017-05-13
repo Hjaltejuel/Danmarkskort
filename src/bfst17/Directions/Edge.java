@@ -53,9 +53,9 @@ public class Edge {
      * @return returnerer den tilpassede vægt
      */
     public double getWeight(WeighType weighType) {
-        if(weighType == WeighType.FASTEST) {
+        if(weighType == WeighType.FASTESTCAR) {
             calcWeightForFastest();
-        } else if(weighType == WeighType.SHORTEST) {
+        } else if(weighType == WeighType.SHORTESTBICYCLE || weighType == weighType.SHORTESTFOOT) {
             calcWeightForShortest();
         }
         return weight;

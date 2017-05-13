@@ -162,7 +162,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()));
                 Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
-                model.getGraph().findShortestPath(fromPoint, toPoint, WeighType.SHORTEST);
+                model.getGraph().findShortestPath(fromPoint, toPoint, WeighType.SHORTESTFOOT);
                 System.out.println("Begynd...");
                 for (DirectionObject DirObj : model.getDirectionsList()) {
                     System.out.println(DirObj);

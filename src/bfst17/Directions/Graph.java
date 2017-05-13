@@ -15,6 +15,7 @@ public class Graph {
     private ArrayList<Point2D> pointList;
     private HashSet<GraphNode> relaxedNodes;
     private PriorityQueue<GraphNode> unRelaxedNodes;
+    private double finalDistance;
 
     /**
      * Opretter en Graf
@@ -47,7 +48,9 @@ public class Graph {
                 GraphNode previousGraphNode = graphNodeBuilder.get(currentWay.get(i - 1));
                 GraphNode currentGraphNode = graphNodeBuilder.get(currentWay.get(i));
                 addEdge(previousGraphNode, currentGraphNode);
-                addEdge(currentGraphNode, previousGraphNode);
+                if(!currentGraphNode.isOneway()) {
+                    addEdge(currentGraphNode, previousGraphNode);
+                }
             }
         }
         System.out.println("Graph complete!");
@@ -104,6 +107,7 @@ public class Graph {
             pointList.add(n.getPoint2D());
         }
         Collections.reverse(pathList);
+        System.out.println(target.getDistTo());
     }
 
     /**
@@ -111,14 +115,24 @@ public class Graph {
      * bliver de lagt i Queuen (unRelaxedNodes) og så bliver deres naboer undersøgt.
      * ved samtidig at lægge hver edges weight til nodernes distance, finder vi den korteste path
      * @param node          Den node, hvis naboer skal undersøges
-     * @param weighType     vægtTypen ( FASTEST | SHORTEST )
+     * @param weighType     vægtTypen ( FASTESTCAR | SHORTESTBIKE | SHORESTFOOT )
      */
     private void relaxEdges(GraphNode node, WeighType weighType) {
         ArrayList<Edge> edgelist = node.getEdgeList();
         for (Edge edge : edgelist) {
             GraphNode destinationNode = edge.getDestination();
             if (!relaxedNodes.contains(destinationNode)) {
-                double tempDistTo = node.getDistTo() + edge.getWeight(weighType);
+                double tempDistTo = 0.0;
+                boolean weightCheck = false;
+                for(WeighType wT: destinationNode.getTypes()){
+                    if(!weighType.toString().equals(wT.toString()) && weightCheck == false){
+                        tempDistTo = Double.POSITIVE_INFINITY;
+                    }
+                    else{
+                        tempDistTo = node.getDistTo() + edge.getWeight(weighType);
+                        weightCheck = true;
+                    }
+                }
                 if (tempDistTo < destinationNode.getDistTo()) {
                     destinationNode.setDistTo(tempDistTo);
                     destinationNode.setNodeFrom(node);
@@ -142,5 +156,8 @@ public class Graph {
 
     public HashMap<Point2D, GraphNode> getGraphFilteredMap() {
         return graphNodeBuilder;
+    }
+    public double getFinalDistance(){
+        return finalDistance;
     }
 }

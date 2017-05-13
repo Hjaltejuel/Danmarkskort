@@ -1,7 +1,7 @@
 package bfst17.Directions;
 
 import bfst17.Enums.RoadTypes;
-import bfst17.Enums.VehicleType;
+import bfst17.Enums.WeighType;
 import bfst17.OSMData.OSMNode;
 
 import java.awt.geom.Point2D;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class GraphNode implements Comparable {
     private OSMNode originOSMNode;
     private GraphNode nodeFrom;
-    private boolean end, shortest, oneway;
+    private boolean end, oneway;
     private int maxSpeed = 0;
     private RoadTypes type;
     private ArrayList<Edge> edgeList;
@@ -30,12 +30,6 @@ public class GraphNode implements Comparable {
         this.oneway = oneway;
         this.maxSpeed = maxSpeed;
         this.type = type;
-        for(VehicleType vehicleType : type.getVehicletypes()) {
-            if (vehicleType == VehicleType.BICYCLE || vehicleType == VehicleType.ONFOOT) {
-                this.shortest = true;
-                break;
-            }
-        }
         this.originOSMNode = originOSMNode;
         edgeList = new ArrayList<>();
     }
@@ -46,16 +40,12 @@ public class GraphNode implements Comparable {
     }
 
 
-    public boolean isShortest() {
-        return shortest;
-    }
-
     public boolean isOneway() {
         return oneway;
     }
 
-    public VehicleType[] getTypes() {
-        return type.getVehicletypes();
+    public WeighType[] getTypes() {
+        return type.getWeighTypes();
     }
 
     public boolean isEnd() {

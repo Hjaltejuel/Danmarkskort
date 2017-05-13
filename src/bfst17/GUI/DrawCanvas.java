@@ -373,8 +373,10 @@ public class DrawCanvas extends JComponent {
         } else {
             ArrayList<Point2D> graphPointList = graph.getPointList();
             if (graphPointList != null) {
-                PolygonApprox polygon = new PolygonApprox(graphPointList);
-                g.draw(polygon);
+                if(graphPointList.size() != 0) {
+                    PolygonApprox polygon = new PolygonApprox(graphPointList);
+                    g.draw(polygon);
+                }
             }
         }
     }
