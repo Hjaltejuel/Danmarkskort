@@ -536,26 +536,6 @@ public class DrawCanvas extends JComponent {
      */
     public boolean shouldDrawRoadName(WayType roadType) {
         switch (roadType) {
-            case HIGHWAY_PRIMARY:
-                if (getZoomFactor() > 25000) {
-                    return true;
-                }
-                break;
-            case HIGHWAY_SECONDARY:
-                if (getZoomFactor() > 35000) {
-                    return true;
-                }
-                break;
-            case HIGHWAY_TERTIARY:
-                if (getZoomFactor() > 50000) {
-                    return true;
-                }
-                break;
-            case HIGHWAY_MOTORWAY:
-                if (getZoomFactor() > 20000) {
-                    return true;
-                }
-                break;
             default:
                 if (getZoomFactor() > 250000) {
                     return true;

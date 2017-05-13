@@ -48,7 +48,7 @@ public class Model extends Observable implements Serializable {
     private CityNamesKDTree townTree = new CityNamesKDTree();
 
     String name = "";
-    OSMNode regionCenter = null;
+    Point2D regionCenter = null;
     boolean adminRelation = false;
     private boolean isAddressNode = false;
     private AddressModel addressModel = new AddressModel();
@@ -65,7 +65,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
+            load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -640,9 +640,13 @@ public class Model extends Observable implements Serializable {
                                     oneway = true;
                                 }
                             }
+                            break;
                         case "name":
                             name = v;
                             if (isHighway) {
+                                if(v.equals("yes")){
+
+                                }
                                 roadName = v;
                             }
                             break;
@@ -663,9 +667,9 @@ public class Model extends Observable implements Serializable {
                     String role = atts.getValue("role");
                     ref = Long.parseLong(atts.getValue("ref"));
                     if (role.equals("admin_centre")) {
-                        if (idToNode.get(ref)!=null) {
+                        if (idToNode.get(ref)==null) {
                             regionCenter = new OSMNode((maxlon + minlon) / 2, -(maxlat + minlat) / 2);
-                        }
+                        } else {regionCenter =  idToNode.get(ref);}
                         adminRelation = true;
                     }
                     OSMWay way = idToWay.get(ref);
