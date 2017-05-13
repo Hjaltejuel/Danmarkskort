@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -538,8 +539,6 @@ public class Model extends Observable implements Serializable {
 
         @Override
         public void endDocument() throws SAXException {
-            //idToNode = null;
-            //System.gc();
             long StartTime = System.nanoTime();
             fillTrees();
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
