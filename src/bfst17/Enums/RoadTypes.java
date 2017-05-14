@@ -10,11 +10,11 @@ public enum RoadTypes {
 
     HIGHWAY_PRIMARY(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE}, 80),
 
-    HIGHWAY_SECONDARY(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}, 5000),
+    HIGHWAY_SECONDARY(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}, 50),
 
     HIGHWAY_TERTIARY(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}, 50),
 
-    HIGHWAY_UNCLASSIFIED(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}, 1),
+    HIGHWAY_UNCLASSIFIED(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}, 50),
 
     HIGHWAY_RESIDENTIAL(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}, 30),
 

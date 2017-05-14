@@ -47,10 +47,10 @@ public class Graph {
             for (int i = 1; i < currentWay.size(); i++) {
                 GraphNode previousGraphNode = graphNodeBuilder.get(currentWay.get(i - 1));
                 GraphNode currentGraphNode = graphNodeBuilder.get(currentWay.get(i));
+                //if(!currentGraphNode.isOneway()) {
+                addEdge(currentGraphNode, previousGraphNode);
                 addEdge(previousGraphNode, currentGraphNode);
-                if(!currentGraphNode.isOneway()) {
-                    addEdge(currentGraphNode, previousGraphNode);
-                }
+                //}
             }
         }
         System.out.println("Graph complete!");
@@ -60,12 +60,10 @@ public class Graph {
      * Resetter graphen så den er klar til en ny Shortest Path
      */
     public void cleanUpGraph() {
-        int j=0;
         for (GraphNode graphNode : graphNodeBuilder.values()) {
             graphNode.setDistTo(Double.POSITIVE_INFINITY);
             graphNode.setNodeFrom(null);
         }
-        System.out.println(j);
     }
 
     /**
@@ -105,6 +103,7 @@ public class Graph {
             pathList.add(n);
             pointList.add(n.getPoint2D());
         }
+        System.out.println(pointList.size());
         Collections.reverse(pathList);
     }
 
@@ -121,6 +120,7 @@ public class Graph {
             GraphNode destinationNode = edge.getDestination();
             if (!destinationNode.isMarked()) {
                 if (destinationNode.supportsVehicle(vehicleType)) {
+
                     double tempDistTo = node.getDistTo() + edge.getWeight(vehicleType);
                     if (tempDistTo < destinationNode.getDistTo()) {
                         destinationNode.setDistTo(tempDistTo);

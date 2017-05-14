@@ -3,6 +3,8 @@ package bfst17.Directions;
 import bfst17.Enums.VehicleType;
 import bfst17.Enums.WeighType;
 
+import java.util.DoubleSummaryStatistics;
+
 /**
  * Created by Jakob Roos on 24/04/2017.
  */
@@ -57,6 +59,7 @@ public class Edge {
      * @return returnerer den tilpassede vægt
      */
     public double getWeight(VehicleType weighType) {
+
         if(weighType == VehicleType.CAR) {
             calcWeightForFastest(weighType);
         } else if(weighType == VehicleType.BICYCLE || weighType == VehicleType.FOOT) {

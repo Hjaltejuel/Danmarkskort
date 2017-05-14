@@ -608,14 +608,19 @@ public class Model extends Observable implements Serializable {
             graph = new Graph(graphNodeBuilder, graphWays);
 
 
-            TSTInterface addressDest = addressModel.getAddress("Søndre Landevej 2, 3730 Nexø");//Aasen 4, 3730 Nexø");
-            TSTInterface address = addressModel.getAddress("Engen 1, 3730 Nexø");
+            //TSTInterface addressDest = addressModel.getAddress("Søndre Landevej 17, 3730 Nexø");//Aasen 4, 3730 Nexø");
+            //TSTInterface address = addressModel.getAddress("Søndre Landevej 31w, 3730 Nexø");
+
+
+            TSTInterface addressDest = addressModel.getAddress("Aasen 4, 3730 Nexø");
+            TSTInterface address = addressModel.getAddress("Thorsvej 1, 3700 Rønne");
 
             TreeNode closestNode = getClosestRoad(new Point2D.Double(address.getX(), address.getY()), VehicleType.CAR);
             Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
             closestNode = getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), VehicleType.CAR);
             Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
+            System.out.println(((RoadKDTree.RoadTreeNode)closestNode).getRoadName());
 
             getGraph().findShortestPath(fromPoint, toPoint, VehicleType.CAR);
 
@@ -782,8 +787,12 @@ public class Model extends Observable implements Serializable {
                                 startStopPunkter.add(new Line2D.Double(way.get(0), way.get(way.size() - 1)));
                                 graphWays.add(way);
                                 for (int i = 0; i < way.size(); i++) {
+                                    GraphNode gNode = graphNodeBuilder.get(way.get(i));
                                     if (!graphNodeBuilder.containsKey(way.get(i))) {
-                                        graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed));
+                                            graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed));
+                                    } else {
+                                        System.out.println(graphNodeBuilder.get(way.get(i)).getEdgeList().size());
+                                        //graphNodeBuilder.get(way.get(i)).addEdge();
                                     }
                                 }
                             } catch (Exception e) {
