@@ -356,7 +356,7 @@ public class DrawCanvas extends JComponent {
                 g.drawString(townName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
             }
         }
-
+//S
         //Draw citynames
         if (getZoomFactor() < 400 && getZoomFactor() > 180) {
             CityNamesKDTree cityTree = model.getCityTree();
