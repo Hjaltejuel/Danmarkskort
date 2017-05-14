@@ -2,6 +2,8 @@ package bfst17.Directions;
 
 import bfst17.Enums.RoadTypes;
 import bfst17.Enums.VehicleType;
+import bfst17.Model;
+import bfst17.Enums.WeighType;
 import bfst17.OSMData.OSMNode;
 
 import java.awt.geom.Point2D;
@@ -11,13 +13,27 @@ import java.util.ArrayList;
  * Created by trold on 2/15/17.
  */
 public class GraphNode implements Comparable {
-    private OSMNode originOSMNode;
+    private Point2D originOSMNode;
     private GraphNode nodeFrom;
-    private boolean end, shortest, oneway;
+    private boolean end, oneway;
+    private boolean isCAR, isBIKE, isFOOT;
+    private boolean marked;
     private int maxSpeed = 0;
     private RoadTypes type;
     private ArrayList<Edge> edgeList;
     private double distance = Double.POSITIVE_INFINITY;
+
+    public void setType(RoadTypes type) {
+        for(VehicleType vehicleType : type.getVehicletypes()){
+            if(vehicleType==VehicleType.CAR){isCAR=true;}
+            if(vehicleType==vehicleType.BICYCLE){isBIKE=true;}
+            if(vehicleType==vehicleType.FOOT){isFOOT=true;}
+        }
+    }
+
+    public void setMaxSpeed(int maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
 
     /**
      * Opretter en GraphNode
@@ -26,32 +42,43 @@ public class GraphNode implements Comparable {
      * @param oneway            Hvorvidt vejen er ensrettet
      * @param maxSpeed          Hvor hurtigt man må køre på vejen
      */
-    public GraphNode(OSMNode originOSMNode, RoadTypes type, boolean oneway, int maxSpeed) {
+    public GraphNode(Point2D originOSMNode, RoadTypes type, boolean oneway, int maxSpeed) {
         this.oneway = oneway;
-        this.maxSpeed = maxSpeed;
-        this.type = type;
-        for(VehicleType vehicleType : type.getVehicletypes()) {
-            if (vehicleType == VehicleType.BICYCLE || vehicleType == VehicleType.ONFOOT) {
-                this.shortest = true;
-                break;
-            }
+        if(maxSpeed==0) {
+            this.maxSpeed = type.getMaxSpeed();
+        } else {
+            this.maxSpeed = maxSpeed;
         }
+        this.type = type;
+        setType(type);
         this.originOSMNode = originOSMNode;
+        marked = false;
         edgeList = new ArrayList<>();
     }
-
 
     public Point2D getPoint2D() {
         return new Point2D.Double(originOSMNode.getX(), originOSMNode.getY());
     }
 
-
-    public boolean isShortest() {
-        return shortest;
+    public boolean supportsVehicle(VehicleType vehicleType) {
+        if (vehicleType == VehicleType.CAR && isCAR) {
+            return true;
+        }
+        if (vehicleType == vehicleType.BICYCLE && isBIKE) {
+            return true;
+        }
+        if (vehicleType == vehicleType.FOOT && isFOOT) {
+            return true;
+        }
+        return false;
     }
 
     public boolean isOneway() {
         return oneway;
+    }
+
+    public String getRoadName(Model model){
+        return model.getClosestRoad(getPoint2D(), VehicleType.CAR).getRoadName();
     }
 
     public VehicleType[] getTypes() {
@@ -93,6 +120,14 @@ public class GraphNode implements Comparable {
     public void addEdge(GraphNode destination) {
         Edge edge = new Edge(this, destination);
         edgeList.add(edge);
+    }
+
+    public boolean isMarked() {
+        return marked;
+    }
+
+    public void setMarked(boolean marked) {
+        this.marked = marked;
     }
 
     @Override

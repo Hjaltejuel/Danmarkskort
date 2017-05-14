@@ -243,7 +243,7 @@ public class DrawCanvas extends JComponent {
      */
     public void getNearestNeighbourFromMousePos(Point2D mousePos) {
         Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(), mousePos.getY());
-        addressNode = model.getClosestRoad(lonLatCords);
+        addressNode = model.getClosestRoad(lonLatCords, VehicleType.ANY);
         if(addressNode == null){
             return;
         }
@@ -355,15 +355,17 @@ public class DrawCanvas extends JComponent {
     public void drawGraph(Graphics2D g) {
         g.setColor(Color.BLACK);
 
-        g.setStroke(new BasicStroke(0.00008f));
+        g.setStroke(new BasicStroke(0.000004f));
         Graph graph = model.getGraph();
         if (graph == null) {
             return;
         } else {
             ArrayList<Point2D> graphPointList = graph.getPointList();
             if (graphPointList != null) {
-                PolygonApprox polygon = new PolygonApprox(graphPointList);
-                g.draw(polygon);
+                if(graphPointList.size() != 0) {
+                    PolygonApprox polygon = new PolygonApprox(graphPointList);
+                    g.draw(polygon);
+                }
             }
         }
     }
@@ -474,7 +476,11 @@ public class DrawCanvas extends JComponent {
 
         drawGraph(g);
 
-
+/*        g.setColor(Color.black);
+        for(Line2D l : model.startStopPunkter){
+            g.draw(l);
+        }
+*/
         //Tegn regionen, hvis der er søgt efter den
         if (regionShape != null) {
             Color color = g.getColor();

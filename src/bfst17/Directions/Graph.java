@@ -1,7 +1,7 @@
 package bfst17.Directions;
 
+import bfst17.Enums.VehicleType;
 import bfst17.Enums.WeighType;
-import bfst17.OSMData.OSMNode;
 import bfst17.OSMData.OSMWay;
 
 import java.awt.geom.Point2D;
@@ -14,8 +14,8 @@ public class Graph {
     private HashMap<Point2D, GraphNode> graphNodeBuilder;
     private ArrayList<GraphNode> pathList;
     private ArrayList<Point2D> pointList;
-    private HashSet<GraphNode> relaxedNodes;
     private PriorityQueue<GraphNode> unRelaxedNodes;
+    private double finalDistance;
 
     /**
      * Opretter en Graf
@@ -47,8 +47,9 @@ public class Graph {
             for (int i = 1; i < currentWay.size(); i++) {
                 GraphNode previousGraphNode = graphNodeBuilder.get(currentWay.get(i - 1));
                 GraphNode currentGraphNode = graphNodeBuilder.get(currentWay.get(i));
+                //if(!currentGraphNode.isOneway()) {
                 addEdge(previousGraphNode, currentGraphNode);
-                addEdge(currentGraphNode, previousGraphNode);
+                //}
             }
         }
         System.out.println("Graph complete!");
@@ -58,12 +59,10 @@ public class Graph {
      * Resetter graphen så den er klar til en ny Shortest Path
      */
     public void cleanUpGraph() {
-        int j=0;
         for (GraphNode graphNode : graphNodeBuilder.values()) {
             graphNode.setDistTo(Double.POSITIVE_INFINITY);
             graphNode.setNodeFrom(null);
         }
-        System.out.println(j);
     }
 
     /**
@@ -72,7 +71,7 @@ public class Graph {
      * @param point2Destination     Slut punkt
      * @param weighType             Vægttype ( FASTEST | SHORTEST )
      */
-    public void findShortestPath(Point2D point2Source, Point2D point2Destination, WeighType weighType) {
+    public void findShortestPath(Point2D point2Source, Point2D point2Destination, VehicleType weighType) {
         GraphNode source = graphNodeBuilder.get(point2Source);
         GraphNode target = graphNodeBuilder.get(point2Destination);
         if (source == null || target == null) {
@@ -81,7 +80,6 @@ public class Graph {
 
         cleanUpGraph(); //Clean graph før vi går i gang
 
-        relaxedNodes = new HashSet<>();
         unRelaxedNodes = new PriorityQueue<>();
 
         source.setDistTo(0.0);
@@ -89,9 +87,9 @@ public class Graph {
         unRelaxedNodes.add(source);
 
         while (!unRelaxedNodes.isEmpty()) {
-            GraphNode node = unRelaxedNodes.poll();
+            GraphNode node = unRelaxedNodes.peek();
             //node.setSettled(true);
-            relaxedNodes.add(node);
+            node.setMarked(true);
             unRelaxedNodes.remove(node);
             relaxEdges(node, weighType);
         }
@@ -104,6 +102,7 @@ public class Graph {
             pathList.add(n);
             pointList.add(n.getPoint2D());
         }
+        System.out.println(pointList.size());
         Collections.reverse(pathList);
     }
 
@@ -112,19 +111,21 @@ public class Graph {
      * bliver de lagt i Queuen (unRelaxedNodes) og så bliver deres naboer undersøgt.
      * ved samtidig at lægge hver edges weight til nodernes distance, finder vi den korteste path
      * @param node          Den node, hvis naboer skal undersøges
-     * @param weighType     vægtTypen ( FASTEST | SHORTEST )
+     * @param vehicleType     vægtTypen ( CAR | BICYCLE | FOOT )
      */
-    private void relaxEdges(GraphNode node, WeighType weighType) {
+    private void relaxEdges(GraphNode node, VehicleType vehicleType) {
         ArrayList<Edge> edgelist = node.getEdgeList();
         for (Edge edge : edgelist) {
             GraphNode destinationNode = edge.getDestination();
-            if (!relaxedNodes.contains(destinationNode)) {
-                double tempDistTo = node.getDistTo() + edge.getWeight(weighType);
-                if (tempDistTo < destinationNode.getDistTo()) {
-                    destinationNode.setDistTo(tempDistTo);
-                    destinationNode.setNodeFrom(node);
+            if (!destinationNode.isMarked()) {
+                if (destinationNode.supportsVehicle(vehicleType)) {
+                    double tempDistTo = node.getDistTo() + edge.getWeight(vehicleType);
+                    if (tempDistTo < destinationNode.getDistTo()) {
+                        destinationNode.setDistTo(tempDistTo);
+                        destinationNode.setNodeFrom(node);
+                    }
+                    unRelaxedNodes.add(destinationNode);
                 }
-                unRelaxedNodes.add(destinationNode);
             }
         }
     }
@@ -143,5 +144,8 @@ public class Graph {
 
     public HashMap<Point2D, GraphNode> getGraphFilteredMap() {
         return graphNodeBuilder;
+    }
+    public double getFinalDistance(){
+        return finalDistance;
     }
 }

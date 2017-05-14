@@ -1,6 +1,9 @@
 package bfst17.Directions;
 
+import bfst17.Enums.VehicleType;
 import bfst17.Enums.WeighType;
+
+import java.util.DoubleSummaryStatistics;
 
 /**
  * Created by Jakob Roos on 24/04/2017.
@@ -27,8 +30,12 @@ public class Edge {
      * Udregner edges vægt mhp. at det skal være den hurtigeste rute
      * der tages altså også højde for hvor hurtigt man må køre på vejen
      */
-    private void calcWeightForFastest() {
-        Integer maxSpeed = Math.max(source.getMaxSpeed(),destination.getMaxSpeed());
+    private void calcWeightForFastest(VehicleType vehicleType) {
+        double maxSpeed = Math.max(source.getMaxSpeed(), destination.getMaxSpeed());
+        if(maxSpeed==0) {
+            //System.out.println("Car route fucked!");
+            maxSpeed=0.9;
+        }
         weight = distance / maxSpeed;
     }
 
@@ -39,7 +46,6 @@ public class Edge {
         weight = distance;
     }
 
-
     public GraphNode getSource() {
         return source;
     }
@@ -49,16 +55,15 @@ public class Edge {
     }
 
     /**
-     * @param weighType hvorvidt det skal være Fastest / Shortest
+     * @param vehicleType hvorvidt det skal være Fastest / Shortest
      * @return returnerer den tilpassede vægt
      */
-    public double getWeight(WeighType weighType) {
-        if(weighType == WeighType.FASTEST) {
-            calcWeightForFastest();
-        } else if(weighType == WeighType.SHORTEST) {
+    public double getWeight(VehicleType vehicleType) {
+        if(vehicleType == VehicleType.CAR) {
+            calcWeightForFastest(vehicleType);
+        } else if(vehicleType == VehicleType.BICYCLE || vehicleType == VehicleType.FOOT) {
             calcWeightForShortest();
         }
         return weight;
-
     }
 }

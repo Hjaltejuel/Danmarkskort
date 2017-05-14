@@ -1,6 +1,7 @@
 package bfst17.Directions;
 
 import bfst17.Enums.RoadDirektion;
+import bfst17.Enums.VehicleType;
 import bfst17.Model;
 
 import java.awt.geom.Point2D;
@@ -9,12 +10,10 @@ import java.awt.geom.Point2D;
  * Created by Jens on 10-05-2017.
  */
 public class DirectionObject {
-    String currentRoad;
-
-    double roadLength;
-
-    RoadDirektion roadDirection;
-    Point2D location;
+    private String currentRoad;
+    private double roadLength;
+    private RoadDirektion roadDirection;
+    private Point2D location;
 
     /**
      * Opret et direktionobjekt
@@ -22,11 +21,11 @@ public class DirectionObject {
      * @param to punktet til
      * @param model modellen
      */
-    public DirectionObject(Point2D from, Point2D to, Model model) {
-        location=from;
-        calculationRoadLength(from, to);
-        setTurnType(from, to);
-        setRoadName(to, model);
+    public DirectionObject(Point2D to, Model model, VehicleType vehicleType) {
+        location=to;
+        //calculationRoadLength(from, to);
+        //setTurnType(from, to);
+        setRoadName(to, model, vehicleType);
     }
 
     /**
@@ -34,8 +33,10 @@ public class DirectionObject {
      * @param to
      * @param model
      */
-    public void setRoadName(Point2D to, Model model) {
-        currentRoad = model.getClosestRoad(to).getRoadName();
+    public void setRoadName(Point2D to, Model model, VehicleType vehicleType) {
+        currentRoad = model.getClosestRoad(to, vehicleType).getRoadName();
+        roadLength=0;
+        roadDirection=RoadDirektion.EAST;
     }
 
     /**

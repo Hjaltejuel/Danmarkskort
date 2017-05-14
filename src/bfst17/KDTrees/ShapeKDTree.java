@@ -36,7 +36,7 @@ public class ShapeKDTree extends KDTree {
             PathIterator PI = shape.getPathIterator(null);
             while(!PI.isDone()) {
                 Counter++;
-                if(Counter%70==0) {
+                if(Counter%1==0) {
                     PI.currentSegment(coordinates);
                     allShapesList.add(new ShapeTreeNode(shape, coordinates[0], coordinates[1]));
                 }

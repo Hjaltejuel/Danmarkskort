@@ -21,7 +21,7 @@ public class RoadKDTree extends KDTree {
     }
 
     public <E> void fillTree(List<E> roadNodes) {
-        if (roadNodes.size() == 0) {
+        if (roadNodes==null || roadNodes.size() == 0) {
             return;
         }
 
@@ -70,11 +70,6 @@ public class RoadKDTree extends KDTree {
         if(startNode.isInside(rect)) {
             nodes.add(((RoadTreeNode)startNode).getRoadNode());
         }
-
-
-        //boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMaxX() : startNode.getSplit() > rect.getMaxY();
-        //boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMinX() : startNode.getSplit() < rect.getMinY();
-
         boolean goLow = startNode.vertical ? startNode.getSplit() > rect.getMinX() : startNode.getSplit() > rect.getMinY();
         boolean goHigh = startNode.vertical ? startNode.getSplit() < rect.getMaxX() : startNode.getSplit() < rect.getMaxY();
 
