@@ -19,6 +19,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
@@ -58,6 +59,8 @@ public class Model extends Observable implements Serializable {
     private float lonfactor;
     private Graph graph;
 
+
+    public ArrayList<Line2D> startStopPunkter = new ArrayList<>();
     public Model(String filename) throws IOException {
         load(filename);
     }
@@ -629,7 +632,6 @@ public class Model extends Observable implements Serializable {
 
         }
 
-        RoadTypes roadType;
         OSMElement currentElementType;
         @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
@@ -773,17 +775,18 @@ public class Model extends Observable implements Serializable {
                     if (type != WayType.NATURAL_COASTLINE && type != WayType.UNKNOWN) {
                         PolygonApprox shape = new PolygonApprox(way);
                         if (isHighway) { //Hvis vejen er en highway
-                            try{
+                            try {
                                 RoadTypes roadType = RoadTypes.valueOf(type.toString());
                                 addRoad(shape, name, type); //Tilføj vej
 
+                                startStopPunkter.add(new Line2D.Double(way.get(0), way.get(way.size() - 1)));
                                 graphWays.add(way);
                                 for (int i = 0; i < way.size(); i++) {
                                     if (!graphNodeBuilder.containsKey(way.get(i))) {
                                         graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed));
                                     }
                                 }
-                            } catch (Exception e){
+                            } catch (Exception e) {
 
                             }
 

@@ -487,6 +487,10 @@ public class DrawCanvas extends JComponent {
 
         drawGraph(g);
 
+        g.setColor(Color.black);
+        for(Line2D l : model.startStopPunkter){
+            g.draw(l);
+        }
 
         //Tegn regionen, hvis der er søgt efter den
         if (regionShape != null) {

@@ -13,19 +13,18 @@ import java.util.ArrayList;
  * Created by trold on 2/15/17.
  */
 public class GraphNode implements Comparable {
-    private OSMNode originOSMNode;
+    private Point2D originOSMNode;
     private GraphNode nodeFrom;
     private boolean end, oneway;
     private boolean marked;
     private int maxSpeed = 0;
+    private RoadTypes type;
+    private ArrayList<Edge> edgeList;
+    private double distance = Double.POSITIVE_INFINITY;
 
     public RoadTypes getType() {
         return type;
     }
-
-    private RoadTypes type;
-    private ArrayList<Edge> edgeList;
-    private double distance = Double.POSITIVE_INFINITY;
 
     /**
      * Opretter en GraphNode
@@ -34,7 +33,7 @@ public class GraphNode implements Comparable {
      * @param oneway            Hvorvidt vejen er ensrettet
      * @param maxSpeed          Hvor hurtigt man må køre på vejen
      */
-    public GraphNode(OSMNode originOSMNode, RoadTypes type, boolean oneway, int maxSpeed) {
+    public GraphNode(Point2D originOSMNode, RoadTypes type, boolean oneway, int maxSpeed) {
         this.oneway = oneway;
         if(maxSpeed==0) {
             this.maxSpeed = type.getMaxSpeed();
