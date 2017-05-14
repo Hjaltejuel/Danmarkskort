@@ -82,10 +82,10 @@ public class Model extends Observable implements Serializable {
     public ArrayList<TreeNode> getAllClosestRoads(Point2D point, VehicleType vehicle) {
         ArrayList<TreeNode> roadNodes = new ArrayList<>();
         for (RoadKDTree tree : getRoadKDTreeList()) {
-            if(vehicle==VehicleType.ANY) {
+            if (vehicle == VehicleType.ANY) {
                 roadNodes.add(tree.getNearestNeighbour(point));
             } else {
-                if(vehicleSupportsType(tree.getType(),vehicle)){
+                if (vehicleSupportsType(tree.getType(), vehicle)) {
                     roadNodes.add(tree.getNearestNeighbour(point));
                 }
             }

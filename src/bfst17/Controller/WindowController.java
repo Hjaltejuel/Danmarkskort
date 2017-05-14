@@ -156,13 +156,14 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 TSTInterface addressDest = addressModel.getAddress(secondComboBoxString.trim());
                 TSTInterface address = addressModel.getAddress(firstComboBoxString.trim());
 
-                TreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), VehicleType.CAR);
+                VehicleType vType = VehicleType.BICYCLE;
+                TreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
                 Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
-                closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), VehicleType.CAR);
+                closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
                 Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
-                model.getGraph().findShortestPath(fromPoint, toPoint, VehicleType.CAR);
+                model.getGraph().findShortestPath(fromPoint, toPoint, vType);
             }
 
             if (!isPopUpOpen) {
