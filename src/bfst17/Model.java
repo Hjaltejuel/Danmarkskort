@@ -707,12 +707,17 @@ public class Model extends Observable implements Serializable {
                             }
                             break;
                         case "oneway":
-                            if (v.equals("yes")) {
-                                oneway = true;
+                            if(isHighway){
+                                if (v.equals("yes")) {
+                                    oneway = true;
+                                }
                             }
                             break;
                         case "name":
                             name = v;
+                            if (isHighway) {
+                                roadName = v;
+                            }
                             break;
                         case "place":
                             if (v.equals("village") || v.equals("town") || v.equals("city")) {
@@ -762,9 +767,7 @@ public class Model extends Observable implements Serializable {
                     if (type != WayType.NATURAL_COASTLINE && type != WayType.UNKNOWN) {
                         PolygonApprox shape = new PolygonApprox(way);
                         if (type.toString().split("_")[0].equals("HIGHWAY")) { //Hvis vejen er en highway
-                            if(isHighway) {
-                                addRoad(shape, name, type); //Tilføj vej
-                            }
+                            addRoad(shape, name, type); //Tilføj vej
 
                             graphWays.add(way);
                             for (int i = 0; i < way.size(); i++) {
