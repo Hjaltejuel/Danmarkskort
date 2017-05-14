@@ -28,10 +28,11 @@ public class Edge {
      * Udregner edges vægt mhp. at det skal være den hurtigeste rute
      * der tages altså også højde for hvor hurtigt man må køre på vejen
      */
-    private void calcWeightForFastest() {
+    private void calcWeightForFastest(VehicleType vehicleType) {
         double maxSpeed = Math.max(source.getMaxSpeed(), destination.getMaxSpeed());
-        if (maxSpeed == 0) {
-            maxSpeed = 0.99;
+        if(maxSpeed==0) {
+            System.out.println("Car route fucked!");
+            maxSpeed=0.9;
         }
         weight = distance / maxSpeed;
     }
@@ -57,7 +58,7 @@ public class Edge {
      */
     public double getWeight(VehicleType weighType) {
         if(weighType == VehicleType.CAR) {
-            calcWeightForFastest();
+            calcWeightForFastest(weighType);
         } else if(weighType == VehicleType.BICYCLE || weighType == VehicleType.FOOT) {
             calcWeightForShortest();
         }

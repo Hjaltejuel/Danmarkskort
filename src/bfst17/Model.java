@@ -605,7 +605,7 @@ public class Model extends Observable implements Serializable {
             graph = new Graph(graphNodeBuilder, graphWays);
 
 
-            TSTInterface addressDest = addressModel.getAddress("Aasen 4, 3730 Nexø");
+            TSTInterface addressDest = addressModel.getAddress("Søndre Landevej 2, 3730 Nexø");//Aasen 4, 3730 Nexø");
             TSTInterface address = addressModel.getAddress("Engen 1, 3730 Nexø");
 
             TreeNode closestNode = getClosestRoad(new Point2D.Double(address.getX(), address.getY()), VehicleType.CAR);
@@ -629,6 +629,8 @@ public class Model extends Observable implements Serializable {
 
         }
 
+        RoadTypes roadType;
+        OSMElement currentElementType;
         @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
             switch (qName) {
@@ -641,6 +643,7 @@ public class Model extends Observable implements Serializable {
                     maxlon *= lonfactor;
                     break;
                 case "node":
+                    currentElementType = OSMElement.NODE;
                     nodeID = Long.parseLong(atts.getValue("id"));
                     lat = Float.parseFloat(atts.getValue("lat"));
                     lon = Float.parseFloat(atts.getValue("lon"));
@@ -649,12 +652,14 @@ public class Model extends Observable implements Serializable {
                     type = WayType.UNKNOWN;
                     break;
                 case "way":
+                    currentElementType = OSMElement.WAY;
                     way = new OSMWay();
                     Long id = Long.parseLong(atts.getValue("id"));
                     type = WayType.UNKNOWN;
                     idToWay.put(id, way);
                     break;
                 case "relation":
+                    currentElementType = OSMElement.RELATION;
                     relation = new OSMRelation();
                     type = WayType.UNKNOWN;
                     break;
@@ -699,15 +704,13 @@ public class Model extends Observable implements Serializable {
                             type = WayType.BUILDING;
                             break;
                         case "maxspeed":
-                            if (isHighway) {
-                                Matcher matcher = pattern.matcher(v);
-                                if (matcher.matches()) {
-                                    maxSpeed = Integer.parseInt(v);
-                                }
+                            Matcher matcher = pattern.matcher(v);
+                            if (matcher.matches()) {
+                                maxSpeed = Integer.parseInt(v);
                             }
                             break;
                         case "oneway":
-                            if(isHighway){
+                            if (isHighway) {
                                 if (v.equals("yes")) {
                                     oneway = true;
                                 }
@@ -736,9 +739,11 @@ public class Model extends Observable implements Serializable {
                     String role = atts.getValue("role");
                     ref = Long.parseLong(atts.getValue("ref"));
                     if (role.equals("admin_centre")) {
-                        if (idToNode.get(ref)==null) {
+                        if (idToNode.get(ref) == null) {
                             regionCenter = new OSMNode((maxlon + minlon) / 2, -(maxlat + minlat) / 2);
-                        } else {regionCenter =  idToNode.get(ref);}
+                        } else {
+                            regionCenter = idToNode.get(ref);
+                        }
                         adminRelation = true;
                     }
                     OSMWay way = idToWay.get(ref);
@@ -762,26 +767,33 @@ public class Model extends Observable implements Serializable {
                         PointOfInterestObject POIObj = new PointOfInterestObject(POIType, lon * lonfactor, -lat);
                         pointsOfInterest.add(POIObj);
                     }
+                    currentElementType=OSMElement.NONE;
                     break;
                 case "way":
                     if (type != WayType.NATURAL_COASTLINE && type != WayType.UNKNOWN) {
                         PolygonApprox shape = new PolygonApprox(way);
-                        if (type.toString().split("_")[0].equals("HIGHWAY")) { //Hvis vejen er en highway
-                            addRoad(shape, name, type); //Tilføj vej
+                        if (isHighway) { //Hvis vejen er en highway
+                            try{
+                                RoadTypes roadType = RoadTypes.valueOf(type.toString());
+                                addRoad(shape, name, type); //Tilføj vej
 
-                            graphWays.add(way);
-                            for (int i = 0; i < way.size(); i++) {
-                                if (!graphNodeBuilder.containsKey(way.get(i))) {
-                                    RoadTypes roadType = RoadTypes.valueOf(type.toString());
-                                    graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed));
+                                graphWays.add(way);
+                                for (int i = 0; i < way.size(); i++) {
+                                    if (!graphNodeBuilder.containsKey(way.get(i))) {
+                                        graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed));
+                                    }
                                 }
+                            } catch (Exception e){
+
                             }
+
                         }
                         addShape(type, shape); //Tilføj shape
                     }
                     maxSpeed = 0;
                     oneway = false;
                     isHighway = false;
+                    currentElementType=OSMElement.NONE;
                     break;
                 case "relation":
                     if (relation.size() != 0) {
@@ -793,6 +805,7 @@ public class Model extends Observable implements Serializable {
                             addShape(type, path);
                         }
                     }
+                    currentElementType=OSMElement.NONE;
                     break;
             }
         }

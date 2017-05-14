@@ -18,6 +18,11 @@ public class GraphNode implements Comparable {
     private boolean end, oneway;
     private boolean marked;
     private int maxSpeed = 0;
+
+    public RoadTypes getType() {
+        return type;
+    }
+
     private RoadTypes type;
     private ArrayList<Edge> edgeList;
     private double distance = Double.POSITIVE_INFINITY;
@@ -31,7 +36,11 @@ public class GraphNode implements Comparable {
      */
     public GraphNode(OSMNode originOSMNode, RoadTypes type, boolean oneway, int maxSpeed) {
         this.oneway = oneway;
-        this.maxSpeed = maxSpeed;
+        if(maxSpeed==0) {
+            this.maxSpeed = type.getMaxSpeed();
+        } else {
+            this.maxSpeed = maxSpeed;
+        }
         this.type = type;
         this.originOSMNode = originOSMNode;
         marked = false;

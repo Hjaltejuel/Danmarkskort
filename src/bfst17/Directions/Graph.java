@@ -120,15 +120,14 @@ public class Graph {
         for (Edge edge : edgelist) {
             GraphNode destinationNode = edge.getDestination();
             if (!destinationNode.isMarked()) {
-                double tempDistTo;
                 if (destinationNode.supportsVehicle(vehicleType)) {
-                    tempDistTo = node.getDistTo() + edge.getWeight(vehicleType);
+                    double tempDistTo = node.getDistTo() + edge.getWeight(vehicleType);
                     if (tempDistTo < destinationNode.getDistTo()) {
                         destinationNode.setDistTo(tempDistTo);
                         destinationNode.setNodeFrom(node);
                     }
+                    unRelaxedNodes.add(destinationNode);
                 }
-                unRelaxedNodes.add(destinationNode);
             }
         }
     }
