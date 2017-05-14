@@ -4,50 +4,48 @@ package bfst17.Enums;
  * Created by Michelle on 5/12/2017.
  */
 public enum RoadTypes {
-    HIGHWAY_MOTORWAY(new WeighType[]{WeighType.FASTESTCAR}),
+    HIGHWAY_MOTORWAY(new VehicleType[]{VehicleType.CAR}),
 
-    HIGHWAY_TRUNK(new WeighType[]{WeighType.FASTESTCAR}),
+    HIGHWAY_TRUNK(new VehicleType[]{VehicleType.CAR}),
 
-    HIGHWAY_PRIMARY(new WeighType[]{WeighType.FASTESTCAR,WeighType.SHORTESTBICYCLE, WeighType.SHORTESTFOOT}),
+    HIGHWAY_PRIMARY(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE}),
 
-    HIGHWAY_SECONDARY(new WeighType[]{WeighType.FASTESTCAR,WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_SECONDARY(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_TERTIARY(new WeighType[]{WeighType.FASTESTCAR,WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_TERTIARY(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_UNCLASSIFIED(new WeighType[]{WeighType.FASTESTCAR,WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_UNCLASSIFIED(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_RESIDENTIAL(new WeighType[]{WeighType.FASTESTCAR,WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_RESIDENTIAL(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_SERVICE(new WeighType[]{WeighType.FASTESTCAR,WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_SERVICE(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_LIVING_STREET(new WeighType[]{WeighType.FASTESTCAR,WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_LIVING_STREET(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_PEDESTRIAN(new WeighType[]{WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_PEDESTRIAN(new VehicleType[]{VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_BRIDLEWAY(new WeighType[]{WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_BRIDLEWAY(new VehicleType[]{VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_CYCLEWAY(new WeighType[]{WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_CYCLEWAY(new VehicleType[]{VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_FOOTWAY(new WeighType[]{WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_FOOTWAY(new VehicleType[]{VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_PATH(new WeighType[]{WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_PATH(new VehicleType[]{VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_STEPS(new WeighType[]{WeighType.SHORTESTFOOT}),
+    HIGHWAY_STEPS(new VehicleType[]{VehicleType.FOOT}),
 
-    HIGHWAY_TRACK(new WeighType[]{WeighType.FASTESTCAR,WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT}),
+    HIGHWAY_TRACK(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}),
 
-    HIGHWAY_BUS_GUIDEWAY(new WeighType[0]),
+    HIGHWAY_BUS_GUIDEWAY(new VehicleType[0]),
 
-    HIGHWAY_RACEWAY(new WeighType[]{WeighType.FASTESTCAR}),
+    HIGHWAY_RACEWAY(new VehicleType[]{VehicleType.CAR}),
 
-    HIGHWAY_ROAD(new WeighType[]{WeighType.FASTESTCAR,WeighType.SHORTESTBICYCLE,WeighType.SHORTESTFOOT});
+    HIGHWAY_ROAD(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT});
 
+    private final VehicleType[] vehicletypes;
 
-
-    private final WeighType[] WeighTypes;
-
-    RoadTypes(WeighType[] WeighTypes){
-        this.WeighTypes = WeighTypes;
+    RoadTypes(VehicleType[] vehicletypes){
+        this.vehicletypes = vehicletypes;
     }
-    public WeighType[] getWeighTypes(){return WeighType.values();}
+    public VehicleType[] getVehicletypes(){ return vehicletypes; }
 }

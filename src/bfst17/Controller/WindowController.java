@@ -85,7 +85,6 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                         startDirections = true;
                     }
                     else startDirections = false;
-
                     break;
                 case "Nightmode":
                     setColorTheme(GUIMode.NIGHT);
@@ -163,7 +162,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), VehicleType.CAR);
                 Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
-                model.getGraph().findShortestPath(fromPoint, toPoint, WeighType.FASTEST);
+                model.getGraph().findShortestPath(fromPoint, toPoint, VehicleType.CAR);
             }
 
             if (!isPopUpOpen) {

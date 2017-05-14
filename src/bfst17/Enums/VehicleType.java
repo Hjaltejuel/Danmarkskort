@@ -6,6 +6,6 @@ package bfst17.Enums;
 public enum VehicleType {
         CAR,
         BICYCLE,
-        ONFOOT,
+        FOOT,
         ANY
 }

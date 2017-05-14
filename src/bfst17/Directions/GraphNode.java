@@ -40,7 +40,14 @@ public class GraphNode implements Comparable {
         return new Point2D.Double(originOSMNode.getX(), originOSMNode.getY());
     }
 
-
+    public boolean supportsVehicle(VehicleType vehicle) {
+        for (VehicleType vehicleType : type.getVehicletypes()) {
+            if (vehicleType == vehicle) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public boolean isOneway() {
         return oneway;

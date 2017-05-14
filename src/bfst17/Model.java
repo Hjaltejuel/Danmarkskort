@@ -120,7 +120,7 @@ public class Model extends Observable implements Serializable {
      */
     public RoadKDTree.RoadTreeNode getClosestRoad(Point2D point, VehicleType vehicleType) {
         TreeNode closestNode = null;
-        for(TreeNode node : getAllClosestRoads(point, vehicleType)){
+        for (TreeNode node : getAllClosestRoads(point, vehicleType)) {
             if (closestNode == null) {
                 closestNode = node;
             } else {
@@ -613,7 +613,7 @@ public class Model extends Observable implements Serializable {
             closestNode = getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), VehicleType.CAR);
             Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
-            getGraph().findShortestPath(fromPoint, toPoint, WeighType.FASTEST);
+            getGraph().findShortestPath(fromPoint, toPoint, VehicleType.CAR);
 
             //graphNodeBuilder.clear();
         }

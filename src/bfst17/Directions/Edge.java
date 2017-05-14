@@ -1,5 +1,6 @@
 package bfst17.Directions;
 
+import bfst17.Enums.VehicleType;
 import bfst17.Enums.WeighType;
 
 /**
@@ -54,10 +55,10 @@ public class Edge {
      * @param weighType hvorvidt det skal være Fastest / Shortest
      * @return returnerer den tilpassede vægt
      */
-    public double getWeight(WeighType weighType) {
-        if(weighType == WeighType.FASTESTCAR) {
+    public double getWeight(VehicleType weighType) {
+        if(weighType == VehicleType.CAR) {
             calcWeightForFastest();
-        } else if(weighType == WeighType.SHORTESTBICYCLE || weighType == weighType.SHORTESTFOOT) {
+        } else if(weighType == VehicleType.BICYCLE || weighType == VehicleType.FOOT) {
             calcWeightForShortest();
         }
         return weight;

@@ -1,5 +1,6 @@
 package bfst17.Directions;
 
+import bfst17.Enums.VehicleType;
 import bfst17.Enums.WeighType;
 import bfst17.OSMData.OSMWay;
 
@@ -74,7 +75,7 @@ public class Graph {
      * @param point2Destination     Slut punkt
      * @param weighType             Vægttype ( FASTEST | SHORTEST )
      */
-    public void findShortestPath(Point2D point2Source, Point2D point2Destination, WeighType weighType) {
+    public void findShortestPath(Point2D point2Source, Point2D point2Destination, VehicleType weighType) {
         GraphNode source = graphNodeBuilder.get(point2Source);
         GraphNode target = graphNodeBuilder.get(point2Destination);
         if (source == null || target == null) {
@@ -91,7 +92,7 @@ public class Graph {
         unRelaxedNodes.add(source);
 
         while (!unRelaxedNodes.isEmpty()) {
-            GraphNode node = unRelaxedNodes.poll();
+            GraphNode node = unRelaxedNodes.peek();
             //node.setSettled(true);
             relaxedNodes.add(node);
             unRelaxedNodes.remove(node);
@@ -107,7 +108,6 @@ public class Graph {
             pointList.add(n.getPoint2D());
         }
         Collections.reverse(pathList);
-        System.out.println(target.getDistTo());
     }
 
     /**
@@ -115,27 +115,22 @@ public class Graph {
      * bliver de lagt i Queuen (unRelaxedNodes) og så bliver deres naboer undersøgt.
      * ved samtidig at lægge hver edges weight til nodernes distance, finder vi den korteste path
      * @param node          Den node, hvis naboer skal undersøges
-     * @param weighType     vægtTypen ( FASTESTCAR | SHORTESTBIKE | SHORESTFOOT )
+     * @param vehicleType1     vægtTypen ( CAR | BICYCLE | FOOT )
      */
-    private void relaxEdges(GraphNode node, WeighType weighType) {
+    private void relaxEdges(GraphNode node, VehicleType vehicleType1) {
         ArrayList<Edge> edgelist = node.getEdgeList();
         for (Edge edge : edgelist) {
             GraphNode destinationNode = edge.getDestination();
             if (!relaxedNodes.contains(destinationNode)) {
-                double tempDistTo = 0.0;
-                boolean weightCheck = false;
-                for(WeighType wT: destinationNode.getTypes()){
-                    if(!weighType.toString().equals(wT.toString()) && weightCheck == false){
-                        tempDistTo = Double.POSITIVE_INFINITY;
+                double tempDistTo;
+                if(destinationNode.supportsVehicle(vehicleType1)){
+                    tempDistTo = node.getDistTo() + edge.getWeight(vehicleType1);
+                    if (tempDistTo < destinationNode.getDistTo()) {
+                        destinationNode.setDistTo(tempDistTo);
+                        destinationNode.setNodeFrom(node);
                     }
-                    else{
-                        tempDistTo = node.getDistTo() + edge.getWeight(weighType);
-                        weightCheck = true;
-                    }
-                }
-                if (tempDistTo < destinationNode.getDistTo()) {
-                    destinationNode.setDistTo(tempDistTo);
-                    destinationNode.setNodeFrom(node);
+                } else {
+                    tempDistTo = Double.POSITIVE_INFINITY;
                 }
                 unRelaxedNodes.add(destinationNode);
             }
