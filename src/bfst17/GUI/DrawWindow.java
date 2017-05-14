@@ -36,7 +36,6 @@ public class DrawWindow {
 	private JMenuItem nightModeMenuItem;
 	private JMenuItem AntiAliasingToggle;
 	private JMenuItem fancyPan;
-	private JCheckBoxMenuItem directions;
 	private ImageButton searchButton;
 	private ImageButton menuButton;
 	private ImageButton zoomInButton;
