@@ -9,10 +9,19 @@ import java.awt.geom.Point2D;
  * Created by trold on 2/15/17.
  */
 public class OSMNode extends Point2D.Float implements TSTInterface {
+	/**
+	 * Opretter et OSMNode objekt ud fra et x og et y koordinat.
+	 * @param x
+	 * @param y
+	 */
 	public OSMNode(float x, float y) {
 		super(x, y);
 	}
 
+	/**
+	 * Opretter et OSMNode objekt ud fra et Point2D objekt.
+	 * @param p
+	 */
 	public OSMNode(Point2D p) {
 		super((float)p.getX(), (float)p.getY());
 	}

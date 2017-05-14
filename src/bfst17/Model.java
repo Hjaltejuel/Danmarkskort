@@ -2,6 +2,12 @@ package bfst17;
 
 import bfst17.AddressHandling.*;
 import bfst17.Directions.*;
+import bfst17.AddressHandling.Address;
+import bfst17.AddressHandling.AddressModel;
+import bfst17.AddressHandling.Region;
+import bfst17.AddressHandling.StreetAndPointNode;
+import bfst17.Directions.DirectionObject;
+import bfst17.Directions.Edge;
 import bfst17.Directions.Graph;
 import bfst17.Directions.GraphNode;
 import bfst17.Enums.*;
@@ -23,6 +29,7 @@ import java.util.zip.ZipInputStream;
 /**
  * Created by trold on 2/1/17.
  */
+//FIXME LAV BIN SAVE TIL GRAPH
 public class Model extends Observable implements Serializable {
     private Address.Builder addressBuilder = new Address.Builder();
 
@@ -221,7 +228,7 @@ public class Model extends Observable implements Serializable {
         return cityTree;
     }
     /**
-     * Description: Returnere et CityNamesKD-træ - indeholdende towns (mindre by en city)
+     * Description: Returnerer et CityNamesKD-træ - indeholdende towns (mindre by end city)
      * @return POIKDTree
      */
     public CityNamesKDTree getTownTreeTree() {
