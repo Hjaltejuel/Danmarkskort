@@ -119,7 +119,7 @@ public class DrawWindow {
 		zoomInButton = new ImageButton("/ZoomInButtonImage.png");
 		zoomOutButton = new ImageButton("/ZoomOutButtonImage.png");
 		pointsOfInterestButton = new ImageButton("/PointsOfInterestButtonImage.png");
-		directionsButton = new ImageButton("/Directions.png");
+		directionsButton = new ImageButton("/Directions1.png");
 
 		sidebarMenu.setOpaque(false);
 
