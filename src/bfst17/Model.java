@@ -23,6 +23,7 @@ import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
@@ -698,10 +699,11 @@ public class Model extends Observable implements Serializable {
                             type = WayType.BUILDING;
                             break;
                         case "maxspeed":
-                            try {
-                                maxSpeed = Integer.parseInt(v);
-                            } catch (Exception e){
-                                //System.out.println(v);
+                            if (isHighway) {
+                                Matcher matcher = pattern.matcher(v);
+                                if (matcher.matches()) {
+                                    maxSpeed = Integer.parseInt(v);
+                                }
                             }
                             break;
                         case "oneway":
