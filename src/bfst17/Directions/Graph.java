@@ -125,6 +125,9 @@ public class Graph {
                 double tempDistTo = 0.0;
                 boolean weightCheck = false;
                 for(WeighType wT: destinationNode.getTypes()){
+                    if(destinationNode.getPoint2D().getX() == 8.394927024841309 && destinationNode.getPoint2D().getY() == -55.025413513183594){
+                        System.out.println("hej");
+                    }
                     if(!weighType.toString().equals(wT.toString()) && weightCheck == false){
                         tempDistTo = Double.POSITIVE_INFINITY;
                     }

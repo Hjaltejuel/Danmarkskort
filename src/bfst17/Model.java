@@ -606,10 +606,30 @@ public class Model extends Observable implements Serializable {
                         }
                     }
 
-                    switch (k) {
-                        case "highway":
-                            isHighway = true;
-                            break;
+                    switch (k){
+                case "highway":
+                    isHighway = true;
+                    maxSpeed = 50;
+                    if (v.equals("motorway")) {
+                        maxSpeed = 130;
+                    }
+                    if (v.equals("primary")) {
+                        maxSpeed = 80;
+                    }
+                    if (v.equals("secondary")) {
+                        maxSpeed = 80;
+                    }
+                    if (v.equals("tertiary")) {
+                        maxSpeed = 80;
+                    }
+                    if (v.equals("unclassified")) {
+                        maxSpeed = 80;
+                    }
+                    if (v.equals("residential")) {
+                        maxSpeed = 50;
+                    }
+                    break;
+
                         case "addr:street":
                             addressBuilder.street(v);
                             isAddressNode = true;
