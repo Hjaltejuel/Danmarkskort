@@ -42,14 +42,15 @@ public class DrawWindow {
 	private ImageButton zoomInButton;
 	private ImageButton zoomOutButton;
 	private ImageButton pointsOfInterestButton;
-	private JCheckBoxMenuItem[] POICheckBoxArray;
+    private ImageButton directionsButton;
+    private JCheckBoxMenuItem[] POICheckBoxArray;
 	private JScrollPane directionsScroll;
 	boolean menu1IsShown = false;
 	boolean menu2IsShown = false;
 
 	private JPanel sidebarMenu = new JPanel(new GridLayout(0, 1));
 
-	/**
+    /**
 	 * opsætter vinduet med alle de forskellige komponenter der ligger i de forskellige undermetoder.
 	 * Standard størrelsen på vinduet er 750x750, men kan selvfølgelig ændres på runtime.
 	 */
@@ -118,6 +119,7 @@ public class DrawWindow {
 		zoomInButton = new ImageButton("/ZoomInButtonImage.png");
 		zoomOutButton = new ImageButton("/ZoomOutButtonImage.png");
 		pointsOfInterestButton = new ImageButton("/PointsOfInterestButtonImage.png");
+		directionsButton = new ImageButton("/Directions.png");
 
 		sidebarMenu.setOpaque(false);
 
@@ -169,6 +171,7 @@ public class DrawWindow {
 		zoomOutButton.addMouseListener(controller);
 		pointsOfInterestButton.addMouseListener(controller);
 		menuButton.addMouseListener(controller);
+		directionsButton.addMouseListener(controller);
 	}
 
 	/**
@@ -188,8 +191,6 @@ public class DrawWindow {
 		save.setActionCommand("Save");
 		exit.addActionListener(controller);
 		exit.setActionCommand("Exit");
-		directions.addActionListener(controller);
-		directions.setActionCommand("Directions");
 		zoomInMenuItem.addActionListener(controller);
 		zoomInMenuItem.setActionCommand("ZoomIn");
 		zoomOutMenuItem.addActionListener(controller);
@@ -202,6 +203,8 @@ public class DrawWindow {
 		AntiAliasingToggle.setActionCommand("Aa");
 		fancyPan.addActionListener(controller);
 		fancyPan.setActionCommand("Fancypan");
+		directionsButton.addActionListener(controller);
+		directionsButton.setActionCommand("Directions");
 	}
 
 	/**
@@ -214,15 +217,18 @@ public class DrawWindow {
 		windowPane.add(secondCombo, 50);
 		windowPane.add(sidebarMenu, 50);
 		windowPane.add(searchButton);
+		windowPane.add(directionsButton);
 
 		windowPane.setComponentZOrder(canvas, 5);
 		windowPane.setComponentZOrder(searchButton, 1);
+		windowPane.setComponentZOrder(directionsButton,1);
 		windowPane.setComponentZOrder(sidebarMenu, 1);
 		windowPane.setComponentZOrder(combo, 1);
 		windowPane.setComponentZOrder(secondCombo, 3);
 
-		menuButton.setLocation(357, 10);
+        directionsButton.setLocation(357, 10);
 		searchButton.setLocation(313, 10);
+		menuButton.setLocation(401,10);
 
 		combo.setBounds(10, 10, 300, 40);
 		secondCombo.setBounds(10, 10, 300, 40);
@@ -293,7 +299,6 @@ public class DrawWindow {
 		nightModeMenuItem = new JMenuItem("NightMode (CTRL-N)", KeyEvent.VK_N);
 		fancyPan = new JMenuItem("FancyPan (CTRL-F)", KeyEvent.VK_F);
 		AntiAliasingToggle = new JMenuItem("AntiAliasing (CTRL-T)", KeyEvent.VK_T);
-		directions = new JCheckBoxMenuItem("Directions");
 		showCityNames = new JCheckBoxMenuItem("Show city names");
 		showCityNames.setSelected(true);
 
@@ -305,7 +310,6 @@ public class DrawWindow {
 		popUpMenu.add(save);
 		popUpMenu.add(load);
 		popUpMenu.addSeparator();
-		popUpMenu.add(directions);
 		popUpMenu.add(showCityNames);
 		popUpMenu.addSeparator();
 
