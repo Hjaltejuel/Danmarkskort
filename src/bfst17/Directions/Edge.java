@@ -55,14 +55,13 @@ public class Edge {
     }
 
     /**
-     * @param weighType hvorvidt det skal være Fastest / Shortest
+     * @param vehicleType hvorvidt det skal være Fastest / Shortest
      * @return returnerer den tilpassede vægt
      */
-    public double getWeight(VehicleType weighType) {
-
-        if(weighType == VehicleType.CAR) {
-            calcWeightForFastest(weighType);
-        } else if(weighType == VehicleType.BICYCLE || weighType == VehicleType.FOOT) {
+    public double getWeight(VehicleType vehicleType) {
+        if(vehicleType == VehicleType.CAR) {
+            calcWeightForFastest(vehicleType);
+        } else if(vehicleType == VehicleType.BICYCLE || vehicleType == VehicleType.FOOT) {
             calcWeightForShortest();
         }
         return weight;

@@ -16,14 +16,23 @@ public class GraphNode implements Comparable {
     private Point2D originOSMNode;
     private GraphNode nodeFrom;
     private boolean end, oneway;
+    private boolean isCAR, isBIKE, isFOOT;
     private boolean marked;
     private int maxSpeed = 0;
     private RoadTypes type;
     private ArrayList<Edge> edgeList;
     private double distance = Double.POSITIVE_INFINITY;
 
-    public RoadTypes getType() {
-        return type;
+    public void setType(RoadTypes type) {
+        for(VehicleType vehicleType : type.getVehicletypes()){
+            if(vehicleType==VehicleType.CAR){isCAR=true;}
+            if(vehicleType==vehicleType.BICYCLE){isBIKE=true;}
+            if(vehicleType==vehicleType.FOOT){isFOOT=true;}
+        }
+    }
+
+    public void setMaxSpeed(int maxSpeed) {
+        this.maxSpeed = maxSpeed;
     }
 
     /**
@@ -41,6 +50,7 @@ public class GraphNode implements Comparable {
             this.maxSpeed = maxSpeed;
         }
         this.type = type;
+        setType(type);
         this.originOSMNode = originOSMNode;
         marked = false;
         edgeList = new ArrayList<>();
@@ -50,11 +60,15 @@ public class GraphNode implements Comparable {
         return new Point2D.Double(originOSMNode.getX(), originOSMNode.getY());
     }
 
-    public boolean supportsVehicle(VehicleType vehicle) {
-        for (VehicleType vehicleType : type.getVehicletypes()) {
-            if (vehicleType == vehicle) {
-                return true;
-            }
+    public boolean supportsVehicle(VehicleType vehicleType) {
+        if (vehicleType == VehicleType.CAR && isCAR) {
+            return true;
+        }
+        if (vehicleType == vehicleType.BICYCLE && isBIKE) {
+            return true;
+        }
+        if (vehicleType == vehicleType.FOOT && isFOOT) {
+            return true;
         }
         return false;
     }

@@ -686,12 +686,6 @@ public enum WayType implements Serializable {
 					20000,
 					FillType.LINE,
 					new Color(36, 47, 62)),
-	ROUTE_BUS
-			(new Color(181, 208, 208),
-					null,
-					35000,
-					FillType.LINE,
-					new Color(36, 47, 62)),
 	ROUTE_FERRY
 			(new Color(199, 208, 205),
 					null,
