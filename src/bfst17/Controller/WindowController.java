@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by Hjalte on 21-04-2017.
+ * Beskrivelse: Klassen WindowController, virker som controlleren til drawWindow, virker som listener til vinduet
  */
 public class WindowController implements KeyListener, ActionListener, MouseListener, ComponentListener {
     private DrawWindow window;
@@ -44,6 +44,9 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         initiate();
     }
 
+    /**
+     * Beskrivelse: Initialiserer winduet
+     */
     public void initiate() {
         window.createAutocomplete(addressModel.getTSTTree());
         window.setComponentzZOrder(canvas);
@@ -53,22 +56,33 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         window.addActionListener(this);
     }
 
+    /**
+     * Beskrivelse: ActionPerformed metoden, som bliver kaldt når en actionListener bliver aktiveret
+     * @param e
+     */
     public void actionPerformed(ActionEvent e) {
+        //setter komponenten
         Object source = e.getSource();
+        //finder actionCommanden som bliver brugt til at identificerer komponenter
         String command = e.getActionCommand();
-        if (source instanceof JCheckBoxMenuItem && source != window.getDirections() && !command.equals("ShowCityNames")) {
+        //Cheker for at se om det er en POIMenu der er blevet kaldt
+        if (source instanceof JCheckBoxMenuItem  && !command.equals("ShowCityNames")) {
             JCheckBoxMenuItem[] menu = window.getPOICheckBoxArray();
             for (int i = 0; i < menu.length; i++) {
+                //Finder den specielle menu og kalder canvas så POI bliver vist
                 if (e.getSource() == menu[i]) {
                     canvas.setPointsOfInterest(POIclasification.values()[i]);
                 }
             }
         } else {
+            //switcher ved command
             switch (command) {
                 case "Save":
+                    //hvis det er save knappen så save
                     save();
                     break;
                 case "Load":
+                    //hvis det er load knappen så load
                     try {
                         loadFile();
                     } catch (IOException e1) {
@@ -76,35 +90,43 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     }
                     break;
                 case "Exit":
+                    //hvis det er exit knappen så exit
                     System.exit(0);
                     break;
                 case "Directions":
+                    //hvis det er directions så toogle directionsbaren og sæt boolean til at starte direction
                     window.toggleDirectionsBar();
                     if(window.getDirectionsBoolean()){
                         startDirections = true;
                     }
                     else startDirections = false;
-
                     break;
                 case "Nightmode":
+                    //Hvis det er nightmode knappen så sæt nightmode
                     setColorTheme(GUIMode.NIGHT);
                     break;
                 case "Greyscale":
+                    //Hvis det er greyScale så sæt greyScale
                     setColorTheme(GUIMode.GREYSCALE);
                     break;
                 case "Aa":
+                    //Hvis det er aa så sæt aa
                     canvas.toggleAA();
                     break;
                 case "Fancypan":
+                    //Hvis det er FancyPan så sæt fancypan
                     canvas.toggleFancyPan();
                     break;
                 case "ZoomIn":
+                    //Hvis det er zoomIn så zoom ind
                     zoomIn();
                     break;
                 case "ZoomOut":
+                    //Hvis det er zoomOut så zoom ud
                     zoomOut();
                     break;
                 case "ShowCityNames":
+                    //Hvis det er showCityNames så toogle city names
                     canvas.toggleCityNames();
                     break;
             }
@@ -113,7 +135,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
 
     /**
-     * Description: Ændrer GUI-temaet og tilpasser menuen.
+     * Beskrivelse: Ændrer GUI-temaet og tilpasser menuen.
      * @param newTheme
      */
     public void setColorTheme(GUIMode newTheme) {
@@ -143,42 +165,58 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     public void keyPressed(KeyEvent e) {
     }
 
+    /**
+     * Beskrivelse: KeyReleased metoden, starter directions søgningen
+     * @param e
+     */
     @Override
     public void keyReleased(KeyEvent e) {
+        //Hvis enter er blevet trykket
         if (e.getKeyChar() == 10) {
+            //Hvis startDirections er true
             if (startDirections) {
+                //finder de 2 strings i de 2 comboboxe
                 String firstComboBoxString = (String) window.getCombo().getSelectedItem();
                 String secondComboBoxString = (String) window.getSecondCombo().getSelectedItem();
+                //tjekker og ser om noget er null eller empty
                 if (firstComboBoxString == null || firstComboBoxString.length() == 0 ||
                         secondComboBoxString == null || secondComboBoxString.length() == 0) {
                     return; //Ikke noget at søge efter!
                 }
+                //finder addresserne
                 TSTInterface addressDest = addressModel.getAddress(secondComboBoxString.trim());
                 TSTInterface address = addressModel.getAddress(firstComboBoxString.trim());
+                //tjekker om de er null
+                if(addressDest == null || address == null)return;
 
+                //finder de tætteste veje på addresserne
                 TreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()));
                 Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
                 closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()));
                 Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
+                //Finder den korteste vej
                 model.getGraph().findShortestPath(fromPoint, toPoint, WeighType.SHORTEST);
-                System.out.println("Begynd...");
-                for (DirectionObject DirObj : model.getDirectionsList()) {
-                    System.out.println(DirObj);
+                if (!isPopUpOpen) {
+                    //søg ind på startpunktet
+                    search();
+                } else {
+                    isPopUpOpen = false;
                 }
-            }
-
-            if (!isPopUpOpen) {
+            } else {
+                if (!isPopUpOpen) {
+                    //søg
                 search();
             } else {
                 isPopUpOpen = false;
+            }
             }
         }
     }
 
     /**
-     * Description: Sætter startingDirectory og kalder loadFile med dette startDirectory.
+     * Beskrivelse: Sætter startingDirectory og kalder loadFile med dette startDirectory.
      * @throws IOException
      */
     public void loadFile() throws IOException {
@@ -188,8 +226,8 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     /**
-     * Description: Laver en JFileChooser der begrænser de accepterede filer er begrænset til, osm, bin, zil og app(mapper på mac).
-     * Description: Hvis filen findes kaldes model.load.
+     * Beskrivelse: Laver en JFileChooser der begrænser de accepterede filer er begrænset til, osm, bin, zil og app(mapper på mac).
+     * Beskrivelse: Hvis filen findes kaldes model.load.
      * @param startingDirectory
      * @throws IOException
      */
@@ -216,7 +254,8 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         int userSelection = fileChooser.showOpenDialog(window.getWindow());
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToLoad = fileChooser.getSelectedFile();
-            if (fileChooser.accept(fileToLoad) && fileToLoad.exists()) { //Filen er fundet! Indlæs:
+            if (fileChooser.accept(fileToLoad) && fileToLoad.exists()) {
+                //start et nyt program
                 model.load(fileToLoad.getAbsolutePath());
                 addressModel = model.getAddressModel();
                 window.setTreeInAutocompleter(addressModel.getTSTTree());
@@ -232,7 +271,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     /**
-     * Description: Laver en JFileChooser der giver mulighed for at gemme en fil.
+     * Beskrivelse: Laver en JFileChooser der giver mulighed for at gemme en fil.
      */
     public void save() {
         JFileChooser fileChooser = new JFileChooser();
@@ -245,27 +284,33 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
     }
 
+    /**
+     * Beskrivelse: Search metoden, søger ind på den valgte addresses punkt
+     */
     public void search() {
         //cancel timer så der ikke kommer to timers på én gang
         if(canvas.getTimer() != null){
             canvas.getTimer().cancel();
         }
+        //gemmer den givne tekst
         String s = (String) window.getCombo().getSelectedItem();
         if (s == null || s.length() == 0) {
             return; //Ikke noget at søge efter!
         }
-
+        //finder addressen
         TSTInterface address = addressModel.getAddress(s.trim());
         if(address == null) {
             isPopUpOpen = true;
             JOptionPane.showMessageDialog(canvas, "Din søgning på '" +  s + "' gav ingen resultater");
             return; //Ingen adresse fundet...
         }
-
+        //gemmer lat lon
         double lat = -address.getY();
         double lon = -address.getX();
 
+        //kalder setPin på addressen
         canvas.setPin(address);
+        //tjekker om det er en region
         boolean isRegion = address.getShape() != null;
         if (!isRegion) {
             if (canvas.isFancyPanEnabled()) {
@@ -275,6 +320,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 canvas.centerZoomToZoomLevel(150000);
             }
         } else {
+            //hvis det er en region så pan til centerkoordinatet og zoom ind til regionens størrelse
             canvas.panToPoint(lon, lat);
             double regionZoomLevel = canvas.getWidth() / address.getShape().getBounds2D().getWidth();
             canvas.centerZoomToZoomLevel(regionZoomLevel);
@@ -311,12 +357,8 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         window.setBounds(canvas);
     }
 
-
-
-    //<editor-fold desc="Ting vi skal override, men ikke bruger">
     @Override
     public void mousePressed(MouseEvent e) { }
-
 
     @Override
     public void mouseReleased(MouseEvent e) { }
@@ -337,5 +379,5 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     public void componentHidden(ComponentEvent e) {
 
     }
-    //</editor-fold>
+
 }

@@ -11,18 +11,13 @@ import java.awt.geom.Point2D;
 import java.util.Timer;
 
 /**
- * Created by trold on 2/8/17.
- *
- *
+ * Beskrivelse: CanvasMouseController klassen
+ * Controller til mussefunktioner i drawCanvas
  */
-//hejss
 public class CanvasMouseController extends MouseAdapter implements MouseMotionListener {
 	Model model;
 	DrawCanvas canvas;
 	Point2D lastMousePosition;
-	private static boolean draggingLine;
-	//NN Timer
-	long timeSinceMove;
 	Timer timer;
 
 
@@ -36,8 +31,7 @@ public class CanvasMouseController extends MouseAdapter implements MouseMotionLi
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
+	 * Beskrivelse: MousePressed metoden sætter det punkt du har trykket på, og cancler timeren til fancypan hvis du trykker på skærmen
 	 * @param e
 	 */
 	@Override
@@ -49,8 +43,7 @@ public class CanvasMouseController extends MouseAdapter implements MouseMotionLi
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
+	 * Beskrivelse: MouseReleased metoden, sætter AA til, når du ikke længere panner og cancler timeren til fancypan hvis du releaser musen
 	 * @param e
 	 */
 	@Override
@@ -63,11 +56,9 @@ public class CanvasMouseController extends MouseAdapter implements MouseMotionLi
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
+	 * Beskrivelse: MouseDragged metoden som sætter AA fra og finder forskellen mellem den nuværende museposition og
+	 * den gamle museposition, så vi kan panne forskellen.
 	 * @param e
-	 *
-	 * @since 1.6
 	 */
 	@Override
 	public void mouseDragged(MouseEvent e) {
@@ -81,23 +72,26 @@ public class CanvasMouseController extends MouseAdapter implements MouseMotionLi
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
+	 * Beskrivelse: MouseWheelMoved metoden, som zommer ind og ud når mouseWheel bliver roteret med musen som center
 	 * @param e
-	 *
-	 * @since 1.6
 	 */
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
+		//Gemmer factoren
 		double factor = Math.pow(0.9, e.getWheelRotation());
 		Point2D currentMousePosition = e.getPoint();
 		double dx = currentMousePosition.getX();
 		double dy = currentMousePosition.getY();
+		//paner først ud og derefter zommer og paner igen, hvilket skaber zoom ind på mus effekten
 		canvas.pan(-dx,-dy);
 		canvas.zoom(factor);
 		canvas.pan(dx,dy);
 	}
 
+	/**
+	 * Beskrivelse: MouseMoved metoden, finder nearest neighbor og repainter
+	 * @param e
+	 */
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		canvas.getNearestNeighbourFromMousePos(e.getPoint());
