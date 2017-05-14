@@ -14,6 +14,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.Timer;
 
@@ -332,14 +334,24 @@ public class DrawCanvas extends JComponent {
      * @param g
      */
     public void drawCityAndTownNames(Graphics2D g) {
+        try {
+            GraphicsEnvironment ge =
+                    GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(
+                    "/Gravity-Regular.otf")));
+        } catch (IOException |FontFormatException e) {
+            //Handle exception
+        }
+        g.setFont(new Font("Gravity-Regular", Font.PLAIN, 20));
+
         //Draw townnames
         if (getZoomFactor() > 3000 && getZoomFactor() < 9000) {
             CityNamesKDTree townTree = model.getTownTreeTree();
             for (TreeNode _townNode : townTree.getInRange(screenRectangle)) {
                 CityNamesKDTree.CityNameTreeNode townNode = (CityNamesKDTree.CityNameTreeNode) _townNode;
                 String townName = townNode.getCityName();
+
                 Point2D drawLocation = lonLatToScreenCords(-townNode.getX(), -townNode.getY());
-                g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
                 int stringWidth = g.getFontMetrics().stringWidth(townName);
                 g.drawString(townName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
             }
@@ -352,7 +364,6 @@ public class DrawCanvas extends JComponent {
                 CityNamesKDTree.CityNameTreeNode cityNode = (CityNamesKDTree.CityNameTreeNode) _cityNode;
                 String cityName = cityNode.getCityName();
                 Point2D drawLocation = lonLatToScreenCords(-cityNode.getX(), -cityNode.getY());
-                g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
                 int stringWidth = g.getFontMetrics().stringWidth(cityName);
                 g.drawString(cityName, (int) drawLocation.getX() - stringWidth / 2, (int) drawLocation.getY());
             }
