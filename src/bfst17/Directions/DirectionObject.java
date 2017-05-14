@@ -20,10 +20,10 @@ public class DirectionObject {
      * @param to punktet til
      * @param model modellen
      */
-    public DirectionObject(Point2D from, Point2D to, Model model) {
-        location=from;
-        calculationRoadLength(from, to);
-        setTurnType(from, to);
+    public DirectionObject(Point2D to, Model model) {
+        location=to;
+        //calculationRoadLength(from, to);
+        //setTurnType(from, to);
         setRoadName(to, model);
     }
 
@@ -34,6 +34,8 @@ public class DirectionObject {
      */
     public void setRoadName(Point2D to, Model model) {
         currentRoad = model.getClosestRoad(to).getRoadName();
+        roadLength=0;
+        roadDirection=RoadDirektion.EAST;
     }
 
     /**

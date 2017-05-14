@@ -21,7 +21,7 @@ public class RoadKDTree extends KDTree {
     }
 
     public <E> void fillTree(List<E> roadNodes) {
-        if (roadNodes.size() == 0) {
+        if (roadNodes==null || roadNodes.size() == 0) {
             return;
         }
 

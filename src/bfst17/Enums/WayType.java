@@ -464,6 +464,12 @@ public enum WayType implements Serializable {
 					35000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
+	HIGHWAY_PEDESTRIAN
+			(new Color(150, 148, 149),
+					null,
+					4000,
+					FillType.LINE,
+					new Color(56, 65, 78)),
 	HIGHWAY_RESIDENTIAL
 			(new Color(246, 239, 239),
 					new BasicStroke(0.00004f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
@@ -478,12 +484,6 @@ public enum WayType implements Serializable {
 					new Color(56, 65, 78)),
 	HIGHWAY_LIVING_STREET
 			(new Color(237, 237, 237),
-					null,
-					4000,
-					FillType.LINE,
-					new Color(56, 65, 78)),
-	HIGHWAY_PEDESTRIAN
-			(new Color(150, 148, 149),
 					null,
 					4000,
 					FillType.LINE,

@@ -28,7 +28,10 @@ public class Edge {
      * der tages altså også højde for hvor hurtigt man må køre på vejen
      */
     private void calcWeightForFastest() {
-        Integer maxSpeed = Math.max(source.getMaxSpeed(),destination.getMaxSpeed());
+        double maxSpeed = Math.max(source.getMaxSpeed(), destination.getMaxSpeed());
+        if (maxSpeed == 0) {
+            maxSpeed = 0.99;
+        }
         weight = distance / maxSpeed;
     }
 

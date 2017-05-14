@@ -2,6 +2,7 @@ package bfst17.Directions;
 
 import bfst17.Enums.RoadTypes;
 import bfst17.Enums.VehicleType;
+import bfst17.Model;
 import bfst17.OSMData.OSMNode;
 
 import java.awt.geom.Point2D;
@@ -52,6 +53,9 @@ public class GraphNode implements Comparable {
         return oneway;
     }
 
+    public String getRoadName(Model model){
+        return model.getClosestRoad(getPoint2D()).getRoadName();
+    }
     public VehicleType[] getTypes() {
         return type.getVehicletypes();
     }

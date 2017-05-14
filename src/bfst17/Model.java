@@ -1,15 +1,13 @@
 package bfst17;
 
-import bfst17.AddressHandling.Address;
-import bfst17.AddressHandling.AddressModel;
-import bfst17.AddressHandling.Region;
-import bfst17.AddressHandling.StreetAndPointNode;
+import bfst17.AddressHandling.*;
 import bfst17.Directions.*;
 import bfst17.Directions.Graph;
 import bfst17.Directions.GraphNode;
 import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.RoadTypes;
 import bfst17.Enums.WayType;
+import bfst17.Enums.WeighType;
 import bfst17.KDTrees.*;
 import bfst17.OSMData.*;
 import bfst17.ShapeStructure.MultiPolygonApprox;
@@ -105,26 +103,56 @@ public class Model extends Observable implements Serializable {
     public ArrayList<DirectionObject> getDirectionsList() {
         ArrayList<DirectionObject> directions = new ArrayList<>();
         String prevRoad = "";
+        double currentDirection = 0;
         ArrayList<GraphNode> graphNodeList = graph.getPathList();
         if (graphNodeList == null) {
             return directions;
         }
-        for (int i = 1; i < graphNodeList.size(); i++) {
+        for (int i = graphNodeList.size() - 1; i >= 1; i--) {
             GraphNode currentGraphNode = graphNodeList.get(i);
+            /*DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this);
+            prevRoad = DirObj.getCurrentRoad();
+            directions.add(DirObj);*/
             if (currentGraphNode.getEdgeList().size() <= 2) {
+                if (!prevRoad.equals(currentGraphNode.getRoadName(this))) {
+                    DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this);
+                    prevRoad = DirObj.getCurrentRoad();
+                    directions.add(DirObj);
+                }
                 continue;
             }
-            if ((i + 1) < graphNodeList.size()) {
-                GraphNode nextGraphNode = graphNodeList.get(i + 1);
-                for (Edge e : currentGraphNode.getEdgeList()) {
-
+            if (currentGraphNode.getEdgeList().size() > 2) {
+                String currentRoadName = currentGraphNode.getRoadName(this);
+                if ((i - 1) > 0) {
+                    GraphNode nextGraphNode = graphNodeList.get(i - 1);
+                    boolean erSideVej = false;
+                    for (Edge edge : currentGraphNode.getEdgeList()) {
+                        if (edge.getDestination() != nextGraphNode) {
+                            if (edge.getDestination().getRoadName(this).equals(currentRoadName)) {
+                                erSideVej = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (erSideVej) {
+                        continue;
+                    }
                 }
             }
-            DirectionObject DirObj = new DirectionObject(graphNodeList.get(i - 1).getPoint2D(), currentGraphNode.getPoint2D(), this);
-            if (!prevRoad.equals(DirObj.getCurrentRoad())) {
-                prevRoad = DirObj.getCurrentRoad();
-                directions.add(DirObj);
+            if (currentGraphNode.getRoadName(this).equals(prevRoad)) {
+                continue;
             }
+            DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this);
+            prevRoad = DirObj.getCurrentRoad();
+            directions.add(DirObj);
+
+            /*
+            GraphNode prevNode = graphNodeList.get(i-1);
+            double angle = Math.atan2(currentGraphNode.getPoint2D().getY() - prevNode.getPoint2D().getY(),
+                    currentGraphNode.getPoint2D().getX() - prevNode.getPoint2D().getX());
+            currentDirection = ((angle*180/Math.PI)+360)%360; //Altid mere en 0 & under 360
+            */
+
         }
         return directions;
     }
@@ -400,7 +428,6 @@ public class Model extends Observable implements Serializable {
         }
 
         private HashMap<String, Enum<?>> stringToEnum = new HashMap<>();
-
         {
             for (WayType type : WayType.values()) {
                 stringToEnum.put(type.name(), type);
@@ -423,7 +450,7 @@ public class Model extends Observable implements Serializable {
             }
         }
 
-        public void addRoad(PolygonApprox shape, String roadName, WayType type){
+        public void addRoad(PolygonApprox shape, String roadName, WayType type) {
             if (roads.get(type) == null) {
                 roads.put(type, new ArrayList<>());
             }
@@ -499,6 +526,19 @@ public class Model extends Observable implements Serializable {
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
 
             graph = new Graph(graphNodeBuilder, graphWays);
+
+
+            TSTInterface addressDest = addressModel.getAddress("Aasen 4, 3730 Nexø");
+            TSTInterface address = addressModel.getAddress("Engen 1, 3730 Nexø");
+
+            TreeNode closestNode = getClosestRoad(new Point2D.Double(address.getX(), address.getY()));
+            Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
+
+            closestNode = getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()));
+            Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
+
+            getGraph().findShortestPath(fromPoint, toPoint, WeighType.FASTEST);
+
             //graphNodeBuilder.clear();
         }
 
@@ -582,27 +622,20 @@ public class Model extends Observable implements Serializable {
                             type = WayType.BUILDING;
                             break;
                         case "maxspeed":
-                            if (isHighway) {
-                                Matcher matcher = pattern.matcher(v);
-                                if (matcher.matches()) {
-                                    maxSpeed = Integer.parseInt(v);
-                                }
+                            try {
+                                maxSpeed = Integer.parseInt(v);
+                            } catch (Exception e){
+                                //System.out.println(v);
                             }
                             break;
                         case "oneway":
-                            if (isHighway) {
-                                if (v.equals("yes")) {
-                                    oneway = true;
-                                }
+                            if (v.equals("yes")) {
+                                oneway = true;
                             }
                         case "name":
                             name = v;
-                            if (isHighway) {
-                                roadName = v;
-                            }
                             break;
                         case "place":
-                            System.out.println(name);
                             if (v.equals("village") || v.equals("town") || v.equals("city")) {
                                 addressModel.putCity(name, idToNode.get(nodeID));
                             }
@@ -634,7 +667,6 @@ public class Model extends Observable implements Serializable {
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            isHighway=false;
             switch (qName) {
                 case "node":
                     if (isAddressNode == true) {
@@ -652,7 +684,7 @@ public class Model extends Observable implements Serializable {
                         PolygonApprox shape = new PolygonApprox(way);
                         if (type.toString().split("_")[0].equals("HIGHWAY")) { //Hvis vejen er en highway
                             if(isHighway) {
-                                addRoad(shape, roadName, type); //Tilføj vej
+                                addRoad(shape, name, type); //Tilføj vej
                             }
 
                             graphWays.add(way);
@@ -667,6 +699,7 @@ public class Model extends Observable implements Serializable {
                     }
                     maxSpeed = 0;
                     oneway = false;
+                    isHighway = false;
                     break;
                 case "relation":
                     if (relation.size() != 0) {
