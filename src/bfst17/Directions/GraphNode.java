@@ -1,8 +1,6 @@
 package bfst17.Directions;
 
 import bfst17.Enums.RoadTypes;
-import bfst17.Enums.VehicleType;
-import bfst17.Model;
 import bfst17.Enums.WeighType;
 import bfst17.OSMData.OSMNode;
 
@@ -36,22 +34,18 @@ public class GraphNode implements Comparable {
         edgeList = new ArrayList<>();
     }
 
+
     public Point2D getPoint2D() {
         return new Point2D.Double(originOSMNode.getX(), originOSMNode.getY());
     }
-
 
 
     public boolean isOneway() {
         return oneway;
     }
 
-    public String getRoadName(Model model){
-        return model.getClosestRoad(getPoint2D(), VehicleType.CAR).getRoadName();
-    }
-
-    public VehicleType[] getTypes() {
-        return type.getVehicletypes();
+    public WeighType[] getTypes() {
+        return type.getWeighTypes();
     }
 
     public boolean isEnd() {
