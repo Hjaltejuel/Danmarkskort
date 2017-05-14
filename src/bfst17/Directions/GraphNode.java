@@ -16,6 +16,7 @@ public class GraphNode implements Comparable {
     private OSMNode originOSMNode;
     private GraphNode nodeFrom;
     private boolean end, oneway;
+    private boolean marked;
     private int maxSpeed = 0;
     private RoadTypes type;
     private ArrayList<Edge> edgeList;
@@ -33,6 +34,7 @@ public class GraphNode implements Comparable {
         this.maxSpeed = maxSpeed;
         this.type = type;
         this.originOSMNode = originOSMNode;
+        marked = false;
         edgeList = new ArrayList<>();
     }
 
@@ -96,6 +98,14 @@ public class GraphNode implements Comparable {
     public void addEdge(GraphNode destination) {
         Edge edge = new Edge(this, destination);
         edgeList.add(edge);
+    }
+
+    public boolean isMarked() {
+        return marked;
+    }
+
+    public void setMarked(boolean marked) {
+        this.marked = marked;
     }
 
     @Override

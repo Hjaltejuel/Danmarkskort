@@ -14,7 +14,6 @@ public class Graph {
     private HashMap<Point2D, GraphNode> graphNodeBuilder;
     private ArrayList<GraphNode> pathList;
     private ArrayList<Point2D> pointList;
-    private HashSet<GraphNode> relaxedNodes;
     private PriorityQueue<GraphNode> unRelaxedNodes;
     private double finalDistance;
 
@@ -84,7 +83,6 @@ public class Graph {
 
         cleanUpGraph(); //Clean graph før vi går i gang
 
-        relaxedNodes = new HashSet<>();
         unRelaxedNodes = new PriorityQueue<>();
 
         source.setDistTo(0.0);
@@ -94,7 +92,7 @@ public class Graph {
         while (!unRelaxedNodes.isEmpty()) {
             GraphNode node = unRelaxedNodes.peek();
             //node.setSettled(true);
-            relaxedNodes.add(node);
+            node.setMarked(true);
             unRelaxedNodes.remove(node);
             relaxEdges(node, weighType);
         }
@@ -115,22 +113,20 @@ public class Graph {
      * bliver de lagt i Queuen (unRelaxedNodes) og så bliver deres naboer undersøgt.
      * ved samtidig at lægge hver edges weight til nodernes distance, finder vi den korteste path
      * @param node          Den node, hvis naboer skal undersøges
-     * @param vehicleType1     vægtTypen ( CAR | BICYCLE | FOOT )
+     * @param vehicleType     vægtTypen ( CAR | BICYCLE | FOOT )
      */
-    private void relaxEdges(GraphNode node, VehicleType vehicleType1) {
+    private void relaxEdges(GraphNode node, VehicleType vehicleType) {
         ArrayList<Edge> edgelist = node.getEdgeList();
         for (Edge edge : edgelist) {
             GraphNode destinationNode = edge.getDestination();
-            if (!relaxedNodes.contains(destinationNode)) {
+            if (!destinationNode.isMarked()) {
                 double tempDistTo;
-                if(destinationNode.supportsVehicle(vehicleType1)){
-                    tempDistTo = node.getDistTo() + edge.getWeight(vehicleType1);
+                if (destinationNode.supportsVehicle(vehicleType)) {
+                    tempDistTo = node.getDistTo() + edge.getWeight(vehicleType);
                     if (tempDistTo < destinationNode.getDistTo()) {
                         destinationNode.setDistTo(tempDistTo);
                         destinationNode.setNodeFrom(node);
                     }
-                } else {
-                    tempDistTo = Double.POSITIVE_INFINITY;
                 }
                 unRelaxedNodes.add(destinationNode);
             }
