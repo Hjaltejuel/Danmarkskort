@@ -492,6 +492,7 @@ public class Model extends Observable implements Serializable {
         private Map<Long, OSMWay> idToWay = new HashMap<>();
         private HashMap<Point2D, GraphNode> graphNodeBuilder = new HashMap<>();
         private ArrayList<OSMWay> graphWays = new ArrayList<>();
+        private HashMap<Integer, GraphNode> idToGraphNode = new HashMap<>();
         private float lat;
         private float lon;
         private OSMWay way;
@@ -605,24 +606,35 @@ public class Model extends Observable implements Serializable {
             fillTrees();
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
 
+            for(OSMWay way1 : graphWays) {
+                for (OSMWay way2 : graphWays) {
+                    if (way1 == way2) {
+                        continue;
+                    }
+                    if (way1.getToNode() == way2.getToNode() || way1.getFromNode() == way2.getToNode() ||
+                            way1.getFromNode() == way2.getFromNode() || way1.getToNode() == way2.getFromNode()) {
+                        System.out.println("A");
+                    }
+                }
+            }
             graph = new Graph(graphNodeBuilder, graphWays);
 
 
-            //TSTInterface addressDest = addressModel.getAddress("Søndre Landevej 17, 3730 Nexø");//Aasen 4, 3730 Nexø");
-            //TSTInterface address = addressModel.getAddress("Søndre Landevej 31w, 3730 Nexø");
+            TSTInterface addressDest = addressModel.getAddress("Aasen 4, 3730 Nexø");//Søndre Landevej 17, 3730 Nexø");//Aasen 4, 3730 Nexø");
+            TSTInterface address = addressModel.getAddress("Engen 1, 3730 Nexø");
 
+            //TSTInterface addressDest = addressModel.getAddress("Aasen 4, 3730 Nexø");
+            //TSTInterface address = addressModel.getAddress("Thorsvej 1, 3700 Rønne");
 
-            TSTInterface addressDest = addressModel.getAddress("Aasen 4, 3730 Nexø");
-            TSTInterface address = addressModel.getAddress("Thorsvej 1, 3700 Rønne");
-
-            TreeNode closestNode = getClosestRoad(new Point2D.Double(address.getX(), address.getY()), VehicleType.CAR);
+            VehicleType vType = VehicleType.BICYCLE;
+            TreeNode closestNode = getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
             Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
-            closestNode = getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), VehicleType.CAR);
+            closestNode = getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
             Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
             System.out.println(((RoadKDTree.RoadTreeNode)closestNode).getRoadName());
 
-            getGraph().findShortestPath(fromPoint, toPoint, VehicleType.CAR);
+            getGraph().findShortestPath(fromPoint, toPoint, vType);
 
             //graphNodeBuilder.clear();
         }
@@ -657,6 +669,7 @@ public class Model extends Observable implements Serializable {
                     idToNode.put(nodeID, lonfactor * lon, -lat);
                     POIType = PointsOfInterest.UNKNOWN;
                     type = WayType.UNKNOWN;
+
                     break;
                 case "way":
                     currentElementType = OSMElement.WAY;
@@ -788,10 +801,11 @@ public class Model extends Observable implements Serializable {
                                 graphWays.add(way);
                                 for (int i = 0; i < way.size(); i++) {
                                     GraphNode gNode = graphNodeBuilder.get(way.get(i));
-                                    if (!graphNodeBuilder.containsKey(way.get(i))) {
+                                    if (gNode==null) {
                                             graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed));
                                     } else {
-                                        System.out.println(graphNodeBuilder.get(way.get(i)).getEdgeList().size());
+
+                                        //System.out.println(graphNodeBuilder.get(way.get(i)).getEdgeList().size());
                                         //graphNodeBuilder.get(way.get(i)).addEdge();
                                     }
                                 }

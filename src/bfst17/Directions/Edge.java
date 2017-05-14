@@ -33,7 +33,7 @@ public class Edge {
     private void calcWeightForFastest(VehicleType vehicleType) {
         double maxSpeed = Math.max(source.getMaxSpeed(), destination.getMaxSpeed());
         if(maxSpeed==0) {
-            System.out.println("Car route fucked!");
+            //System.out.println("Car route fucked!");
             maxSpeed=0.9;
         }
         weight = distance / maxSpeed;

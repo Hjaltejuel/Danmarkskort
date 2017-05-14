@@ -48,7 +48,6 @@ public class Graph {
                 GraphNode previousGraphNode = graphNodeBuilder.get(currentWay.get(i - 1));
                 GraphNode currentGraphNode = graphNodeBuilder.get(currentWay.get(i));
                 //if(!currentGraphNode.isOneway()) {
-                addEdge(currentGraphNode, previousGraphNode);
                 addEdge(previousGraphNode, currentGraphNode);
                 //}
             }
@@ -120,7 +119,6 @@ public class Graph {
             GraphNode destinationNode = edge.getDestination();
             if (!destinationNode.isMarked()) {
                 if (destinationNode.supportsVehicle(vehicleType)) {
-
                     double tempDistTo = node.getDistTo() + edge.getWeight(vehicleType);
                     if (tempDistTo < destinationNode.getDistTo()) {
                         destinationNode.setDistTo(tempDistTo);
