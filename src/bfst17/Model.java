@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -44,9 +45,9 @@ public class Model extends Observable implements Serializable {
     private ArrayList<RoadKDTree> roadKDTreeList = new ArrayList<>();
     private CityNamesKDTree townTree = new CityNamesKDTree();
 
-    private String name = "";
-    private OSMNode regionCenter = null;
-    private boolean adminRelation = false;
+    String name = "";
+    Point2D regionCenter = null;
+    boolean adminRelation = false;
     private boolean isAddressNode = false;
     private AddressModel addressModel = new AddressModel();
 
@@ -62,7 +63,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
+            load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -265,7 +266,7 @@ public class Model extends Observable implements Serializable {
     }
 
     /**
-     * Description: Returerne den nuværende til i sekunder.
+     * Description: Returerne den nuværende tid i sekunder.
      * @return double
      */
     public double currentTimeInSeconds() {
@@ -273,7 +274,8 @@ public class Model extends Observable implements Serializable {
     }
 
     /**
-     * Description:
+     * Description: Håndtere loading af en fil.
+     * Description: Udskriver parsing informationer.
      * @param filename
      * @throws IOException
      */
@@ -326,7 +328,11 @@ public class Model extends Observable implements Serializable {
         System.out.printf("\nLoad time: %d:%02d\n", loadTime / 60, loadTime % 60);
     }
 
-    private void loadBin(BufferedInputStream input) {
+    /**
+     * Description: Loader objekterne fra bin filen
+     * @param input
+     */
+    private void loadBin(BufferedInputStream input){
         try (ObjectInputStream in = new ObjectInputStream(input)) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             System.out.println("Loading Trees");
@@ -355,6 +361,10 @@ public class Model extends Observable implements Serializable {
         }
     }
 
+    /**
+     * Desription: Loader OSM-filer. Laver en ny OSMHandler og parser filen.
+     * @param source
+     */
     private void loadOSM(InputSource source) {
         try {
             loadAllCoastlines();
@@ -370,6 +380,9 @@ public class Model extends Observable implements Serializable {
         }
     }
 
+    /**
+     * Description: Loader coastlines for hele Danmark ind fra en bin fil.
+     */
     public void loadAllCoastlines() {
         String path = System.getProperty("user.dir") + "/resources/dkcoast.bin";
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
@@ -384,48 +397,72 @@ public class Model extends Observable implements Serializable {
         }
     }
 
+    /**
+     * Description: Returnerer minimun longitude.
+     * @return float
+     */
     public float getMinLon() {
         return minlon;
     }
 
+    /**
+     * Description: Returnerer minimun lattitude.
+     * @return float
+     */
     public float getMinLat() {
         return minlat;
     }
 
+    /**
+     * Description: Returnerer maximum lattitude.
+     * @return float
+     */
     public float getMaxLat() {
         return maxlat;
     }
 
+    /**
+     * Description: Returnerer maximum longitude.
+     * @return float
+     */
     public float getMaxLon() {
         return maxlon;
     }
 
+    /**
+     * Description: Returnerer ArrayListen der indeholder alle coastlines.
+     * @return ArrayList<Shape>
+     */
     public ArrayList<Shape> getCoastlines() {
         return coastlines;
     }
 
+    /**
+     * Desctription: Returnerer den graf der virker som vejnettet på kortet.
+     * @return Graph
+     */
     public Graph getGraph() {
         return graph;
     }
 
     private class OSMHandler implements ContentHandler {
-        LongToPointMap idToNode = new LongToPointMap(22);
-        Map<Long, OSMWay> idToWay = new HashMap<>();
-
+        private LongToPointMap idToNode = new LongToPointMap(22);
+        private Map<Long, OSMWay> idToWay = new HashMap<>();
         private HashMap<Point2D, GraphNode> graphNodeBuilder = new HashMap<>();
-
         private ArrayList<OSMWay> graphWays = new ArrayList<>();
+        private float lat;
+        private float lon;
+        private OSMWay way;
+        private OSMRelation relation;
+        private WayType type;
+        private Pattern pattern = Pattern.compile(("^-?\\d+$"));
 
-        float lat;
-        float lon;
-        OSMWay way;
-        OSMRelation relation;
-        WayType type;
-        Pattern pattern = Pattern.compile(("^-?\\d+$"));
-
-        public Iterable<Shape> get(WayType type) {
-            return shapes.get(type);
-        }
+        private String roadName;
+        private boolean isHighway = false;
+        private boolean oneway = false;
+        private PointsOfInterest POIType;
+        private Integer totalDepth = 0, totalShapes = 0;
+        private int maxSpeed = 0;
 
         private HashMap<String, Enum<?>> stringToEnum = new HashMap<>();
         {
@@ -450,39 +487,42 @@ public class Model extends Observable implements Serializable {
             }
         }
 
-        public void addRoad(PolygonApprox shape, String roadName, WayType type) {
+        /**
+         * Description: Tilføjer et nyt entry til roads hashmappet med WayTypen og og en ny ArrayList, hvis den ikke findes i mappet allerede.
+         * @param shape
+         * @param roadName
+         * @param type
+         */
+        public void addRoad(PolygonApprox shape, String roadName, WayType type){
             if (roads.get(type) == null) {
                 roads.put(type, new ArrayList<>());
             }
             roads.get(type).add(new RoadNode(shape, roadName, type));
         }
 
+        /**
+         * Description: Tilføjer et entry til den List som WayTypen har i shapes enummappet.
+         * @param type
+         * @param shape
+         */
         public void addShape(WayType type, Shape shape) {
             shapes.get(type).add(shape);
             dirty();
         }
-
-        String roadName;
-        boolean isHighway = false;
-        boolean oneway = false;
-        PointsOfInterest POIType;
-        Integer totalDepth = 0, totalShapes = 0;
-        int maxSpeed = 0;
 
         @Override
         public void setDocumentLocator(Locator locator) {
 
         }
 
-		public LongToPointMap getIdToNode()
-		{
-			return idToNode;
-		}
-
         @Override
         public void startDocument() throws SAXException {
         }
 
+        /**
+         * Description: Fylder de forskellige træer ud fra de ArrayLister der er blevet fyldt under parsingen.
+         * Description: ArrayListerne cleares efter følgende.
+         */
         private void fillTrees() {
             treeList = new ArrayList<>();
             POITree = new POIKDTree();
@@ -519,8 +559,6 @@ public class Model extends Observable implements Serializable {
 
         @Override
         public void endDocument() throws SAXException {
-            //idToNode = null;
-            //System.gc();
             long StartTime = System.nanoTime();
             fillTrees();
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
@@ -547,11 +585,11 @@ public class Model extends Observable implements Serializable {
 
         }
 
-
         @Override
         public void endPrefixMapping(String prefix) throws SAXException {
 
         }
+
         @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
             switch (qName) {
@@ -632,6 +670,7 @@ public class Model extends Observable implements Serializable {
                             if (v.equals("yes")) {
                                 oneway = true;
                             }
+                            break;
                         case "name":
                             name = v;
                             break;
@@ -652,9 +691,9 @@ public class Model extends Observable implements Serializable {
                     String role = atts.getValue("role");
                     ref = Long.parseLong(atts.getValue("ref"));
                     if (role.equals("admin_centre")) {
-                        if (idToNode.get(ref)!=null) {
+                        if (idToNode.get(ref)==null) {
                             regionCenter = new OSMNode((maxlon + minlon) / 2, -(maxlat + minlat) / 2);
-                        }
+                        } else {regionCenter =  idToNode.get(ref);}
                         adminRelation = true;
                     }
                     OSMWay way = idToWay.get(ref);

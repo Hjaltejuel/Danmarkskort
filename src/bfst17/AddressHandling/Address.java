@@ -1,42 +1,53 @@
 package bfst17.AddressHandling;
-
+/**
+ * Description: Addresse klassen som symboliserer en addresse i programmet
+ */
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Address implements Serializable {
-    private final String street, house, floor, side, postcode, city;
+    private final String street, house, postcode, city;
 
-    private Address(String _street, String _house, String _floor, String _side, String _postcode, String _city) {
+    /**
+     * Description: Den private Addresse konstruktor, der gør at du kun kan initialisere et addresse object gennem den indre builder klasse
+     * @param _street
+     * @param _house
+     * @param _postcode
+     * @param _city
+     */
+    private Address(String _street, String _house, String _postcode, String _city) {
         street = _street;
         house = _house;
-        floor = _floor;
-        side = _side;
         postcode = _postcode;
         city = _city;
     }
 
+    /**
+     * Description: Retunerer en String sammensat af gaden og huset
+     * @return: String
+     */
     public String getStreetAndHouseNum() {
         return street + " " + house;
     }
 
+    /**
+     * Description: Retunerer en String sammensat af postkoden og byen
+     * @return: String
+     */
     public String getPostcodeAndCity() {
         return postcode + " " + city;
     }
 
+    /**
+     * Description: toString metoden der laver addressen om til en string ved at sammensætte alle felterne til en string
+     * @return: STring
+     */
     public String toString() {
-        String floorSideString = "";
         String streetString = "";
         String houseString = "";
         String postcodeString = "";
         String cityString = "";
-
-        if (floor != null) {
-            floorSideString += " " + floor + ".";
-        }
-        if (side != null) {
-            floorSideString += " " + side;
-        }
         if (street != null) {
             streetString = street;
         }
@@ -49,93 +60,59 @@ public class Address implements Serializable {
         if(city != null){
             cityString = city;
         }
-        return (streetString + " " + houseString + floorSideString + " " +
+        return (streetString + " " + houseString +  " " +
                 postcodeString + " " + cityString).trim();
     }
 
+    /**
+     * Description: Builder klassen som bruges til at initialisere et addresse objekt
+     */
     public static class Builder {
-        private String street, house, floor, side, postcode, city;
+        private String street, house, postcode, city;
 
+        /**
+         * Description: sætter street feltet til det givne gadenavn givet i parameteren
+         * @param _street
+         */
         public Builder street(String _street) {
             street = _street;
             return this;
         }
 
+        /**
+         * Description: house street feltet til det givne husnummer givet i parameteren
+         * @param _house
+         */
         public Builder house(String _house) {
             house = _house;
             return this;
         }
 
-        public Builder floor(String _floor) {
-            floor = _floor;
-            return this;
-        }
-
-        public Builder side(String _side) {
-            side = _side;
-            return this;
-        }
-
+        /**
+         * Description: sætter postkode feltet til den givne postkode givet i parameteren
+         * @param _postcode
+         */
         public Builder postcode(String _postcode) {
             postcode = _postcode;
             return this;
         }
 
+        /**
+         * Description: sætter by feltet til det givne bynavn givet i parameteren
+         * @param _city
+         */
         public Builder city(String _city) {
             city = _city;
             return this;
         }
 
+        /**
+         * Description: bygger den givne addresse ved at kalde dens konsturktor
+         * @return: Addresse
+         */
         public Address build() {
-            return new Address(street, house, floor, side, postcode, city);
+            return new Address(street, house, postcode, city);
         }
-    }
-
-    private static Pattern[] regList = new Pattern[]{
-
-            Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?) +(?<floor>[0-9]+) *. *(?<side>[th|mf|tv]+) *, +(?<postcode>[0-9]{4}) +(?<city>[\\p{L} ])"),
-            Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?) +(?<floor>[0-9]+) *. *(?<side>[th|mf|tv]+) *, +(?<postcode>[0-9]{4})"),
-            Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?) +(?<floor>[0-9]+) *, +(?<postcode>[0-9]{4}) +(?<city>[\\p{L} ]+)"),
-            Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?) +(?<floor>[0-9]+) *, +(?<postcode>[0-9]{4})"),
-            Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?) *, +(?<postcode>[0-9]{4}) +(?<city>[\\p{L} ]+)"),
-            Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?) *, +(?<postcode>[0-9]{4})"),
-            Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?) *, +(?<city>[\\p{L} ]+)"),
-            Pattern.compile("(?<street>^[\\p{L} ]+) +(?<house>[0-9]+[\\p{L}]?)"),
-            Pattern.compile("(?<city>[\\p{L} ]+)"),
-            Pattern.compile("(?<postcode>[0-9]{4}) +(?<city>[\\p{L} ]+)")
-
-    };
-
-    public static Address parse(String s) {
-        Builder b = new Builder();
-        Matcher matcher;
-
-        for (Pattern pattern : regList) {
-            matcher = pattern.matcher(s);
-            if(matcher.matches()) {
-                if (pattern.toString().toLowerCase().contains("street")) {
-                    b.street(matcher.group("street"));
-                }
-                if (pattern.toString().toLowerCase().contains("house")) {
-                    b.house(matcher.group("house"));
-                }
-                if (pattern.toString().toLowerCase().contains("floor")) {
-                    b.floor(matcher.group("floor"));
-                }
-                if (pattern.toString().toLowerCase().contains("side")) {
-                    b.side(matcher.group("side"));
-                }
-                if (pattern.toString().toLowerCase().contains("postcode")) {
-                    b.postcode(matcher.group("postcode"));
-                }
-                if (pattern.toString().toLowerCase().contains("city")) {
-                    b.city(matcher.group("city"));
-                }
-            }
-
-        }
-
-        return b.build();
     }
 }
 

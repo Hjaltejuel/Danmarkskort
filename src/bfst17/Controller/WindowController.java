@@ -24,13 +24,14 @@ import java.io.IOException;
  * Created by Hjalte on 21-04-2017.
  */
 public class WindowController implements KeyListener, ActionListener, MouseListener, ComponentListener {
-    DrawWindow window;
-    Model model;
-    DrawCanvas canvas;
-    AddressModel addressModel;
-    boolean setUpDirectionsMenu = false;
-    boolean startDirections = false;
-    boolean destinationDirections = false;
+    private DrawWindow window;
+    private Model model;
+    private DrawCanvas canvas;
+    private AddressModel addressModel;
+    private boolean setUpDirectionsMenu = false;
+    private boolean startDirections = false;
+    private boolean destinationDirections = false;
+    private boolean isPopUpOpen = false;
 
     public WindowController(Model model) {
         window = new DrawWindow();
@@ -110,12 +111,15 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
     }
 
+
+    /**
+     * Description: Ændrer GUI-temaet og tilpasser menuen.
+     * @param newTheme
+     */
     public void setColorTheme(GUIMode newTheme) {
         if (canvas.getGUITheme() == newTheme) {
             newTheme = GUIMode.NORMAL;
         }
-
-        //Hvad gør setup & tear down?? Der er umiddelbart ingen forskel om de er med eller fra
         canvas.setGUITheme(newTheme);
         if (newTheme == GUIMode.NORMAL) {
             window.getNightModeMenuItem().setText("NightMode (CTRL-N)");
@@ -133,15 +137,11 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     @Override
     public void keyTyped(KeyEvent e) {
-
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-
     }
-
-    boolean isPopUpOpen = false;
 
     @Override
     public void keyReleased(KeyEvent e) {
@@ -173,12 +173,22 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
     }
 
+    /**
+     * Description: Sætter startingDirectory og kalder loadFile med dette startDirectory.
+     * @throws IOException
+     */
     public void loadFile() throws IOException {
         File startingDirectory = new File(System.getProperty("user.dir"));
         loadFile(startingDirectory);
         canvas.resetCamera();
     }
 
+    /**
+     * Description: Laver en JFileChooser der begrænser de accepterede filer er begrænset til, osm, bin, zil og app(mapper på mac).
+     * Description: Hvis filen findes kaldes model.load.
+     * @param startingDirectory
+     * @throws IOException
+     */
     public void loadFile(File startingDirectory) throws IOException {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(startingDirectory);
@@ -217,6 +227,9 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
     }
 
+    /**
+     * Description: Laver en JFileChooser der giver mulighed for at gemme en fil.
+     */
     public void save() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Choose save location");
@@ -234,7 +247,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             canvas.getTimer().cancel();
         }
         String s = (String) window.getCombo().getSelectedItem();
-        if (s == null || s.length()==0) {
+        if (s == null || s.length() == 0) {
             return; //Ikke noget at søge efter!
         }
 
@@ -244,10 +257,6 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             JOptionPane.showMessageDialog(canvas, "Din søgning på '" +  s + "' gav ingen resultater");
             return; //Ingen adresse fundet...
         }
-        if(address instanceof DuplicateAddressNode){
-
-        }
-
 
         double lat = -address.getY();
         double lon = -address.getX();

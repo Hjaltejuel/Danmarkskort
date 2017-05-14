@@ -5,7 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by Jens on 30-04-2017.
+ * Opsætter de forskellige knapper med billeder på så de alle er ens
  */
 public class ImageButton extends JButton {
     public ImageButton(String ImagePath) {
