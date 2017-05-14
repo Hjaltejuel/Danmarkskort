@@ -3,6 +3,7 @@ package bfst17.GUI;
 import bfst17.AddressHandling.TSTInterface;
 import bfst17.Directions.DirectionObject;
 import bfst17.Directions.Graph;
+import bfst17.Directions.GraphNode;
 import bfst17.Enums.*;
 import bfst17.KDTrees.*;
 import bfst17.Model;
@@ -371,13 +372,26 @@ public class DrawCanvas extends JComponent {
         if (graph == null) {
             return;
         } else {
+            HashMap<Point2D, GraphNode> test = graph.getGraphFilteredMap();
+            Iterator it = test.entrySet().iterator();
+            ArrayList<Point2D> ap = new ArrayList<>();
+            while(it.hasNext()){
+                Map.Entry pair = (Map.Entry)it.next();
+                GraphNode point = (GraphNode)pair.getValue();
+                for(int i = 0; i < point.getEdgeList().size();i++){
+                   g.draw(new Line2D.Double(point.getEdgeList().get(i).getDestination().getPoint2D()
+                           ,point.getEdgeList().get(i).getSource().getPoint2D()));
+                }
+            }
             ArrayList<Point2D> graphPointList = graph.getPointList();
+            g.setColor(Color.RED);
             if (graphPointList != null) {
                 if(graphPointList.size() != 0) {
                     PolygonApprox polygon = new PolygonApprox(graphPointList);
                     g.draw(polygon);
                 }
             }
+
         }
     }
 

@@ -29,7 +29,13 @@ public class Edge {
      */
     private void calcWeightForFastest() {
         Integer maxSpeed = Math.max(source.getMaxSpeed(),destination.getMaxSpeed());
+        if(weight == Double.POSITIVE_INFINITY){
+            System.out.println(weight);
+        }
         weight = distance / maxSpeed;
+        if(weight == Double.POSITIVE_INFINITY){
+            System.out.println(weight);
+        }
     }
 
     /**
