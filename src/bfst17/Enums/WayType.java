@@ -530,12 +530,6 @@ public enum WayType implements Serializable {
 					1500,
 					FillType.LINE,
 					new Color(56, 65, 78)),
-	HIGHWAY_TERTIARY
-			(new Color(246, 239, 239),
-					new BasicStroke(0.00008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
-					2000,
-					FillType.LINE,
-					new Color(116, 104, 85)),
 	HIGHWAY_BUS_GUIDEWAY
 			(new Color(157, 156, 246),
 					null,
@@ -548,18 +542,24 @@ public enum WayType implements Serializable {
 					1500,
 					FillType.LINE,
 					new Color(56, 65, 78)),
-	HIGHWAY_UNCLASSIFIED
-			(new Color(246, 239, 239),
-					null,
-					35000,
-					FillType.LINE,
-					new Color(56, 65, 78)),
 	HIGHWAY_ROAD
 			(new Color(181, 181, 180),
 					null,
 					1500,
 					FillType.LINE,
 					new Color(56, 65, 78)),
+	HIGHWAY_UNCLASSIFIED
+			(new Color(246, 239, 239),
+					new BasicStroke(0.00004f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					35000,
+					FillType.LINE,
+					new Color(56, 65, 78)),
+	HIGHWAY_TERTIARY
+			(new Color(246, 239, 239),
+					new BasicStroke(0.00008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					2000,
+					FillType.LINE,
+					new Color(116, 104, 85)),
 	HIGHWAY_SECONDARY
 			(new Color(247, 250, 191),
 					new BasicStroke(0.00008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
@@ -568,7 +568,7 @@ public enum WayType implements Serializable {
 					new Color(116, 104, 85)),
 	HIGHWAY_PRIMARY
 			(new Color(252, 193, 97),
-					new BasicStroke(0.0001f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					new BasicStroke(0.00008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
 					1,
 					FillType.LINE,
 					new Color(56, 65, 78)),

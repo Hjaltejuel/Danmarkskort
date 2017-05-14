@@ -6,6 +6,7 @@ import bfst17.AddressHandling.TSTInterface;
 import bfst17.Directions.DirectionObject;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
+import bfst17.Enums.VehicleType;
 import bfst17.Enums.WeighType;
 import bfst17.GUI.DrawCanvas;
 import bfst17.GUI.DrawWindow;
@@ -156,10 +157,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 TSTInterface addressDest = addressModel.getAddress(secondComboBoxString.trim());
                 TSTInterface address = addressModel.getAddress(firstComboBoxString.trim());
 
-                TreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()));
+                TreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), VehicleType.CAR);
                 Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
-                closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()));
+                closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), VehicleType.CAR);
                 Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
                 model.getGraph().findShortestPath(fromPoint, toPoint, WeighType.FASTEST);

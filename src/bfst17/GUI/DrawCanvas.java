@@ -264,7 +264,7 @@ public class DrawCanvas extends JComponent {
      */
     public void getNearestNeighbourFromMousePos(Point2D mousePos) {
         Point2D lonLatCords = screenCordsToLonLat(mousePos.getX(), mousePos.getY());
-        addressNode = model.getClosestRoad(lonLatCords);
+        addressNode = model.getClosestRoad(lonLatCords, VehicleType.ANY);
         if(addressNode == null){
             return;
         }

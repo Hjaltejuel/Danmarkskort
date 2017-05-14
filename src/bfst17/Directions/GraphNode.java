@@ -54,8 +54,9 @@ public class GraphNode implements Comparable {
     }
 
     public String getRoadName(Model model){
-        return model.getClosestRoad(getPoint2D()).getRoadName();
+        return model.getClosestRoad(getPoint2D(), VehicleType.CAR).getRoadName();
     }
+
     public VehicleType[] getTypes() {
         return type.getVehicletypes();
     }

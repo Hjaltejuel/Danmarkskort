@@ -50,6 +50,6 @@ public enum RoadTypes {
     }
 
     public VehicleType[] getVehicletypes() {
-        return VehicleType.values();
+        return vehicletypes;
     }
 }

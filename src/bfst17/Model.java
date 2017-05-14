@@ -4,10 +4,7 @@ import bfst17.AddressHandling.*;
 import bfst17.Directions.*;
 import bfst17.Directions.Graph;
 import bfst17.Directions.GraphNode;
-import bfst17.Enums.PointsOfInterest;
-import bfst17.Enums.RoadTypes;
-import bfst17.Enums.WayType;
-import bfst17.Enums.WeighType;
+import bfst17.Enums.*;
 import bfst17.KDTrees.*;
 import bfst17.OSMData.*;
 import bfst17.ShapeStructure.MultiPolygonApprox;
@@ -18,12 +15,9 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.*;
-import java.nio.Buffer;
 import java.util.*;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -63,7 +57,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
+            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,21 +67,58 @@ public class Model extends Observable implements Serializable {
         //loadFile(path);
     }
 
+    /**
+     * Får de veje der ligger tættest på punktet i samtlige RoadKDTræer
+     * @param point     Punktet
+     * @return          Arraylist af veje
+     */
+    public ArrayList<TreeNode> getAllClosestRoads(Point2D point, VehicleType vehicle) {
+        ArrayList<TreeNode> roadNodes = new ArrayList<>();
+        for (RoadKDTree tree : getRoadKDTreeList()) {
+            if(vehicle==VehicleType.ANY) {
+                roadNodes.add(tree.getNearestNeighbour(point));
+            } else {
+                if(vehicleSupportsType(tree.getType(),vehicle)){
+                    roadNodes.add(tree.getNearestNeighbour(point));
+                }
+            }
+        }
+        return roadNodes;
+    }
+
+    /**
+     * Check if the WayType supports the given vehicle
+     * @param type          Type of road
+     * @param vehicle       Type of vehicle
+     * @return              Whether the vehicle can drive on the given type of road (Boolean)
+     */
+    public boolean vehicleSupportsType(WayType type, VehicleType vehicle){
+        try {
+            for (VehicleType vType : RoadTypes.valueOf(type.name()).getVehicletypes()) {
+                if (vType == vehicle) {
+                    return true;
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     /**
      * Description: Løber igennem alle roadKDtræerne for at finde et nearestNeightbour for alle træerne, hvor den korteste vælges.
      * @param point
      * @return RoadTreeNode
      */
-    public RoadKDTree.RoadTreeNode getClosestRoad(Point2D point) {
+    public RoadKDTree.RoadTreeNode getClosestRoad(Point2D point, VehicleType vehicleType) {
         TreeNode closestNode = null;
-        for (RoadKDTree tree : getRoadKDTreeList()) {
-            TreeNode newClosestNode = tree.getNearestNeighbour(point);
+        for(TreeNode node : getAllClosestRoads(point, vehicleType)){
             if (closestNode == null) {
-                closestNode = newClosestNode;
+                closestNode = node;
             } else {
-                if (newClosestNode.distance(point) < closestNode.distance(point)) {
-                    closestNode = newClosestNode;
+                if (node.distance(point) < closestNode.distance(point)) {
+                    closestNode = node;
                 }
             }
         }
@@ -101,8 +132,12 @@ public class Model extends Observable implements Serializable {
      * @return
      *
      */
+    ArrayList<DirectionObject> directions;
     public ArrayList<DirectionObject> getDirectionsList() {
-        ArrayList<DirectionObject> directions = new ArrayList<>();
+        if (directions != null) {
+            return directions;
+        }
+        directions = new ArrayList<>();
         String prevRoad = "";
         double currentDirection = 0;
         ArrayList<GraphNode> graphNodeList = graph.getPathList();
@@ -111,12 +146,9 @@ public class Model extends Observable implements Serializable {
         }
         for (int i = graphNodeList.size() - 1; i >= 1; i--) {
             GraphNode currentGraphNode = graphNodeList.get(i);
-            /*DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this);
-            prevRoad = DirObj.getCurrentRoad();
-            directions.add(DirObj);*/
             if (currentGraphNode.getEdgeList().size() <= 2) {
                 if (!prevRoad.equals(currentGraphNode.getRoadName(this))) {
-                    DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this);
+                    DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR);
                     prevRoad = DirObj.getCurrentRoad();
                     directions.add(DirObj);
                 }
@@ -143,7 +175,7 @@ public class Model extends Observable implements Serializable {
             if (currentGraphNode.getRoadName(this).equals(prevRoad)) {
                 continue;
             }
-            DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this);
+            DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR);
             prevRoad = DirObj.getCurrentRoad();
             directions.add(DirObj);
 
@@ -153,7 +185,6 @@ public class Model extends Observable implements Serializable {
                     currentGraphNode.getPoint2D().getX() - prevNode.getPoint2D().getX());
             currentDirection = ((angle*180/Math.PI)+360)%360; //Altid mere en 0 & under 360
             */
-
         }
         return directions;
     }
@@ -569,10 +600,10 @@ public class Model extends Observable implements Serializable {
             TSTInterface addressDest = addressModel.getAddress("Aasen 4, 3730 Nexø");
             TSTInterface address = addressModel.getAddress("Engen 1, 3730 Nexø");
 
-            TreeNode closestNode = getClosestRoad(new Point2D.Double(address.getX(), address.getY()));
+            TreeNode closestNode = getClosestRoad(new Point2D.Double(address.getX(), address.getY()), VehicleType.CAR);
             Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
-            closestNode = getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()));
+            closestNode = getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), VehicleType.CAR);
             Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
 
             getGraph().findShortestPath(fromPoint, toPoint, WeighType.FASTEST);
