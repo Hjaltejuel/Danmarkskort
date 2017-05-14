@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 
 /**
- * Created by Michelle on 4/19/2017.
+ * Beskrivelse Region klassen som fungerer som en val for en region i tst træet. Indeholder et center punkt på regionen og en shape på regionen
  */
 public class Region implements Serializable,TSTInterface {
     Shape shape;

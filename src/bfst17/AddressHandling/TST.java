@@ -13,11 +13,17 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Beskrivelse: TST klassen. TST klassen er et ændret tst træ, som kan indeholde TST interfaces
+ * @param <TSTInterface>
+ */
 public class TST<TSTInterface> implements Serializable {
     private int n;
     private Node<TSTInterface> root;
+    //Suffix and Preffix for the addresses
     private String suffix = "";
     private String prefix = "";
+    // A pattern for a postcode and a city
     Pattern pattern = Pattern.compile("\\d{4}+.*");
 
     private static class Node<TSTInterface> implements Serializable{
@@ -33,76 +39,68 @@ public class TST<TSTInterface> implements Serializable {
         return n;
     }
 
-    public boolean contains(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("argument to contains() is null");
-        }
-        return get(key) != null;
-    }
     /**
-     * Description: returns the value of a specific key by call on get, used for searching, saves the suffix (city and postcode val)
-       If it finds a duplicateAddressNode, return the val that matches the suffix
-     * @param unfilteredKey the key to search for
-     * @return TSTInterface (AddressNode,OSMNode)
+     * Beskrivelse: retunerer værdien af en key med et kald til den anden get metode. Metoden bliver brugt til søgning af addresser
+     * Hvis get finder en duplicateAddressNode så vælger den, den value som passer med den søgte addresses suffix
+     * @param unfilteredKey
+     * @return TSTInterface
      */
     public TSTInterface get(String unfilteredKey) {
         String suffix = "";
-        //no commas, makes it easyer to match
+        //ingen kommaer
         String key = unfilteredKey.replace(",", "");
-        //match the pattern of citty and postcode
+        //matcher efter det postkode by pattern
         Matcher matcher = pattern.matcher(key);
         if(matcher.find()){
-            //save the suffix
+            //gem suffix
             suffix = key.substring(matcher.start(),matcher.end());
-            //save the new filtered key
+            //gemmer prefix
             key = key.substring(0,matcher.start()-1);
         }
         if (key == null) {
             throw new IllegalArgumentException("calls get() with null argument");
         }
         if (key.length() == 0) throw new IllegalArgumentException("key must have length >= 1");
-        //return the given keys node;
+        //retunerer værdien for den søgte addresse
         Node<TSTInterface> x = get(root, key, 0);
         if (x == null) return null;
-        //Check if the there are duplicates of the given address in other city's
+        //check for at se om der er duplikationer
         if(x.val instanceof DuplicateAddressNode){
-            //run trough the duplicates and find the one that matches the given keys suffix and then return it
+            //løb igennem listen af duplikationer indtil vi finder et match
             for(bfst17.AddressHandling.TSTInterface node: (DuplicateAddressNode)(x.val)){
                 if(node instanceof AddressNode){
                 if(node.getAddress().equals(suffix)) {
                     return (TSTInterface) node;
                  }
                 }
+                //hvis det er en by der bliver fundet, så kan vi ikke identificere den rigtige og bliver derfor nød til at vælge en random
                 else {
                     int randomNum = ThreadLocalRandom.current().nextInt(0, ((DuplicateAddressNode) x.val).size());
                     return (TSTInterface) ((DuplicateAddressNode) x.val).get(randomNum);
                 }
                 }
             }
-        //if it isnt a duplicate return the node, this makes it so you can also search on addresses without suffix
-        // if there arent duplicates
         return x.val;
     }
 
     /**
-     * Description: returns the end node of a given line of nodes, whose char value corresponds to the key
-     * Does this by recursively calling itself
-     * @param x: the node to compare the key to
-     * @param key: the key we are searching for
-     * @param d: the index of the string we are on
+     * Beskrivelse: retunerer en node som er slutningen af en række noder som daner den søgte key
+     * @param x: noden som vi sammenligner nøglen med
+     * @param key: nøglen som bliver søgt efter
+     * @param d: indekset vi er på
      * @return Node
      */
     private Node<TSTInterface> get(Node<TSTInterface> x, String key, int d) {
         if (x == null) return null;
         if (key.length() == 0) throw new IllegalArgumentException("key must have length >= 1");
-        //saves the char we are currently at
+        //gemmer den char vi nuværende er på i keyen
         char c = key.charAt(d);
-        //performs recursive calls unitl we find the given node to the key
-        //if the char is smaller go left
+        //laver recursive kald til get for at gå dybbere ned i træet
+        //hvis den givne char er mindre end den char vi sammenligner med gå til venstre
         if (c < x.c) return get(x.left, key, d);
-        //if the char is bigger go right
+        // hvis den givne char er større end den char vi sammenligner med gå til højre
          else if (c > x.c) return get(x.right, key, d);
-        //if the char matches but we arent at the end of the key go down the middle
+        //hvis den givne char matcher den char vi sammenligner med gå ned i midten
          else if (d < key.length() - 1) return get(x.mid, key, d + 1);
         else return x;
     }
@@ -122,62 +120,61 @@ public class TST<TSTInterface> implements Serializable {
     }
 
     /**
-     * Description: the recursive put method, which places a key and a val into the tree
-     * @param x: The node to compare the key to
-     * @param key: the key to be placed
-     * @param val: the val to be placed
-     * @param d: the index of the key we are working on
+     * Description: den recursive put metode som placerer en key og en val ind i træet
+     * @param x:
+     * @param key:
+     * @param val:
+     * @param d:
      * @return: Node
      */
     private Node<TSTInterface> put(Node<TSTInterface> x, String key, TSTInterface val, int d) {
-        //The char at the current index
+        //Charen på det nuværende index
         char c = key.charAt(d);
-        //If the compare node = null make a new node and give it the current index char val
+        //hvis vi når et sted hvor sammenlignings noden er null, så ved vi at det er en ny key, og vi laver derfor en ny node
         if (x == null) {
             x = new Node<TSTInterface>();
             x.c = c;
         }
-        //if the key char is smaller than the node char go left
+        //hvis den givne char er mindre end den char vi sammenligner med gå til venstre
         if (c < x.c) x.left = put(x.left, key, val, d);
-        //if the key char is bigger than the node char go right
+        //hvis den givne char er større end den char vi sammenligner med så gå til højre
         else if (c > x.c) x.right = put(x.right, key, val, d);
-        //if the key char equals the node char but we are not at the end of the key go in the middle
+        //hvis den givne char er lig med den char vi sammenligner med så gå ned i midten
         else if (d < key.length() - 1) x.mid = put(x.mid, key, val, d + 1);
-        // if there is already a node with the keys prefix, then addShape the val to be entered to the node val
+        //hvis der allerede er en key med det prefix vi prøver at indsætte så indsæt værdien
         else  if(x.val != null){
-            //if there is multiple instances of the node, then addShape the val to the list
+            //Hvis der allerede er en liste af værdier så add til den liste
             if(x.val instanceof DuplicateAddressNode){
                 ((DuplicateAddressNode) x.val).add((bfst17.AddressHandling.TSTInterface)val);
             } else {
-                //if there is only one addressNode, make a new list and addShape them both
+                //hvis der kun er en værdi så lav en ny DuplicateAddressNode list og add dem til den
                 DuplicateAddressNode addresArray = new DuplicateAddressNode();
                 addresArray.add((bfst17.AddressHandling.TSTInterface) x.val);
                 addresArray.add((bfst17.AddressHandling.TSTInterface) val);
                 x.val = (TSTInterface) addresArray;
             }
-            //else make the value of the new node the value of the key
+            //ellers så bare add værdien
         } else x.val = val;
         return x;
     }
 
     /**
-     * Description: Method for returning a list of the top 5 mathces to the param: prefix
-     * @param prefixUser: the string to be searched for
-     * @return ArrayList<String>
+     * Description: Metode for at returnere en liste med Addresser der matcher det søgte prefix
+     * @param prefixUser
+     * @return ArrayList<String> top 5 resultater
      */
     public ArrayList<String> keysWithPrefix(String prefixUser) {
-        //cant match with nothing
+        //kan ikke matche med ingenting
         if (prefixUser != "") {
-                //set the prefix
+                //sætter prefix
                 this.prefix = prefixUser;
-                //delete the commas
+                //spliter ved kommaet, kommaet er derved skillelinjen mellem prefix og suffix
                 String[] split = prefix.split(",");
-                //reset the values
+                //reseter værdierne
                 this.suffix = "";
                 prefix = "";
-                //run trough the split array and make the suffix
+                //løb gennem split arrayet og lav prefix og suffix
                 prefix = split[0];
-                //run trough the split array and make the suffix
                 if (split.length > 1) {
                     suffix = split[1];
                 }
@@ -185,15 +182,15 @@ public class TST<TSTInterface> implements Serializable {
                 if (prefix == null) {
                     throw new IllegalArgumentException("calls keysWithPrefix() with null argument");
                 }
-                //make a new priority queue and get the node belonging to the prefix if there are any
+                //lav en ny priorityqueue og find noden der passer til det søgte ord
                 PriorityQueue<PriorityStrings> queue = new PriorityQueue<>();
                 Node<TSTInterface> x = get(root, prefix, 0);
 
                 if (x == null) return makeArray(queue);
 
-                //If the prefix had a val, (only happens with cities and regions)
+                //hvis vi finder et direkte match
                 if (x.val != null) {
-                    //if there are duplicates, addShape them all
+                    //hvis der er duplikationer så add dem alle til queuen
                     if (x.val instanceof DuplicateAddressNode) {
                         for (bfst17.AddressHandling.TSTInterface node : ((DuplicateAddressNode) x.val)) {
                             if (node instanceof AddressNode) {
@@ -203,15 +200,14 @@ public class TST<TSTInterface> implements Serializable {
                             }
                         }
                     } else
-                        //if there only is one match and its an address
+                        //hvis der kun er en match så add det med en priority på 1 så vi er sikrer på det kommer først
                         if (x.val instanceof AddressNode) {
                             queue.add(new PriorityStrings(1, prefix + ", " + x.val.toString()));
                         } else {
-                            //if there only is one match and its a city or region
                             queue.add(new PriorityStrings(1, prefix));
                         }
                 }
-                //starts the recursive addToQueue call
+                //starter det recursive kald til at adde til queuen
                 addToQueue(x.mid, new StringBuilder(prefix), queue);
 
                 return makeArray(queue);
@@ -219,9 +215,9 @@ public class TST<TSTInterface> implements Serializable {
         }
 
     /**
-     * Description: method for making the list of the top 5 results
-     * @param q: priority queue with results
-     * @return: Arraylist<containing top 5 results></>
+     * Beskrivelse: metode til at lave en liste med de top 5 resultater
+     * @param q: Prioritets queue med top resultaterne
+     * @return: Arraylist<top 5 resultater></>
      */
     public ArrayList<String> makeArray(PriorityQueue<PriorityStrings> q){
         ArrayList<String> returnList = new ArrayList<>();
@@ -231,60 +227,92 @@ public class TST<TSTInterface> implements Serializable {
         }
         return returnList;
     }
-    
-    
+
+
+    /**
+     * Beskrivelse: Recursiv metode til at adde til queuen
+     * @param x
+     * @param prefix
+     * @param queue
+     */
     private void addToQueue(Node<TSTInterface> x, StringBuilder prefix, PriorityQueue<PriorityStrings> queue) {
         if (x == null) return;
         addToQueue(x.left, prefix, queue);
 
+        //Hvis vi finder et endepunkt, så add det
         if (x.val != null ) {
-            String found = prefix.toString() + x.c;
+            // hele addressen
+            String address = prefix.toString() + x.c;
+            // hvis der er flere resultater så add dem alle
             if(x.val instanceof  DuplicateAddressNode){
                 for(bfst17.AddressHandling.TSTInterface node: ((DuplicateAddressNode)x.val)){
                     if(node instanceof AddressNode) {
-                        addAddressNodeToQueue(queue, (AddressNode) node, found);
+                        addAddressNodeToQueue(queue, (AddressNode) node, address);
                     } else if(node instanceof OSMNode){
-                        addOtherNodeToQueue(queue,found);
+                        addOtherNodeToQueue(queue,address);
                     }
                 }
             }
+            //Hvis der er et resultat så add det
              else if(x.val instanceof AddressNode)
             {
-                addAddressNodeToQueue(queue,(AddressNode)x.val,found);
+                addAddressNodeToQueue(queue,(AddressNode)x.val,address);
             }
-                else{addOtherNodeToQueue(queue,found);}
+                else{addOtherNodeToQueue(queue,address);}
 
         }
+        //gå ned i midten
         addToQueue(x.mid, prefix.append(x.c), queue);
         prefix.deleteCharAt(prefix.length() - 1);
+        //gå til højre
         addToQueue(x.right, prefix, queue);
     }
 
-    public void addAddressNodeToQueue(PriorityQueue<PriorityStrings> queue, AddressNode x, String found){
-        String compare = x.toString();
-        double similarity = similarity(compare,suffix);
-        double n = (((double) this.prefix.length()  / ((double) found.length()+ x.toString().length()))+similarity);
-        //System.out.println(prefix + " " + n);
-        queue.add(new PriorityStrings(n,found + ", " +x.toString()));
+    /**
+     * Beskrivelse: Metode for at finde en similarity på en addresse og adde den til en queue
+     * @param queue
+     * @param x
+     * @param address
+     */
+    public void addAddressNodeToQueue(PriorityQueue<PriorityStrings> queue, AddressNode x, String address){
+
+        String suffixNodeString = x.toString();
+        //Finder en similarity mellem det prefix du har skrevet og det prefix søgeren fik
+        double similarity = similarity(suffixNodeString,suffix);
+        //Udregner en int værdi baseret på forskellen mellem længden af det brugeren har skrevet, og det som søgeren har fundet
+        double n = (((double) this.prefix.length()  / ((double) address.length() + x.toString().length())+similarity));
+
+        queue.add(new PriorityStrings(n,address + ", " +x.toString()));
     }
 
-    public void addOtherNodeToQueue(PriorityQueue<PriorityStrings> queue, String found){
-        double n = ((double) this.prefix.length()  / (double) found.length());
-        queue.add(new PriorityStrings(n,found));
+    /**
+     * Beskrivelse: Metode for at tilføje alle andre noder til queuen
+     * @param queue
+     * @param address
+     */
+    public void addOtherNodeToQueue(PriorityQueue<PriorityStrings> queue, String address){
+        double n = ((double) this.prefix.length()  / (double) address.length());
+        queue.add(new PriorityStrings(n,address));
     }
 
-    public double similarity(String s1, String s2) {
-        String longer = s1, shorter = s2;
-        if (s1.length() < s2.length()) {
-            longer = s2; shorter = s1;
-        }
-        int longerLength = longer.length();
-        if (longerLength == 0) { return 1.0;  }
-        return (longerLength - editDistance(longer, shorter)) / (double) longerLength;
+    /**
+     * Beskrivelse: Metode for at kalde Levenshtein distance formel for at finde en forskel.
+     */
+    public double similarity(String addressPrefix, String prefix) {
+        String longer = addressPrefix, shorter = prefix;
+        return (longer.length() - editDistance(longer, shorter)) / (double) longer.length();
     }
+
+    /**
+     * Beskrivelse: Levenshtein distance formel for at beregne en lighed mellem to Strings
+     * @param s1
+     * @param s2
+     * @return
+     */
     public static int editDistance(String s1, String s2) {
         s1 = s1.toLowerCase();
         s2 = s2.toLowerCase();
+
 
         int[] costs = new int[s2.length() + 1];
         for (int i = 0; i <= s1.length(); i++) {

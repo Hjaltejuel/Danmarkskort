@@ -52,38 +52,15 @@ public class AutocompleteJComboBox extends JComboBox {
             userInput.getDocument().putProperty("key",userInput);
             userInput.getDocument().addDocumentListener(new DocumentListener() {
 
-                timerTask task = new timerTask();
-
-                class timerTask extends TimerTask{
-                    boolean hasSarted = false;
-                    @Override
-                    public void run() {
-                        hasSarted = true;
-                        update();
-                        hasSarted = false;
-
-                    }
-                    public boolean getStatus(){return hasSarted;}
-                }
-
                 public void changedUpdate(DocumentEvent arg0) {
                 }
 
                 public void insertUpdate(DocumentEvent arg0) {
-                    if(task.getStatus()) {
-                        timer.cancel();
-                    }
-                    timer.schedule(new timerTask(),250);
-
+                    update();
                 }
 
                 public void removeUpdate(DocumentEvent arg0) {
-                    if(task.getStatus()) {
-                        timer.cancel();
-                    }
-                    timer.schedule(new timerTask(),250);
-
-
+                    update();
                 }
                 public String makeUpperCase(String s) {
                     if (!s.equals("")) {

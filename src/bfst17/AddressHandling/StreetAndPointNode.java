@@ -2,8 +2,9 @@ package bfst17.AddressHandling;
 
 import java.awt.geom.Point2D;
 
+
 /**
- * Created by Jens on 07-05-2017.
+ * Beskrivelse: StreetAndPointNode klassen som symboliserer en gade med et centerpunkt i TST træet
  */
 public class StreetAndPointNode {
     public String getName() {

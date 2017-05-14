@@ -1,15 +1,14 @@
 package bfst17.AddressHandling;
 
-import bfst17.AddressHandling.TSTInterface;
 
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * Created by Michelle on 4/28/2017.
+ * Beskrivelse: DuplicateAddressNode klassen som bruges som en liste af AddressNode. Bruges som en liste der implementer TSTInterface
  */
-public class DuplicateAddressNode extends ArrayList<TSTInterface> implements TSTInterface,Serializable{
+public class DuplicateAddressNode extends ArrayList<TSTInterface> implements TSTInterface,Serializable {
     public DuplicateAddressNode() {
     }
 

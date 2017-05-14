@@ -1,12 +1,10 @@
 package bfst17.AddressHandling;
 
-import bfst17.OSMData.OSMNode;
-
 import java.awt.*;
 import java.io.Serializable;
 
 /**
- * Created by Michelle on 4/27/2017.
+ * Beskrivelse: AddressNode klassen som Symboliserer en addresses val i tst træet. Indeholder et punkt og et suffix
  */
 public class AddressNode implements TSTInterface, Serializable{
     float X, Y;

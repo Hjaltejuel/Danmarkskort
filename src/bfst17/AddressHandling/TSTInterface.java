@@ -3,7 +3,7 @@ package bfst17.AddressHandling;
 import java.awt.*;
 
 /**
- * Created by Hjalte on 26-04-2017.
+ * Beskrivelse: TSTInterface klassen, bruges som en ramme til val i TST træet
  */
 public interface TSTInterface {
 
