@@ -1,20 +1,26 @@
 package bfst17;
 
+import bfst17.Directions.Graph;
+import bfst17.Directions.GraphNode;
 import bfst17.Enums.WayType;
 import bfst17.ShapeStructure.PolygonApprox;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 
 public class RoadNode implements Serializable {
     PolygonApprox shape;
     String roadName;
-    WayType type;
+    ArrayList<GraphNode> nodes = new ArrayList<>();
 
-    public RoadNode(PolygonApprox shape, String roadName, WayType type){
+
+    public RoadNode(PolygonApprox shape, String roadName, ArrayList<GraphNode> nodes){
         this.shape = shape;
+        this.nodes = nodes;
         this.roadName = roadName;
     }
+    public ArrayList<GraphNode> getNodes(){return nodes;}
     public PolygonApprox getShape() {
         return shape;
     }

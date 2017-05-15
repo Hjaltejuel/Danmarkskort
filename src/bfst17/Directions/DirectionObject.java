@@ -62,7 +62,7 @@ public class DirectionObject {
     public void setTurnType(double angle) {
         //double angle = Math.atan2(to.getY() - from.getY(), to.getX() - from.getX());
         double angleDegree = ((angle * 180 / Math.PI) + 360) % 360; //Altid mere en 0 & under 360
-        System.out.println(angleDegree);
+
         if (angleDegree >= 30 && angleDegree <= 150) {
             this.roadDirection = RoadDirektion.højre;
         } else if (angleDegree > 150 && angleDegree <= 210) {

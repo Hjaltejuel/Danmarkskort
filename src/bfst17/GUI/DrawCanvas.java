@@ -20,9 +20,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.Timer;
 
-/**
- * Created by trold on 2/8/17.
- */
 public class DrawCanvas extends JComponent {
     private Model model;
     private AffineTransform transform = new AffineTransform();

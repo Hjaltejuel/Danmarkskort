@@ -110,7 +110,6 @@ public class Model extends Observable implements Serializable {
         }
         return false;
     }
-
     /**
      * Description: Løber igennem alle roadKDtræerne for at finde et nearestNeightbour for alle træerne, hvor den korteste vælges.
      * @param point
@@ -521,9 +520,6 @@ public class Model extends Observable implements Serializable {
 
         private LongToPointMap idToNode = new LongToPointMap(22);
         private Map<Long, OSMWay> idToWay = new HashMap<>();
-        private HashMap<Point2D, GraphNode> graphNodeBuilder = new HashMap<>();
-        private ArrayList<OSMWay> graphWays = new ArrayList<>();
-        private HashMap<Long, Point2D> idToGraphNode = new HashMap<>();
         private float lat;
         private float lon;
         private OSMWay way;
@@ -539,6 +535,7 @@ public class Model extends Observable implements Serializable {
         private PointsOfInterest POIType;
         private Integer totalDepth = 0, totalShapes = 0;
         private int maxSpeed = 0;
+        private HashMap<Long, GraphNode> idToGraphNode = new HashMap<>();
 
         private HashMap<String, Enum<?>> stringToEnum = new HashMap<>();
         {
@@ -549,7 +546,9 @@ public class Model extends Observable implements Serializable {
                 stringToEnum.put(type.name(), type);
             }
         }
-
+        public HashMap<Long,GraphNode> getIdToGraphNode(){
+            return idToGraphNode;
+        }
         private ArrayList<PointOfInterestObject> pointsOfInterest = new ArrayList<>();
 
         private ArrayList<StreetAndPointNode> cityNames = new ArrayList<>();
@@ -567,13 +566,12 @@ public class Model extends Observable implements Serializable {
          * Description: Tilføjer et nyt entry til roads hashmappet med WayTypen og og en ny ArrayList, hvis den ikke findes i mappet allerede.
          * @param shape
          * @param roadName
-         * @param type
          */
-        public void addRoad(PolygonApprox shape, String roadName, WayType type){
+        public void addRoad(PolygonApprox shape, String roadName, ArrayList<GraphNode> nodes){
             if (roads.get(type) == null) {
                 roads.put(type, new ArrayList<>());
             }
-            roads.get(type).add(new RoadNode(shape, roadName, type));
+            roads.get(type).add(new RoadNode(shape, roadName, nodes));
         }
 
         /**
@@ -639,66 +637,7 @@ public class Model extends Observable implements Serializable {
             fillTrees();
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
 
-            for(OSMWay way1 : graphWays) {
-                for (OSMWay way2 : graphWays) {
-                    if (way1 == way2) {
-                        continue;
-                    }
-                    /*
-                    OSMWay before=null, after=null;
-                    if (way1.getToNode().getX() == way2.getToNode().getX() && way1.getToNode().getY() == way2.getToNode().getY())
-                    {
-                        System.out.println("A");
-                    }
-                    if (way1.getFromNode().getX() == way2.getToNode().getX() && way1.getFromNode().getY() == way2.getToNode().getY())
-                    {
-                        System.out.println("B");
-                    }
-                    if (way1.getToNode().getX() == way2.getFromNode().getX() && way1.getToNode().getY() == way2.getFromNode().getY())
-                    {
-                        System.out.println("C");
-                    }
-                    if (way1.getFromNode().getX() == way2.getFromNode().getX() && way1.getFromNode().getY() == way2.getFromNode().getY())
-                    {
-                        System.out.println("D");
-                    }*/
-                    /*
-                    OSMWay before = coastlines.remove(way.getFromNode());
-                    OSMWay after = coastlines.remove(way.getToNode());
-                    OSMWay merged = new OSMWay();
-                    if (before != null) {
-                        merged.addAll(before.subList(0, before.size()-1));
-                    }
-                    merged.addAll(way);
-                    if (after != null && after != before) {
-                        merged.addAll(after.subList(1, after.size()));
-                    }
-                    coastlines.put(merged.getFromNode(), merged);
-                    coastlines.put(merged.getToNode(), merged);
-                    */
-                }
-            }
-            graph = new Graph(graphNodeBuilder, graphWays);
-
-            /*
-            TSTInterface address = addressModel.getAddress("Strandvolden 41, 3730 Nexø");//Hovedgade 52, 3730 Nexø");
-            TSTInterface addressDest = addressModel.getAddress("Søndre Landevej 31, 3730 Nexø");//Søndre Landevej 17, 3730 Nexø");//Aasen 4, 3730 Nexø");
-
-            //TSTInterface addressDest = addressModel.getAddress("Aasen 4, 3730 Nexø");
-            //TSTInterface address = addressModel.getAddress("Thorsvej 1, 3700 Rønne");
-
-            VehicleType vType = VehicleType.BICYCLE;
-            TreeNode closestNode = getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
-            Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
-
-            closestNode = getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
-            Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
-            System.out.println(((RoadKDTree.RoadTreeNode)closestNode).getRoadName());
-
-            getGraph().findShortestPath(fromPoint, toPoint, vType);
-
-            //graphNodeBuilder.clear();
-            */
+            graph = new Graph(idToGraphNode);
         }
 
         @Override
@@ -731,11 +670,11 @@ public class Model extends Observable implements Serializable {
                     idToNode.put(nodeID, lonfactor * lon, -lat);
                     POIType = PointsOfInterest.UNKNOWN;
                     type = WayType.UNKNOWN;
-                    idToGraphNode.put(nodeID, idToNode.get(nodeID));
                     break;
                 case "way":
                     currentElementType = OSMElement.WAY;
                     way = new OSMWay();
+                    tmpNodeIDs.clear();
                     Long id = Long.parseLong(atts.getValue("id"));
                     type = WayType.UNKNOWN;
                     idToWay.put(id, way);
@@ -749,6 +688,7 @@ public class Model extends Observable implements Serializable {
                     long ref = Long.parseLong(atts.getValue("ref"));
                     way.add(new OSMNode(idToNode.get(ref)));
                     tmpNodeIDs.add(ref);
+
                     break;
                 case "tag":
                     String k = atts.getValue("k");
@@ -863,38 +803,42 @@ public class Model extends Observable implements Serializable {
                         if (isHighway) { //Hvis vejen er en highway
                             try {
                                 RoadTypes roadType = RoadTypes.valueOf(type.toString());
-                                addRoad(shape, name, type); //Tilføj vej
-
-                                //startStopPunkter.add(new Line2D.Double(way.get(0), way.get(way.size() - 1)));
-                                /*
-                                for (int i = 1; i < tmpNodeIDs.size(); i++) {
-                                    graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed));
-                                    GraphNode previousGraphNode = idToGraphNode.get(tmpNodeIDs.get(i - 1));
-                                    GraphNode currentGraphNode = idToGraphNode.get(tmpNodeIDs.get(i));
-
-                                    graph.addEdge(currentGraphNode, previousGraphNode);
-                                    graph.addEdge(previousGraphNode, currentGraphNode);
-                                }
-                            } catch (Exception e) {
-
-                            }*/
-                                graphWays.add(way);
+                                ArrayList<GraphNode> nodes = new ArrayList<>();
                                 for (int i = 0; i < way.size(); i++) {
-                                    GraphNode gNode = graphNodeBuilder.get(way.get(i));
-                                    if (gNode == null) {
-                                        graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed));
-                                    } else {
-                                        if(maxSpeed==0) {
-                                            maxSpeed=roadType.getMaxSpeed();
+                                  GraphNode node = idToGraphNode.get(tmpNodeIDs.get(i));
+                                    if (node == null) {
+                                        GraphNode gNode = new GraphNode(way.get(i), roadType, maxSpeed);
+                                        idToGraphNode.put(tmpNodeIDs.get(i), gNode);
+                                        nodes.add(gNode);
+                                        if(oneway) {
+                                            if (i == 0) {
+                                            } else {
+                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(gNode);
+                                            }
+                                        } else {
+                                            if(i == 0){
+                                            } else {
+                                                idToGraphNode.get(tmpNodeIDs.get(i-1)).addEdge(gNode);
+                                                gNode.addEdge(idToGraphNode.get(tmpNodeIDs.get(i-1)));
+                                            }
                                         }
-                                        if(maxSpeed>gNode.getMaxSpeed()) {
-                                            gNode.setMaxSpeed(maxSpeed);
+                                        } else {
+                                        nodes.add(node);
+                                        if(oneway) {
+                                            if (i == 0) {
+                                            } else {
+                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(node);
+                                            }
+                                        } else {
+                                            if(i == 0){} else {
+                                                idToGraphNode.get(tmpNodeIDs.get(i-1)).addEdge(node);
+                                                node.addEdge(idToGraphNode.get(tmpNodeIDs.get(i)));
+                                            }
                                         }
-                                        gNode.setType(roadType);
+                                        }
                                     }
-                                }
+                                addRoad(shape, name, nodes); //Tilføj vej
                             } catch (Exception e) {
-
                             }
                         }
                         addShape(type, shape); //Tilføj shape

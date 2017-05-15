@@ -1,5 +1,7 @@
 package bfst17;
 
+import bfst17.AddressHandling.AddressModel;
+import bfst17.AddressHandling.Region;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,5 +1,7 @@
 package bfst17.KDTrees;
 
+import bfst17.Directions.Graph;
+import bfst17.Directions.GraphNode;
 import bfst17.Enums.WayType;
 import bfst17.RoadNode;
 import bfst17.ShapeStructure.PolygonApprox;
@@ -26,14 +28,23 @@ public class RoadKDTree extends KDTree {
         }
 
         ArrayList<TreeNode> allShapesList = new ArrayList<>();
+        int p = 0;
         for (int i = 0; i < roadNodes.size(); i++) {
+            System.out.println(p);
+            p++;
+            if(p == 5){
+                System.out.println("h");
+            }
             RoadNode rdNode = (RoadNode) roadNodes.get(i);
             float[] xyVal = new float[2];
             PathIterator it = rdNode.getShape().getPathIterator(null,0);
+            int k = 0;
             while(!it.isDone()) {
+
                 it.currentSegment(xyVal);
-                allShapesList.add(new RoadTreeNode(xyVal[0],xyVal[1],rdNode));
+                allShapesList.add(new RoadTreeNode(rdNode,rdNode.getNodes().get(k)));
                 it.next();
+                k++;
             }
 
         }
@@ -83,10 +94,12 @@ public class RoadKDTree extends KDTree {
 
     public class RoadTreeNode extends TreeNode {
         private RoadNode roadNode;
+        private GraphNode graphNode;
 
-        private RoadTreeNode(double x, double y, RoadNode node) {
-            this.X = x;
-            this.Y = y;
+        private RoadTreeNode(RoadNode node,GraphNode graphNode) {
+            this.X = graphNode.getX();
+            this.Y = graphNode.getY();
+            this.graphNode = graphNode;
             this.roadNode = node;
         }
 
@@ -98,7 +111,9 @@ public class RoadKDTree extends KDTree {
             return rect.contains(X, Y);
         }
 
-        private RoadNode getRoadNode() {
+        public GraphNode getGraphNode(){return graphNode;}
+
+        public RoadNode getRoadNode() {
             return roadNode;
         }
 
