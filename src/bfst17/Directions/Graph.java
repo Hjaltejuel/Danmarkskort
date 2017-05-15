@@ -13,6 +13,7 @@ public class Graph {
     private PriorityQueue<GraphNode> unRelaxedNodes;
     private ArrayList<Point2D> pointList;
     private ArrayList<GraphNode> pathList;
+    int k = 0;
 
 
     /**
@@ -32,6 +33,8 @@ public class Graph {
         }
     }
 
+    HashSet<GraphNode> unrelaxed;
+
     /**
      * Finder den korteste vej mellem to punkter
      * @param point2Source          Start punkt
@@ -48,26 +51,30 @@ public class Graph {
 
         unRelaxedNodes = new PriorityQueue<>();
 
+        unrelaxed = new HashSet<>();
+
         source.setDistTo(0.0);
 
         unRelaxedNodes.add(source);
-
+    int i = 0;
         while (!unRelaxedNodes.isEmpty()) {
+            i++;
             GraphNode node = unRelaxedNodes.peek();
             //node.setSettled(true);
             node.setMarked(true);
             unRelaxedNodes.remove(node);
             relaxEdges(node, weighType);
         }
+        System.out.println(i);
         source.setNodeFrom(null);
 
         pathList = new ArrayList();
         pointList = new ArrayList<>();
-        pointList.add(source.getPoint2D());
         for (GraphNode n = target; n.getNodeFrom() != null; n = n.getNodeFrom()) {
             pathList.add(n);
             pointList.add(n.getPoint2D());
         }
+        pointList.add(source.getPoint2D());
         Collections.reverse(pathList);
     }
 
@@ -89,7 +96,11 @@ public class Graph {
                         destinationNode.setDistTo(tempDistTo);
                         destinationNode.setNodeFrom(node);
                     }
-                    unRelaxedNodes.add(destinationNode);
+                    if(unrelaxed.contains(destinationNode)){} else {
+                        unRelaxedNodes.add(destinationNode);
+                        unrelaxed.add(destinationNode);
+                    }
+
                 } else {
                 }
             }

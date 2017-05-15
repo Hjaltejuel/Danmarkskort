@@ -13,7 +13,6 @@ import java.util.ArrayList;
 public class GraphNode implements Comparable {
     private Point2D point;
     private GraphNode nodeFrom;
-    private boolean end, oneway;
     private boolean isCAR, isBIKE, isFOOT;
 
     private boolean marked;

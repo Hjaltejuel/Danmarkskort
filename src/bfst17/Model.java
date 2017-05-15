@@ -722,6 +722,7 @@ public class Model extends Observable implements Serializable {
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
 
             graph = new Graph(idToGraphNode);
+            System.out.println(idToGraphNode.values().size());
         }
 
         @Override
