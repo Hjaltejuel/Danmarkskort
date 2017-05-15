@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 public class Directions extends ArrayList<DirectionsObject> {
     double totalRoadLength=0;
+    double estimatedTime=0;
+    VehicleType vehicleType;
     /**
      * Description: Lav vejvisning ud fra shortestPath hvis den er lavet.
      * Description: HVIS shortest path eksisterer: ArrayListe af DirectionObjekter, der indeholder vejvisningsinformation
@@ -16,11 +18,12 @@ public class Directions extends ArrayList<DirectionsObject> {
      * @return
      *
      */
-    public Directions(ArrayList<GraphNode> graphNodeList){
+    public Directions(ArrayList<GraphNode> graphNodeList, VehicleType vehicleType){
         double currentDirection = 0;
         if (graphNodeList == null) {
             return;
         }
+        this.vehicleType=vehicleType;
 
         for (int i = 1; i < graphNodeList.size(); i++) {
             GraphNode prevGraphNode = graphNodeList.get(i - 1);
@@ -44,7 +47,6 @@ public class Directions extends ArrayList<DirectionsObject> {
             DirectionsObject prevDirObj = this.get(i - 1);
             DirectionsObject currDirObj = this.get(i);
             distanceSum += prevDirObj.getRoadLength(currDirObj);
-            System.out.println(distanceSum + " " + prevDirObj.getRoadName() + " -> " + currDirObj.getRoadName());
             if (currDirObj.isVisible()) {
                 currDirObj.setRoadLength((int) distanceSum);
                 totalRoadLength+=distanceSum;

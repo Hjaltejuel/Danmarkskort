@@ -31,6 +31,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     private boolean startDirections = false;
     private boolean destinationDirections = false;
     private boolean isPopUpOpen = false;
+    VehicleType vType = VehicleType.CAR;
 
     public WindowController(Model model) {
         window = new DrawWindow();
@@ -129,12 +130,20 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     canvas.toggleCityNames();
                     break;
                 case "Car":
+                    vType=VehicleType.CAR;
+                    model.resetDirections();
+                    model.getDirections(vType);
                     break;
                 case "Bike":
+                    vType=VehicleType.BICYCLE;
+                    model.resetDirections();
+                    model.getDirections(vType);
                     break;
                 case "Walk":
+                    vType=VehicleType.FOOT;
+                    model.resetDirections();
+                    model.getDirections(vType);
                     break;
-
             }
         }
     }
@@ -196,7 +205,6 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 if (addressDest == null || address == null) return;
 
                 //finder de tætteste veje på addresserne
-                VehicleType vType = VehicleType.CAR;
                 RoadKDTree.RoadTreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
                 GraphNode fromPoint = closestNode.getGraphNode();
 
@@ -207,8 +215,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 model.getGraph().findShortestPath(fromPoint, toPoint, vType);
 
                 model.resetDirections();
-                model.getDirections();
-                window.fillDirections(model.getDirections());
+                window.fillDirections(model.getDirections(vType));
 
                 if (!isPopUpOpen) {
                     //søg ind på startpunktet

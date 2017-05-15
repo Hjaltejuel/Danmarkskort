@@ -1,8 +1,6 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.Directions.Directions;
-import bfst17.Directions.DirectionsObject;
 import bfst17.Directions.Graph;
 import bfst17.Enums.*;
 import bfst17.KDTrees.*;
@@ -214,14 +212,6 @@ public class DrawCanvas extends JComponent {
         if (drawCityNames) {
             drawCityAndTownNames(g);
         }
-
-        for (DirectionsObject DirObj : model.getDirections()) {
-            if (!DirObj.isVisible()) {
-                continue;
-            }
-            Point2D drawLocation = lonLatToScreenCords(-DirObj.getLocation().getX(), -DirObj.getLocation().getY());
-            g.drawString(DirObj.toString(), (float) drawLocation.getX(), (float) drawLocation.getY());
-        }
     }
 
     /**
@@ -352,10 +342,10 @@ public class DrawCanvas extends JComponent {
      * Beskrivelse: Tegn shortest path
      * @param g
      */
-    public void drawGraph(Graphics2D g) {
-        g.setColor(Color.BLACK);
-        g.setStroke(new BasicStroke(0.000004f));
+    public void drawShortestPath(Graphics2D g) {
+        float strokeSize = 0.00004f;
         Graph graph = model.getGraph();
+        //System.out.println(1/getZoomFactor());
         if (graph == null) {
             return;
         } else {
@@ -363,6 +353,11 @@ public class DrawCanvas extends JComponent {
             if (graphPointList != null) {
                 if(graphPointList.size() != 0) {
                     PolygonApprox polygon = new PolygonApprox(graphPointList);
+                    g.setStroke(new BasicStroke(strokeSize*1.2f));
+                    g.setColor(new Color(0, 91, 126));
+                    g.draw(polygon);
+                    g.setColor(new Color(0, 179, 253));
+                    g.setStroke(new BasicStroke(strokeSize));
                     g.draw(polygon);
                 }
             }
@@ -473,7 +468,7 @@ public class DrawCanvas extends JComponent {
         //Tegn vejene og evt vejnavne
         drawRoads(g);
 
-        drawGraph(g);
+        drawShortestPath(g);
 
 /*        g.setColor(Color.black);
         for(Line2D l : model.startStopPunkter){

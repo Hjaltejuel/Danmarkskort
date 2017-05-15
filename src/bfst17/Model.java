@@ -151,9 +151,9 @@ public class Model extends Observable implements Serializable {
     }
 
     Directions directions;
-    public Directions getDirections() {
+    public Directions getDirections(VehicleType vehicleType) {
         if(directions==null) {
-            directions=new Directions(graph.getPathList());
+            directions=new Directions(graph.getPathList(), vehicleType);
         }
         return directions;
     }
