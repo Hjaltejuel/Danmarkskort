@@ -76,7 +76,7 @@ public class Model extends Observable implements Serializable {
         for(TreeNode t1 : roadsOnPoint1) {
             for(TreeNode t2 : roadsOnPoint2) {
                 if(t1==t2){
-                    System.out.println(((RoadKDTree.RoadTreeNode)t1).getRoadName()+ " " +((RoadKDTree.RoadTreeNode)t1).getRoadName());
+                    //System.out.println(((RoadKDTree.RoadTreeNode)t1).getRoadName()+ " " +((RoadKDTree.RoadTreeNode)t1).getRoadName());
                 }
             }
         }
@@ -156,12 +156,12 @@ public class Model extends Observable implements Serializable {
     }
 
     public boolean nextNodeHasSameRoadName(DirectionObject currentNode, DirectionObject nextNode, VehicleType vehicleType) {
-        System.out.println("BEGYND!");
+        //System.out.println("BEGYND!");
         for(TreeNode curNode : getAllClosestRoads(currentNode.getLocation(), vehicleType)) {
             for (TreeNode nexNode : getAllClosestRoads(nextNode.getLocation(), vehicleType)) {
                 String currentRoadName = ((RoadKDTree.RoadTreeNode)curNode).getRoadName();
                 String nextRoadName = ((RoadKDTree.RoadTreeNode)nexNode).getRoadName();
-                System.out.println(currentRoadName + " "+ nextRoadName);
+                //System.out.println(currentRoadName + " "+ nextRoadName);
                 if(currentRoadName.length()==0 || nextRoadName.length() == 0){ continue; }
                 if (currentRoadName.equals(nextRoadName)) {
                     return true;

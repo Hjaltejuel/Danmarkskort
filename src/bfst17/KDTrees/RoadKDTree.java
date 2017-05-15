@@ -28,13 +28,7 @@ public class RoadKDTree extends KDTree {
         }
 
         ArrayList<TreeNode> allShapesList = new ArrayList<>();
-        int p = 0;
         for (int i = 0; i < roadNodes.size(); i++) {
-            System.out.println(p);
-            p++;
-            if(p == 5){
-                System.out.println("h");
-            }
             RoadNode rdNode = (RoadNode) roadNodes.get(i);
             float[] xyVal = new float[2];
             PathIterator it = rdNode.getShape().getPathIterator(null,0);
