@@ -1,7 +1,8 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TST;
-import bfst17.Directions.DirectionObject;
+import bfst17.Directions.Directions;
+import bfst17.Directions.DirectionsObject;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.RoadDirektion;
 
@@ -12,7 +13,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -185,8 +185,7 @@ public class DrawWindow {
 		directionsButton.addMouseListener(controller);
 		car.addMouseListener(controller);
 		bike.addMouseListener(controller);
-		walk.addActionListener(controller);
-
+		walk.addMouseListener(controller);
 	}
 
 	/**
@@ -425,7 +424,7 @@ public class DrawWindow {
 		else{directionsWindow.setVisible(false);}
 
 	}
-
+	JPanel time;
 	/**
 	 * opsætter directions vinduet som køres under toggleDirectionsBar.
 	 * den består af et gridBaglayout med underlæggende GridBags inden i.
@@ -450,7 +449,6 @@ public class DrawWindow {
 		c.gridy = 0;
 		directionsWindow.add(walk, c);
 
-
 		JPanel gridPanel = new JPanel(new GridLayout(1, 1));
 		c.gridx = 0;
 		c.gridy = 1;
@@ -459,7 +457,7 @@ public class DrawWindow {
 
 		directionsWindow.add(gridPanel, c);
 
-		JPanel time = new JPanel();
+		time = new JPanel();
 		time.setBackground(Color.lightGray);
 		time.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
 		gridPanel.add(time);
@@ -471,7 +469,6 @@ public class DrawWindow {
 		gridPanel.add(distance);
 
 		scrollPanel = new JPanel(new GridLayout(0, 1));
-		//fillDirections("Drej til højre om 400m til Vestervangs Ale raas dsad dsad dads");
 
 		directionsScroll = new JScrollPane(scrollPanel);
 		c.gridx = 0;
@@ -488,23 +485,21 @@ public class DrawWindow {
 		directionsWindow.setBounds(10, window.getHeight() - 50, 300, 320);
 
 		directionsWindow.setVisible(false);
-
 	}
 
-	//public fillDirections(Arraylist<Direction> directionsArraylist){
-    public void fillDirections(ArrayList<DirectionObject> directionsList) {
+    public void fillDirections(Directions directions) {
 		boolean isGray = false;
+		JLabel totalTimeLabel = new JLabel();
+		totalTimeLabel.setText("<html>"+directions.getTotalRoadLengthText()+"</html>");
+		time.add(totalTimeLabel);
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
-		for (int i = 0; i < directionsList.size(); i++) {
-			DirectionObject dirObj = directionsList.get(i);
+		for (int i = 1; i < directions.size(); i++) {
+			DirectionsObject dirObj = directions.get(i);
 			JPanel boxForEachDirection = new JPanel(new GridBagLayout());
 			JPanel labelPanel = new JPanel(new GridLayout(0, 1));
 			labelPanel.setPreferredSize(new Dimension(155, 60));
 			BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-
-			Graphics2D g2d = img.createGraphics();
-			FontMetrics fm = g2d.getFontMetrics();
 
 			String s = "";
 			int k = 0;
@@ -516,18 +511,23 @@ public class DrawWindow {
 				prefix = "Drej til " + vejRetning.name();
 			}
 			String directionText = "";
-			if ((i + 1) == directionsList.size()) {
+			if ((i + 1) == directions.size()) {
 				directionText = "Ankommer til " + dirObj.getRoadName();
 			} else {
-				DirectionObject nextDirection = directionsList.get(i);
-				directionText = prefix + " om " + dirObj.getRoadLength() + "m ad " + dirObj.getRoadName();//nextDirection.getRoadName();
+				String roadLengthString = "m";
+				Integer roadLength = dirObj.getRoadLength();
+				if(roadLength>1000) {
+					roadLength=roadLength/1000;
+					roadLengthString = "km";
+
+				}
+				directionText = "Om " + roadLength + roadLengthString+" "+ prefix+" ad " + dirObj.getRoadName();//nextDirection.getRoadName();
 			}
 
 			JLabel directionDescription = new JLabel(s);
 			directionDescription.setText("<html>" + directionText + "</html>");
 			labelPanel.add(directionDescription);
 
-			g2d.dispose();
 			c.gridx = 0;
 			c.gridy = 0;
 			c.weightx = 0.90;

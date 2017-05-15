@@ -2,7 +2,6 @@ package bfst17.Controller;
 
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.Directions.DirectionObject;
 import bfst17.Directions.GraphNode;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
@@ -10,7 +9,6 @@ import bfst17.Enums.VehicleType;
 import bfst17.GUI.DrawCanvas;
 import bfst17.GUI.DrawWindow;
 import bfst17.KDTrees.RoadKDTree;
-import bfst17.KDTrees.TreeNode;
 import bfst17.Model;
 
 import javax.swing.*;
@@ -195,23 +193,22 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 TSTInterface addressDest = addressModel.getAddress(secondComboBoxString.trim());
                 TSTInterface address = addressModel.getAddress(firstComboBoxString.trim());
                 //tjekker om de er null
-                if(addressDest == null || address == null) return;
+                if (addressDest == null || address == null) return;
 
                 //finder de tætteste veje på addresserne
                 VehicleType vType = VehicleType.CAR;
                 RoadKDTree.RoadTreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
                 GraphNode fromPoint = closestNode.getGraphNode();
 
-
                 closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
                 GraphNode toPoint = closestNode.getGraphNode();
-
 
                 //Finder den korteste vej
                 model.getGraph().findShortestPath(fromPoint, toPoint, vType);
 
-                //model.calculateDirectionsList();
-                window.fillDirections(model.getDirectionsList());
+                model.resetDirections();
+                model.getDirections();
+                window.fillDirections(model.getDirections());
 
                 if (!isPopUpOpen) {
                     //søg ind på startpunktet
@@ -222,10 +219,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
             } else {
                 if (!isPopUpOpen) {
                     //søg
-                search();
-            } else {
-                isPopUpOpen = false;
-            }
+                    search();
+                } else {
+                    isPopUpOpen = false;
+                }
             }
         }
     }

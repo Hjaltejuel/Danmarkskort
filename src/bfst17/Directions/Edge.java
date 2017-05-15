@@ -15,6 +15,10 @@ public class Edge {
         return roadName;
     }
 
+    public double getDistance() {
+        return distance;
+    }
+
     public double getWeight() {
         return weight;
     }

@@ -1,7 +1,8 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.Directions.DirectionObject;
+import bfst17.Directions.Directions;
+import bfst17.Directions.DirectionsObject;
 import bfst17.Directions.Graph;
 import bfst17.Enums.*;
 import bfst17.KDTrees.*;
@@ -214,7 +215,7 @@ public class DrawCanvas extends JComponent {
             drawCityAndTownNames(g);
         }
 
-        for (DirectionObject DirObj : model.getDirectionsList()) {
+        for (DirectionsObject DirObj : model.getDirections()) {
             if (!DirObj.isVisible()) {
                 continue;
             }

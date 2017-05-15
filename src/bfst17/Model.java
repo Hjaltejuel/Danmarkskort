@@ -1,8 +1,7 @@
 package bfst17;
 
 import bfst17.AddressHandling.*;
-import bfst17.Directions.DirectionObject;
-import bfst17.Directions.Edge;
+import bfst17.Directions.Directions;
 import bfst17.Directions.Graph;
 import bfst17.Directions.GraphNode;
 import bfst17.Enums.*;
@@ -12,13 +11,11 @@ import bfst17.ShapeStructure.MultiPolygonApprox;
 import bfst17.ShapeStructure.PolygonApprox;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
-import sun.reflect.generics.tree.Tree;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -62,7 +59,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
+            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -153,161 +150,16 @@ public class Model extends Observable implements Serializable {
         return (RoadKDTree.RoadTreeNode) closestNode;
     }
 
-    public ArrayList<DirectionObject> getDirectionsList() {
+    Directions directions;
+    public Directions getDirections() {
         if(directions==null) {
-            directions=new ArrayList<>();
+            directions=new Directions(graph.getPathList());
         }
         return directions;
     }
 
-    public boolean nextNodeHasSameRoadName(DirectionObject currentNode, DirectionObject nextNode, VehicleType vehicleType) {
-        System.out.println("BEGYND!");
-        for(TreeNode curNode : getAllClosestRoads(currentNode.getLocation(), vehicleType)) {
-            for (TreeNode nexNode : getAllClosestRoads(nextNode.getLocation(), vehicleType)) {
-                String currentRoadName = ((RoadKDTree.RoadTreeNode)curNode).getRoadName();
-                String nextRoadName = ((RoadKDTree.RoadTreeNode)nexNode).getRoadName();
-                System.out.println(currentRoadName + " "+ nextRoadName);
-                if (currentRoadName.equals(nextRoadName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Description: Lav vejvisning ud fra shortestPath hvis den er lavet.
-     * Description: HVIS shortest path eksisterer: ArrayListe af DirectionObjekter, der indeholder vejvisningsinformation
-     * Description: HVIS ikke shortest path exist: En tom ArrayListe
-     * @return
-     *
-     */
-    ArrayList<DirectionObject> directions;
-    public void calculateDirectionsList() {
-        double currentDirection = 0;
-        ArrayList<GraphNode> graphNodeList = graph.getPathList();
-        if (graphNodeList == null) {
-            return;
-        }
-
-        for (int i = 1; i < graphNodeList.size(); i++) {
-            GraphNode prevGraphNode = graphNodeList.get(i - 1);
-            GraphNode currentGraphNode = graphNodeList.get(i);
-            double angle = Math.atan2(currentGraphNode.getPoint2D().getY() - prevGraphNode.getPoint2D().getY(),
-                    currentGraphNode.getPoint2D().getX() - prevGraphNode.getPoint2D().getX());
-            for (Edge edge : prevGraphNode.getEdgeList()) {
-                if (edge.getDestination() == currentGraphNode) {
-                    DirectionObject DirObj = new DirectionObject(prevGraphNode.getPoint2D(), this, VehicleType.CAR, currentDirection - angle, edge.getRoadName());
-                    directions.add(DirObj);
-                    if (DirObj.getRoadDirection() != RoadDirektion.lige_ud) {
-                        DirObj.setVisible(true);
-                    }
-                    currentDirection = angle;
-                    break;
-                }
-            }
-        }
-        double distanceSum = 0;
-        for (int i = 1; i < directions.size(); i++) {
-            DirectionObject prevDirObj = directions.get(i - 1);
-            DirectionObject currDirObj = directions.get(i);
-            prevDirObj.calculationRoadLength(currDirObj);
-            distanceSum += prevDirObj.getRoadLength();
-            System.out.println(distanceSum + " " + prevDirObj.getRoadName() + " -> " + currDirObj.getRoadName());
-            if (currDirObj.isVisible()) {
-                currDirObj.setRoadLength((int) distanceSum);
-                distanceSum = 0;
-            }
-            prevDirObj.nextRoad = currDirObj.getRoadName();
-        }
-        /*
-            double angle = Math.atan2(nextGraphNode.getPoint2D().getY() - currentGraphNode.getPoint2D().getY(),
-                    nextGraphNode.getPoint2D().getX() - currentGraphNode.getPoint2D().getX());
-            DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR, currentDirection - angle);
-            /*for (TreeNode nexNode : getAllClosestRoads(DirObj.getLocation(), VehicleType.CAR)) {
-                String currentRoadName = ((RoadKDTree.RoadTreeNode)curNode).getRoadName();
-                String nextRoadName = ((RoadKDTree.RoadTreeNode)nexNode).getRoadName();
-                System.out.println(currentRoadName + " "+ nextRoadName);
-                if (currentRoadName.equals(nextRoadName)) {
-                    return true;
-                }
-            }*/
-        /*
-
-            directions.add(DirObj);
-            currentDirection = angle;
-        }
-        Collections.reverse(directions);
-
-        double roadLengthSum = 0;
-        for (int i = 0; i < directions.size() - 1; i++) {
-            DirectionObject DirObj = directions.get(i);
-            if(i+1<directions.size()) {
-                DirectionObject NextObj = directions.get(i + 1);
-                DirObj.calculationRoadLength(NextObj);
-            }
-            roadLengthSum+=DirObj.getRoadLength();
-
-            if (DirObj.getRoadDirection() != RoadDirektion.lige_ud) {
-                DirObj.setVisible(true);
-                DirObj.setRoadLength((int)Math.round(roadLengthSum));
-                roadLengthSum=0;
-
-                if (nextNodeHasSameRoadName(DirObj, directions.get(i + 1), VehicleType.CAR)) {
-                    //Ad <Vej>
-                    DirObj.nextRoad = DirObj.getRoadName();
-                } else {
-                    //Mod <Vej>
-                    DirObj.nextRoad = directions.get(i + 1).getRoadName();
-                }
-                //DirObj.setRoadName(nextGraphNode.getPoint2D(),this, VehicleType.CAR);
-            } else {
-                DirObj.nextRoad = DirObj.getRoadName();
-            }
-
-            /*
-            GraphNode currentGraphNode = graphNodeList.get(i);
-            GraphNode nextGraphNode = graphNodeList.get(i - 1);
-            double angle = Math.atan2(nextGraphNode.getPoint2D().getY() - currentGraphNode.getPoint2D().getY(),
-                    nextGraphNode.getPoint2D().getX() - currentGraphNode.getPoint2D().getX());
-
-            DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR, currentDirection - angle);
-
-            getRoadName(currentGraphNode.getPoint2D(), nextGraphNode.getPoint2D(),VehicleType.CAR);
-
-            if(DirObj.getRoadDirection()!=RoadDirektion.lige_ud) {
-                //DirObj.setRoadName(nextGraphNode.getPoint2D(),this, VehicleType.CAR);
-                directions.add(DirObj);
-            }
-
-            currentDirection = angle;
-        }
-        for (int i = 1; i < directions.size(); i++) {
-            DirectionObject prevDirobj = directions.get(i - 1);
-            DirectionObject currentDirobj = directions.get(i);
-
-            if (prevDirobj.getRoadDirection() == RoadDirektion.lige_ud && prevDirobj.getRoadName().equals(currentDirobj.getRoadName())) {
-                directions.remove(i - 1);
-                i = 1;
-            }
-
-            if (directions.size() > i + 1) {
-                DirectionObject nextDirobj = directions.get(i + 1);
-                if (nextDirobj.getRoadName().equals(prevDirobj.getRoadName())) {
-                    directions.remove(i);
-                    i = 1;
-                }
-            }
-        }
-        */
-
-        //directions.get(0).calculationRoadLength(directions.get(0));
-
-        /*
-        for (int i = 1; i < directions.size(); i++) {
-            directions.get(i - 1).calculationRoadLength(directions.get(i));
-        }
-        */
+    public void resetDirections() {
+        directions=null;
     }
 
     /**
