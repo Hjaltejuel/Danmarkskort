@@ -25,9 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
-/**
- * Created by trold on 2/1/17.
- */
+
 //FIXME LAV BIN SAVE TIL GRAPH
 public class Model extends Observable implements Serializable {
     private Address.Builder addressBuilder = new Address.Builder();
@@ -35,7 +33,6 @@ public class Model extends Observable implements Serializable {
     private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class);
     private HashMap<String, WayType> namesToWayTypes = new HashMap<>();
     private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>();
-    private HashMap<WayType, ArrayList<RoadNode>> roads = new HashMap<>();
 
     private ArrayList<Shape> coastlines = new ArrayList<>();
 
@@ -520,6 +517,8 @@ public class Model extends Observable implements Serializable {
     }
 
     private class OSMHandler implements ContentHandler {
+        private HashMap<WayType, ArrayList<RoadNode>> roads = new HashMap<>();
+
         private LongToPointMap idToNode = new LongToPointMap(22);
         private Map<Long, OSMWay> idToWay = new HashMap<>();
         private HashMap<Point2D, GraphNode> graphNodeBuilder = new HashMap<>();

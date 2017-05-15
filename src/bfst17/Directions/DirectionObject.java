@@ -6,9 +6,7 @@ import bfst17.Model;
 
 import java.awt.geom.Point2D;
 
-/**
- * Created by Jens on 10-05-2017.
- */
+
 public class DirectionObject {
     public Integer getRoadLength() {
         return roadLength;

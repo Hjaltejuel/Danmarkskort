@@ -5,9 +5,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
-/**
- * Created by Jens on 02-05-2017.
- */
+
 public abstract class TreeNode implements Comparable<TreeNode>, Serializable {
     protected double X, Y;
     protected TreeNode low;

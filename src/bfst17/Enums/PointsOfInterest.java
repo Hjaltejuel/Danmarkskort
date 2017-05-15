@@ -5,9 +5,7 @@ import org.omg.CORBA.UNKNOWN;
 
 import java.io.Serializable;
 
-/**
- * Created by Michelle on 4/3/2017.
- */
+
 public enum PointsOfInterest implements Serializable {
     AMENITY_BAR(POIclasification.FOOD_AND_DRINKS),
     AMENITY_CAFE(POIclasification.FOOD_AND_DRINKS),

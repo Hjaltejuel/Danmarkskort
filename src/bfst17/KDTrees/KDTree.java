@@ -7,9 +7,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
-/**
- * Created by Jens on 02-05-2017.
- */
+
 public abstract class KDTree implements Serializable {
     protected Integer Size=0;
     protected Integer tmpDepth=0;

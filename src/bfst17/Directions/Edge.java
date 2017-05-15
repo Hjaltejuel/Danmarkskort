@@ -5,9 +5,7 @@ import bfst17.Enums.WeighType;
 
 import java.util.DoubleSummaryStatistics;
 
-/**
- * Created by Jakob Roos on 24/04/2017.
- */
+
 public class Edge {
     private GraphNode source;
     private GraphNode destination;

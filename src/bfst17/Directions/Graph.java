@@ -7,9 +7,7 @@ import bfst17.OSMData.OSMWay;
 import java.awt.geom.Point2D;
 import java.util.*;
 
-/**
- * Created by Jakob Roos on 21/04/2017.
- */
+
 public class Graph {
     private HashMap<Point2D, GraphNode> graphNodeBuilder;
     private ArrayList<GraphNode> pathList;

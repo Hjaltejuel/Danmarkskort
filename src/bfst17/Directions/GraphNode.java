@@ -9,9 +9,7 @@ import bfst17.OSMData.OSMNode;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-/**
- * Created by trold on 2/15/17.
- */
+
 public class GraphNode implements Comparable {
     private Point2D originOSMNode;
     private GraphNode nodeFrom;

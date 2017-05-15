@@ -3,9 +3,7 @@ package bfst17.Enums;
 import java.awt.*;
 import java.io.Serializable;
 
-/**
- * Created by trold on 2/15/17.
- */
+
 
 public enum WayType implements Serializable {
 	NATURAL_COASTLINE

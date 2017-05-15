@@ -11,9 +11,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
-/**
- * Created by Mads on 28/04/2017.
- */
+
 public class CityNamesKDTree extends KDTree {
     boolean isVertical = true;
 

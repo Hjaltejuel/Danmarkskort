@@ -5,9 +5,7 @@ import bfst17.ShapeStructure.PolygonApprox;
 
 import java.io.Serializable;
 
-/**
- * Created by Michelle on 5/2/2017.
- */
+
 public class RoadNode implements Serializable {
     PolygonApprox shape;
     String roadName;
