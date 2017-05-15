@@ -1,9 +1,6 @@
 package bfst17;
 
-import bfst17.AddressHandling.Address;
-import bfst17.AddressHandling.AddressModel;
-import bfst17.AddressHandling.Region;
-import bfst17.AddressHandling.StreetAndPointNode;
+import bfst17.AddressHandling.*;
 import bfst17.Directions.DirectionObject;
 import bfst17.Directions.Graph;
 import bfst17.Directions.GraphNode;
@@ -14,6 +11,7 @@ import bfst17.ShapeStructure.MultiPolygonApprox;
 import bfst17.ShapeStructure.PolygonApprox;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
+import sun.reflect.generics.tree.Tree;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -75,6 +73,19 @@ public class Model extends Observable implements Serializable {
         //loadFile(path);
     }
 
+        public RoadKDTree.RoadTreeNode getRoadName(Point2D point1, Point2D point2, VehicleType vehicle) {
+        ArrayList<TreeNode> roadsOnPoint1 = getAllClosestRoads(point1, vehicle);
+        ArrayList<TreeNode> roadsOnPoint2 = getAllClosestRoads(point2, vehicle);
+        for(TreeNode t1 : roadsOnPoint1) {
+            for(TreeNode t2 : roadsOnPoint2) {
+                if(t1==t2){
+                    System.out.println(((RoadKDTree.RoadTreeNode)t1).getRoadName()+ " " +((RoadKDTree.RoadTreeNode)t1).getRoadName());
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Får de veje der ligger tættest på punktet i samtlige RoadKDTræer
      * @param point     Punktet
@@ -82,14 +93,22 @@ public class Model extends Observable implements Serializable {
      */
     public ArrayList<TreeNode> getAllClosestRoads(Point2D point, VehicleType vehicle) {
         ArrayList<TreeNode> roadNodes = new ArrayList<>();
-        for (RoadKDTree tree : getRoadKDTreeList()) {
+        for (int i = getRoadKDTreeList().size()-1; i>=0; i--) {
+            RoadKDTree tree = getRoadKDTreeList().get(i);
+            TreeNode trNode=null;
             if (vehicle == VehicleType.ANY) {
-                roadNodes.add(tree.getNearestNeighbour(point));
+                trNode = tree.getNearestNeighbour(point);
             } else {
                 if (vehicleSupportsType(tree.getType(), vehicle)) {
-                    roadNodes.add(tree.getNearestNeighbour(point));
+                    trNode = tree.getNearestNeighbour(point);
                 }
             }
+            if (trNode!=null && trNode.distance(point) <= 0.0005) {
+                roadNodes.add(trNode);
+            }
+        }
+        if(roadNodes.size()==0){
+            //System.out.println("Ingen roadNodes");
         }
         return roadNodes;
     }
@@ -108,7 +127,7 @@ public class Model extends Observable implements Serializable {
                 }
             }
         }
-        catch (Exception e){
+        catch (Exception e) {
             e.printStackTrace();
         }
         return false;
@@ -133,6 +152,29 @@ public class Model extends Observable implements Serializable {
         return (RoadKDTree.RoadTreeNode) closestNode;
     }
 
+    public ArrayList<DirectionObject> getDirectionsList() {
+        if(directions==null) {
+            directions=new ArrayList<>();
+        }
+        return directions;
+    }
+
+    public boolean nextNodeHasSameRoadName(DirectionObject currentNode, DirectionObject nextNode, VehicleType vehicleType) {
+        System.out.println("BEGYND!");
+        for(TreeNode curNode : getAllClosestRoads(currentNode.getLocation(), vehicleType)) {
+            for (TreeNode nexNode : getAllClosestRoads(nextNode.getLocation(), vehicleType)) {
+                String currentRoadName = ((RoadKDTree.RoadTreeNode)curNode).getRoadName();
+                String nextRoadName = ((RoadKDTree.RoadTreeNode)nexNode).getRoadName();
+                System.out.println(currentRoadName + " "+ nextRoadName);
+                if(currentRoadName.length()==0 || nextRoadName.length() == 0){ continue; }
+                if (currentRoadName.equals(nextRoadName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Description: Lav vejvisning ud fra shortestPath hvis den er lavet.
      * Description: HVIS shortest path eksisterer: ArrayListe af DirectionObjekter, der indeholder vejvisningsinformation
@@ -141,28 +183,55 @@ public class Model extends Observable implements Serializable {
      *
      */
     ArrayList<DirectionObject> directions;
-    public ArrayList<DirectionObject> getDirectionsList() {
-        String prevRoad = "";
+    public void calculateDirectionsList() {
         double currentDirection = 0;
-        boolean firstRun = true;
         ArrayList<GraphNode> graphNodeList = graph.getPathList();
         if (graphNodeList == null) {
-            return null;
+            return;
         }
-        if (directions != null) {
-            return directions;
-        }
-        directions = new ArrayList<>();
 
         for (int i = graphNodeList.size() - 1; i >= 1; i--) {
             GraphNode currentGraphNode = graphNodeList.get(i);
             GraphNode nextGraphNode = graphNodeList.get(i - 1);
             double angle = Math.atan2(nextGraphNode.getPoint2D().getY() - currentGraphNode.getPoint2D().getY(),
                     nextGraphNode.getPoint2D().getX() - currentGraphNode.getPoint2D().getX());
+            DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR, currentDirection - angle);
+            directions.add(DirObj);
+            currentDirection = angle;
+        }
+        Collections.reverse(directions);
+
+        for (int i = 0; i < directions.size() - 1; i++) {
+            DirectionObject DirObj = directions.get(i);
+            if (DirObj.getRoadDirection() != RoadDirektion.lige_ud) {
+                DirObj.setVisible(true);
+
+                if (nextNodeHasSameRoadName(DirObj, directions.get(i + 1), VehicleType.CAR)) {
+                    //Ad <Vej>
+                    DirObj.nextRoad = DirObj.getCurrentRoad();
+                } else {
+                    //Mod <Vej>
+                    DirObj.nextRoad = directions.get(i + 1).getCurrentRoad();
+                }
+                //DirObj.setRoadName(nextGraphNode.getPoint2D(),this, VehicleType.CAR);
+            } else {
+                DirObj.nextRoad=DirObj.getCurrentRoad();
+            }
+
+            /*
+            GraphNode currentGraphNode = graphNodeList.get(i);
+            GraphNode nextGraphNode = graphNodeList.get(i - 1);
+            double angle = Math.atan2(nextGraphNode.getPoint2D().getY() - currentGraphNode.getPoint2D().getY(),
+                    nextGraphNode.getPoint2D().getX() - currentGraphNode.getPoint2D().getX());
 
             DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR, currentDirection - angle);
-            prevRoad = DirObj.getCurrentRoad();
-            directions.add(DirObj);
+
+            getRoadName(currentGraphNode.getPoint2D(), nextGraphNode.getPoint2D(),VehicleType.CAR);
+
+            if(DirObj.getRoadDirection()!=RoadDirektion.lige_ud) {
+                //DirObj.setRoadName(nextGraphNode.getPoint2D(),this, VehicleType.CAR);
+                directions.add(DirObj);
+            }
 
             currentDirection = angle;
         }
@@ -185,52 +254,14 @@ public class Model extends Observable implements Serializable {
         }
 
         for (int i = 1; i < directions.size(); i++) {
-            directions.get(i-1).calculationRoadLength(directions.get(i));
+            directions.get(i - 1).calculationRoadLength(directions.get(i));
         }
-
-            /*
-            if (currentGraphNode.getEdgeList().size() <= 2) {
-                if (!prevRoad.equals(currentGraphNode.getRoadName(this))) {
-                    DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR, currentDirection);
-                    prevRoad = DirObj.getCurrentRoad();
-                    directions.add(DirObj);
-                }
-                continue;
-            }
-            if (currentGraphNode.getEdgeList().size() > 2) {
-                String currentRoadName = currentGraphNode.getRoadName(this);
-                if ((i - 1) > 0) {
-                    boolean erSideVej = false;
-                    for (Edge edge : currentGraphNode.getEdgeList()) {
-                        if (edge.getDestination() != nextGraphNode) {
-                            if (edge.getDestination().getRoadName(this).equals(currentRoadName)) {
-                                erSideVej = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (erSideVej) {
-                        continue;
-                    }
-                }
-            }
-            if (currentGraphNode.getRoadName(this).equals(prevRoad)) {
-                continue;
-            }
-            DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR, currentDirection);
-            prevRoad = DirObj.getCurrentRoad();
-            directions.add(DirObj);
-
-            /*
-            GraphNode prevNode = graphNodeList.get(i-1);
-            double angle = Math.atan2(currentGraphNode.getPoint2D().getY() - prevNode.getPoint2D().getY(),
-                    currentGraphNode.getPoint2D().getX() - prevNode.getPoint2D().getX());
-            currentDirection = ((angle*180/Math.PI)+360)%360; //Altid mere en 0 & under 360
-            */
-            Collections.reverse(directions);
-            directions.get(0).calculationRoadLength(directions.get(0));
-        return directions;
+        */
+            //directions.get(0).calculationRoadLength(directions.get(0));
+        }
     }
+
+
 
     /**
      * Description: Returnere en ArrayList med RoadKD-træer
@@ -536,6 +567,7 @@ public class Model extends Observable implements Serializable {
 
         private String roadName;
         private boolean isHighway = false;
+        private boolean roundAbout = false;
         private boolean oneway = false;
         private PointsOfInterest POIType;
         private Integer totalDepth = 0, totalShapes = 0;
@@ -570,7 +602,7 @@ public class Model extends Observable implements Serializable {
          * @param roadName
          * @param type
          */
-        public void addRoad(PolygonApprox shape, String roadName, WayType type){
+        public void addRoad(PolygonApprox shape, String roadName, WayType type) {
             if (roads.get(type) == null) {
                 roads.put(type, new ArrayList<>());
             }
@@ -645,6 +677,7 @@ public class Model extends Observable implements Serializable {
                     if (way1 == way2) {
                         continue;
                     }
+
                     /*
                     OSMWay before=null, after=null;
                     if (way1.getToNode().getX() == way2.getToNode().getX() && way1.getToNode().getY() == way2.getToNode().getY())
@@ -662,7 +695,7 @@ public class Model extends Observable implements Serializable {
                     if (way1.getFromNode().getX() == way2.getFromNode().getX() && way1.getFromNode().getY() == way2.getFromNode().getY())
                     {
                         System.out.println("D");
-                    }*/
+                    }
                     /*
                     OSMWay before = coastlines.remove(way.getFromNode());
                     OSMWay after = coastlines.remove(way.getToNode());
@@ -697,9 +730,10 @@ public class Model extends Observable implements Serializable {
             System.out.println(((RoadKDTree.RoadTreeNode)closestNode).getRoadName());
 
             getGraph().findShortestPath(fromPoint, toPoint, vType);
+            calculateDirectionsList();
 
             //graphNodeBuilder.clear();
-            */
+            /**/
         }
 
         @Override
@@ -806,6 +840,11 @@ public class Model extends Observable implements Serializable {
                                 roadName = v;
                             }
                             break;
+                        case "junction":
+                            if(v=="roundabout"){
+                                roundAbout=true;
+                            }
+                            break;
                         case "place":
                             if (v.equals("village") || v.equals("town") || v.equals("city")) {
                                 addressModel.putCity(name, idToNode.get(nodeID));
@@ -874,30 +913,33 @@ public class Model extends Observable implements Serializable {
                             } catch (Exception e) {
 
                             }*/
+                                if(maxSpeed==0) {
+                                    maxSpeed = roadType.getMaxSpeed();
+                                }
+
                                 graphWays.add(way);
                                 for (int i = 0; i < way.size(); i++) {
                                     GraphNode gNode = graphNodeBuilder.get(way.get(i));
                                     if (gNode == null) {
-                                        graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed));
+                                        graphNodeBuilder.put(way.get(i), new GraphNode(way.get(i), roadType, oneway, maxSpeed, roundAbout));
                                     } else {
-                                        if(maxSpeed==0) {
-                                            maxSpeed=roadType.getMaxSpeed();
-                                        }
-                                        if(maxSpeed>gNode.getMaxSpeed()) {
+                                        if(maxSpeed > gNode.getMaxSpeed()) {
                                             gNode.setMaxSpeed(maxSpeed);
                                         }
                                         gNode.setType(roadType);
                                     }
                                 }
                             } catch (Exception e) {
-
+                                //e.printStackTrace();
                             }
                         }
                         addShape(type, shape); //Tilføj shape
                     }
+                    name="";
                     maxSpeed = 0;
                     oneway = false;
                     isHighway = false;
+                    roundAbout = false;
                     currentElementType=OSMElement.NONE;
                     break;
                 case "relation":

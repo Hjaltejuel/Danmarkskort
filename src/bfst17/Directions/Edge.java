@@ -14,6 +14,9 @@ public class Edge {
     private double weight;
     private double distance;
 
+    String getRoadName() {
+        return "";
+    }
     /**
      * Opretter en edge mellem to GraphNodes
      * @param source

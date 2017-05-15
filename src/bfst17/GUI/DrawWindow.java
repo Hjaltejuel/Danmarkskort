@@ -412,121 +412,130 @@ public class DrawWindow {
 	 * den består af et gridBaglayout med underlæggende GridBags inden i.
 	 */
         //creates the directions menu
-	public void toggleDirections(){
+	public void toggleDirections() {
 
-    directionsWindow = new JPanel(new GridBagLayout());
-    GridBagConstraints c = new GridBagConstraints();
-    c.fill = GridBagConstraints.HORIZONTAL;
+		directionsWindow = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
 
-    ImageButton car = new ImageButton("/car.png");
-    c.gridx = 0;
-    c.gridy = 0;
-    c.weightx = 0.3333333333333333;
-    directionsWindow.add(car, c);
+		ImageButton car = new ImageButton("/car.png");
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 0.3333333333333333;
+		directionsWindow.add(car, c);
 
-    ImageButton bike = new ImageButton("/biking.png");
-    c.gridx = 1;
-    c.gridy = 0;
-    directionsWindow.add(bike, c);
+		ImageButton bike = new ImageButton("/biking.png");
+		c.gridx = 1;
+		c.gridy = 0;
+		directionsWindow.add(bike, c);
 
-    ImageButton walk = new ImageButton("/walking.png");
-    c.gridx = 2;
-    c.gridy = 0;
-    directionsWindow.add(walk, c);
-
-
-    JPanel gridPanel = new JPanel(new GridLayout(1, 1));
-    c.gridx = 0;
-    c.gridy = 1;
-    c.gridwidth = 3;
-    c.ipady = 30;
-
-    directionsWindow.add(gridPanel, c);
-
-    JPanel time = new JPanel();
-    time.setBackground(Color.lightGray);
-    time.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
-    gridPanel.add(time);
+		ImageButton walk = new ImageButton("/walking.png");
+		c.gridx = 2;
+		c.gridy = 0;
+		directionsWindow.add(walk, c);
 
 
-    JPanel distance = new JPanel();
-    distance.setBackground(Color.lightGray);
-    distance.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
-    gridPanel.add(distance);
+		JPanel gridPanel = new JPanel(new GridLayout(1, 1));
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 3;
+		c.ipady = 30;
 
-    scrollPanel = new JPanel(new GridLayout(0,	1));
-    //fillDirections("Drej til højre om 400m til Vestervangs Ale raas dsad dsad dads");
+		directionsWindow.add(gridPanel, c);
 
-    directionsScroll = new JScrollPane(scrollPanel);
-    c.gridx = 0;
-    c.gridy = 2;
-    c.weighty = 1;
-    c.ipady = 300;
-    c.gridwidth = 3;
-    directionsWindow.add(directionsScroll, c);
+		JPanel time = new JPanel();
+		time.setBackground(Color.lightGray);
+		time.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
+		gridPanel.add(time);
 
 
-    windowPane.add(directionsWindow);
-    windowPane.setComponentZOrder(directionsWindow, 2);
-    directionsWindow.setBackground(new Color(1, 111, 222));
-    directionsWindow.setBounds(10, window.getHeight() - 50, 300, 320);
+		JPanel distance = new JPanel();
+		distance.setBackground(Color.lightGray);
+		distance.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
+		gridPanel.add(distance);
 
-    directionsWindow.setVisible(false);
+		scrollPanel = new JPanel(new GridLayout(0, 1));
+		//fillDirections("Drej til højre om 400m til Vestervangs Ale raas dsad dsad dads");
+
+		directionsScroll = new JScrollPane(scrollPanel);
+		c.gridx = 0;
+		c.gridy = 2;
+		c.weighty = 1;
+		c.ipady = 300;
+		c.gridwidth = 3;
+		directionsWindow.add(directionsScroll, c);
+
+
+		windowPane.add(directionsWindow);
+		windowPane.setComponentZOrder(directionsWindow, 2);
+		directionsWindow.setBackground(new Color(1, 111, 222));
+		directionsWindow.setBounds(10, window.getHeight() - 50, 300, 320);
+
+		directionsWindow.setVisible(false);
 
 	}
 
 	//public fillDirections(Arraylist<Direction> directionsArraylist){
-    public void fillDirections(ArrayList<DirectionObject> directionsList){
-	    boolean isGray = false;
+    public void fillDirections(ArrayList<DirectionObject> directionsList) {
+		boolean isGray = false;
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
-		for(DirectionObject dirObj : directionsList){
+		for (int i = 1; i < directionsList.size(); i++) {
+			DirectionObject dirObj = directionsList.get(i);
 			JPanel boxForEachDirection = new JPanel(new GridBagLayout());
-			JPanel labelPanel = new JPanel(new GridLayout(0,1));
-			labelPanel.setPreferredSize(new Dimension(155,60));
+			JPanel labelPanel = new JPanel(new GridLayout(0, 1));
+			labelPanel.setPreferredSize(new Dimension(155, 60));
 			BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 
 			Graphics2D g2d = img.createGraphics();
 			FontMetrics fm = g2d.getFontMetrics();
 
-			String s ="";
+			String s = "";
 			int k = 0;
 			String prefix;
 			RoadDirektion vejRetning = dirObj.getRoadDirection();
-			if(vejRetning==RoadDirektion.lige_ud){
-				prefix="Fortsæt lige ud";
+			if (vejRetning == RoadDirektion.lige_ud) {
+				prefix = "Fortsæt lige ud";
 			} else {
-				prefix = "Drej til "+vejRetning.name();
+				prefix = "Drej til " + vejRetning.name();
 			}
-			String directionText = prefix + " om "+ dirObj.getRoadLength()+"m ad "+dirObj.getCurrentRoad();
+			String directionText = "";
+			if ((i + 1) == directionsList.size()) {
+				directionText = "Ankommer til " + dirObj.getCurrentRoad();
+			} else {
+				DirectionObject nextDirection = directionsList.get(i);
+				directionText = prefix + " om " + dirObj.getRoadLength() + "m ad " + nextDirection.getCurrentRoad();
+			}
 
 			JLabel directionDescription = new JLabel(s);
-			directionDescription.setText("<html>"+directionText+"</html>");
+			directionDescription.setText("<html>" + directionText + "</html>");
 			labelPanel.add(directionDescription);
 
 			g2d.dispose();
 			c.gridx = 0;
 			c.gridy = 0;
 			c.weightx = 0.90;
-			boxForEachDirection.add(labelPanel,c);
-			if(isGray){labelPanel.setBackground(Color.LIGHT_GRAY);} else labelPanel.setBackground(Color.WHITE);
+			boxForEachDirection.add(labelPanel, c);
+			if (isGray) {
+				labelPanel.setBackground(Color.LIGHT_GRAY);
+			} else labelPanel.setBackground(Color.WHITE);
 
 			ImageButton arrowImage;
 			JPanel arrowImagePanel;
 
-			//if(turn.equals("ight")){
-				arrowImagePanel = new JPanel();
-	            arrowImage = new ImageButton("/"+dirObj.getRoadDirection()+".png");
-	            arrowImagePanel.add(arrowImage);
-				c.gridx = 1;
-				c.gridy = 0;
-				c.weightx = 0.10;
-				c.weighty = 0.40;
-			if(isGray){arrowImagePanel.setBackground(Color.LIGHT_GRAY);} else arrowImagePanel.setBackground(Color.WHITE);
+			arrowImagePanel = new JPanel();
+			arrowImage = new ImageButton("/" + dirObj.getRoadDirection() + ".png");
+			arrowImagePanel.add(arrowImage);
+			c.gridx = 1;
+			c.gridy = 0;
+			c.weightx = 0.10;
+			c.weighty = 0.40;
+			if (isGray) {
+				arrowImagePanel.setBackground(Color.LIGHT_GRAY);
+			} else arrowImagePanel.setBackground(Color.WHITE);
 
 
-
-			boxForEachDirection.add(arrowImagePanel,c);
+			boxForEachDirection.add(arrowImagePanel, c);
 
             /*}else if(turn.equals("left")){
                 arrowImage = new ImageButton("/venstre.png");
@@ -537,11 +546,11 @@ public class DrawWindow {
             }*/
 
 
-            scrollPanel.add(boxForEachDirection);
-            isGray=!isGray;
+			scrollPanel.add(boxForEachDirection);
+			isGray = !isGray;
 
-        }
-    }
+		}
+	}
 
 	public AutocompleteJComboBox getCombo() {
 		return combo;

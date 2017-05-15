@@ -15,7 +15,9 @@ import java.util.ArrayList;
 public class GraphNode implements Comparable {
     private Point2D originOSMNode;
     private GraphNode nodeFrom;
-    private boolean end, oneway;
+    private boolean end;
+    private boolean oneway;
+    private boolean roundAbout;
     private boolean isCAR, isBIKE, isFOOT;
     private boolean marked;
     private int maxSpeed = 0;
@@ -37,6 +39,10 @@ public class GraphNode implements Comparable {
         }
     }
 
+    public boolean isRoundAbout() {
+        return roundAbout;
+    }
+
     public void setMaxSpeed(int maxSpeed) {
         this.maxSpeed = maxSpeed;
     }
@@ -48,13 +54,8 @@ public class GraphNode implements Comparable {
      * @param oneway            Hvorvidt vejen er ensrettet
      * @param maxSpeed          Hvor hurtigt man må køre på vejen
      */
-    public GraphNode(Point2D originOSMNode, RoadTypes type, boolean oneway, int maxSpeed) {
+    public GraphNode(Point2D originOSMNode, RoadTypes type, boolean oneway, int maxSpeed, boolean roundAbout) {
         this.oneway = oneway;
-        if(maxSpeed==0) {
-            this.maxSpeed = type.getMaxSpeed();
-        } else {
-            this.maxSpeed = maxSpeed;
-        }
         this.type = type;
         setType(type);
         this.originOSMNode = originOSMNode;

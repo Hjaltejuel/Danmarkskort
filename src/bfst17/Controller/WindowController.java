@@ -1,13 +1,10 @@
 package bfst17.Controller;
 
 import bfst17.AddressHandling.AddressModel;
-import bfst17.AddressHandling.DuplicateAddressNode;
 import bfst17.AddressHandling.TSTInterface;
-import bfst17.Directions.DirectionObject;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
 import bfst17.Enums.VehicleType;
-import bfst17.Enums.WeighType;
 import bfst17.GUI.DrawCanvas;
 import bfst17.GUI.DrawWindow;
 import bfst17.KDTrees.RoadKDTree;
@@ -189,7 +186,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 TSTInterface addressDest = addressModel.getAddress(secondComboBoxString.trim());
                 TSTInterface address = addressModel.getAddress(firstComboBoxString.trim());
                 //tjekker om de er null
-                if(addressDest == null || address == null)return;
+                if(addressDest == null || address == null) return;
 
                 //finder de tætteste veje på addresserne
                 VehicleType vType = VehicleType.BICYCLE;
@@ -201,10 +198,10 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
                 System.out.println(((RoadKDTree.RoadTreeNode)closestNode).getRoadName());
 
-
                 //Finder den korteste vej
                 model.getGraph().findShortestPath(fromPoint, toPoint, vType);
 
+                model.calculateDirectionsList();
                 window.fillDirections(model.getDirectionsList());
 
                 if (!isPopUpOpen) {

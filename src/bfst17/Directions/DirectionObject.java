@@ -13,11 +13,30 @@ public class DirectionObject {
     public Integer getRoadLength() {
         return roadLength;
     }
-
     private String currentRoad;
     private Integer roadLength = 0;
     private RoadDirektion roadDirection;
     private Point2D location;
+
+    public void setNextRoad(String nextRoad) {
+        this.nextRoad = nextRoad;
+    }
+
+    public String getNextRoad() {
+        return nextRoad;
+    }
+
+    public String nextRoad;
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    boolean visible;
 
     /**
      * Opret et direktionobjekt
@@ -26,6 +45,8 @@ public class DirectionObject {
      * @param model modellen
      */
     public DirectionObject(Point2D to, Model model, VehicleType vehicleType, double angle) {
+        visible=false;
+        nextRoad="";
         location = to;
         setTurnType(angle);
         setRoadName(to, model, vehicleType);
@@ -41,18 +62,22 @@ public class DirectionObject {
         currentRoad = model.getClosestRoad(to, vehicleType).getRoadName();
     }
 
+    public void setCurrentRoad(String currentRoad) {
+        this.currentRoad = currentRoad;
+    }
+
     public void calculationRoadLength(DirectionObject neighbourNode) {
-        this.roadLength = (int)Math.round(Math.sqrt(Math.pow(getX() - neighbourNode.getX(), 2) + Math.pow(getY() - neighbourNode.getY(), 2))*100)*10;
+        this.roadLength = (int) Math.round(Math.sqrt(Math.pow(getX() - neighbourNode.getX(), 2) + Math.pow(getY() - neighbourNode.getY(), 2)) * 100) * 10;
     }
 
     //Returner x i meter
     public double getX() {
-        return location.getX() * 111.320 * Math.cos(location.getY()/180*Math.PI);
+        return location.getX() * 111.320 * Math.cos(location.getY() / 180 * Math.PI);
     }
 
     //Returner y i meter
-    public double getY(){
-        return location.getY()*110.574;
+    public double getY() {
+        return location.getY() * 110.574;
     }
 
     /**
@@ -74,19 +99,6 @@ public class DirectionObject {
         } else {
             this.roadDirection = RoadDirektion.venstre;
         }
-        /*
-        if (angleDegree < 0 || angleDegree > 360) throw new AssertionError();
-
-        if (angleDegree > 315 || angleDegree <= 45) {
-            this.roadDirection = RoadDirektion.højre;
-        } else if (angleDegree > 45  && angleDegree <= 135) {
-            this.roadDirection = RoadDirektion.SOUTH;
-        } else if (angleDegree > 135  && angleDegree <= 225) {
-            this.roadDirection = RoadDirektion.venstre;
-        } else if (angleDegree > 225  && angleDegree <= 315) {
-            this.roadDirection = RoadDirektion.lige_ud;
-        }
-        */
     }
 
     @Override

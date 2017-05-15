@@ -48,7 +48,8 @@ public class Graph {
                 GraphNode previousGraphNode = graphNodeBuilder.get(currentWay.get(i - 1));
                 GraphNode currentGraphNode = graphNodeBuilder.get(currentWay.get(i));
                 //if(!currentGraphNode.isOneway()) {
-                addEdge(previousGraphNode, currentGraphNode);
+                //addEdge(previousGraphNode, currentGraphNode);
+                addEdge(currentGraphNode, previousGraphNode);
                 //}
             }
         }
@@ -126,7 +127,7 @@ public class Graph {
                     }
                     unRelaxedNodes.add(destinationNode);
                 } else {
-                    System.out.println(vehicleType);
+                    //System.out.println(vehicleType);
                 }
             }
         }
