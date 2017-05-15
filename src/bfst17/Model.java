@@ -832,7 +832,12 @@ public class Model extends Observable implements Serializable {
                     }
                     OSMWay way = idToWay.get(ref);
                     if (way != null) {
-                        relation.add(idToWay.get(ref));
+                        if(relation.size()!=0) {
+                            if (relation.get(relation.size() - 1).getToNode().getX() != way.getFromNode().getX()) {
+                                Collections.reverse(way);
+                            }
+                        }
+                        relation.add(way);
                     }
                     break;
             }
