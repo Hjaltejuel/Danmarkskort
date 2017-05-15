@@ -19,9 +19,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.Timer;
 
-/**
- * Created by trold on 2/8/17.
- */
 public class DrawCanvas extends JComponent {
     private Model model;
     private AffineTransform transform = new AffineTransform();
@@ -692,7 +689,7 @@ public class DrawCanvas extends JComponent {
      * @param y
      * @return Point2D
      */
-    private Point2D screenCordsToLonLat(double x, double y) {
+    public Point2D screenCordsToLonLat(double x, double y) {
         double correctedX = -(transform.getTranslateX() - x) / getZoomFactor();
         double correctedY = -(transform.getTranslateY() - y) / getZoomFactor();
         return new Point2D.Double(correctedX, correctedY);

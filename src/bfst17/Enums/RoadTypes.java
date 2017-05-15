@@ -1,8 +1,6 @@
 package bfst17.Enums;
 
-/**
- * Created by Michelle on 5/12/2017.
- */
+
 public enum RoadTypes {
     HIGHWAY_MOTORWAY(new VehicleType[]{VehicleType.CAR}, 130),
 

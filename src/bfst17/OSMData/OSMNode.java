@@ -5,9 +5,7 @@ import bfst17.AddressHandling.TSTInterface;
 import java.awt.*;
 import java.awt.geom.Point2D;
 
-/**
- * Created by trold on 2/15/17.
- */
+
 public class OSMNode extends Point2D.Float implements TSTInterface {
 	/**
 	 * Opretter et OSMNode objekt ud fra et x og et y koordinat.

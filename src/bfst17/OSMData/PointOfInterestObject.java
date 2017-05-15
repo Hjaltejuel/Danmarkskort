@@ -2,9 +2,7 @@ package bfst17.OSMData;
 
 import bfst17.Enums.PointsOfInterest;
 
-/**
- * Created by Jens on 03-05-2017.
- */
+
 public class PointOfInterestObject {
     public PointsOfInterest getType() {
         return type;

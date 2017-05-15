@@ -9,20 +9,21 @@ import bfst17.OSMData.OSMNode;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-/**
- * Created by trold on 2/15/17.
- */
+
 public class GraphNode implements Comparable {
-    private Point2D originOSMNode;
+    private Point2D point;
     private GraphNode nodeFrom;
-    private boolean end;
-    private boolean oneway;
-    private boolean roundAbout;
+    private boolean end, oneway;
     private boolean isCAR, isBIKE, isFOOT;
+
     private boolean marked;
+
     private int maxSpeed = 0;
+
     private RoadTypes type;
+
     private ArrayList<Edge> edgeList;
+
     private double distance = Double.POSITIVE_INFINITY;
 
     public void setType(RoadTypes type) {
@@ -39,9 +40,8 @@ public class GraphNode implements Comparable {
         }
     }
 
-    public boolean isRoundAbout() {
-        return roundAbout;
-    }
+    public double getX(){return point.getX();}
+    public double getY(){return point.getY();}
 
     public void setMaxSpeed(int maxSpeed) {
         this.maxSpeed = maxSpeed;
@@ -49,24 +49,27 @@ public class GraphNode implements Comparable {
 
     /**
      * Opretter en GraphNode
-     * @param originOSMNode     Den OSMNode grafnoden er placeret på
+     * @param point     Den OSMNode grafnoden er placeret på
      * @param type              Hvilken vejtype noden er på
-     * @param oneway            Hvorvidt vejen er ensrettet
      * @param maxSpeed          Hvor hurtigt man må køre på vejen
      */
-    public GraphNode(Point2D originOSMNode, RoadTypes type, boolean oneway, int maxSpeed, boolean roundAbout) {
-        this.oneway = oneway;
+    public GraphNode(Point2D point, RoadTypes type, int maxSpeed) {
+        if(maxSpeed==0) {
+            this.maxSpeed = type.getMaxSpeed();
+        } else {
+            this.maxSpeed = maxSpeed;
+        }
         this.type = type;
         setType(type);
-        this.originOSMNode = originOSMNode;
+        this.point = point;
         marked = false;
         edgeList = new ArrayList<>();
     }
 
     public Point2D getPoint2D() {
-        return new Point2D.Double(originOSMNode.getX(), originOSMNode.getY());
+        return new Point2D.Double(point.getX(), point.getY());
     }
-
+    public RoadTypes getType(){return this.type;}
     public boolean supportsVehicle(VehicleType vehicleType) {
         if (vehicleType == VehicleType.CAR && isCAR) {
             return true;
@@ -78,26 +81,6 @@ public class GraphNode implements Comparable {
             return true;
         }
         return false;
-    }
-
-    public boolean isOneway() {
-        return oneway;
-    }
-
-    public String getRoadName(Model model){
-        return model.getClosestRoad(getPoint2D(), VehicleType.CAR).getRoadName();
-    }
-
-    public VehicleType[] getTypes() {
-        return type.getVehicletypes();
-    }
-
-    public boolean isEnd() {
-        return end;
-    }
-
-    public void setEnd(boolean end) {
-        this.end = end;
     }
 
     public ArrayList<Edge> getEdgeList() {

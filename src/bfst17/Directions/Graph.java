@@ -7,60 +7,26 @@ import bfst17.OSMData.OSMWay;
 import java.awt.geom.Point2D;
 import java.util.*;
 
-/**
- * Created by Jakob Roos on 21/04/2017.
- */
+
 public class Graph {
-    private HashMap<Point2D, GraphNode> graphNodeBuilder;
-    private ArrayList<GraphNode> pathList;
-    private ArrayList<Point2D> pointList;
+    HashMap<Long,GraphNode> idToGraphNode;
     private PriorityQueue<GraphNode> unRelaxedNodes;
-    private double finalDistance;
+    private ArrayList<Point2D> pointList;
+    private ArrayList<GraphNode> pathList;
+
 
     /**
      * Opretter en Graf
-     * @param graphNodeBuilder  Et HashMap der kan finde GrafNoder udfra Point2D
-     * @param graphWays         En ArrayListe af OSMWays, der kan bruges til at trække grafnoder ud af graphNodeBuilder
      */
-    public Graph(HashMap<Point2D, GraphNode> graphNodeBuilder, ArrayList<OSMWay> graphWays) {
-        this.graphNodeBuilder = graphNodeBuilder;
-        buildEdges(graphWays);
-    }
-
-    /**
-     * Opretter en edge mellem to GraphNodes
-     * @param node          noden der skal oprettes edge fra
-     * @param neighbour     noden der skal oprettes edge til
-     */
-    public void addEdge(GraphNode node, GraphNode neighbour) {
-        node.addEdge(neighbour);
-    }
-
-    /**
-     * Kører alle OSMWays igennem og finder de graphNodes der skal lave edges mellem hinanden
-     * Vi finder graphNodesne vha. de punkter der er i OSMWays'ne
-     * @param graphWays     OSMWays
-     */
-    public void buildEdges(ArrayList<OSMWay> graphWays) {
-        System.out.println("Building Edges!");
-        for (OSMWay currentWay : graphWays) {
-            for (int i = 1; i < currentWay.size(); i++) {
-                GraphNode previousGraphNode = graphNodeBuilder.get(currentWay.get(i - 1));
-                GraphNode currentGraphNode = graphNodeBuilder.get(currentWay.get(i));
-                //if(!currentGraphNode.isOneway()) {
-                //addEdge(previousGraphNode, currentGraphNode);
-                addEdge(currentGraphNode, previousGraphNode);
-                //}
-            }
-        }
-        System.out.println("Graph complete!");
+    public Graph(HashMap<Long,GraphNode> idToGraphNode) {
+        this.idToGraphNode = idToGraphNode;
     }
 
     /**
      * Resetter graphen så den er klar til en ny Shortest Path
      */
     public void cleanUpGraph() {
-        for (GraphNode graphNode : graphNodeBuilder.values()) {
+        for (GraphNode graphNode : idToGraphNode.values()) {
             graphNode.setDistTo(Double.POSITIVE_INFINITY);
             graphNode.setNodeFrom(null);
         }
@@ -72,9 +38,9 @@ public class Graph {
      * @param point2Destination     Slut punkt
      * @param weighType             Vægttype ( FASTEST | SHORTEST )
      */
-    public void findShortestPath(Point2D point2Source, Point2D point2Destination, VehicleType weighType) {
-        GraphNode source = graphNodeBuilder.get(point2Source);
-        GraphNode target = graphNodeBuilder.get(point2Destination);
+    public void findShortestPath(GraphNode point2Source, GraphNode point2Destination, VehicleType weighType) {
+        GraphNode source = point2Source;
+        GraphNode target = point2Destination;
         if (source == null || target == null) {
             return; //Mangler source eller target
         }
@@ -96,14 +62,13 @@ public class Graph {
         }
         source.setNodeFrom(null);
 
-        pathList = new ArrayList<>();
+        pathList = new ArrayList();
         pointList = new ArrayList<>();
 
         for (GraphNode n = target; n.getNodeFrom() != null; n = n.getNodeFrom()) {
             pathList.add(n);
             pointList.add(n.getPoint2D());
         }
-        System.out.println("Vejen er på størrelse: " + pointList.size());
         Collections.reverse(pathList);
     }
 
@@ -127,7 +92,6 @@ public class Graph {
                     }
                     unRelaxedNodes.add(destinationNode);
                 } else {
-                    //System.out.println(vehicleType);
                 }
             }
         }
@@ -145,10 +109,4 @@ public class Graph {
         return pointList;
     }
 
-    public HashMap<Point2D, GraphNode> getGraphFilteredMap() {
-        return graphNodeBuilder;
-    }
-    public double getFinalDistance(){
-        return finalDistance;
-    }
 }

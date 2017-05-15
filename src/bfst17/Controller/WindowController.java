@@ -2,6 +2,8 @@ package bfst17.Controller;
 
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.TSTInterface;
+import bfst17.Directions.DirectionObject;
+import bfst17.Directions.GraphNode;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
 import bfst17.Enums.VehicleType;
@@ -189,14 +191,14 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 if(addressDest == null || address == null) return;
 
                 //finder de tætteste veje på addresserne
-                VehicleType vType = VehicleType.BICYCLE;
-                TreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
-                Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
-                System.out.println(((RoadKDTree.RoadTreeNode)closestNode).getRoadName());
+                VehicleType vType = VehicleType.CAR;
+                RoadKDTree.RoadTreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
+                GraphNode fromPoint = closestNode.getGraphNode();
+
 
                 closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
-                Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
-                System.out.println(((RoadKDTree.RoadTreeNode)closestNode).getRoadName());
+                GraphNode toPoint = closestNode.getGraphNode();
+
 
                 //Finder den korteste vej
                 model.getGraph().findShortestPath(fromPoint, toPoint, vType);
@@ -344,18 +346,18 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        Component clickedButton = e.getComponent();
-        if (clickedButton == window.getSearchButton()) {
-            search();
-        } else if (clickedButton == window.getZoomInButton()) {
-            zoomIn();
-        } else if (clickedButton == window.getZoomOutButton()) {
-            zoomOut();
-        } else if (clickedButton == window.getPointsOfInterestButton()) {
-            window.showMenuOne();
-        } else if (clickedButton == window.getMenuButton()) {
-            window.showMenuTwo();
-        }
+            Component clickedButton = e.getComponent();
+            if (clickedButton == window.getSearchButton()) {
+                search();
+            } else if (clickedButton == window.getZoomInButton()) {
+                zoomIn();
+            } else if (clickedButton == window.getZoomOutButton()) {
+                zoomOut();
+            } else if (clickedButton == window.getPointsOfInterestButton()) {
+                window.showMenuOne();
+            } else if (clickedButton == window.getMenuButton()) {
+                window.showMenuTwo();
+            }
     }
 
     @Override

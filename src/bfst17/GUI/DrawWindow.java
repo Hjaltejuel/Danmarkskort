@@ -16,9 +16,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Created by Rasmus on 2/1/17.
- */
+
 public class DrawWindow {
 	JFrame window;
 	private AutocompleteJComboBox combo;
