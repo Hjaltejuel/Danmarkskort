@@ -353,7 +353,6 @@ public class DrawCanvas extends JComponent {
      */
     public void drawGraph(Graphics2D g) {
         g.setColor(Color.BLACK);
-
         g.setStroke(new BasicStroke(0.000004f));
         Graph graph = model.getGraph();
         if (graph == null) {

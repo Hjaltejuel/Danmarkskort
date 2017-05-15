@@ -62,7 +62,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
+            load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -922,7 +922,7 @@ public class Model extends Observable implements Serializable {
                                             if (i == 0) {
                                             } else {
                                                 idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(node, name);
-                                                node.addEdge(idToGraphNode.get(tmpNodeIDs.get(i)), name);
+                                                node.addEdge(idToGraphNode.get(tmpNodeIDs.get(i-1)), name);
                                             }
                                         }
                                     }
