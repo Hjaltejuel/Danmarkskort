@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -49,12 +50,14 @@ public class DrawWindow {
 	private ImageButton walk;
 	private JCheckBoxMenuItem[] POICheckBoxArray;
 	private JScrollPane directionsScroll;
+	GridBagConstraints c;
 	boolean menu1IsShown = false;
 	boolean menu2IsShown = false;
 
 	private JPanel sidebarMenu = new JPanel(new GridLayout(0, 1));
+	private boolean carPressed;
 
-    /**
+	/**
 	 * opsætter vinduet med alle de forskellige komponenter der ligger i de forskellige undermetoder.
 	 * Standard størrelsen på vinduet er 750x750, men kan selvfølgelig ændres på runtime.
 	 */
@@ -438,6 +441,7 @@ public class DrawWindow {
 
 		c.gridx = 0;
 		c.gridy = 0;
+		c.weighty = 0.1;
 		c.weightx = 0.3333333333333333;
 		directionsWindow.add(car, c);
 
@@ -452,9 +456,10 @@ public class DrawWindow {
 		JPanel gridPanel = new JPanel(new GridLayout(1, 1));
 		c.gridx = 0;
 		c.gridy = 1;
+		c.weighty = 0.1;
 		c.gridwidth = 3;
 		c.ipady = 30;
-
+		gridPanel.setSize(300,30);
 		directionsWindow.add(gridPanel, c);
 
 		time = new JPanel();
@@ -473,7 +478,7 @@ public class DrawWindow {
 		directionsScroll = new JScrollPane(scrollPanel);
 		c.gridx = 0;
 		c.gridy = 2;
-		c.weighty = 1;
+		c.weighty = 0.8;
 		c.ipady = 300;
 		c.gridwidth = 3;
 		directionsWindow.add(directionsScroll, c);
@@ -487,10 +492,35 @@ public class DrawWindow {
 		directionsWindow.setVisible(false);
 	}
 
+	public void changeTypeButton(ImageButton button) throws IOException {
+		if(button == car){
+			carPressed = !carPressed;
+		//	bikePressed = false;
+		//	walkPressed = false;
+			Icon icon;
+			if(carPressed){
+				icon = new ImageIcon(getClass().getResource("/carBlack.png"));
+			}  else {
+				icon = new ImageIcon(getClass().getResource("/car.png"));
+			}
+			car.setIcon(icon);
+		}
+		/*
+		else{car = new ImageButton("/car.png");}
+		if(bikePressed){};
+		else{bike = new ImageButton("/biking.png");}
+		if(walkPressed){};
+		else{walk = new ImageButton("/walking.png");}
+		*/
+	}
+
     public void fillDirections(Directions directions) {
 		boolean isGray = false;
 		JLabel totalTimeLabel = new JLabel();
-		totalTimeLabel.setText("<html>"+directions.getTotalRoadLengthText()+"</html>");
+		totalTimeLabel.setText(directions.getTotalRoadLengthText());
+		Font myFont = new Font("Serif", Font.BOLD, 22);
+		System.out.println(totalTimeLabel.getBounds());
+		totalTimeLabel.setFont(myFont);
 		time.add(totalTimeLabel);
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;

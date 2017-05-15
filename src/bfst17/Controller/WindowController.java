@@ -8,6 +8,7 @@ import bfst17.Enums.POIclasification;
 import bfst17.Enums.VehicleType;
 import bfst17.GUI.DrawCanvas;
 import bfst17.GUI.DrawWindow;
+import bfst17.GUI.ImageButton;
 import bfst17.KDTrees.RoadKDTree;
 import bfst17.Model;
 
@@ -131,6 +132,12 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     break;
                 case "Car":
                     vType=VehicleType.CAR;
+                    try {
+                        window.changeTypeButton((ImageButton) source);
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+
                     model.resetDirections();
                     model.getDirections(vType);
                     break;
