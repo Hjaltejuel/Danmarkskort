@@ -3,6 +3,7 @@ package bfst17.Controller;
 import bfst17.GUI.DrawCanvas;
 import bfst17.Model;
 
+import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -43,11 +44,22 @@ public class CanvasMouseController extends MouseAdapter implements MouseMotionLi
 	}
 
 	/**
-	 * Beskrivelse: MouseReleased metoden, sætter AA til, når du ikke længere panner og cancler timeren til fancypan hvis du releaser musen
+	 * Beskrivelse: MouseReleased metoden, sætter AA til, når du ikke længere panner og cancler timeren til fancypan hvis du releaser musen.
+	 * Beskrivelse: Hvis der klikkes på højreklik har brugeren mulighed for at tilføje et punkt til kortet. Punktet er en by da det bare er et punkt med et navn
 	 * @param e
 	 */
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		//tilføj punkt til kortet
+		if(SwingUtilities.isRightMouseButton(e)){
+			String customPointText = JOptionPane.showInputDialog("Tilføj punkt", "Navnet på punktet");
+			if (customPointText == null){
+				return;
+			}
+			customPointText = customPointText.substring(0,1).toUpperCase() + customPointText.substring(1, customPointText.length());
+			model.getAddressModel().putCity(customPointText , canvas.screenCordsToLonLat(e.getX(), e.getY()));
+		}
+
 		if(canvas.getTimer() != null) {
 			canvas.getTimer().cancel();
 		}
