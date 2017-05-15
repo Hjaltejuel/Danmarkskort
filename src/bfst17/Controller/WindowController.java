@@ -130,6 +130,13 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     //Hvis det er showCityNames så toogle city names
                     canvas.toggleCityNames();
                     break;
+                case "Car":
+                    break;
+                case "Bike":
+                    break;
+                case "Walk":
+                    break;
+
             }
         }
     }

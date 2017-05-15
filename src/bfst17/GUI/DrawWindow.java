@@ -44,7 +44,10 @@ public class DrawWindow {
 	private ImageButton zoomOutButton;
 	private ImageButton pointsOfInterestButton;
     private ImageButton directionsButton;
-    private JCheckBoxMenuItem[] POICheckBoxArray;
+	private ImageButton car;
+	private ImageButton bike;
+	private ImageButton walk;
+	private JCheckBoxMenuItem[] POICheckBoxArray;
 	private JScrollPane directionsScroll;
 	boolean menu1IsShown = false;
 	boolean menu2IsShown = false;
@@ -122,6 +125,13 @@ public class DrawWindow {
 		pointsOfInterestButton = new ImageButton("/PointsOfInterestButtonImage.png");
 		directionsButton = new ImageButton("/Directions1.png");
 
+		car = new ImageButton("/car.png");
+		bike = new ImageButton("/biking.png");
+		walk = new ImageButton("/walking.png");
+
+
+
+
 		sidebarMenu.setOpaque(false);
 
 		sidebarMenu.add(zoomInButton);
@@ -173,6 +183,10 @@ public class DrawWindow {
 		pointsOfInterestButton.addMouseListener(controller);
 		menuButton.addMouseListener(controller);
 		directionsButton.addMouseListener(controller);
+		car.addMouseListener(controller);
+		bike.addMouseListener(controller);
+		walk.addActionListener(controller);
+
 	}
 
 	/**
@@ -206,6 +220,13 @@ public class DrawWindow {
 		fancyPan.setActionCommand("Fancypan");
 		directionsButton.addActionListener(controller);
 		directionsButton.setActionCommand("Directions");
+		car.addActionListener(controller);
+		car.setActionCommand("Car");
+		bike.addActionListener(controller);
+		bike.setActionCommand("Bike");
+		walk.addActionListener(controller);
+		walk.setActionCommand("Walk");
+
 	}
 
 	/**
@@ -416,18 +437,15 @@ public class DrawWindow {
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 
-		ImageButton car = new ImageButton("/car.png");
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 0.3333333333333333;
 		directionsWindow.add(car, c);
 
-		ImageButton bike = new ImageButton("/biking.png");
 		c.gridx = 1;
 		c.gridy = 0;
 		directionsWindow.add(bike, c);
 
-		ImageButton walk = new ImageButton("/walking.png");
 		c.gridx = 2;
 		c.gridy = 0;
 		directionsWindow.add(walk, c);
