@@ -44,7 +44,6 @@ public class Graph {
         if (source == null || target == null) {
             return; //Mangler source eller target
         }
-
         cleanUpGraph(); //Clean graph før vi går i gang
 
         unRelaxedNodes = new PriorityQueue<>();
@@ -64,7 +63,7 @@ public class Graph {
 
         pathList = new ArrayList();
         pointList = new ArrayList<>();
-
+        pointList.add(source.getPoint2D());
         for (GraphNode n = target; n.getNodeFrom() != null; n = n.getNodeFrom()) {
             pathList.add(n);
             pointList.add(n.getPoint2D());

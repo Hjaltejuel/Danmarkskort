@@ -203,7 +203,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 //Finder den korteste vej
                 model.getGraph().findShortestPath(fromPoint, toPoint, vType);
 
-                model.calculateDirectionsList();
+                //model.calculateDirectionsList();
                 window.fillDirections(model.getDirectionsList());
 
                 if (!isPopUpOpen) {

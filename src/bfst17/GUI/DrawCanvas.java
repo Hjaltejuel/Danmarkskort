@@ -213,12 +213,15 @@ public class DrawCanvas extends JComponent {
         if(drawCityNames) {
             drawCityAndTownNames(g);
         }
+        /*
+        if(model.getDirectionsList()!=null) {
+            for (DirectionObject DirObj : model.getDirectionsList()) {
+                Point2D drawLocation = lonLatToScreenCords(-DirObj.getLocation().getX(), -DirObj.getLocation().getY());
+                g.drawString(DirObj.toString(), (float) drawLocation.getX(), (float) drawLocation.getY());
+            }
 
-        for (DirectionObject DirObj : model.getDirectionsList()) {
-            if(!DirObj.isVisible()){continue;}
-            Point2D drawLocation = lonLatToScreenCords(-DirObj.getLocation().getX(), -DirObj.getLocation().getY());
-            g.drawString(DirObj.nextRoad, (float) drawLocation.getX(), (float) drawLocation.getY());
         }
+        */
     }
 
     /**

@@ -869,7 +869,7 @@ public class Model extends Observable implements Serializable {
                                         } else {
                                             if(i == 0){} else {
                                                 idToGraphNode.get(tmpNodeIDs.get(i-1)).addEdge(node);
-                                                node.addEdge(idToGraphNode.get(tmpNodeIDs.get(i)));
+                                                node.addEdge(idToGraphNode.get(tmpNodeIDs.get(i-1)));
                                             }
                                         }
                                         }
