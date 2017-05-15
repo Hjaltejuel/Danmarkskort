@@ -1,11 +1,9 @@
 package bfst17.KDTrees;
 
 import bfst17.Enums.WayType;
-import bfst17.RoadNode;
 import bfst17.ShapeStructure.PolygonApprox;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.util.*;
@@ -36,7 +34,7 @@ public class ShapeKDTree extends KDTree {
             PathIterator PI = shape.getPathIterator(null);
             while(!PI.isDone()) {
                 Counter++;
-                if(Counter%1==0) {
+                if(Counter%60==0) {
                     PI.currentSegment(coordinates);
                     allShapesList.add(new ShapeTreeNode(shape, coordinates[0], coordinates[1]));
                 }

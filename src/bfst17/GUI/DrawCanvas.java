@@ -246,8 +246,6 @@ public class DrawCanvas extends JComponent {
         repaint();
     }
 
-
-
     /**
      * Beskrivelse: Tegner det vejnavn der er tættest på musemakøren, nede i højre hjørne
      * @param g
@@ -329,7 +327,7 @@ public class DrawCanvas extends JComponent {
             }
         }
     }
-    public void drawCityAndRoadNodeNames(Graphics2D g, TreeNode node, String name){
+    public void drawCityAndRoadNodeNames(Graphics2D g, TreeNode node, String name) {
         TreeNode cityNode =  node;
         String cityName = name;
         Point2D drawLocation = lonLatToScreenCords(-cityNode.getX(), -cityNode.getY());
@@ -343,9 +341,9 @@ public class DrawCanvas extends JComponent {
      * @param g
      */
     public void drawShortestPath(Graphics2D g) {
-        float strokeSize = 0.00004f;
+        float strokeSize = (float)(1/getZoomFactor())*7;
         Graph graph = model.getGraph();
-        //System.out.println(1/getZoomFactor());
+
         if (graph == null) {
             return;
         } else {
@@ -353,11 +351,11 @@ public class DrawCanvas extends JComponent {
             if (graphPointList != null) {
                 if(graphPointList.size() != 0) {
                     PolygonApprox polygon = new PolygonApprox(graphPointList);
-                    g.setStroke(new BasicStroke(strokeSize*1.2f));
+                    g.setStroke(new BasicStroke(strokeSize*1.3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL));
                     g.setColor(new Color(0, 91, 126));
                     g.draw(polygon);
                     g.setColor(new Color(0, 179, 253));
-                    g.setStroke(new BasicStroke(strokeSize));
+                    g.setStroke(new BasicStroke(strokeSize, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL));
                     g.draw(polygon);
                 }
             }

@@ -1,8 +1,6 @@
 package bfst17.Directions;
 
 import bfst17.Enums.RoadDirektion;
-import bfst17.Enums.VehicleType;
-import bfst17.Model;
 
 import java.awt.geom.Point2D;
 
@@ -22,15 +20,14 @@ public class DirectionsObject
      * @param model modellen
      */
     public DirectionsObject(Point2D to, double angle, Edge edge) {
-        visible=false;
-        nextRoad="";
+        visible = false;
+        nextRoad = "";
         location = to;
         setTurnType(angle);
         this.roadName = edge.getRoadName();
     }
 
     public void setRoadLength(Integer roadLength) {
-        System.out.println("Setting roadlength to: "+roadLength+" "+roadName);
         this.roadLength = roadLength;
     }
 

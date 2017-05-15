@@ -462,7 +462,6 @@ public class DrawWindow {
 		time.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
 		gridPanel.add(time);
 
-
 		JPanel distance = new JPanel();
 		distance.setBackground(Color.lightGray);
 		distance.setBorder(BorderFactory.createLineBorder(Color.gray, 1));

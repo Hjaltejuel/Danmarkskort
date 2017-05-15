@@ -32,7 +32,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     private boolean destinationDirections = false;
     private boolean isPopUpOpen = false;
     VehicleType vType = VehicleType.CAR;
-
+    GraphNode fromPoint, toPoint;
     public WindowController(Model model) {
         window = new DrawWindow();
         this.model = model;
@@ -131,18 +131,15 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     break;
                 case "Car":
                     vType=VehicleType.CAR;
-                    model.resetDirections();
-                    model.getDirections(vType);
+                    calculateGraph();
                     break;
                 case "Bike":
                     vType=VehicleType.BICYCLE;
-                    model.resetDirections();
-                    model.getDirections(vType);
+                    calculateGraph();
                     break;
                 case "Walk":
                     vType=VehicleType.FOOT;
-                    model.resetDirections();
-                    model.getDirections(vType);
+                    calculateGraph();
                     break;
             }
         }
@@ -206,16 +203,12 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
 
                 //finder de tætteste veje på addresserne
                 RoadKDTree.RoadTreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
-                GraphNode fromPoint = closestNode.getGraphNode();
+                fromPoint = closestNode.getGraphNode();
 
                 closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
-                GraphNode toPoint = closestNode.getGraphNode();
+                toPoint = closestNode.getGraphNode();
 
-                //Finder den korteste vej
-                model.getGraph().findShortestPath(fromPoint, toPoint, vType);
-
-                model.resetDirections();
-                window.fillDirections(model.getDirections(vType));
+                calculateGraph();
 
                 if (!isPopUpOpen) {
                     //søg ind på startpunktet
@@ -234,6 +227,14 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         }
     }
 
+    public void calculateGraph() {
+        //Finder den korteste vej
+        model.getGraph().findShortestPath(fromPoint, toPoint, vType);
+
+        model.resetDirections();
+        window.fillDirections(model.getDirections(vType));
+        canvas.repaint();
+    }
     /**
      * Beskrivelse: Sætter startingDirectory og kalder loadFile med dette startDirectory.
      * @throws IOException

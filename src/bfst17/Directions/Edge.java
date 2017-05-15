@@ -18,13 +18,18 @@ public class Edge {
         return roadName;
     }
 
-    public double getDistance() {
-        return distance;
+    public double getEstimatedTime(VehicleType vehicleType) {
+        if(vehicleType==VehicleType.CAR){
+            if(maxSpeed==0){maxSpeed=1;}
+            return distance / maxSpeed;
+        } else if(vehicleType==vehicleType.BICYCLE) {
+            return distance/25;
+        } else if(vehicleType==vehicleType.BICYCLE) {
+            return distance / 5;
+        }
+        return 0;
     }
 
-    public double getWeight() {
-        return weight;
-    }
     /**
      * Opretter en edge mellem to GraphNodes
      * @param source

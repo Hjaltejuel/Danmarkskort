@@ -55,7 +55,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
+            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -67,14 +67,15 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Får de veje der ligger tættest på punktet i samtlige RoadKDTræer
-     * @param point     Punktet
-     * @return          Arraylist af veje
+     *
+     * @param point Punktet
+     * @return Arraylist af veje
      */
     public ArrayList<TreeNode> getAllClosestRoads(Point2D point, VehicleType vehicle) {
         ArrayList<TreeNode> roadNodes = new ArrayList<>();
-        for (int i = getRoadKDTreeList().size()-1; i>=0; i--) {
+        for (int i = getRoadKDTreeList().size() - 1; i >= 0; i--) {
             RoadKDTree tree = getRoadKDTreeList().get(i);
-            TreeNode trNode=null;
+            TreeNode trNode = null;
             if (vehicle == VehicleType.ANY) {
                 trNode = tree.getNearestNeighbour(point);
             } else {
@@ -82,14 +83,14 @@ public class Model extends Observable implements Serializable {
                     trNode = tree.getNearestNeighbour(point);
                 }
             }
-            if (trNode!=null && trNode.distance(point) <= 0.001) {
+            if (trNode != null && trNode.distance(point) <= 0.001) {
                 if (((RoadKDTree.RoadTreeNode) trNode).getRoadName().length() == 0) {
                     continue;
                 }
                 roadNodes.add(trNode);
             }
         }
-        if(roadNodes.size()==0){
+        if (roadNodes.size() == 0) {
             //System.out.println("Ingen roadNodes");
         }
         return roadNodes;
@@ -97,25 +98,27 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Check if the WayType supports the given vehicle
-     * @param type          Type of road
-     * @param vehicle       Type of vehicle
-     * @return              Whether the vehicle can drive on the given type of road (Boolean)
+     *
+     * @param type    Type of road
+     * @param vehicle Type of vehicle
+     * @return Whether the vehicle can drive on the given type of road (Boolean)
      */
-    public boolean vehicleSupportsType(WayType type, VehicleType vehicle){
+    public boolean vehicleSupportsType(WayType type, VehicleType vehicle) {
         try {
             for (VehicleType vType : RoadTypes.valueOf(type.name()).getVehicletypes()) {
                 if (vType == vehicle) {
                     return true;
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
+
     /**
      * Description: Løber igennem alle roadKDtræerne for at finde et nearestNeightbour for alle træerne, hvor den korteste vælges.
+     *
      * @param point
      * @return RoadTreeNode
      */
@@ -133,6 +136,7 @@ public class Model extends Observable implements Serializable {
         return (RoadKDTree.RoadTreeNode) closestNode;
     }
     Directions directions;
+
     public Directions getDirections(VehicleType vehicleType) {
         if(directions==null) {
             directions=new Directions(graph.getPathList(),vehicleType);
@@ -145,6 +149,7 @@ public class Model extends Observable implements Serializable {
     }
     /**
      * Description: Returnere en ArrayList med RoadKD-træer
+     *
      * @return ArrayList<RoadKDTree>
      */
     public ArrayList<RoadKDTree> getRoadKDTreeList() {
@@ -153,6 +158,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Returnere en ArrayList med ShapeKD-træer
+     *
      * @return ArrayList<ShapeKDTree>
      */
     public ArrayList<ShapeKDTree> getTrees() {
@@ -161,6 +167,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Returnere et POIKD-træ
+     *
      * @return POIKDTree
      */
     public POIKDTree getPOITree() {
@@ -169,13 +176,16 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Returnere et CityNamesKDTree-træ
+     *
      * @return CityNamesKDTree
      */
     public CityNamesKDTree getCityTree() {
         return cityTree;
     }
+
     /**
      * Description: Returnerer et CityNamesKD-træ - indeholdende towns (mindre by end city)
+     *
      * @return POIKDTree
      */
     public CityNamesKDTree getTownTreeTree() {
@@ -184,6 +194,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Returnere et AddressModel objekt
+     *
      * @return AddressModel
      */
     public AddressModel getAddressModel() {
@@ -208,6 +219,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Tilføjer en entry til HashMappet shapes.
+     *
      * @param type
      * @param shape
      */
@@ -223,6 +235,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Opretter en bin-fil med de forskellige KD-træ objekter, addressModel og min/max koordinaterne kortet har.
+     *
      * @param filename
      */
     public void save(String filename) {
@@ -252,6 +265,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Returerne den nuværende tid i sekunder.
+     *
      * @return double
      */
     public double currentTimeInSeconds() {
@@ -261,6 +275,7 @@ public class Model extends Observable implements Serializable {
     /**
      * Description: Håndtere loading af en fil.
      * Description: Udskriver parsing informationer.
+     *
      * @param filename
      * @throws IOException
      */
@@ -315,9 +330,10 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Loader objekterne fra bin filen
+     *
      * @param input
      */
-    private void loadBin(BufferedInputStream input){
+    private void loadBin(BufferedInputStream input) {
         try (ObjectInputStream in = new ObjectInputStream(input)) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
             System.out.println("Loading Trees");
@@ -348,6 +364,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Desription: Loader OSM-filer. Laver en ny OSMHandler og parser filen.
+     *
      * @param source
      */
     private void loadOSM(InputSource source) {
@@ -384,6 +401,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Returnerer minimun longitude.
+     *
      * @return float
      */
     public float getMinLon() {
@@ -392,6 +410,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Returnerer minimun lattitude.
+     *
      * @return float
      */
     public float getMinLat() {
@@ -400,6 +419,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Returnerer maximum lattitude.
+     *
      * @return float
      */
     public float getMaxLat() {
@@ -408,6 +428,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Returnerer maximum longitude.
+     *
      * @return float
      */
     public float getMaxLon() {
@@ -416,6 +437,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Description: Returnerer ArrayListen der indeholder alle coastlines.
+     *
      * @return ArrayList<Shape>
      */
     public ArrayList<Shape> getCoastlines() {
@@ -424,6 +446,7 @@ public class Model extends Observable implements Serializable {
 
     /**
      * Desctription: Returnerer den graf der virker som vejnettet på kortet.
+     *
      * @return Graph
      */
     public Graph getGraph() {
@@ -454,6 +477,7 @@ public class Model extends Observable implements Serializable {
         private HashMap<Long, GraphNode> idToGraphNode = new HashMap<>();
 
         private HashMap<String, Enum<?>> stringToEnum = new HashMap<>();
+
         {
             for (WayType type : WayType.values()) {
                 stringToEnum.put(type.name(), type);
@@ -462,7 +486,8 @@ public class Model extends Observable implements Serializable {
                 stringToEnum.put(type.name(), type);
             }
         }
-        public HashMap<Long,GraphNode> getIdToGraphNode() {
+
+        public HashMap<Long, GraphNode> getIdToGraphNode() {
             return idToGraphNode;
         }
 
@@ -473,6 +498,7 @@ public class Model extends Observable implements Serializable {
         private ArrayList<StreetAndPointNode> townNames = new ArrayList<>();
 
         private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class);
+
         {
             for (WayType type : WayType.values()) {
                 shapes.put(type, new ArrayList<>());
@@ -481,10 +507,11 @@ public class Model extends Observable implements Serializable {
 
         /**
          * Description: Tilføjer et nyt entry til roads hashmappet med WayTypen og og en ny ArrayList, hvis den ikke findes i mappet allerede.
+         *
          * @param shape
          * @param roadName
          */
-        public void addRoad(PolygonApprox shape, String roadName, ArrayList<GraphNode> nodes){
+        public void addRoad(PolygonApprox shape, String roadName, ArrayList<GraphNode> nodes) {
             if (roads.get(type) == null) {
                 roads.put(type, new ArrayList<>());
             }
@@ -493,6 +520,7 @@ public class Model extends Observable implements Serializable {
 
         /**
          * Description: Tilføjer et entry til den List som WayTypen har i shapes enummappet.
+         *
          * @param type
          * @param shape
          */
@@ -555,7 +583,6 @@ public class Model extends Observable implements Serializable {
             System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
 
             graph = new Graph(idToGraphNode);
-            System.out.println(idToGraphNode.values().size());
         }
 
         @Override
@@ -659,12 +686,14 @@ public class Model extends Observable implements Serializable {
                             }
                             break;
                         case "junction":
-                            if(v=="roundabout"){
-                                roundAbout=true;
+                            if (v == "roundabout") {
+                                roundAbout = true;
                             }
                             break;
                         case "place":
-                            if(name.length()==0){break;}
+                            if (name.length() == 0) {
+                                break;
+                            }
                             if (v.equals("village") || v.equals("town") || v.equals("city")) {
                                 addressModel.putCity(name, idToNode.get(nodeID));
                             }
@@ -690,7 +719,7 @@ public class Model extends Observable implements Serializable {
                     }
                     OSMWay way = idToWay.get(ref);
                     if (way != null) {
-                        if(relation.size()!=0) {
+                        if (relation.size() != 0) {
                             if (relation.get(relation.size() - 1).getToNode().getX() != way.getFromNode().getX()) {
                                 Collections.reverse(way);
                             }
@@ -717,7 +746,7 @@ public class Model extends Observable implements Serializable {
 
                     break;
                 case "way":
-                    if(isAddressNode){
+                    if (isAddressNode) {
                         //System.out.println(type);
                     }
                     if (type != WayType.NATURAL_COASTLINE && type != WayType.UNKNOWN) {
@@ -767,7 +796,7 @@ public class Model extends Observable implements Serializable {
                         }
                         addShape(type, shape); //Tilføj shape
                     }
-                    name="";
+                    name = "";
                     maxSpeed = 0;
                     oneway = false;
                     isHighway = false;

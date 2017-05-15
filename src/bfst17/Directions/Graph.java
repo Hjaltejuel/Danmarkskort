@@ -56,16 +56,13 @@ public class Graph {
         source.setDistTo(0.0);
 
         unRelaxedNodes.add(source);
-    int i = 0;
         while (!unRelaxedNodes.isEmpty()) {
-            i++;
             GraphNode node = unRelaxedNodes.peek();
             //node.setSettled(true);
             node.setMarked(true);
             unRelaxedNodes.remove(node);
             relaxEdges(node, weighType);
         }
-        System.out.println(i);
         source.setNodeFrom(null);
 
         pathList = new ArrayList();
@@ -93,9 +90,6 @@ public class Graph {
                 if (edge.supportVehicle(vehicleType)) {
                     double tempDistTo = node.getDistTo() + edge.getWeight(vehicleType);
                     if (tempDistTo < destinationNode.getDistTo()) {
-                        if(destinationNode ==target){
-                            System.out.println("we made it");
-                        }
                         destinationNode.setDistTo(tempDistTo);
                         destinationNode.setNodeFrom(node);
                     }

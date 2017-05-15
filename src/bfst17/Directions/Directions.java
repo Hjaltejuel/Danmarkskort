@@ -2,7 +2,6 @@ package bfst17.Directions;
 
 import bfst17.Enums.RoadDirektion;
 import bfst17.Enums.VehicleType;
-import bfst17.Model;
 
 import java.util.ArrayList;
 
@@ -32,6 +31,7 @@ public class Directions extends ArrayList<DirectionsObject> {
                     currentGraphNode.getPoint2D().getX() - prevGraphNode.getPoint2D().getX());
             for (Edge edge : prevGraphNode.getEdgeList()) {
                 if (edge.getDestination() == currentGraphNode) {
+                    estimatedTime+= edge.getEstimatedTime(vehicleType);
                     DirectionsObject DirObj = new DirectionsObject(prevGraphNode.getPoint2D(), currentDirection - angle, edge);
                     this.add(DirObj);
                     if (DirObj.getRoadDirection() != RoadDirektion.lige_ud) {
@@ -54,14 +54,14 @@ public class Directions extends ArrayList<DirectionsObject> {
             }
             prevDirObj.nextRoad = currDirObj.getRoadName();
         }
+        System.out.println(estimatedTime);
     }
 
     public String getTotalRoadLengthText() {
-        if(totalRoadLength>1000) {
-            return (int)(totalRoadLength/1000)+" km";
+        if (totalRoadLength > 1000) {
+            return (int) (totalRoadLength / 1000) + " km";
         } else {
-            return (int)totalRoadLength + " m";
+            return (int) totalRoadLength + " m";
         }
     }
-
 }
