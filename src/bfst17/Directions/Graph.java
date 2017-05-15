@@ -102,7 +102,7 @@ public class Graph {
             pathList.add(n);
             pointList.add(n.getPoint2D());
         }
-        System.out.println(pointList.size());
+        System.out.println("Vejen er på størrelse: " + pointList.size());
         Collections.reverse(pathList);
     }
 
@@ -125,6 +125,8 @@ public class Graph {
                         destinationNode.setNodeFrom(node);
                     }
                     unRelaxedNodes.add(destinationNode);
+                } else {
+                    System.out.println(vehicleType);
                 }
             }
         }

@@ -10,68 +10,88 @@ import java.awt.geom.Point2D;
  * Created by Jens on 10-05-2017.
  */
 public class DirectionObject {
+    public Integer getRoadLength() {
+        return roadLength;
+    }
+
     private String currentRoad;
-    private double roadLength;
+    private Integer roadLength = 0;
     private RoadDirektion roadDirection;
     private Point2D location;
 
     /**
      * Opret et direktionobjekt
-     * @param from Punktet fra
-     * @param to punktet til
+     *
+     * @param to    punktet til
      * @param model modellen
      */
-    public DirectionObject(Point2D to, Model model, VehicleType vehicleType) {
-        location=to;
-        //calculationRoadLength(from, to);
-        //setTurnType(from, to);
+    public DirectionObject(Point2D to, Model model, VehicleType vehicleType, double angle) {
+        location = to;
+        setTurnType(angle);
         setRoadName(to, model, vehicleType);
     }
 
     /**
      * Sætter den nuværende vejs navn vha nearest neighbour
+     *
      * @param to
      * @param model
      */
     public void setRoadName(Point2D to, Model model, VehicleType vehicleType) {
         currentRoad = model.getClosestRoad(to, vehicleType).getRoadName();
-        roadLength=0;
-        roadDirection=RoadDirektion.EAST;
     }
 
-    /**
-     * Udregner vejens længde vha pythagoras (a^2+b^2=c^2)
-     * @param from
-     * @param to
-     */
-    public void calculationRoadLength(Point2D from, Point2D to) {
-        this.roadLength=Math.sqrt(Math.pow(from.getX()-to.getX(),2)+Math.pow(from.getY()-to.getY(),2));
+    public void calculationRoadLength(DirectionObject neighbourNode) {
+        this.roadLength = (int)Math.round(Math.sqrt(Math.pow(getX() - neighbourNode.getX(), 2) + Math.pow(getY() - neighbourNode.getY(), 2))*100)*10;
+    }
+
+    //Returner x i meter
+    public double getX() {
+        return location.getX() * 111.320 * Math.cos(location.getY()/180*Math.PI);
+    }
+
+    //Returner y i meter
+    public double getY(){
+        return location.getY()*110.574;
     }
 
     /**
      * Udregner vinklen på de to punkter og finder vejens retning
+     *
      * @param from
      * @param to
      */
-    public void setTurnType(Point2D from, Point2D to) {
-        double angle = Math.atan2(to.getY() - from.getY(), to.getX() - from.getX());
-        double angleDegree = ((angle*180/Math.PI)+360)%360; //Altid mere en 0 & under 360
+    public void setTurnType(double angle) {
+        //double angle = Math.atan2(to.getY() - from.getY(), to.getX() - from.getX());
+        double angleDegree = ((angle * 180 / Math.PI) + 360) % 360; //Altid mere en 0 & under 360
+        System.out.println(angleDegree);
+        if (angleDegree >= 30 && angleDegree <= 150) {
+            this.roadDirection = RoadDirektion.højre;
+        } else if (angleDegree > 150 && angleDegree <= 210) {
+            this.roadDirection = RoadDirektion.lige_ud;
+        } else if (angleDegree < 30 || angleDegree >= 330) {
+            this.roadDirection = RoadDirektion.lige_ud;
+        } else {
+            this.roadDirection = RoadDirektion.venstre;
+        }
+        /*
         if (angleDegree < 0 || angleDegree > 360) throw new AssertionError();
 
         if (angleDegree > 315 || angleDegree <= 45) {
-            this.roadDirection = RoadDirektion.EAST;
+            this.roadDirection = RoadDirektion.højre;
         } else if (angleDegree > 45  && angleDegree <= 135) {
             this.roadDirection = RoadDirektion.SOUTH;
         } else if (angleDegree > 135  && angleDegree <= 225) {
-            this.roadDirection = RoadDirektion.WEST;
+            this.roadDirection = RoadDirektion.venstre;
         } else if (angleDegree > 225  && angleDegree <= 315) {
-            this.roadDirection = RoadDirektion.NORTH;
+            this.roadDirection = RoadDirektion.lige_ud;
         }
+        */
     }
 
     @Override
-    public String toString(){
-        return currentRoad+" "+roadLength+" "+ roadDirection.name();
+    public String toString() {
+        return currentRoad + " " + roadLength + " " + roadDirection.name();
     }
 
     public RoadDirektion getRoadDirection() {

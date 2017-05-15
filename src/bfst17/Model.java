@@ -1,13 +1,10 @@
 package bfst17;
 
-import bfst17.AddressHandling.*;
-import bfst17.Directions.*;
 import bfst17.AddressHandling.Address;
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.Region;
 import bfst17.AddressHandling.StreetAndPointNode;
 import bfst17.Directions.DirectionObject;
-import bfst17.Directions.Edge;
 import bfst17.Directions.Graph;
 import bfst17.Directions.GraphNode;
 import bfst17.Enums.*;
@@ -145,21 +142,56 @@ public class Model extends Observable implements Serializable {
      */
     ArrayList<DirectionObject> directions;
     public ArrayList<DirectionObject> getDirectionsList() {
+        String prevRoad = "";
+        double currentDirection = 0;
+        boolean firstRun = true;
+        ArrayList<GraphNode> graphNodeList = graph.getPathList();
+        if (graphNodeList == null) {
+            return null;
+        }
         if (directions != null) {
             return directions;
         }
         directions = new ArrayList<>();
-        String prevRoad = "";
-        double currentDirection = 0;
-        ArrayList<GraphNode> graphNodeList = graph.getPathList();
-        if (graphNodeList == null) {
-            return directions;
-        }
+
         for (int i = graphNodeList.size() - 1; i >= 1; i--) {
             GraphNode currentGraphNode = graphNodeList.get(i);
+            GraphNode nextGraphNode = graphNodeList.get(i - 1);
+            double angle = Math.atan2(nextGraphNode.getPoint2D().getY() - currentGraphNode.getPoint2D().getY(),
+                    nextGraphNode.getPoint2D().getX() - currentGraphNode.getPoint2D().getX());
+
+            DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR, currentDirection - angle);
+            prevRoad = DirObj.getCurrentRoad();
+            directions.add(DirObj);
+
+            currentDirection = angle;
+        }
+        for (int i = 1; i < directions.size(); i++) {
+            DirectionObject prevDirobj = directions.get(i - 1);
+            DirectionObject currentDirobj = directions.get(i);
+
+            if (prevDirobj.getRoadDirection() == RoadDirektion.lige_ud && prevDirobj.getCurrentRoad().equals(currentDirobj.getCurrentRoad())) {
+                directions.remove(i - 1);
+                i = 1;
+            }
+
+            if (directions.size() > i + 1) {
+                DirectionObject nextDirobj = directions.get(i + 1);
+                if (nextDirobj.getCurrentRoad().equals(prevDirobj.getCurrentRoad())) {
+                    directions.remove(i);
+                    i = 1;
+                }
+            }
+        }
+
+        for (int i = 1; i < directions.size(); i++) {
+            directions.get(i-1).calculationRoadLength(directions.get(i));
+        }
+
+            /*
             if (currentGraphNode.getEdgeList().size() <= 2) {
                 if (!prevRoad.equals(currentGraphNode.getRoadName(this))) {
-                    DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR);
+                    DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR, currentDirection);
                     prevRoad = DirObj.getCurrentRoad();
                     directions.add(DirObj);
                 }
@@ -168,7 +200,6 @@ public class Model extends Observable implements Serializable {
             if (currentGraphNode.getEdgeList().size() > 2) {
                 String currentRoadName = currentGraphNode.getRoadName(this);
                 if ((i - 1) > 0) {
-                    GraphNode nextGraphNode = graphNodeList.get(i - 1);
                     boolean erSideVej = false;
                     for (Edge edge : currentGraphNode.getEdgeList()) {
                         if (edge.getDestination() != nextGraphNode) {
@@ -186,7 +217,7 @@ public class Model extends Observable implements Serializable {
             if (currentGraphNode.getRoadName(this).equals(prevRoad)) {
                 continue;
             }
-            DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR);
+            DirectionObject DirObj = new DirectionObject(currentGraphNode.getPoint2D(), this, VehicleType.CAR, currentDirection);
             prevRoad = DirObj.getCurrentRoad();
             directions.add(DirObj);
 
@@ -196,7 +227,8 @@ public class Model extends Observable implements Serializable {
                     currentGraphNode.getPoint2D().getX() - prevNode.getPoint2D().getX());
             currentDirection = ((angle*180/Math.PI)+360)%360; //Altid mere en 0 & under 360
             */
-        }
+            Collections.reverse(directions);
+            directions.get(0).calculationRoadLength(directions.get(0));
         return directions;
     }
 
@@ -649,6 +681,7 @@ public class Model extends Observable implements Serializable {
             }
             graph = new Graph(graphNodeBuilder, graphWays);
 
+            /*
             TSTInterface address = addressModel.getAddress("Strandvolden 41, 3730 Nexø");//Hovedgade 52, 3730 Nexø");
             TSTInterface addressDest = addressModel.getAddress("Søndre Landevej 31, 3730 Nexø");//Søndre Landevej 17, 3730 Nexø");//Aasen 4, 3730 Nexø");
 
@@ -666,6 +699,7 @@ public class Model extends Observable implements Serializable {
             getGraph().findShortestPath(fromPoint, toPoint, vType);
 
             //graphNodeBuilder.clear();
+            */
         }
 
         @Override

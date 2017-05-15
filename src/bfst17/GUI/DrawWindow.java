@@ -1,7 +1,9 @@
 package bfst17.GUI;
 
 import bfst17.AddressHandling.TST;
+import bfst17.Directions.DirectionObject;
 import bfst17.Enums.GUIMode;
+import bfst17.Enums.RoadDirektion;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -10,6 +12,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -452,7 +455,7 @@ public class DrawWindow {
     gridPanel.add(distance);
 
     scrollPanel = new JPanel(new GridLayout(0,	1));
-    fillDirections("Drej til højre om 400m til Vestervangs Ale raas dsad dsad dads");
+    //fillDirections("Drej til højre om 400m til Vestervangs Ale raas dsad dsad dads");
 
     directionsScroll = new JScrollPane(scrollPanel);
     c.gridx = 0;
@@ -473,39 +476,34 @@ public class DrawWindow {
 	}
 
 	//public fillDirections(Arraylist<Direction> directionsArraylist){
-    public void fillDirections(String direction){
+    public void fillDirections(ArrayList<DirectionObject> directionsList){
 	    boolean isGray = false;
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
-		// for(Direction d : directionsArraylist){
-        for(int i =0;i<10;i++){
+		for(DirectionObject dirObj : directionsList){
 			JPanel boxForEachDirection = new JPanel(new GridBagLayout());
 			JPanel labelPanel = new JPanel(new GridLayout(0,1));
 			labelPanel.setPreferredSize(new Dimension(155,60));
 			BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+
 			Graphics2D g2d = img.createGraphics();
 			FontMetrics fm = g2d.getFontMetrics();
+
 			String s ="";
 			int k = 0;
-			String[] split = direction.split((" "));
-			for(String string: split){
-				if(fm.stringWidth(s +string)<155) {
-					if (k == 0) {
-						s += string;
-					} else
-						s += " " + string;
-					if(k==split.length-1){
-						JLabel directionDescription = new JLabel(s);
-						labelPanel.add(directionDescription);
-					}
-				} else{
-					JLabel directionDescription = new JLabel(s);
-					labelPanel.add(directionDescription);
-					s = string;
-				}
-				k++;
-
+			String prefix;
+			RoadDirektion vejRetning = dirObj.getRoadDirection();
+			if(vejRetning==RoadDirektion.lige_ud){
+				prefix="Fortsæt lige ud";
+			} else {
+				prefix = "Drej til "+vejRetning.name();
 			}
+			String directionText = prefix + " om "+ dirObj.getRoadLength()+"m ad "+dirObj.getCurrentRoad();
+
+			JLabel directionDescription = new JLabel(s);
+			directionDescription.setText("<html>"+directionText+"</html>");
+			labelPanel.add(directionDescription);
+
 			g2d.dispose();
 			c.gridx = 0;
 			c.gridy = 0;
@@ -518,7 +516,7 @@ public class DrawWindow {
 
 			//if(turn.equals("ight")){
 				arrowImagePanel = new JPanel();
-	            arrowImage = new ImageButton("/right.png");
+	            arrowImage = new ImageButton("/"+dirObj.getRoadDirection()+".png");
 	            arrowImagePanel.add(arrowImage);
 				c.gridx = 1;
 				c.gridy = 0;
@@ -531,11 +529,11 @@ public class DrawWindow {
 			boxForEachDirection.add(arrowImagePanel,c);
 
             /*}else if(turn.equals("left")){
-                arrowImage = new ImageButton("/left.png");
-                scrollPanel.addShape(arrowImage,BorderLayout.EAST);
+                arrowImage = new ImageButton("/venstre.png");
+                scrollPanel.addShape(arrowImage,BorderLayout.højre);
             }else if(turn.equals("roundabout")){
                 arrowImage = new ImageButton("/roundabout.png");
-                scrollPanel.addShape(arrowImage,BorderLayout.EAST);
+                scrollPanel.addShape(arrowImage,BorderLayout.højre);
             }*/
 
 

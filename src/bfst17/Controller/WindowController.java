@@ -10,6 +10,7 @@ import bfst17.Enums.VehicleType;
 import bfst17.Enums.WeighType;
 import bfst17.GUI.DrawCanvas;
 import bfst17.GUI.DrawWindow;
+import bfst17.KDTrees.RoadKDTree;
 import bfst17.KDTrees.TreeNode;
 import bfst17.Model;
 
@@ -191,14 +192,21 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 if(addressDest == null || address == null)return;
 
                 //finder de tætteste veje på addresserne
-                TreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()));
+                VehicleType vType = VehicleType.BICYCLE;
+                TreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
                 Point2D fromPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
+                System.out.println(((RoadKDTree.RoadTreeNode)closestNode).getRoadName());
 
                 closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
                 Point2D toPoint = new Point2D.Double(closestNode.getX(), closestNode.getY());
+                System.out.println(((RoadKDTree.RoadTreeNode)closestNode).getRoadName());
+
 
                 //Finder den korteste vej
-                model.getGraph().findShortestPath(fromPoint, toPoint, WeighType.SHORTEST);
+                model.getGraph().findShortestPath(fromPoint, toPoint, vType);
+
+                window.fillDirections(model.getDirectionsList());
+
                 if (!isPopUpOpen) {
                     //søg ind på startpunktet
                     search();

@@ -34,7 +34,7 @@ public class Edge {
         double maxSpeed = Math.max(source.getMaxSpeed(), destination.getMaxSpeed());
         if(maxSpeed==0) {
             //System.out.println("Car route fucked!");
-            maxSpeed=0.9;
+            maxSpeed=1;
         }
         weight = distance / maxSpeed;
     }

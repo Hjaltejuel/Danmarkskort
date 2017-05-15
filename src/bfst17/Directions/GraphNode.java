@@ -24,10 +24,16 @@ public class GraphNode implements Comparable {
     private double distance = Double.POSITIVE_INFINITY;
 
     public void setType(RoadTypes type) {
-        for(VehicleType vehicleType : type.getVehicletypes()){
-            if(vehicleType==VehicleType.CAR){isCAR=true;}
-            if(vehicleType==vehicleType.BICYCLE){isBIKE=true;}
-            if(vehicleType==vehicleType.FOOT){isFOOT=true;}
+        for (VehicleType vehicleType : type.getVehicletypes()) {
+            if (vehicleType == VehicleType.CAR) {
+                isCAR = true;
+            }
+            if (vehicleType == vehicleType.BICYCLE) {
+                isBIKE = true;
+            }
+            if (vehicleType == vehicleType.FOOT) {
+                isFOOT = true;
+            }
         }
     }
 

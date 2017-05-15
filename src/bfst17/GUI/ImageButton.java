@@ -14,7 +14,6 @@ public class ImageButton extends JButton {
         setBorderPainted(false);
         setFocusPainted(false);
         setContentAreaFilled(false);
-
         try {
             Image img = ImageIO.read(getClass().getResource(ImagePath));
             setIcon(new ImageIcon(img.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
