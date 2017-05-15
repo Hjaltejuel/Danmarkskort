@@ -462,6 +462,12 @@ public enum WayType implements Serializable {
 					4000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
+	HIGHWAY_CROSSING
+			(new Color(0,0,0),
+					null,
+					2000,
+					FillType.LINE,
+					new Color(0,0,0)),
 	HIGHWAY_RESIDENTIAL
 			(new Color(246, 239, 239),
 					new BasicStroke(0.00004f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
@@ -522,6 +528,13 @@ public enum WayType implements Serializable {
 					1500,
 					FillType.LINE,
 					new Color(56, 65, 78)),
+	HIGHWAY_TRUNK_LINK
+			(new Color(191, 62, 35),
+					null,
+					1500,
+					FillType.LINE,
+					new Color(56, 65, 78)),
+
 	HIGHWAY_BUS_GUIDEWAY
 			(new Color(157, 156, 246),
 					null,
@@ -552,7 +565,19 @@ public enum WayType implements Serializable {
 					2000,
 					FillType.LINE,
 					new Color(116, 104, 85)),
+	HIGHWAY_TERTIARY_LINK
+			(new Color(246, 239, 239),
+					new BasicStroke(0.00008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					2000,
+					FillType.LINE,
+					new Color(116, 104, 85)),
 	HIGHWAY_SECONDARY
+			(new Color(247, 250, 191),
+					new BasicStroke(0.00008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					500,
+					FillType.LINE,
+					new Color(116, 104, 85)),
+	HIGHWAY_SECONDARY_LINK
 			(new Color(247, 250, 191),
 					new BasicStroke(0.00008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
 					500,
@@ -564,12 +589,24 @@ public enum WayType implements Serializable {
 					1,
 					FillType.LINE,
 					new Color(56, 65, 78)),
+	HIGHWAY_PRIMARY_LINK
+			(new Color(252, 193, 97),
+					new BasicStroke(0.00008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					1,
+					FillType.LINE,
+					new Color(56, 65, 78)),
 	HIGHWAY_MOTORWAY
 			(new Color(232, 146, 162),
 					new BasicStroke(0.0004f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
 					1,
 					FillType.LINE,
 					new Color(56, 65, 78)),
+	HIGHWAY_MOTORWAY_LINK
+			(new Color(232,146,162),
+					new BasicStroke(0.0002f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					1,
+					FillType.LINE,
+				new Color(56, 65, 78)),
 	TRACKTYPE_GRADE1
 			(new Color(216, 188, 134),
 					null,

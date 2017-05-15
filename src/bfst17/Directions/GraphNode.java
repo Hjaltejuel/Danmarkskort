@@ -13,53 +13,21 @@ import java.util.ArrayList;
 public class GraphNode implements Comparable {
     private Point2D point;
     private GraphNode nodeFrom;
-    private boolean isCAR, isBIKE, isFOOT;
 
     private boolean marked;
-
-    private int maxSpeed = 0;
-
-    private RoadTypes type;
-
     private ArrayList<Edge> edgeList;
 
     private double distance = Double.POSITIVE_INFINITY;
 
-    public void setType(RoadTypes type) {
-        for (VehicleType vehicleType : type.getVehicletypes()) {
-            if (vehicleType == VehicleType.CAR) {
-                isCAR = true;
-            }
-            if (vehicleType == vehicleType.BICYCLE) {
-                isBIKE = true;
-            }
-            if (vehicleType == vehicleType.FOOT) {
-                isFOOT = true;
-            }
-        }
-    }
 
     public double getX(){return point.getX();}
     public double getY(){return point.getY();}
 
-    public void setMaxSpeed(int maxSpeed) {
-        this.maxSpeed = maxSpeed;
-    }
-
     /**
      * Opretter en GraphNode
      * @param point     Den OSMNode grafnoden er placeret på
-     * @param type              Hvilken vejtype noden er på
-     * @param maxSpeed          Hvor hurtigt man må køre på vejen
      */
-    public GraphNode(Point2D point, RoadTypes type, int maxSpeed) {
-        if(maxSpeed==0) {
-            this.maxSpeed = type.getMaxSpeed();
-        } else {
-            this.maxSpeed = maxSpeed;
-        }
-        this.type = type;
-        setType(type);
+    public GraphNode(Point2D point) {;
         this.point = point;
         marked = false;
         edgeList = new ArrayList<>();
@@ -68,26 +36,9 @@ public class GraphNode implements Comparable {
     public Point2D getPoint2D() {
         return new Point2D.Double(point.getX(), point.getY());
     }
-    public RoadTypes getType(){return this.type;}
-    public boolean supportsVehicle(VehicleType vehicleType) {
-        if (vehicleType == VehicleType.CAR && isCAR) {
-            return true;
-        }
-        if (vehicleType == vehicleType.BICYCLE && isBIKE) {
-            return true;
-        }
-        if (vehicleType == vehicleType.FOOT && isFOOT) {
-            return true;
-        }
-        return false;
-    }
 
     public ArrayList<Edge> getEdgeList() {
         return edgeList;
-    }
-
-    public int getMaxSpeed() {
-        return maxSpeed;
     }
 
     public double getDistTo() {
@@ -106,8 +57,8 @@ public class GraphNode implements Comparable {
         this.nodeFrom = nodeFrom;
     }
 
-    public void addEdge(GraphNode destination, String roadName) {
-        Edge edge = new Edge(this, destination, roadName);
+    public void addEdge(GraphNode destination, String roadName, double maxSpeed, RoadTypes roadTypes) {
+        Edge edge = new Edge(this, destination, roadName, maxSpeed, roadTypes);
         edgeList.add(edge);
     }
 

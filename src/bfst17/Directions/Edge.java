@@ -1,5 +1,6 @@
 package bfst17.Directions;
 
+import bfst17.Enums.RoadTypes;
 import bfst17.Enums.VehicleType;
 import bfst17.Enums.WeighType;
 
@@ -11,6 +12,8 @@ public class Edge {
     private double weight;
     private double distance;
     private String roadName;
+    private double maxSpeed;
+    private RoadTypes roadTypes;
     public String getRoadName() {
         return roadName;
     }
@@ -27,9 +30,15 @@ public class Edge {
      * @param source
      * @param destination
      */
-    public Edge(GraphNode source, GraphNode destination, String roadName) {
+    public Edge(GraphNode source, GraphNode destination, String roadName, double maxSpeed, RoadTypes roadTypes) {
         this.roadName=roadName;
         this.destination = destination;
+        if(maxSpeed==0) {
+            this.maxSpeed = roadTypes.getMaxSpeed();
+        } else {
+            this.maxSpeed = maxSpeed;
+        }
+        this.roadTypes = roadTypes;
         distance = Math.sqrt(Math.pow(destination.getPoint2D().getX() - source.getPoint2D().getX(), 2) +
                 Math.pow(destination.getPoint2D().getY() - source.getPoint2D().getY(), 2));
     }
@@ -39,10 +48,10 @@ public class Edge {
      * der tages altså også højde for hvor hurtigt man må køre på vejen
      */
     private void calcWeightForFastest() {
-        double maxSpeed = destination.getMaxSpeed();
         if(maxSpeed==0) {
             //System.out.println("Car route fucked!");
-            maxSpeed=destination.getType().getMaxSpeed();
+            maxSpeed=roadTypes.getMaxSpeed();
+           // maxSpeed = 1;
         }
         weight = distance / maxSpeed;
     }
@@ -57,6 +66,15 @@ public class Edge {
     public GraphNode getDestination() {
         return destination;
     }
+
+    public boolean supportVehicle(VehicleType vehicleType){
+        for(VehicleType vehicle: roadTypes.getVehicletypes()){
+            if(vehicle == vehicleType){
+                return true;
+            }
+        }  return false;
+    }
+
 
     /**
      * @param vehicleType hvorvidt det skal være Fastest / Shortest

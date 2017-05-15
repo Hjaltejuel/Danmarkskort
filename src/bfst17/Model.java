@@ -1,9 +1,7 @@
 package bfst17;
 
 import bfst17.AddressHandling.*;
-import bfst17.Directions.Directions;
-import bfst17.Directions.Graph;
-import bfst17.Directions.GraphNode;
+import bfst17.Directions.*;
 import bfst17.Enums.*;
 import bfst17.KDTrees.*;
 import bfst17.OSMData.*;
@@ -50,8 +48,6 @@ public class Model extends Observable implements Serializable {
     private float lonfactor;
     private Graph graph;
 
-
-    public ArrayList<Line2D> startStopPunkter = new ArrayList<>();
     public Model(String filename) throws IOException {
         load(filename);
     }
@@ -59,7 +55,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
+            load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -67,19 +63,6 @@ public class Model extends Observable implements Serializable {
         //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
         loadAllCoastlines();
         //loadFile(path);
-    }
-
-        public RoadKDTree.RoadTreeNode getRoadName(Point2D point1, Point2D point2, VehicleType vehicle) {
-        ArrayList<TreeNode> roadsOnPoint1 = getAllClosestRoads(point1, vehicle);
-        ArrayList<TreeNode> roadsOnPoint2 = getAllClosestRoads(point2, vehicle);
-        for(TreeNode t1 : roadsOnPoint1) {
-            for(TreeNode t2 : roadsOnPoint2) {
-                if(t1==t2){
-                    System.out.println(((RoadKDTree.RoadTreeNode)t1).getRoadName()+ " " +((RoadKDTree.RoadTreeNode)t1).getRoadName());
-                }
-            }
-        }
-        return null;
     }
 
     /**
@@ -149,19 +132,17 @@ public class Model extends Observable implements Serializable {
         }
         return (RoadKDTree.RoadTreeNode) closestNode;
     }
-
     Directions directions;
     public Directions getDirections(VehicleType vehicleType) {
         if(directions==null) {
-            directions=new Directions(graph.getPathList(), vehicleType);
+            directions=new Directions(graph.getPathList(),vehicleType);
         }
         return directions;
     }
 
-    public void resetDirections() {
-        directions=null;
+    public void resetDirections(){
+        directions = null;
     }
-
     /**
      * Description: Returnere en ArrayList med RoadKD-træer
      * @return ArrayList<RoadKDTree>
@@ -748,19 +729,19 @@ public class Model extends Observable implements Serializable {
                                 for (int i = 0; i < way.size(); i++) {
                                     GraphNode node = idToGraphNode.get(tmpNodeIDs.get(i));
                                     if (node == null) {
-                                        GraphNode gNode = new GraphNode(way.get(i), roadType, maxSpeed);
+                                        GraphNode gNode = new GraphNode(way.get(i));
                                         idToGraphNode.put(tmpNodeIDs.get(i), gNode);
                                         nodes.add(gNode);
                                         if (oneway) {
                                             if (i == 0) {
                                             } else {
-                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(gNode, name);
+                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(gNode, name,maxSpeed,roadType);
                                             }
                                         } else {
                                             if (i == 0) {
                                             } else {
-                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(gNode, name);
-                                                gNode.addEdge(idToGraphNode.get(tmpNodeIDs.get(i - 1)), name);
+                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(gNode, name,maxSpeed,roadType);
+                                                gNode.addEdge(idToGraphNode.get(tmpNodeIDs.get(i - 1)), name,maxSpeed,roadType);
                                             }
                                         }
                                     } else {
@@ -768,13 +749,13 @@ public class Model extends Observable implements Serializable {
                                         if (oneway) {
                                             if (i == 0) {
                                             } else {
-                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(node, name);
+                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(node, name,maxSpeed,roadType);
                                             }
                                         } else {
                                             if (i == 0) {
                                             } else {
-                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(node, name);
-                                                node.addEdge(idToGraphNode.get(tmpNodeIDs.get(i-1)), name);
+                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(node, name,maxSpeed,roadType);
+                                                node.addEdge(idToGraphNode.get(tmpNodeIDs.get(i-1)), name,maxSpeed,roadType);
                                             }
                                         }
                                     }

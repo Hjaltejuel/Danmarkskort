@@ -13,7 +13,6 @@ public class Graph {
     private PriorityQueue<GraphNode> unRelaxedNodes;
     private ArrayList<Point2D> pointList;
     private ArrayList<GraphNode> pathList;
-    int k = 0;
 
 
     /**
@@ -91,7 +90,7 @@ public class Graph {
         for (Edge edge : edgelist) {
             GraphNode destinationNode = edge.getDestination();
             if (!destinationNode.isMarked()) {
-                if (destinationNode.supportsVehicle(vehicleType)) {
+                if (edge.supportVehicle(vehicleType)) {
                     double tempDistTo = node.getDistTo() + edge.getWeight(vehicleType);
                     if (tempDistTo < destinationNode.getDistTo()) {
                         if(destinationNode ==target){
@@ -106,7 +105,7 @@ public class Graph {
                     }
 
                 } else {
-                }
+               }
             }
         }
     }

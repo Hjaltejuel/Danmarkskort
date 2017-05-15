@@ -4,9 +4,21 @@ package bfst17.Enums;
 public enum RoadTypes {
     HIGHWAY_MOTORWAY(new VehicleType[]{VehicleType.CAR}, 130),
 
+    HIGHWAY_MOTORWAY_LINK(new VehicleType[]{VehicleType.CAR},130),
+
+    HIGHWAY_TRUNK_LINK(new VehicleType[]{VehicleType.CAR},80),
+
+    HIGHWAY_PRIMARY_LINK(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE},80),
+
+    HIGHWAY_SECONDARY_LINK(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT},50),
+
+    HIGHWAY_TERTIARY_LINK(new VehicleType[]{VehicleType.CAR,VehicleType.FOOT,VehicleType.BICYCLE},80),
+
     HIGHWAY_TRUNK(new VehicleType[]{VehicleType.CAR}, 80),
 
     HIGHWAY_PRIMARY(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE}, 80),
+
+    HIGHWAY_CROSSING(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT},130),
 
     HIGHWAY_SECONDARY(new VehicleType[]{VehicleType.CAR,VehicleType.BICYCLE,VehicleType.FOOT}, 50),
 
