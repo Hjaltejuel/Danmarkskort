@@ -478,7 +478,7 @@ public class DrawWindow {
 		boolean isGray = false;
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
-		for (int i = 1; i < directionsList.size(); i++) {
+		for (int i = 0; i < directionsList.size(); i++) {
 			DirectionObject dirObj = directionsList.get(i);
 			JPanel boxForEachDirection = new JPanel(new GridBagLayout());
 			JPanel labelPanel = new JPanel(new GridLayout(0, 1));
@@ -493,16 +493,16 @@ public class DrawWindow {
 			String prefix;
 			RoadDirektion vejRetning = dirObj.getRoadDirection();
 			if (vejRetning == RoadDirektion.lige_ud) {
-				prefix = "Fortsæt lige ud";
+				prefix = "Fortsæt lige ud"; continue;
 			} else {
 				prefix = "Drej til " + vejRetning.name();
 			}
 			String directionText = "";
 			if ((i + 1) == directionsList.size()) {
-				directionText = "Ankommer til " + dirObj.getCurrentRoad();
+				directionText = "Ankommer til " + dirObj.getRoadName();
 			} else {
 				DirectionObject nextDirection = directionsList.get(i);
-				directionText = prefix + " om " + dirObj.getRoadLength() + "m ad " + nextDirection.getCurrentRoad();
+				directionText = prefix + " om " + dirObj.getRoadLength() + "m ad " + dirObj.getRoadName();//nextDirection.getRoadName();
 			}
 
 			JLabel directionDescription = new JLabel(s);

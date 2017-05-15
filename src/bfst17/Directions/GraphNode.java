@@ -107,8 +107,8 @@ public class GraphNode implements Comparable {
         this.nodeFrom = nodeFrom;
     }
 
-    public void addEdge(GraphNode destination) {
-        Edge edge = new Edge(this, destination);
+    public void addEdge(GraphNode destination, String roadName) {
+        Edge edge = new Edge(this, destination, roadName);
         edgeList.add(edge);
     }
 

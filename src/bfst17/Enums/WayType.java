@@ -438,12 +438,6 @@ public enum WayType implements Serializable {
 					10000,
 					FillType.SOLID,
 					new Color(36, 47, 62)),
-	MILITARY_DANGER_AREA
-			(new Color(252, 198, 201),
-					null,
-					1500,
-					FillType.SOLID,
-					new Color(36, 47, 62)),
 	BUILDING
 			(new Color(217, 208, 201),
 					null,

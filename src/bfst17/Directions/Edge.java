@@ -10,16 +10,21 @@ public class Edge {
     private GraphNode destination;
     private double weight;
     private double distance;
+    private String roadName;
+    public String getRoadName() {
+        return roadName;
+    }
 
-    String getRoadName() {
-        return "";
+    public double getWeight() {
+        return weight;
     }
     /**
      * Opretter en edge mellem to GraphNodes
      * @param source
      * @param destination
      */
-    public Edge(GraphNode source, GraphNode destination) {
+    public Edge(GraphNode source, GraphNode destination, String roadName) {
+        this.roadName=roadName;
         this.destination = destination;
         distance = Math.sqrt(Math.pow(destination.getPoint2D().getX() - source.getPoint2D().getX(), 2) +
                 Math.pow(destination.getPoint2D().getY() - source.getPoint2D().getY(), 2));
