@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.List;
 
 public class ShapeKDTree extends KDTree {
+    HashSet<Shape> nodes = new HashSet<>();
     WayType type;
 
     public ShapeKDTree(WayType type) {
@@ -20,12 +21,17 @@ public class ShapeKDTree extends KDTree {
         return type;
     }
 
-    public <Shape> void fillTree(List<Shape> shapes) {
+    /**
+     * Fylder træet med en type <E> som bliver castet til en E
+     * @param shapes    Listen af shapes
+     * @param <E>       Generisk type der castes til E
+     */
+    public <E> void fillTree(List<E> shapes) {
         if (shapes.size() == 0) {
             return;
         }
         ArrayList<ShapeTreeNode> allShapesList = new ArrayList<>();
-        for(Shape _shape : shapes) {
+        for(E _shape : shapes) {
             int Counter=0;
 
             PolygonApprox shape = (PolygonApprox)_shape;
@@ -45,6 +51,11 @@ public class ShapeKDTree extends KDTree {
         insertArray(allShapes, 0, allShapes.length - 1, true);
     }
 
+    /**
+     * Indsætter en treeNode
+     * @param insertNode    Noden der skal indsættes
+     * @return              Noden der blev indsat
+     */
     public ShapeTreeNode insert(TreeNode insertNode) {
         if(root==null) {
             root=insertNode;
@@ -63,14 +74,25 @@ public class ShapeKDTree extends KDTree {
         return _insertNode;
     }
 
-
-    HashSet<Shape> nodes = new HashSet<>();
+    /**
+     * Fylder et hashSet med Shapes indenfor den givne range
+     * @param rect  Den givne range (Skærmbilledet)
+     * @return      HashSettet med shapes
+     */
     public HashSet<Shape> getInRange(Rectangle2D rect){
         nodes = new HashSet<>();
         getShapesBelowNodeInsideBounds(root, rect);
         return nodes;
     }
 
+    /**
+     * Del 2 af getInRange
+     * Fungerer rekursivt ved at lede ned igennem træet
+     * Hvis hvis maxX / maxY (På skærmbilledets rect) er mere end startNodes splitpunkt så skal vi søge OP i træet
+     * Hvis hvis minX / minY (På skærmbilledets rect) er mindre end startNodes splitpunkt så skal vi søge NED i træet
+     * @param startNode     Den node der bliver sammenlignet med
+     * @param rect          De bounds vi kigger indenfor
+     */
     public void getShapesBelowNodeInsideBounds(TreeNode startNode, Rectangle2D rect) {
         if (startNode == null) {
             return;
@@ -91,11 +113,7 @@ public class ShapeKDTree extends KDTree {
         }
     }
 
-
     public class ShapeTreeNode extends TreeNode {
-        private double highSplit;
-        private double lowSplit;
-
         boolean sortVertically() {
             return isVertical;
         }

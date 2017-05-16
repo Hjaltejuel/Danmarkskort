@@ -17,6 +17,8 @@ public abstract class TreeNode implements Comparable<TreeNode>, Serializable {
     public Shape getShape() { return shape; }
 
     abstract boolean sortVertically();
+
+    //Er noden inde i den givne rectangel
     protected abstract boolean isInside(Rectangle2D rect);
 
     public double getSplit() {

@@ -98,23 +98,13 @@ public class Model extends Observable implements Serializable {
         ArrayList<TreeNode> roadNodes = new ArrayList<>();
         for (int i = getRoadKDTreeList().size() - 1; i >= 0; i--) {
             RoadKDTree tree = getRoadKDTreeList().get(i);
-            TreeNode trNode = null;
             if (vehicle == VehicleType.ANY) {
-                trNode = tree.getNearestNeighbour(point);
+                roadNodes.add(tree.getNearestNeighbour(point));
             } else {
                 if (vehicleSupportsType(tree.getType(), vehicle)) {
-                    trNode = tree.getNearestNeighbour(point);
+                    roadNodes.add(tree.getNearestNeighbour(point));
                 }
             }
-            if (trNode != null && trNode.distance(point) <= 0.001) {
-                if (((RoadKDTree.RoadTreeNode) trNode).getRoadName().length() == 0) {
-                    continue;
-                }
-                roadNodes.add(trNode);
-            }
-        }
-        if (roadNodes.size() == 0) {
-            //System.out.println("Ingen roadNodes");
         }
         return roadNodes;
     }

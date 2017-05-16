@@ -26,6 +26,14 @@ public abstract class KDTree implements Serializable {
     public abstract TreeNode insert(TreeNode t1);
     public abstract <E> void fillTree(List<E> objs);
 
+    /**
+     * Indsætter et array af treenodes. Funktionen er rekursiv og deler sig hele tiden op i to
+     * de elementer i arrayet der er mellem 'lo' og 'hi' bliver sorteret efter enten X | Y
+     * @param allShapes     Alle treenodes
+     * @param lo            den lave ende af sorteringsfeltet
+     * @param hi            den høje ende af sorteringsfeltet
+     * @param vertical      om der skal sorteret efter X | Y
+     */
     public void insertArray(TreeNode[] allShapes, int lo, int hi, boolean vertical) {
         if (hi - lo == 0) {
             insert(allShapes[lo]);
@@ -44,6 +52,13 @@ public abstract class KDTree implements Serializable {
         }
     }
 
+    /**
+     * Indsætter en node rekursivt i træet.
+     * Hvis nodeToCompare har nodes under sig, så dykker vi længere ned i træet, ved at sætte de nodes der ligger under til nodeToCompare
+     * @param nodeToInsert      Den node der skal indsættes
+     * @param nodeToCompare     Den der sammenlignes med
+     * @return
+     */
     public TreeNode insertNode(TreeNode nodeToInsert, TreeNode nodeToCompare) {
         tmpDepth++;
         boolean vertical = nodeToCompare.vertical;
@@ -64,27 +79,13 @@ public abstract class KDTree implements Serializable {
             return nodeToInsert;
         }
     }
-    private HashSet<TreeNode> nodes;
     public abstract <E> HashSet<E> getInRange(Rectangle2D rect);
 
-    public void drawTree(Graphics2D g) {
-        c=0;
-        g.setColor(Color.blue);
-        drawTreeNode(g, root, 0 ,0);
-        System.out.println(c);
-    }
-
-    int c;
-    public void drawTreeNode(Graphics2D g, TreeNode node, Integer X, Integer Y) {
-        if(node==null){return;}
-        c++;
-        Integer reverseDepth = maxDepth-Y;
-        g.fill(new Rectangle2D.Double(X*reverseDepth+300,Y*6+100,5,5));
-        drawTreeNode(g, node.low, X-1, Y+1);
-        drawTreeNode(g, node.high, X+1, Y+1);
-    }
-
-
+    /**
+     * Igangsætter en nearest neighbour søgning
+     * @param point     Hvilket punkt der skal søges fra
+     * @return          Den tætteste TreeNode
+     */
     public TreeNode getNearestNeighbour(Point2D point) {
         TreeNode champion = neighbourRecursion(point, root, true, root, 100);
         if(champion!=null) {
@@ -94,6 +95,15 @@ public abstract class KDTree implements Serializable {
         }
     }
 
+    /**
+     * Den rekursive søgning der kører gennem træet
+     * @param point     Punktet der søges fra
+     * @param node      Den node der tages distance til
+     * @param vertical  Hvorvidt noden skiller på X eller Y
+     * @param champion  den tættest node indtilvidere
+     * @param bestDistance  den bedste afstand indtilvidere
+     * @return
+     */
     public TreeNode neighbourRecursion(Point2D point, TreeNode node, boolean vertical, TreeNode champion, double bestDistance) {
         if (node == null) {
             return champion;

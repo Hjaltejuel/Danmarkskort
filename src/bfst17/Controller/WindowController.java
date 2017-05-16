@@ -35,7 +35,7 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
     private boolean destinationDirections = false;
     private boolean isPopUpOpen = false;
     VehicleType vType = VehicleType.CAR;
-    GraphNode fromPoint, toPoint;
+    TSTInterface address, addressDest;
     public WindowController(Model model) {
         window = new DrawWindow();
         this.model = model;
@@ -223,20 +223,8 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
             return; //Ikke noget at søge efter!
         }
         //finder addresserne
-        TSTInterface addressDest = addressModel.getAddress(secondComboBoxString.trim());
-        TSTInterface address = addressModel.getAddress(firstComboBoxString.trim());
-        //tjekker om de er null
-        if (addressDest == null || address == null) return;
-
-        //finder de tætteste veje på addresserne
-        RoadKDTree.RoadTreeNode toNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
-        RoadKDTree.RoadTreeNode fromNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
-
-        if(toNode==null||fromNode==null) {
-            return;
-        }
-        fromPoint = model.getIdToGraphNode().get(fromNode.getGraphNode());
-        toPoint = model.getIdToGraphNode().get(toNode.getGraphNode());
+        addressDest = addressModel.getAddress(secondComboBoxString.trim());
+        address = addressModel.getAddress(firstComboBoxString.trim());
 
         calculateGraph();
 
@@ -270,6 +258,19 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
     }
 
     public void calculateGraph() {
+        //tjekker om de er null
+        if (addressDest == null || address == null) return;
+
+        //finder de tætteste veje på addresserne
+        RoadKDTree.RoadTreeNode toNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
+        RoadKDTree.RoadTreeNode fromNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
+
+        if(toNode==null||fromNode==null) {
+            return;
+        }
+        GraphNode fromPoint = model.getIdToGraphNode().get(fromNode.getGraphNode());
+        GraphNode toPoint = model.getIdToGraphNode().get(toNode.getGraphNode());
+
         //Finder den korteste vej
         model.getGraph().findShortestPath(fromPoint, toPoint, vType);
 
