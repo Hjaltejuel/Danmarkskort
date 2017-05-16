@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
@@ -285,6 +286,7 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
      */
     public void loadFile() throws IOException {
         File startingDirectory = new File(System.getProperty("user.dir"));
+
         loadFile(startingDirectory);
         canvas.resetCamera();
     }
@@ -320,7 +322,7 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
             File fileToLoad = fileChooser.getSelectedFile();
             if (fileChooser.accept(fileToLoad) && fileToLoad.exists()) {
                 //start et nyt program
-                model.load(fileToLoad.getAbsolutePath());
+                model.load(new FileInputStream(fileToLoad.getAbsolutePath()),fileToLoad.getAbsolutePath());
                 addressModel = model.getAddressModel();
                 window.setTreeInAutocompleter(addressModel.getTSTTree());
             } else { //Filen blev ikke fundet - giv fejlmeddelelse

@@ -16,6 +16,7 @@ import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
 import java.util.List;
+import java.util.Timer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
@@ -26,8 +27,6 @@ public class Model extends Observable implements Serializable {
     private Address.Builder addressBuilder = new Address.Builder();
 
     private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class);
-    private HashMap<String, WayType> namesToWayTypes = new HashMap<>();
-    private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>();
     private HashMap<Long, GraphNode> idToGraphNode = new HashMap<>();
 
     private ArrayList<Shape> coastlines = new ArrayList<>();
@@ -50,13 +49,17 @@ public class Model extends Observable implements Serializable {
     private Graph graph;
 
     public Model(String filename) throws IOException {
-        load(filename);
+        load(new FileInputStream(filename), filename);
     }
 
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
+            //load(System.getProperty("user.dir") + "/resources/DKMap.bin");
+
+            //URL u = ClassLoader.getSystemClassLoader().getResource("bornholm.osm");
+            //System.out.println(u);
+            load(ClassLoader.getSystemClassLoader().getResourceAsStream("bornholm.osm"), "bornholm.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -66,15 +69,38 @@ public class Model extends Observable implements Serializable {
         //loadFile(path);
     }
 
+    public void resetEverything() {
+        shapes = new EnumMap<>(WayType.class);
+        idToGraphNode = new HashMap<>();
+
+        cityTree = new CityNamesKDTree();
+        POITree = new POIKDTree();
+        treeList = new ArrayList<>();
+        roadKDTreeList = new ArrayList<>();
+        townTree = new CityNamesKDTree();
+
+        name = "";
+        regionCenter = null;
+        adminRelation = false;
+        isAddressNode = false;
+        addressModel = new AddressModel();
+        addressBuilder = new Address.Builder();
+        minlon=0;
+        minlat=0;
+        maxlat=0;
+        maxlon=0;
+    }
+
+    public HashMap<Long, GraphNode> getIdToGraphNode() {
+        return idToGraphNode;
+    }
+
     /**
      * Får de veje der ligger tættest på punktet i samtlige RoadKDTræer
      *
      * @param point Punktet
      * @return Arraylist af veje
      */
-    public HashMap<Long, GraphNode> getIdToGraphNode() {
-        return idToGraphNode;
-    }
     public ArrayList<TreeNode> getAllClosestRoads(Point2D point, VehicleType vehicle) {
         ArrayList<TreeNode> roadNodes = new ArrayList<>();
         for (int i = getRoadKDTreeList().size() - 1; i >= 0; i--) {
@@ -195,28 +221,15 @@ public class Model extends Observable implements Serializable {
     }
 
     /**
-     * Description: Tilføjer entres for hver type POI i pointsOfInterest og WayType i namesToWayTypes og i shapes.
-     * Description:
-     */
-    public void initializeHashmaps() {
-        for (PointsOfInterest type : PointsOfInterest.values()) {
-            pointsOfInterest.put(type.name(), new HashSet<>());
-        }
-        for (WayType type : WayType.values()) {
-            namesToWayTypes.put(type.name(), type);
-        }
-        for (WayType type : WayType.values()) {
-            shapes.put(type, new ArrayList<>());
-        }
-    }
-
-    /**
      * Description: Tilføjer en entry til HashMappet shapes.
      *
      * @param type
      * @param shape
      */
     public void add(WayType type, Shape shape) {
+        if(shapes.get(type)==null){
+            shapes.put(type, new ArrayList<>());
+        }
         shapes.get(type).add(shape);
         dirty();
     }
@@ -273,8 +286,9 @@ public class Model extends Observable implements Serializable {
      * @param filename
      * @throws IOException
      */
-    public void load(String filename) throws IOException {
-        BufferedInputStream input = new BufferedInputStream(new FileInputStream(filename));
+    public void load(InputStream fileStream, String filename) throws IOException {
+        resetEverything();
+        BufferedInputStream input = new BufferedInputStream(fileStream);
         int total = input.available();
         double startTime = currentTimeInSeconds();
         Timer progressPrinter = new Timer();
@@ -299,7 +313,6 @@ public class Model extends Observable implements Serializable {
                 }, 0, 1000);
 
         if (filename.endsWith(".osm")) {
-            initializeHashmaps();
             this.addressModel = new AddressModel();
             loadOSM(new InputSource(input));
         } else if (filename.endsWith(".zip")) {
@@ -330,7 +343,7 @@ public class Model extends Observable implements Serializable {
     private void loadBin(BufferedInputStream input) {
         try (ObjectInputStream in = new ObjectInputStream(input)) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
-            idToGraphNode = (HashMap<Long,GraphNode>) in.readObject();
+            idToGraphNode = (HashMap<Long, GraphNode>)in.readObject();
             System.out.println("Loading Trees");
             treeList = (ArrayList<ShapeKDTree>) in.readObject();
             roadKDTreeList = (ArrayList<RoadKDTree>) in.readObject();
@@ -381,8 +394,9 @@ public class Model extends Observable implements Serializable {
      * Description: Loader coastlines for hele Danmark ind fra en bin fil.
      */
     public void loadAllCoastlines() {
-        String path = System.getProperty("user.dir") + "/resources/dkcoast.bin";
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(path))) {
+        InputStream coast = ClassLoader.getSystemClassLoader().getResourceAsStream("dkcoast.bin");
+        //JOptionPane.showMessageDialog(null, coast == null, "InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
+        try (ObjectInputStream in = new ObjectInputStream(coast)) {
             coastlines = (ArrayList<Shape>) in.readObject();
             lonfactor = in.readFloat();
         } catch (FileNotFoundException e) {
