@@ -25,6 +25,7 @@ public class Graph implements Serializable {
 
     /**
      * Resetter graphen så den er klar til en ny Shortest Path
+     * Sætter alle distTo til +uendlig.
      */
     public void cleanUpGraph() {
         for (GraphNode graphNode : idToGraphNode.values()) {
