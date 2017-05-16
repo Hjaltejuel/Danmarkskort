@@ -1,20 +1,18 @@
 package bfst17;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import bfst17.AddressHandling.AddressModel;
+import bfst17.AddressHandling.Region;
+import groovy.util.GroovyTestCase;
+import org.junit.Test;
 
-import java.awt.*;
-import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Hjalte on 21-04-2017.
  */
-class AddressModelTest {
+/*
+class AddressModelTest extends GroovyTestCase {
     static AddressModel model;
     static HashMap<String,Region> testMapRegion;
     static HashMap<String,Point2D> testMapAddress;
@@ -23,7 +21,6 @@ class AddressModelTest {
     static Region m;
 
 
-    @BeforeAll
     static void initialize(){
         model = new AddressModel();
         testMapRegion = model.getRegionToShape();
@@ -81,3 +78,4 @@ class AddressModelTest {
     }
 
 }
+*/

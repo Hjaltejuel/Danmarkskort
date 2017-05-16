@@ -1,13 +1,15 @@
 package bfst17;
 
-import org.junit.jupiter.api.Test;
+import bfst17.AddressHandling.Address;
+import groovy.util.GroovyTestCase;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Hjalte on 21-04-2017.
  */
-class AddressTest {
+
+class AddressTest extends GroovyTestCase {
     Address.Builder b = new Address.Builder();
 
     @Test
@@ -42,8 +44,6 @@ class AddressTest {
         assertEquals(k,b.toString());
         assertEquals("",c.toString());
         assertEquals(f,d.toString());
-
-
     }
 
 }
