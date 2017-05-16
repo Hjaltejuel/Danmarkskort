@@ -11,7 +11,6 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.*;
