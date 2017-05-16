@@ -1,6 +1,7 @@
 package bfst17.Directions;
 
 import bfst17.Enums.RoadDirektion;
+import bfst17.Enums.VehicleType;
 
 import java.awt.geom.Point2D;
 
@@ -12,6 +13,12 @@ public class DirectionsObject
     private Point2D location;
     boolean visible;
     public String nextRoad;
+
+    public double getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    double maxSpeed;
 
     /**
      * Opret et direktionobjekt
@@ -25,6 +32,24 @@ public class DirectionsObject
         location = to;
         setTurnType(angle);
         this.roadName = edge.getRoadName();
+        this.maxSpeed = edge.getMaxSpeed();
+    }
+
+    double distanceToTime(double distance, VehicleType vehicleType) {
+        distance/=1000;
+        distance*=60;
+        if (vehicleType == VehicleType.CAR) {
+            if (maxSpeed == 0) {
+                maxSpeed = 1;
+            }
+            System.out.println(distance + " " +maxSpeed);
+            return distance / maxSpeed;
+        } else if (vehicleType == vehicleType.BICYCLE) {
+            return distance / 15;
+        } else if (vehicleType == vehicleType.FOOT) {
+            return distance / 5;
+        }
+        return 0;
     }
 
     public void setRoadLength(Integer roadLength) {

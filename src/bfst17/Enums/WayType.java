@@ -456,6 +456,30 @@ public enum WayType implements Serializable {
 					35000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
+	HIGHWAY_FOOTWAY
+			(new Color(246, 222, 216),
+					new BasicStroke(0.000008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					35000,
+					FillType.LINE,
+					new Color(56, 65, 78)),
+	HIGHWAY_PATH
+			(new Color(246, 222, 216),
+					null,
+					35000,
+					FillType.LINE,
+					new Color(56, 65, 78)),
+	HIGHWAY_STEPS
+			(new Color(249, 104, 92),
+					new BasicStroke(0.000008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					55000,
+					FillType.LINE,
+					new Color(56, 65, 78)),
+	HIGHWAY_CYCLEWAY
+			(new Color(172, 171, 245),
+					new BasicStroke(0.000008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+					35000,
+					FillType.LINE,
+					new Color(56, 65, 78)),
 	HIGHWAY_PEDESTRIAN
 			(new Color(150, 148, 149),
 					null,
@@ -490,30 +514,6 @@ public enum WayType implements Serializable {
 			(new Color(221, 232, 217),
 					null,
 					1500,
-					FillType.LINE,
-					new Color(56, 65, 78)),
-	HIGHWAY_CYCLEWAY
-			(new Color(172, 171, 245),
-					new BasicStroke(0.000008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
-					35000,
-					FillType.LINE,
-					new Color(56, 65, 78)),
-	HIGHWAY_FOOTWAY
-			(new Color(246, 222, 216),
-					new BasicStroke(0.000008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
-					35000,
-					FillType.LINE,
-					new Color(56, 65, 78)),
-	HIGHWAY_PATH
-			(new Color(246, 222, 216),
-					null,
-					35000,
-					FillType.LINE,
-					new Color(56, 65, 78)),
-	HIGHWAY_STEPS
-			(new Color(249, 104, 92),
-					new BasicStroke(0.000008f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
-					55000,
 					FillType.LINE,
 					new Color(56, 65, 78)),
 	HIGHWAY_TRACK

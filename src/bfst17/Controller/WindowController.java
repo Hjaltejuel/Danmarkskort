@@ -202,11 +202,14 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 if (addressDest == null || address == null) return;
 
                 //finder de tætteste veje på addresserne
-                RoadKDTree.RoadTreeNode closestNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
-                fromPoint = closestNode.getGraphNode();
+                RoadKDTree.RoadTreeNode toNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
+                RoadKDTree.RoadTreeNode fromNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
 
-                closestNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
-                toPoint = closestNode.getGraphNode();
+                if(toNode==null||fromNode==null) {
+                    return;
+                }
+                fromPoint = toNode.getGraphNode();
+                toPoint = fromNode.getGraphNode();
 
                 calculateGraph();
 

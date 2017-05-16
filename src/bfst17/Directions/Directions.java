@@ -31,7 +31,6 @@ public class Directions extends ArrayList<DirectionsObject> {
                     currentGraphNode.getPoint2D().getX() - prevGraphNode.getPoint2D().getX());
             for (Edge edge : prevGraphNode.getEdgeList()) {
                 if (edge.getDestination() == currentGraphNode) {
-                    estimatedTime+= edge.getEstimatedTime(vehicleType);
                     DirectionsObject DirObj = new DirectionsObject(prevGraphNode.getPoint2D(), currentDirection - angle, edge);
                     this.add(DirObj);
                     if (DirObj.getRoadDirection() != RoadDirektion.lige_ud) {
@@ -46,10 +45,16 @@ public class Directions extends ArrayList<DirectionsObject> {
         for (int i = 1; i < this.size(); i++) {
             DirectionsObject prevDirObj = this.get(i - 1);
             DirectionsObject currDirObj = this.get(i);
+            if(prevDirObj.getRoadDirection()==RoadDirektion.lige_ud){
+                if(!prevDirObj.getRoadName().equals(currDirObj.getRoadName())) {
+                    currDirObj.setVisible(true);
+                }
+            }
             distanceSum += prevDirObj.getRoadLength(currDirObj);
             if (currDirObj.isVisible()) {
                 currDirObj.setRoadLength((int) distanceSum);
-                totalRoadLength+=distanceSum;
+                totalRoadLength += distanceSum;
+                estimatedTime += currDirObj.distanceToTime(distanceSum, vehicleType);
                 distanceSum = 0;
             }
             prevDirObj.nextRoad = currDirObj.getRoadName();

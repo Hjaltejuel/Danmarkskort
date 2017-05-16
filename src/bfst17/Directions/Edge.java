@@ -12,23 +12,17 @@ public class Edge {
     private double weight;
     private double distance;
     private String roadName;
+
     private double maxSpeed;
+
     private RoadTypes roadTypes;
     public String getRoadName() {
         return roadName;
     }
-
-    public double getEstimatedTime(VehicleType vehicleType) {
-        if(vehicleType==VehicleType.CAR){
-            if(maxSpeed==0){maxSpeed=1;}
-            return distance / maxSpeed;
-        } else if(vehicleType==vehicleType.BICYCLE) {
-            return distance/25;
-        } else if(vehicleType==vehicleType.BICYCLE) {
-            return distance / 5;
-        }
-        return 0;
+    public double getMaxSpeed() {
+        return maxSpeed;
     }
+
 
     /**
      * Opretter en edge mellem to GraphNodes
@@ -36,9 +30,9 @@ public class Edge {
      * @param destination
      */
     public Edge(GraphNode source, GraphNode destination, String roadName, double maxSpeed, RoadTypes roadTypes) {
-        this.roadName=roadName;
+        this.roadName = roadName;
         this.destination = destination;
-        if(maxSpeed==0) {
+        if (maxSpeed == 0) {
             this.maxSpeed = roadTypes.getMaxSpeed();
         } else {
             this.maxSpeed = maxSpeed;
@@ -53,11 +47,6 @@ public class Edge {
      * der tages altså også højde for hvor hurtigt man må køre på vejen
      */
     private void calcWeightForFastest() {
-        if(maxSpeed==0) {
-            //System.out.println("Car route fucked!");
-            maxSpeed=roadTypes.getMaxSpeed();
-           // maxSpeed = 1;
-        }
         weight = distance / maxSpeed;
     }
 
