@@ -12,6 +12,7 @@ import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -27,6 +28,9 @@ public class DrawWindow {
 	private JLabel barImage;
 	private JPanel directionsWindow;
 	private JPanel scrollPanel;
+	private JPanel car;
+	private JPanel bike;
+	private JPanel walk;
 	private JMenuItem save;
 	private JMenuItem load;
 	private JMenuItem showCityNames;
@@ -37,16 +41,15 @@ public class DrawWindow {
 	private JMenuItem nightModeMenuItem;
 	private JMenuItem AntiAliasingToggle;
 	private JMenuItem fancyPan;
-	private JCheckBoxMenuItem directions;
 	private ImageButton searchButton;
 	private ImageButton menuButton;
 	private ImageButton zoomInButton;
 	private ImageButton zoomOutButton;
 	private ImageButton pointsOfInterestButton;
     private ImageButton directionsButton;
-	private ImageButton car;
-	private ImageButton bike;
-	private ImageButton walk;
+	private ImageButton carIcon;
+	private ImageButton bikeIcon;
+	private ImageButton walkIcon;
 	private JCheckBoxMenuItem[] POICheckBoxArray;
 	private JScrollPane directionsScroll;
 	boolean menu1IsShown = false;
@@ -125,11 +128,18 @@ public class DrawWindow {
 		pointsOfInterestButton = new ImageButton("/PointsOfInterestButtonImage.png");
 		directionsButton = new ImageButton("/Directions1.png");
 
-		car = new ImageButton("/car.png");
-		bike = new ImageButton("/biking.png");
-		walk = new ImageButton("/walking.png");
-
-
+		car = new JPanel();
+		bike = new JPanel();
+		walk = new JPanel();
+		carIcon = new ImageButton("/car.png");
+		bikeIcon = new ImageButton("/biking.png");
+		walkIcon = new ImageButton("/walking.png");
+		car.add(carIcon);
+		bike.add(bikeIcon);
+		walk.add(walkIcon);
+		car.setBackground(new Color(1, 111, 222));
+		bike.setBackground(new Color(1, 111, 222));
+		walk.setBackground(new Color(1, 111, 222));
 
 
 		sidebarMenu.setOpaque(false);
@@ -219,12 +229,12 @@ public class DrawWindow {
 		fancyPan.setActionCommand("Fancypan");
 		directionsButton.addActionListener(controller);
 		directionsButton.setActionCommand("Directions");
-		car.addActionListener(controller);
-		car.setActionCommand("Car");
-		bike.addActionListener(controller);
-		bike.setActionCommand("Bike");
-		walk.addActionListener(controller);
-		walk.setActionCommand("Walk");
+		carIcon.addActionListener(controller);
+		carIcon.setActionCommand("Car");
+		bikeIcon.addActionListener(controller);
+		bikeIcon.setActionCommand("Bike");
+		walkIcon.addActionListener(controller);
+		walkIcon.setActionCommand("Walk");
 
 	}
 
@@ -480,7 +490,6 @@ public class DrawWindow {
 
 		windowPane.add(directionsWindow);
 		windowPane.setComponentZOrder(directionsWindow, 2);
-		directionsWindow.setBackground(new Color(1, 111, 222));
 		directionsWindow.setBounds(10, window.getHeight() - 50, 300, 320);
 
 		directionsWindow.setVisible(false);
@@ -571,10 +580,6 @@ public class DrawWindow {
 		return combo;
 	}
 
-	public JCheckBoxMenuItem getDirections() {
-		return directions;
-	}
-
 	public JCheckBoxMenuItem[] getPOICheckBoxArray() {
 		return POICheckBoxArray;
 	}
@@ -614,7 +619,14 @@ public class DrawWindow {
 	public boolean getDirectionsBoolean(){
 		return showDirectionsComboBox;
 	}
+
 	public AutocompleteJComboBox getSecondCombo(){
 	    return secondCombo;
     }
+
+    public JPanel getCar(){return car;}
+
+	public JPanel getBike(){return bike;}
+
+	public JPanel getWalk(){return  walk;}
 }

@@ -50,7 +50,6 @@ public class Graph {
 
         unRelaxedNodes = new PriorityQueue<>();
 
-
         source.setDistTo(0.0);
 
         unRelaxedNodes.add(source);

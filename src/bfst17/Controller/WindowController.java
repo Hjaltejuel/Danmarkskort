@@ -8,6 +8,7 @@ import bfst17.Enums.POIclasification;
 import bfst17.Enums.VehicleType;
 import bfst17.GUI.DrawCanvas;
 import bfst17.GUI.DrawWindow;
+import bfst17.GUI.ImageButton;
 import bfst17.KDTrees.RoadKDTree;
 import bfst17.Model;
 
@@ -132,20 +133,38 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                 case "Car":
                     vType=VehicleType.CAR;
                     calculateGraph();
+                    setColors((ImageButton) source);
                     break;
                 case "Bike":
                     vType=VehicleType.BICYCLE;
                     calculateGraph();
+                    setColors((ImageButton) source);
                     break;
                 case "Walk":
                     vType=VehicleType.FOOT;
                     calculateGraph();
+                    setColors((ImageButton) source);
                     break;
             }
         }
     }
 
-
+    public void setColors(ImageButton button){
+        Color color = new Color(1,111,222);
+        if(window.getCar().getComponent(0) == button){
+            window.getCar().setBackground(Color.LIGHT_GRAY);
+            window.getBike().setBackground(color);
+            window.getWalk().setBackground(color);
+        } else if(window.getBike().getComponent(0) == button) {
+            window.getCar().setBackground(color);
+            window.getBike().setBackground(Color.LIGHT_GRAY);
+            window.getWalk().setBackground(color);
+        } else if(window.getWalk().getComponent(0) == button){
+            window.getWalk().setBackground(Color.LIGHT_GRAY);
+            window.getBike().setBackground(color);
+            window.getCar().setBackground(color);
+        }
+    }
     /**
      * Beskrivelse: Ændrer GUI-temaet og tilpasser menuen.
      * @param newTheme
