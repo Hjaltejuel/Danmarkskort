@@ -23,7 +23,7 @@ import java.io.IOException;
 /**
  * Beskrivelse: Klassen WindowController, virker som controlleren til drawWindow, virker som listener til vinduet
  */
-public class WindowController implements KeyListener, ActionListener, MouseListener, ComponentListener {
+public class WindowController implements KeyListener, ActionListener, ComponentListener {
     private DrawWindow window;
     private Model model;
     private DrawCanvas canvas;
@@ -52,7 +52,6 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         window.createAutocomplete(addressModel.getTSTTree());
         window.setComponentzZOrder(canvas);
         window.setKeyListener(this);
-        window.setMouseListener(this);
         window.setComponentListener(this);
         window.addActionListener(this);
     }
@@ -145,6 +144,23 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
                     calculateGraph();
                     setColors((ImageButton) source);
                     break;
+                case "Search":
+                    if(startDirections){
+                        directions();
+                    } else search();
+                    break;
+                case "ZoomInButton":
+                    zoomIn();
+                    break;
+                case "ZoomOutButton":
+                    zoomOut();
+                    break;
+                case "POI":
+                    window.showMenuOne();
+                    break;
+                case "Menu":
+                    window.showMenuTwo();
+                    break;
             }
         }
     }
@@ -196,6 +212,40 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     public void keyPressed(KeyEvent e) {
     }
 
+    public void directions(){
+        //finder de 2 strings i de 2 comboboxe
+        String firstComboBoxString = (String) window.getCombo().getSelectedItem();
+        String secondComboBoxString = (String) window.getSecondCombo().getSelectedItem();
+        //tjekker og ser om noget er null eller empty
+        if (firstComboBoxString == null || firstComboBoxString.length() == 0 ||
+                secondComboBoxString == null || secondComboBoxString.length() == 0) {
+            return; //Ikke noget at søge efter!
+        }
+        //finder addresserne
+        TSTInterface addressDest = addressModel.getAddress(secondComboBoxString.trim());
+        TSTInterface address = addressModel.getAddress(firstComboBoxString.trim());
+        //tjekker om de er null
+        if (addressDest == null || address == null) return;
+
+        //finder de tætteste veje på addresserne
+        RoadKDTree.RoadTreeNode toNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
+        RoadKDTree.RoadTreeNode fromNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
+
+        if(toNode==null||fromNode==null) {
+            return;
+        }
+        fromPoint = toNode.getGraphNode();
+        toPoint = fromNode.getGraphNode();
+
+        calculateGraph();
+
+        if (!isPopUpOpen) {
+            //søg ind på startpunktet
+            search();
+        } else {
+            isPopUpOpen = false;
+        }
+    }
     /**
      * Beskrivelse: KeyReleased metoden, starter directions søgningen
      * @param e
@@ -206,38 +256,7 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
         if (e.getKeyChar() == 10) {
             //Hvis startDirections er true
             if (startDirections) {
-                //finder de 2 strings i de 2 comboboxe
-                String firstComboBoxString = (String) window.getCombo().getSelectedItem();
-                String secondComboBoxString = (String) window.getSecondCombo().getSelectedItem();
-                //tjekker og ser om noget er null eller empty
-                if (firstComboBoxString == null || firstComboBoxString.length() == 0 ||
-                        secondComboBoxString == null || secondComboBoxString.length() == 0) {
-                    return; //Ikke noget at søge efter!
-                }
-                //finder addresserne
-                TSTInterface addressDest = addressModel.getAddress(secondComboBoxString.trim());
-                TSTInterface address = addressModel.getAddress(firstComboBoxString.trim());
-                //tjekker om de er null
-                if (addressDest == null || address == null) return;
-
-                //finder de tætteste veje på addresserne
-                RoadKDTree.RoadTreeNode toNode = model.getClosestRoad(new Point2D.Double(address.getX(), address.getY()), vType);
-                RoadKDTree.RoadTreeNode fromNode = model.getClosestRoad(new Point2D.Double(addressDest.getX(), addressDest.getY()), vType);
-
-                if(toNode==null||fromNode==null) {
-                    return;
-                }
-                fromPoint = toNode.getGraphNode();
-                toPoint = fromNode.getGraphNode();
-
-                calculateGraph();
-
-                if (!isPopUpOpen) {
-                    //søg ind på startpunktet
-                    search();
-                } else {
-                    isPopUpOpen = false;
-                }
+               directions();
             } else {
                 if (!isPopUpOpen) {
                     //søg
@@ -379,37 +398,9 @@ public class WindowController implements KeyListener, ActionListener, MouseListe
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) {
-            Component clickedButton = e.getComponent();
-            if (clickedButton == window.getSearchButton()) {
-                search();
-            } else if (clickedButton == window.getZoomInButton()) {
-                zoomIn();
-            } else if (clickedButton == window.getZoomOutButton()) {
-                zoomOut();
-            } else if (clickedButton == window.getPointsOfInterestButton()) {
-                window.showMenuOne();
-            } else if (clickedButton == window.getMenuButton()) {
-                window.showMenuTwo();
-            }
-    }
-
-    @Override
     public void componentResized(ComponentEvent e) {
         window.setBounds(canvas);
     }
-
-    @Override
-    public void mousePressed(MouseEvent e) { }
-
-    @Override
-    public void mouseReleased(MouseEvent e) { }
-
-    @Override
-    public void mouseEntered(MouseEvent e) { }
-
-    @Override
-    public void mouseExited(MouseEvent e) { }
 
     @Override
     public void componentMoved(ComponentEvent e) { }

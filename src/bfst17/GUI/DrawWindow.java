@@ -4,6 +4,7 @@ import bfst17.AddressHandling.TST;
 import bfst17.Directions.Directions;
 import bfst17.Directions.DirectionsObject;
 import bfst17.Enums.GUIMode;
+import bfst17.Enums.PointsOfInterest;
 import bfst17.Enums.RoadDirektion;
 
 import javax.imageio.ImageIO;
@@ -182,21 +183,7 @@ public class DrawWindow {
 		secondCombo.getEditor().getEditorComponent().addKeyListener((controller));
 	}
 
-	/**
-	 * tilføjer musens funktioner til de forskellige knapper fra controlleren
-	 * @param controller
-	 */
-	public void setMouseListener(MouseListener controller) {
-		searchButton.addMouseListener(controller);
-		zoomInButton.addMouseListener(controller);
-		zoomOutButton.addMouseListener(controller);
-		pointsOfInterestButton.addMouseListener(controller);
-		menuButton.addMouseListener(controller);
-		directionsButton.addMouseListener(controller);
-		car.addMouseListener(controller);
-		bike.addMouseListener(controller);
-		walk.addMouseListener(controller);
-	}
+
 
 	/**
 	 * tilføjer genveje til alle de knapper som har en i controlleren ud fra deres givne string
@@ -235,6 +222,16 @@ public class DrawWindow {
 		bikeIcon.setActionCommand("Bike");
 		walkIcon.addActionListener(controller);
 		walkIcon.setActionCommand("Walk");
+		searchButton.addActionListener(controller);
+		searchButton.setActionCommand("Search");
+		zoomInButton.addActionListener(controller);
+		zoomInButton.setActionCommand("ZoomInButton");
+		zoomOutButton.addActionListener(controller);
+		zoomOutButton.setActionCommand("ZoomOutButton");
+		pointsOfInterestButton.addActionListener(controller);
+		pointsOfInterestButton.setActionCommand("POI");
+		menuButton.addActionListener(controller);
+		menuButton.setActionCommand("Menu");
 
 	}
 
