@@ -92,7 +92,7 @@ public class TST<TSTInterface> implements Serializable {
      */
     private Node<TSTInterface> get(Node<TSTInterface> x, String key, int d) {
         if (x == null) return null;
-        if (key.length() == 0) throw new IllegalArgumentException("key must have length >= 1");
+        if (key.length() == 0) return null;
         //gemmer den char vi nuværende er på i keyen
         char c = key.charAt(d);
         //laver recursive kald til get for at gå dybbere ned i træet
