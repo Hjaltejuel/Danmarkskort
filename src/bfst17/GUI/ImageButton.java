@@ -17,7 +17,6 @@ public class ImageButton extends JButton {
         try {
             Image img = ImageIO.read(getClass().getResource(ImagePath));
             setIcon(new ImageIcon(img.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
