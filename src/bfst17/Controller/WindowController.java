@@ -2,6 +2,7 @@ package bfst17.Controller;
 
 import bfst17.AddressHandling.AddressModel;
 import bfst17.AddressHandling.TSTInterface;
+import bfst17.Directions.Directions;
 import bfst17.Directions.GraphNode;
 import bfst17.Enums.GUIMode;
 import bfst17.Enums.POIclasification;
@@ -272,10 +273,12 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
         //Finder den korteste vej
         model.getGraph().findShortestPath(fromPoint, toPoint, vType);
 
-        model.resetDirections();
-        window.fillDirections(model.getDirections(vType));
+        Directions directions = model.getGraph().getDirections();
+
+        window.fillDirections(directions);
         canvas.repaint();
     }
+
     /**
      * Beskrivelse: Sætter startingDirectory og kalder loadFile med dette startDirectory.
      * @throws IOException

@@ -13,7 +13,7 @@ public class Graph {
     private PriorityQueue<GraphNode> unRelaxedNodes;
     private ArrayList<Point2D> pointList;
     private ArrayList<GraphNode> pathList;
-
+    private Directions directions;
 
     /**
      * Opretter en Graf
@@ -37,9 +37,9 @@ public class Graph {
      * Finder den korteste vej mellem to punkter
      * @param point2Source          Start punkt
      * @param point2Destination     Slut punkt
-     * @param weighType             Vægttype ( FASTEST | SHORTEST )
+     * @param vehicleType             Vægttype ( FASTEST | SHORTEST )
      */
-    public void findShortestPath(GraphNode point2Source, GraphNode point2Destination, VehicleType weighType) {
+    public void findShortestPath(GraphNode point2Source, GraphNode point2Destination, VehicleType vehicleType) {
         GraphNode source = point2Source;
         GraphNode target = point2Destination;
         target = point2Destination;
@@ -58,7 +58,7 @@ public class Graph {
             //node.setSettled(true);
             node.setMarked(true);
             unRelaxedNodes.remove(node);
-            relaxEdges(node, weighType);
+            relaxEdges(node, vehicleType);
         }
         source.setNodeFrom(null);
 
@@ -70,6 +70,8 @@ public class Graph {
         }
         pointList.add(source.getPoint2D());
         Collections.reverse(pathList);
+
+        directions = new Directions(pathList, vehicleType);
     }
 
     /**
@@ -97,6 +99,11 @@ public class Graph {
                 }
             }
         }
+    }
+
+
+    public Directions getDirections() {
+        return directions;
     }
 
     public ArrayList<GraphNode> getPathList() {

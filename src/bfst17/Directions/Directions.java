@@ -59,7 +59,7 @@ public class Directions extends ArrayList<DirectionsObject> {
             }
             prevDirObj.nextRoad = currDirObj.getRoadName();
         }
-        System.out.println(estimatedTime);
+        System.out.println("Estimated time: " +estimatedTime);
     }
 
     public String getTotalRoadLengthText() {
@@ -68,5 +68,31 @@ public class Directions extends ArrayList<DirectionsObject> {
         } else {
             return (int) totalRoadLength + " m";
         }
+    }
+
+
+    public String getDirectionString(Integer index) {
+        DirectionsObject dirObj = this.get(index);
+        String prefix;
+        RoadDirektion vejRetning = dirObj.getRoadDirection();
+        if (vejRetning == RoadDirektion.lige_ud) {
+            prefix = "Fortsæt lige ud";
+            return null;
+        } else {
+            prefix = "Drej til " + vejRetning.name();
+        }
+        String directionText = "";
+        if ((index + 1) == this.size()) {
+            directionText = "Ankommer til " + dirObj.getRoadName();
+        } else {
+            String roadLengthString = "m";
+            Integer roadLength = dirObj.getRoadLength();
+            if (roadLength > 1000) {
+                roadLength = roadLength / 1000;
+                roadLengthString = "km";
+            }
+            directionText = "Om " + roadLength + roadLengthString + " " + prefix + " ad " + dirObj.getRoadName();//nextDirection.getRoadName();
+        }
+        return directionText;
     }
 }

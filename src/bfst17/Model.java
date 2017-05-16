@@ -54,7 +54,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
+            //load(System.getProperty("user.dir") + "/ting/bornholm.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -134,18 +134,7 @@ public class Model extends Observable implements Serializable {
         }
         return (RoadKDTree.RoadTreeNode) closestNode;
     }
-    Directions directions;
 
-    public Directions getDirections(VehicleType vehicleType) {
-        if(directions==null) {
-            directions=new Directions(graph.getPathList(),vehicleType);
-        }
-        return directions;
-    }
-
-    public void resetDirections(){
-        directions = null;
-    }
     /**
      * Description: Returnere en ArrayList med RoadKD-træer
      *
