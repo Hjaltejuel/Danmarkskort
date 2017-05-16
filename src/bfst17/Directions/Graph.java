@@ -33,8 +33,6 @@ public class Graph {
         }
     }
 
-    HashSet<GraphNode> unrelaxed;
-    GraphNode target;
     /**
      * Finder den korteste vej mellem to punkter
      * @param point2Source          Start punkt
@@ -43,6 +41,7 @@ public class Graph {
      */
     public void findShortestPath(GraphNode point2Source, GraphNode point2Destination, VehicleType weighType) {
         GraphNode source = point2Source;
+        GraphNode target = point2Destination;
         target = point2Destination;
         if (source == null || target == null) {
             return; //Mangler source eller target
@@ -51,7 +50,6 @@ public class Graph {
 
         unRelaxedNodes = new PriorityQueue<>();
 
-        unrelaxed = new HashSet<>();
 
         source.setDistTo(0.0);
 
@@ -93,22 +91,16 @@ public class Graph {
                         destinationNode.setDistTo(tempDistTo);
                         destinationNode.setNodeFrom(node);
                     }
-                    if(unrelaxed.contains(destinationNode)){} else {
+                        destinationNode.setMarked(true);
                         unRelaxedNodes.add(destinationNode);
-                        unrelaxed.add(destinationNode);
-                    }
 
                 } else {
-               }
+                }
             }
         }
     }
 
     public ArrayList<GraphNode> getPathList() {
-        return pathList;
-    }
-
-    public ArrayList<GraphNode> pathfinding() {
         return pathList;
     }
 
