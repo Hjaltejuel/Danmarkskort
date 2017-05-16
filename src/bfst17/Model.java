@@ -56,7 +56,7 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
+            load(System.getProperty("user.dir") + "/resources/denmark-latest.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -237,14 +237,6 @@ public class Model extends Observable implements Serializable {
         notifyObservers();
     }
 
-    public ArrayList<ArrayList<Edge>> makeAdjencyList() {
-        ArrayList<ArrayList<Edge>> edgeList = new ArrayList<>();
-        for (GraphNode node : idToGraphNode.values()) {
-            edgeList.add(node.getEdgeList());
-        }
-        return edgeList;
-    }
-
     /**
      * Description: Opretter en bin-fil med de forskellige KD-træ objekter, addressModel og min/max koordinaterne kortet har.
      *
@@ -349,6 +341,7 @@ public class Model extends Observable implements Serializable {
     private void loadBin(BufferedInputStream input) {
         try (ObjectInputStream in = new ObjectInputStream(input)) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
+            idToGraphNode = (HashMap<Long,GraphNode>) in.readObject();
             System.out.println("Loading Trees");
             treeList = (ArrayList<ShapeKDTree>) in.readObject();
             roadKDTreeList = (ArrayList<RoadKDTree>) in.readObject();

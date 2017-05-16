@@ -31,7 +31,7 @@ public class Directions extends ArrayList<DirectionsObject> implements Serializa
             double angle = Math.atan2(currentGraphNode.getPoint2D().getY() - prevGraphNode.getPoint2D().getY(),
                     currentGraphNode.getPoint2D().getX() - prevGraphNode.getPoint2D().getX());
             for (Edge edge : prevGraphNode.getEdgeList()) {
-                if (edge.getDestination() == currentGraphNode) {
+                if (edge.getDestinationId() == currentGraphNode.getId()) {
                     DirectionsObject DirObj = new DirectionsObject(prevGraphNode.getPoint2D(), currentDirection - angle, edge);
                     this.add(DirObj);
                     if (DirObj.getRoadDirection() != RoadDirektion.lige_ud) {

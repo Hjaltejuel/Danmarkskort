@@ -83,7 +83,7 @@ public class Graph implements Serializable {
     private void relaxEdges(GraphNode node, VehicleType vehicleType) {
         ArrayList<Edge> edgelist = node.getEdgeList();
         for (Edge edge : edgelist) {
-            GraphNode destinationNode = edge.getDestination();
+            GraphNode destinationNode =idToGraphNode.get(edge.getDestinationId());
             if (!destinationNode.isMarked()) {
                 if (edge.supportVehicle(vehicleType)) {
                     double tempDistTo = node.getDistTo() + edge.getWeight(vehicleType);

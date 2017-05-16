@@ -9,7 +9,7 @@ import java.util.DoubleSummaryStatistics;
 
 
 public class Edge implements Serializable {
-    private GraphNode destination;
+    private long graphNodeid;
     private double weight;
     private double distance;
     private String roadName;
@@ -30,9 +30,9 @@ public class Edge implements Serializable {
      * @param source
      * @param destination
      */
-    public Edge(GraphNode source, GraphNode destination, String roadName, double maxSpeed, RoadTypes roadTypes) {
+    public Edge(GraphNode source,GraphNode destination, long graphNodeid, String roadName, double maxSpeed, RoadTypes roadTypes) {
         this.roadName = roadName;
-        this.destination = destination;
+        this.graphNodeid = graphNodeid;
         if (maxSpeed == 0) {
             this.maxSpeed = roadTypes.getMaxSpeed();
         } else {
@@ -58,8 +58,8 @@ public class Edge implements Serializable {
         weight = distance;
     }
 
-    public GraphNode getDestination() {
-        return destination;
+    public long getDestinationId() {
+        return graphNodeid;
     }
 
     public boolean supportVehicle(VehicleType vehicleType){

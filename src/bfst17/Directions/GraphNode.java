@@ -61,7 +61,7 @@ public class GraphNode implements Comparable, Serializable {
     }
 
     public void addEdge(GraphNode destination, String roadName, double maxSpeed, RoadTypes roadTypes) {
-        Edge edge = new Edge(this, destination, roadName, maxSpeed, roadTypes);
+        Edge edge = new Edge(this, destination, destination.getId(), roadName, maxSpeed, roadTypes);
         edgeList.add(edge);
     }
 
