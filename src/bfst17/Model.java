@@ -54,7 +54,8 @@ public class Model extends Observable implements Serializable {
     public Model() {
         //Til osm
         try {
-            //load(System.getProperty("user.dir") + "/ting/bornholm.osm");
+            //load(System.getProperty("user.dir") + "/resources/DKMap.bin");
+            load(System.getProperty("user.dir") + "/resources/bornholm.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }

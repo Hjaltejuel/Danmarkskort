@@ -26,7 +26,7 @@ public class DrawWindow {
 	private JLayeredPane windowPane;
 	private JPopupMenu popUpMenu;
 	private JPopupMenu poiMenu;
-	private JPanel barImage;
+	private JLabel barImage;
     private JPanel directionsWindow;
     private JPanel scrollPanel;
     private JPanel car;
@@ -136,12 +136,16 @@ public class DrawWindow {
         sidebarMenu.add(zoomOutButton);
         sidebarMenu.add(pointsOfInterestButton);
 
-
-        barImage = new ImagePanel("/Search Bar.png");
-        windowPane.add(barImage, 76);
-        windowPane.setComponentZOrder(barImage, 0);
-        barImage.setBounds(11, 31, 298, 40);
-        barImage.setVisible(false);
+		try {
+			BufferedImage bar = ImageIO.read(getClass().getResource("/Search Bar.png"));
+			barImage = new JLabel(new ImageIcon(bar));
+			windowPane.add(barImage, 76);
+			windowPane.setComponentZOrder(barImage, 0);
+			barImage.setBounds(11, 31, 298, 40);
+			barImage.setVisible(false);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
         setUpMenu();
         menuButton.setComponentPopupMenu(popUpMenu);
