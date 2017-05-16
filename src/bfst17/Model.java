@@ -357,7 +357,7 @@ public class Model extends Observable implements Serializable {
             minlat = in.readFloat();
             maxlon = in.readFloat();
             maxlat = in.readFloat();
-
+            this.graph = new Graph(idToGraphNode);
             System.out.printf("WE HAVE ACHIEVED: [Object deserialization]\n");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
