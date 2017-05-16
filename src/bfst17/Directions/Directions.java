@@ -3,10 +3,11 @@ package bfst17.Directions;
 import bfst17.Enums.RoadDirektion;
 import bfst17.Enums.VehicleType;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 
-public class Directions extends ArrayList<DirectionsObject> {
+public class Directions extends ArrayList<DirectionsObject> implements Serializable{
     double totalRoadLength=0;
     double estimatedTime=0;
     VehicleType vehicleType;

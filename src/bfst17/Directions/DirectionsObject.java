@@ -4,8 +4,9 @@ import bfst17.Enums.RoadDirektion;
 import bfst17.Enums.VehicleType;
 
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 
-public class DirectionsObject
+public class DirectionsObject implements Serializable
 {
     private String roadName;
     private Integer roadLength = 0;

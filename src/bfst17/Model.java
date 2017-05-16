@@ -28,6 +28,7 @@ public class Model extends Observable implements Serializable {
     private EnumMap<WayType, List<Shape>> shapes = new EnumMap<>(WayType.class);
     private HashMap<String, WayType> namesToWayTypes = new HashMap<>();
     private HashMap<String, HashSet<Point2D>> pointsOfInterest = new HashMap<>();
+    private HashMap<Long, GraphNode> idToGraphNode = new HashMap<>();
 
     private ArrayList<Shape> coastlines = new ArrayList<>();
 
@@ -71,6 +72,9 @@ public class Model extends Observable implements Serializable {
      * @param point Punktet
      * @return Arraylist af veje
      */
+    public HashMap<Long, GraphNode> getIdToGraphNode() {
+        return idToGraphNode;
+    }
     public ArrayList<TreeNode> getAllClosestRoads(Point2D point, VehicleType vehicle) {
         ArrayList<TreeNode> roadNodes = new ArrayList<>();
         for (int i = getRoadKDTreeList().size() - 1; i >= 0; i--) {
@@ -233,6 +237,14 @@ public class Model extends Observable implements Serializable {
         notifyObservers();
     }
 
+    public ArrayList<ArrayList<Edge>> makeAdjencyList() {
+        ArrayList<ArrayList<Edge>> edgeList = new ArrayList<>();
+        for (GraphNode node : idToGraphNode.values()) {
+            edgeList.add(node.getEdgeList());
+        }
+        return edgeList;
+    }
+
     /**
      * Description: Opretter en bin-fil med de forskellige KD-træ objekter, addressModel og min/max koordinaterne kortet har.
      *
@@ -241,6 +253,7 @@ public class Model extends Observable implements Serializable {
     public void save(String filename) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
             //Ryk rundt på dem her og få med Jens' knytnæve at bestille
+            out.writeObject(idToGraphNode);
             System.out.println("Saving trees");
             out.writeObject(treeList);
             out.writeObject(roadKDTreeList);
@@ -474,7 +487,6 @@ public class Model extends Observable implements Serializable {
         private PointsOfInterest POIType;
         private Integer totalDepth = 0, totalShapes = 0;
         private int maxSpeed = 0;
-        private HashMap<Long, GraphNode> idToGraphNode = new HashMap<>();
 
         private HashMap<String, Enum<?>> stringToEnum = new HashMap<>();
 
@@ -485,10 +497,6 @@ public class Model extends Observable implements Serializable {
             for (PointsOfInterest type : PointsOfInterest.values()) {
                 stringToEnum.put(type.name(), type);
             }
-        }
-
-        public HashMap<Long, GraphNode> getIdToGraphNode() {
-            return idToGraphNode;
         }
 
         private ArrayList<PointOfInterestObject> pointsOfInterest = new ArrayList<>();
@@ -511,7 +519,7 @@ public class Model extends Observable implements Serializable {
          * @param shape
          * @param roadName
          */
-        public void addRoad(PolygonApprox shape, String roadName, ArrayList<GraphNode> nodes) {
+        public void addRoad(PolygonApprox shape, String roadName, ArrayList<Long> nodes) {
             if (roads.get(type) == null) {
                 roads.put(type, new ArrayList<>());
             }
@@ -754,13 +762,13 @@ public class Model extends Observable implements Serializable {
                         if (isHighway) { //Hvis vejen er en highway
                             try {
                                 RoadTypes roadType = RoadTypes.valueOf(type.toString());
-                                ArrayList<GraphNode> nodes = new ArrayList<>();
+                                ArrayList<Long> nodes = new ArrayList<>();
                                 for (int i = 0; i < way.size(); i++) {
                                     GraphNode node = idToGraphNode.get(tmpNodeIDs.get(i));
                                     if (node == null) {
-                                        GraphNode gNode = new GraphNode(way.get(i));
+                                        GraphNode gNode = new GraphNode(way.get(i),tmpNodeIDs.get(i));
                                         idToGraphNode.put(tmpNodeIDs.get(i), gNode);
-                                        nodes.add(gNode);
+                                        nodes.add(tmpNodeIDs.get(i));
                                         if (oneway) {
                                             if (i == 0) {
                                             } else {
@@ -774,7 +782,7 @@ public class Model extends Observable implements Serializable {
                                             }
                                         }
                                     } else {
-                                        nodes.add(node);
+                                        nodes.add(tmpNodeIDs.get(i));
                                         if (oneway) {
                                             if (i == 0) {
                                             } else {

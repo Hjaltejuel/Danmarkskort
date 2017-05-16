@@ -37,7 +37,7 @@ public class RoadKDTree extends KDTree {
             while(!it.isDone()) {
 
                 it.currentSegment(xyVal);
-                allShapesList.add(new RoadTreeNode(rdNode,rdNode.getNodes().get(k)));
+                allShapesList.add(new RoadTreeNode(xyVal[0],xyVal[1],rdNode,rdNode.getNodes().get(k)));
                 it.next();
                 k++;
             }
@@ -89,12 +89,12 @@ public class RoadKDTree extends KDTree {
 
     public class RoadTreeNode extends TreeNode {
         private RoadNode roadNode;
-        private GraphNode graphNode;
+        private long graphNodeId;
 
-        private RoadTreeNode(RoadNode node,GraphNode graphNode) {
-            this.X = graphNode.getX();
-            this.Y = graphNode.getY();
-            this.graphNode = graphNode;
+        private RoadTreeNode(float x, float y, RoadNode node,Long graphNodeId) {
+            this.X = x;
+            this.Y =y;
+            this.graphNodeId = graphNodeId;
             this.roadNode = node;
         }
 
@@ -106,7 +106,7 @@ public class RoadKDTree extends KDTree {
             return rect.contains(X, Y);
         }
 
-        public GraphNode getGraphNode(){return graphNode;}
+        public Long getGraphNode(){return graphNodeId;}
 
         public RoadNode getRoadNode() {
             return roadNode;

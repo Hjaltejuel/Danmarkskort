@@ -4,10 +4,11 @@ import bfst17.Enums.RoadTypes;
 import bfst17.Enums.VehicleType;
 import bfst17.Enums.WeighType;
 
+import java.io.Serializable;
 import java.util.DoubleSummaryStatistics;
 
 
-public class Edge {
+public class Edge implements Serializable {
     private GraphNode destination;
     private double weight;
     private double distance;

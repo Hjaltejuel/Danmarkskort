@@ -5,10 +5,11 @@ import bfst17.Enums.WeighType;
 import bfst17.OSMData.OSMWay;
 
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.*;
 
 
-public class Graph {
+public class Graph implements Serializable {
     HashMap<Long,GraphNode> idToGraphNode;
     private PriorityQueue<GraphNode> unRelaxedNodes;
     private ArrayList<Point2D> pointList;

@@ -234,8 +234,8 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
         if(toNode==null||fromNode==null) {
             return;
         }
-        fromPoint = toNode.getGraphNode();
-        toPoint = fromNode.getGraphNode();
+        fromPoint = model.getIdToGraphNode().get(fromNode.getGraphNode());
+        toPoint = model.getIdToGraphNode().get(toNode.getGraphNode());
 
         calculateGraph();
 

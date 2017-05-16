@@ -12,15 +12,15 @@ import java.util.ArrayList;
 public class RoadNode implements Serializable {
     PolygonApprox shape;
     String roadName;
-    ArrayList<GraphNode> nodes = new ArrayList<>();
+    ArrayList<Long> nodes = new ArrayList<>();
 
 
-    public RoadNode(PolygonApprox shape, String roadName, ArrayList<GraphNode> nodes){
+    public RoadNode(PolygonApprox shape, String roadName, ArrayList<Long> nodes){
         this.shape = shape;
         this.nodes = nodes;
         this.roadName = roadName;
     }
-    public ArrayList<GraphNode> getNodes(){return nodes;}
+    public ArrayList<Long> getNodes(){return nodes;}
     public PolygonApprox getShape() {
         return shape;
     }

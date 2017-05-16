@@ -7,10 +7,12 @@ import bfst17.Enums.WeighType;
 import bfst17.OSMData.OSMNode;
 
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 
-public class GraphNode implements Comparable {
+public class GraphNode implements Comparable, Serializable {
+    private long id;
     private Point2D point;
     private GraphNode nodeFrom;
 
@@ -19,7 +21,7 @@ public class GraphNode implements Comparable {
 
     private double distance = Double.POSITIVE_INFINITY;
 
-
+    public long getId(){return id;}
     public double getX(){return point.getX();}
     public double getY(){return point.getY();}
 
@@ -27,12 +29,13 @@ public class GraphNode implements Comparable {
      * Opretter en GraphNode
      * @param point     Den OSMNode grafnoden er placeret på
      */
-    public GraphNode(Point2D point) {;
+    public GraphNode(Point2D point, long id) {;
         this.point = point;
+        this.id = id;
         marked = false;
         edgeList = new ArrayList<>();
     }
-
+    public void setId(long id){this.id = id;}
     public Point2D getPoint2D() {
         return new Point2D.Double(point.getX(), point.getY());
     }
