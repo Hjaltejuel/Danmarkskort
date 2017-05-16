@@ -169,19 +169,18 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
 
     public void setColors(ImageButton button){
         Color color = new Color(1,111,222);
+        window.getCar().setBackground(color);
+        window.getBike().setBackground(color);
+        window.getWalk().setBackground(color);
         if(window.getCar().getComponent(0) == button){
             window.getCar().setBackground(Color.LIGHT_GRAY);
-            window.getBike().setBackground(color);
-            window.getWalk().setBackground(color);
         } else if(window.getBike().getComponent(0) == button) {
-            window.getCar().setBackground(color);
             window.getBike().setBackground(Color.LIGHT_GRAY);
-            window.getWalk().setBackground(color);
         } else if(window.getWalk().getComponent(0) == button){
             window.getWalk().setBackground(Color.LIGHT_GRAY);
-            window.getBike().setBackground(color);
-            window.getCar().setBackground(color);
         }
+
+        canvas.revalidate();
     }
     /**
      * Beskrivelse: Ændrer GUI-temaet og tilpasser menuen.

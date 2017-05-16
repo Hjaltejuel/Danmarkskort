@@ -36,7 +36,7 @@ public class DirectionsObject implements Serializable
         this.maxSpeed = edge.getMaxSpeed();
     }
 
-    Integer distanceToTime(double distance, VehicleType vehicleType) {
+    double distanceToTime(double distance, VehicleType vehicleType) {
         double time =0;
         distance/=1000;
         if (vehicleType == VehicleType.CAR) {
@@ -49,7 +49,7 @@ public class DirectionsObject implements Serializable
         } else if (vehicleType == vehicleType.FOOT) {
             time = distance / 5;
         }
-        return (int)time/60;
+        return time*60;
     }
 
     public void setRoadLength(Integer roadLength) {

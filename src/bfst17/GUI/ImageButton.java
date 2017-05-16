@@ -21,4 +21,9 @@ public class ImageButton extends JButton {
             ex.printStackTrace();
         }
     }
+
+    @Override
+    public void setBackground(Color c){
+        super.setBackground(c);
+    }
 }

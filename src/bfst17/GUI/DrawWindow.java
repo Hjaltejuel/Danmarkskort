@@ -4,8 +4,6 @@ import bfst17.AddressHandling.TST;
 import bfst17.Directions.Directions;
 import bfst17.Directions.DirectionsObject;
 import bfst17.Enums.GUIMode;
-import bfst17.Enums.PointsOfInterest;
-import bfst17.Enums.RoadDirektion;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -13,7 +11,6 @@ import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,9 +45,9 @@ public class DrawWindow {
 	private ImageButton zoomOutButton;
 	private ImageButton pointsOfInterestButton;
     private ImageButton directionsButton;
-	private ImageButton carIcon;
-	private ImageButton bikeIcon;
-	private ImageButton walkIcon;
+	private ImageButton carButton;
+	private ImageButton bikeButton;
+	private ImageButton walkButton;
 	private JCheckBoxMenuItem[] POICheckBoxArray;
 	private JScrollPane directionsScroll;
 	boolean menu1IsShown = false;
@@ -157,13 +154,13 @@ public class DrawWindow {
         car = new JPanel();
         bike = new JPanel();
         walk = new JPanel();
-        carIcon = new ImageButton("/car.png");
-        bikeIcon = new ImageButton("/biking.png");
-        walkIcon = new ImageButton("/walking.png");
-        car.add(carIcon);
-        bike.add(bikeIcon);
-        walk.add(walkIcon);
-        car.setBackground(new Color(1, 111, 222));
+        carButton = new ImageButton("/car.png");
+        bikeButton = new ImageButton("/biking.png");
+        walkButton = new ImageButton("/walking.png");
+        car.add(carButton);
+        bike.add(bikeButton);
+        walk.add(walkButton);
+        car.setBackground(Color.lightGray);
         bike.setBackground(new Color(1, 111, 222));
         walk.setBackground(new Color(1, 111, 222));
 
@@ -198,7 +195,6 @@ public class DrawWindow {
 	 * tilføjer genveje til alle de knapper som har en i controlleren ud fra deres givne string
 	 * @param controller
 	 */
-
 	public void addActionListener(ActionListener controller) {
 		for (JCheckBoxMenuItem items : POICheckBoxArray) {
 			items.addActionListener(controller);
@@ -225,12 +221,12 @@ public class DrawWindow {
 		fancyPan.setActionCommand("Fancypan");
 		directionsButton.addActionListener(controller);
 		directionsButton.setActionCommand("Directions");
-		carIcon.addActionListener(controller);
-		carIcon.setActionCommand("Car");
-		bikeIcon.addActionListener(controller);
-		bikeIcon.setActionCommand("Bike");
-		walkIcon.addActionListener(controller);
-		walkIcon.setActionCommand("Walk");
+		carButton.addActionListener(controller);
+		carButton.setActionCommand("Car");
+		bikeButton.addActionListener(controller);
+		bikeButton.setActionCommand("Bike");
+		walkButton.addActionListener(controller);
+		walkButton.setActionCommand("Walk");
 		searchButton.addActionListener(controller);
 		searchButton.setActionCommand("Search");
 		zoomInButton.addActionListener(controller);
@@ -395,7 +391,7 @@ public class DrawWindow {
 	public void setBounds(DrawCanvas canvas) {
 		canvas.setBounds(0, 0, window.getWidth(), window.getHeight());
 		sidebarMenu.setBounds(canvas.getWidth() - 60, 10, 40, 130);
-		directionsWindow.setBounds(10,canvas.getHeight()-352,300,320);
+		directionsWindow.setBounds(10,canvas.getHeight()-375,300,320);
 
 	}
 
@@ -439,6 +435,7 @@ public class DrawWindow {
 		resetDirectionsWindow();
 	}
 
+	JPanel time, distance;
 	public void resetDirectionsWindow() {
 		directionsWindow.removeAll();
 		GridBagConstraints c = new GridBagConstraints();
@@ -457,6 +454,24 @@ public class DrawWindow {
 		c.gridy = 0;
 		directionsWindow.add(walk, c);
 
+		JPanel gridPanel = new JPanel(new GridLayout(1,1));
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 3;
+		c.ipady = 30;
+
+		directionsWindow.add(gridPanel, c);
+
+		distance = new JPanel();
+		distance.setBackground(Color.lightGray);
+		distance.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
+		gridPanel.add(distance);
+
+		time = new JPanel();
+		time.setBackground(Color.lightGray);
+		time.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
+		gridPanel.add(time);
+
 		scrollPanel = new JPanel(new GridLayout(0, 1));
 
 		directionsScroll = new JScrollPane(scrollPanel);
@@ -470,31 +485,20 @@ public class DrawWindow {
 	}
 
     public void fillDirections(Directions directions) {
+		if(directions==null) {
+			return;
+		}
 		resetDirectionsWindow();
 		boolean isGrey=false;
 		GridBagConstraints c = new GridBagConstraints();
 
-		JPanel gridPanel = new JPanel(new GridLayout(1, 0));
-		c.gridx = 0;
-		c.gridy = 1;
-		c.gridwidth = 3;
-		c.ipady = 30;
 
-		directionsWindow.add(gridPanel, c);
-
-		JPanel time = new JPanel();
-		time.setBackground(Color.lightGray);
-		time.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
-
-		JLabel totalTimeLabel = new JLabel("<html>" + directions.getTotalRoadLengthText() + "</html>");
+		JLabel totalTimeLabel = new JLabel();
+		totalTimeLabel.setText("<html>" + directions.getEstimatedTimeText() + "</html>");
 		time.add(totalTimeLabel);
 
-		gridPanel.add(time);
-
-		JPanel distance = new JPanel();
-		distance.setBackground(Color.lightGray);
-		distance.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
-		gridPanel.add(distance);
+		JLabel totalDistanceLabel = new JLabel("<html>" + directions.getTotalRoadLengthText() + "</html>");
+		distance.add(totalDistanceLabel);
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weighty = 0.40;

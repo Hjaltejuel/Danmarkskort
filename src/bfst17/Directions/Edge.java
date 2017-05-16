@@ -34,7 +34,8 @@ public class Edge implements Serializable {
         this.roadName = roadName;
         this.graphNodeid = graphNodeid;
         if (maxSpeed == 0) {
-            this.maxSpeed = roadTypes.getMaxSpeed();
+            //Ganger med en konstant under 1 for at tage højde for sving mm.
+            this.maxSpeed = roadTypes.getMaxSpeed()*0.8f;
         } else {
             this.maxSpeed = maxSpeed;
         }

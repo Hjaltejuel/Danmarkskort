@@ -9,7 +9,9 @@ import java.util.ArrayList;
 
 public class Directions extends ArrayList<DirectionsObject> implements Serializable{
     double totalRoadLength=0;
+
     double estimatedTime=0;
+
     VehicleType vehicleType;
     /**
      * Description: Lav vejvisning ud fra shortestPath hvis den er lavet.
@@ -62,7 +64,6 @@ public class Directions extends ArrayList<DirectionsObject> implements Serializa
         }
         System.out.println("Estimated time: " +estimatedTime);
     }
-
     public String getTotalRoadLengthText() {
         if (totalRoadLength > 1000) {
             return (int) (totalRoadLength / 1000) + " km";
@@ -70,7 +71,6 @@ public class Directions extends ArrayList<DirectionsObject> implements Serializa
             return (int) totalRoadLength + " m";
         }
     }
-
 
     public String getDirectionString(Integer index) {
         DirectionsObject dirObj = this.get(index);
@@ -95,5 +95,14 @@ public class Directions extends ArrayList<DirectionsObject> implements Serializa
             directionText = "Om " + roadLength + roadLengthString + " " + prefix + " ad " + dirObj.getRoadName();//nextDirection.getRoadName();
         }
         return directionText;
+    }
+
+    public String getEstimatedTimeText() {
+        if(estimatedTime>60){
+            Integer timer = (int)Math.floor(estimatedTime/60);
+            return (int)Math.floor(estimatedTime/60) + " time" + (timer>1?"r":"") + " og " + (int)estimatedTime%60 + " minutter";
+        } else {
+            return (int) estimatedTime + " minutter";
+        }
     }
 }

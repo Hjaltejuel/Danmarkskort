@@ -49,24 +49,17 @@ public class Model extends Observable implements Serializable {
     private Graph graph;
 
     public Model(String filename) throws IOException {
+        loadAllCoastlines(); //Load coastlines som det første
         load(new FileInputStream(filename), filename);
     }
 
     public Model() {
-        //Til osm
+        loadAllCoastlines(); //Load coastlines som det første
         try {
-            //load(System.getProperty("user.dir") + "/resources/DKMap.bin");
-
-            //URL u = ClassLoader.getSystemClassLoader().getResource("bornholm.osm");
-            //System.out.println(u);
             load(ClassLoader.getSystemClassLoader().getResourceAsStream("bornholm.osm"), "bornholm.osm");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //til bin
-        //String path = System.getProperty("user.dir") + "/resources/kastrup.bin";
-        loadAllCoastlines();
-        //loadFile(path);
     }
 
     public void resetEverything() {
@@ -377,7 +370,6 @@ public class Model extends Observable implements Serializable {
      */
     private void loadOSM(InputSource source) {
         try {
-            loadAllCoastlines();
             XMLReader reader = XMLReaderFactory.createXMLReader();
             reader.setContentHandler(new OSMHandler());
             reader.parse(source);
@@ -395,7 +387,6 @@ public class Model extends Observable implements Serializable {
      */
     public void loadAllCoastlines() {
         InputStream coast = ClassLoader.getSystemClassLoader().getResourceAsStream("dkcoast.bin");
-        //JOptionPane.showMessageDialog(null, coast == null, "InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
         try (ObjectInputStream in = new ObjectInputStream(coast)) {
             coastlines = (ArrayList<Shape>) in.readObject();
             lonfactor = in.readFloat();
