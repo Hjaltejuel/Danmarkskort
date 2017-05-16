@@ -11,6 +11,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * Beskrivelse: virker som en way shape
+ */
 public class PolygonApprox implements Shape, Serializable {
 	private static final long serialVersionUID = 20160224L;
 	float[] coords;

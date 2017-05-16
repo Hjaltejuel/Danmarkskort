@@ -21,8 +21,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
-
-//FIXME LAV BIN SAVE TIL GRAPH
 public class Model extends Observable implements Serializable {
     private Address.Builder addressBuilder = new Address.Builder();
 
@@ -557,15 +555,12 @@ public class Model extends Observable implements Serializable {
             townNames.clear();
             shapes.clear();
             roads.clear();
-
-            System.out.println("totalDepth: " + totalDepth + " total TreeNodes:  " + totalShapes);
         }
 
         @Override
         public void endDocument() throws SAXException {
-            long StartTime = System.nanoTime();
             fillTrees();
-            System.out.println("fillTrees() ran in: " + (System.nanoTime() - StartTime) / 1_000_000 + " ms");
+
 
             graph = new Graph(idToGraphNode);
         }
@@ -715,6 +710,20 @@ public class Model extends Observable implements Serializable {
             }
         }
 
+        public void addEdgesToGraphNodes(int i, GraphNode node, RoadTypes roadType){
+            if (oneway) {
+                if (i == 0) {
+                } else {
+                    idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(node, name,maxSpeed,roadType);
+                }
+            } else {
+                if (i == 0) {
+                } else {
+                    idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(node, name,maxSpeed,roadType);
+                    node.addEdge(idToGraphNode.get(tmpNodeIDs.get(i - 1)), name,maxSpeed,roadType);
+                }
+            }
+        }
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
             switch (qName) {
@@ -741,37 +750,18 @@ public class Model extends Observable implements Serializable {
                                 RoadTypes roadType = RoadTypes.valueOf(type.toString());
                                 ArrayList<Long> nodes = new ArrayList<>();
                                 for (int i = 0; i < way.size(); i++) {
+                                    //tester og ser om noden er der
                                     GraphNode node = idToGraphNode.get(tmpNodeIDs.get(i));
                                     if (node == null) {
+                                        //hvis den ikke er så lav en ny node og add edges
                                         GraphNode gNode = new GraphNode(way.get(i),tmpNodeIDs.get(i));
                                         idToGraphNode.put(tmpNodeIDs.get(i), gNode);
                                         nodes.add(tmpNodeIDs.get(i));
-                                        if (oneway) {
-                                            if (i == 0) {
-                                            } else {
-                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(gNode, name,maxSpeed,roadType);
-                                            }
-                                        } else {
-                                            if (i == 0) {
-                                            } else {
-                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(gNode, name,maxSpeed,roadType);
-                                                gNode.addEdge(idToGraphNode.get(tmpNodeIDs.get(i - 1)), name,maxSpeed,roadType);
-                                            }
-                                        }
+                                        addEdgesToGraphNodes(i,gNode,roadType);
                                     } else {
+                                        //add edges til den samme node
                                         nodes.add(tmpNodeIDs.get(i));
-                                        if (oneway) {
-                                            if (i == 0) {
-                                            } else {
-                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(node, name,maxSpeed,roadType);
-                                            }
-                                        } else {
-                                            if (i == 0) {
-                                            } else {
-                                                idToGraphNode.get(tmpNodeIDs.get(i - 1)).addEdge(node, name,maxSpeed,roadType);
-                                                node.addEdge(idToGraphNode.get(tmpNodeIDs.get(i-1)), name,maxSpeed,roadType);
-                                            }
-                                        }
+                                        addEdgesToGraphNodes(i,node,roadType);
                                     }
                                 }
                                 addRoad(shape, name, nodes); //Tilføj vej
@@ -781,6 +771,7 @@ public class Model extends Observable implements Serializable {
                         }
                         addShape(type, shape); //Tilføj shape
                     }
+                    //reset
                     name = "";
                     maxSpeed = 0;
                     oneway = false;

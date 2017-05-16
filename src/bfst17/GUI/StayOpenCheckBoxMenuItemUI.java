@@ -4,6 +4,9 @@ import javax.swing.*;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 
+/**
+ * Iterface til at holde POI checkboxen åben
+ */
 public class StayOpenCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
 
     @Override

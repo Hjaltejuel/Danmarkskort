@@ -167,6 +167,10 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
         }
     }
 
+    /**
+     * Beskrivelse: Står for effekten bag de 3 shortest path knapper
+     * @param button
+     */
     public void setColors(ImageButton button){
         Color color = new Color(1,111,222);
         window.getCar().setBackground(color);
@@ -213,6 +217,9 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
     public void keyPressed(KeyEvent e) {
     }
 
+    /**
+     * Beskrivelse: Metoden finder 2 graphNodeIDs og kalder calculateGraph med dem
+     */
     public void directions(){
         //finder de 2 strings i de 2 comboboxe
         String firstComboBoxString = (String) window.getCombo().getSelectedItem();
@@ -257,6 +264,9 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
         }
     }
 
+    /**
+     * Beskrivelse: finder den korteste vej og indseter directions
+     */
     public void calculateGraph() {
         //tjekker om de er null
         if (addressDest == null || address == null) return;
@@ -325,7 +335,7 @@ public class WindowController implements KeyListener, ActionListener, ComponentL
                 model.load(new FileInputStream(fileToLoad.getAbsolutePath()),fileToLoad.getAbsolutePath());
                 addressModel = model.getAddressModel();
                 window.setTreeInAutocompleter(addressModel.getTSTTree());
-            } else { //Filen blev ikke fundet - giv fejlmeddelelse
+            } else {
                 if (!fileChooser.accept(fileToLoad)) {
                     JOptionPane.showMessageDialog(window.getWindow(), "You must choose a correct filetype to loadFile");
                 } else if (!fileToLoad.exists()) {

@@ -327,6 +327,13 @@ public class DrawCanvas extends JComponent {
             }
         }
     }
+
+    /**
+     * Beskrivelse: tegner by og vejnavne
+     * @param g
+     * @param node
+     * @param name
+     */
     public void drawCityAndRoadNodeNames(Graphics2D g, TreeNode node, String name) {
         TreeNode cityNode =  node;
         String cityName = name;

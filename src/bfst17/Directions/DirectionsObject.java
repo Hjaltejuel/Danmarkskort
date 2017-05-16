@@ -22,10 +22,10 @@ public class DirectionsObject implements Serializable
     double maxSpeed;
 
     /**
-     * Opret et direktionobjekt
-     *
-     * @param to    punktet til
-     * @param model modellen
+     * Beskrivelse: opret et direktionsobject
+     * @param to
+     * @param angle
+     * @param edge
      */
     public DirectionsObject(Point2D to, double angle, Edge edge) {
         visible = false;
@@ -36,7 +36,13 @@ public class DirectionsObject implements Serializable
         this.maxSpeed = edge.getMaxSpeed();
     }
 
-    double distanceToTime(double distance, VehicleType vehicleType) {
+    /**
+     * Beskrivelse: udregner tiden på en afstand
+     * @param distance
+     * @param vehicleType
+     * @return
+     */
+    public double distanceToTime(double distance, VehicleType vehicleType) {
         double time =0;
         distance/=1000;
         if (vehicleType == VehicleType.CAR) {
@@ -109,9 +115,6 @@ public class DirectionsObject implements Serializable
         return roadDirection;
     }
 
-    public Point2D getLocation() {
-        return location;
-    }
 
     public String getRoadName() {
         return roadName;

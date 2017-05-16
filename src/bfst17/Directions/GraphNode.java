@@ -35,7 +35,7 @@ public class GraphNode implements Comparable, Serializable {
         marked = false;
         edgeList = new ArrayList<>();
     }
-    public void setId(long id){this.id = id;}
+
     public Point2D getPoint2D() {
         return new Point2D.Double(point.getX(), point.getY());
     }

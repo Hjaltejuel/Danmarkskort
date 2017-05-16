@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * MultipolygonApprox Beskrivelse: fungerer som en relation shape
+ */
 public class MultiPolygonApprox extends PolygonApprox {
 	private static final long serialVersionUID = 1L;
 	byte[] pointtypes;

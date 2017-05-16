@@ -80,6 +80,7 @@ public class DrawWindow {
 		setUpButtons();
 		setUpPOIItems();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		window.setMinimumSize(new Dimension(506,467));
 		window.setVisible(true);
 	}
 
@@ -150,6 +151,9 @@ public class DrawWindow {
         windowPane.setComponentZOrder(menuButton, 1);
     }
 
+	/**
+	 * Beskrivelse: instanslætter direktions vinduet
+	 */
 	public void setUpDirectionsWindow() {
         car = new JPanel();
         bike = new JPanel();
@@ -295,13 +299,18 @@ public class DrawWindow {
 	public void toggleNightModeComboBox(GUIMode theme) {
 		boolean isNightmode = theme == GUIMode.NIGHT;
 		combo.getEditor().getEditorComponent().setBackground(isNightmode ? new Color(36, 47, 62) : Color.white);
+		secondCombo.getEditor().getEditorComponent().setBackground(isNightmode ? new Color(36, 47, 62) : Color.white);
 		JTextComponent component = (JTextComponent) combo.getEditor().getEditorComponent();
+		JTextComponent component2 = (JTextComponent) secondCombo.getEditor().getEditorComponent();
 		component.setForeground(isNightmode ? Color.WHITE : Color.black);
 		component.setCaretColor(isNightmode ? Color.WHITE : Color.black);
+		component2.setForeground(isNightmode ? Color.WHITE : Color.black);
+		component2.setCaretColor(isNightmode ? Color.WHITE : Color.black);
+
 	}
-//FIXME
+
 	/**
-	 *
+	 *Beskrivelse: tilføjer en global keylistener til et menuitem
 	 * @param stroke
 	 * @param action
 	 * @param clicker
@@ -363,7 +372,10 @@ public class DrawWindow {
 
 		popUpMenu.add(tools);
 	}
-//FIXME
+
+	/**
+	 * Beskrivelse: viser den anden menu
+	 */
 	public void showMenuTwo() {
 		if (!menu2IsShown) {
 			popUpMenu.show(menuButton, 0, 40);
@@ -373,7 +385,10 @@ public class DrawWindow {
 		menu2IsShown = !menu2IsShown;
 		window.repaint();
 	}
-//FIXME
+
+	/**
+	 * Beskrivelse: Viser den første menu
+	 */
 	public void showMenuOne() {
 		if (!menu1IsShown) {
 			poiMenu.show(sidebarMenu, 0, 130);
@@ -390,7 +405,7 @@ public class DrawWindow {
 	 */
 	public void setBounds(DrawCanvas canvas) {
 		canvas.setBounds(0, 0, window.getWidth(), window.getHeight());
-		sidebarMenu.setBounds(canvas.getWidth() - 60, 10, 40, 130);
+		sidebarMenu.setBounds(canvas.getWidth() - 60, 9, 40, 130);
 		directionsWindow.setBounds(10,canvas.getHeight()-375,300,320);
 
 	}
@@ -424,6 +439,8 @@ public class DrawWindow {
 					if(!showDirectionsComboBox){
 						secondCombo.setVisible(false);
 						barImage.setVisible(false);
+						secondCombo.setLocation(10, 10);
+
 					}
 					cancel();
 				}
@@ -550,26 +567,6 @@ public class DrawWindow {
 
 	public JCheckBoxMenuItem[] getPOICheckBoxArray() {
 		return POICheckBoxArray;
-	}
-
-	public JButton getSearchButton() {
-		return searchButton;
-	}
-
-	public JButton getMenuButton() {
-		return menuButton;
-	}
-
-	public JButton getPointsOfInterestButton() {
-		return pointsOfInterestButton;
-	}
-
-	public JButton getZoomInButton() {
-		return zoomInButton;
-	}
-
-	public JButton getZoomOutButton() {
-		return zoomOutButton;
 	}
 
 	public JFrame getWindow() {

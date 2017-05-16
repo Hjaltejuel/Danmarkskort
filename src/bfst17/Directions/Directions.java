@@ -64,6 +64,11 @@ public class Directions extends ArrayList<DirectionsObject> implements Serializa
         }
         System.out.println("Estimated time: " +estimatedTime);
     }
+
+    /**
+     * Beskrivelse: udregner den totale road length
+     * @return
+     */
     public String getTotalRoadLengthText() {
         if (totalRoadLength > 1000) {
             return (int) (totalRoadLength / 1000) + " km";
@@ -72,6 +77,11 @@ public class Directions extends ArrayList<DirectionsObject> implements Serializa
         }
     }
 
+    /**
+     * Beskrivelse: udregner en direktion string
+     * @param index
+     * @return
+     */
     public String getDirectionString(Integer index) {
         DirectionsObject dirObj = this.get(index);
         String prefix;

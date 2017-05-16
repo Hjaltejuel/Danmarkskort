@@ -26,9 +26,13 @@ public class Edge implements Serializable {
 
 
     /**
-     * Opretter en edge mellem to GraphNodes
+     * Beskrivelse: opretter en edge mellem to graphnodes baseret på deres id
      * @param source
      * @param destination
+     * @param graphNodeid
+     * @param roadName
+     * @param maxSpeed
+     * @param roadTypes
      */
     public Edge(GraphNode source,GraphNode destination, long graphNodeid, String roadName, double maxSpeed, RoadTypes roadTypes) {
         this.roadName = roadName;
@@ -63,6 +67,11 @@ public class Edge implements Serializable {
         return graphNodeid;
     }
 
+    /**
+     * Beskrivelse: Tjekker om en edge kan blive traverset af den bestemte type
+     * @param vehicleType
+     * @return
+     */
     public boolean supportVehicle(VehicleType vehicleType){
         for(VehicleType vehicle: roadTypes.getVehicletypes()){
             if(vehicle == vehicleType){
@@ -73,6 +82,7 @@ public class Edge implements Serializable {
 
 
     /**
+     * Beskrivelse: Udregner vægten
      * @param vehicleType hvorvidt det skal være Fastest / Shortest
      * @return returnerer den tilpassede vægt
      */
